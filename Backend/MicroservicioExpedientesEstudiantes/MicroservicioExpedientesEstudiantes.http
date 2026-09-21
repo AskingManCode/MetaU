@@ -1,0 +1,6 @@
+@MicroservicioExpedientesEstudiantes_HostAddress = http://localhost:5017
+
+GET {{MicroservicioExpedientesEstudiantes_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

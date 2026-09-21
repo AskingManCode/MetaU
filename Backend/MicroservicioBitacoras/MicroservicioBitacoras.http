@@ -1,0 +1,6 @@
+@MicroservicioBitacoras_HostAddress = http://localhost:5078
+
+GET {{MicroservicioBitacoras_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

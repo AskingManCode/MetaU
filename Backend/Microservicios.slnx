@@ -1,0 +1,24 @@
+<Solution>
+  <Project Path="MicroservicioBitacoras/MicroservicioBitacoras.csproj" />
+  <Project Path="MicroservicioCarreras/MicroservicioCarreras.csproj" />
+  <Project Path="MicroservicioCursos/MicroservicioCursos.csproj" />
+  <Project Path="MicroservicioDirecciones/MicroservicioDirecciones.csproj" />
+  <Project Path="MicroservicioExpedientesEstudiantes/MicroservicioExpedientesEstudiantes.csproj" />
+  <Project Path="MicroservicioFacturacion/MicroservicioFacturacion.csproj" />
+  <Project Path="MicroservicioGrupos/MicroservicioGrupos.csproj" />
+  <Project Path="MicroservicioHistorialAcademico/MicroservicioHistorialAcademico.csproj" />
+  <Project Path="MicroservicioInstituciones/MicroservicioInstituciones.csproj" />
+  <Project Path="MicroservicioListaEstudiantes/MicroservicioListaEstudiantes.csproj" />
+  <Project Path="MicroservicioLogin/MicroservicioLogin.csproj" />
+  <Project Path="MicroservicioMatriculas/MicroservicioMatriculas.csproj" />
+  <Project Path="MicroservicioModulos/MicroservicioModulos.csproj" />
+  <Project Path="MicroservicioNotas/MicroservicioNotas.csproj" />
+  <Project Path="MicroservicioNotificaciones/MicroservicioNotificaciones.csproj" />
+  <Project Path="MicroservicioPagos/MicroservicioPagos.csproj" />
+  <Project Path="MicroservicioParametros/MicroservicioParametros.csproj" />
+  <Project Path="MicroservicioPeriodos/MicroservicioPeriodos.csproj" />
+  <Project Path="MicroservicioPreMatriculas/MicroservicioPreMatriculas.csproj" />
+  <Project Path="MicroservicioProfesores/MicroservicioProfesores.csproj" />
+  <Project Path="MicroservicioRoles/MicroservicioRoles.csproj" />
+  <Project Path="MicroservicioUsuarios/MicroservicioUsuarios.csproj" />
+</Solution>

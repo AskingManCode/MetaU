@@ -93,7 +93,7 @@ Registro centralizado de todas las acciones realizadas en el sistema (creaciones
 |   |-- README.md
 |
 |-- Pruebas Tecnicas/ # Evidencia de pruebas de aceptación (HUs)
-|   |-- Documento de Evidencia de Pruebas Tecnicas.docx
+|   |-- Documento_de_Evidencia_de_Pruebas_Tecnicas_Primer_Sprint.docx
 |
 |-- Scripts SQL/ # Scripts de base de datos por módulo
 |   |-- Integracion_Pagos_DB/

@@ -490,6 +490,3 @@ $RECYCLE.BIN/
 
 # Temporales de edición en PDF
 *.pdf.tmp
-
-# Archivos temporales de bloqueo de LibreOffice / OpenOffice
-.~lock.*#

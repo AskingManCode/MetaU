@@ -86,6 +86,7 @@ Registro centralizado de todas las acciones realizadas en el sistema (creaciones
 |   |-- 0. Primer Sprint - Proyecto Nuevo Avatar.pdf
 |   |-- 1. Story Points y Asignacion de Responsabilidades.xlsx
 |   |-- 2. Manual_Flujo_Trabajo_Git (Acordado por el equipo).pdf
+|   |-- 3. Documento_Analisis_y_Diseno_MetaU.docx # Estado actual: Primer sprint
 |
 |-- Frontend/ # Aplicaciones cliente (Futuros Sprints)
 |   |-- App Movil/
@@ -111,7 +112,7 @@ Registro centralizado de todas las acciones realizadas en el sistema (creaciones
 
 ## Flujo de Trabajo (Git y GitHub)
 
-Para garantizar la integridad del código y facilitar la colaboración, el equipo sigue un flujo de trabajo estandarizado. Todo el detalle se encuentra en el documento [Manual de Flujo de Trabajo con Git y GitHub](<>) ubicado en la carpeta de documentación.
+Para garantizar la integridad del código y facilitar la colaboración, el equipo sigue un flujo de trabajo estandarizado. Todo el detalle se encuentra en el documento [Manual de Flujo de Trabajo con Git y GitHub](<Documentacion/2. Manual_Flujo_Trabajo_Git (Acordado por el equipo).pdf>) ubicado en la carpeta de documentación.
 
 A continuación, un resumen de las reglas principales:
 

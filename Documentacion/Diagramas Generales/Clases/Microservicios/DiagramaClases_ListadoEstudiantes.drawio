@@ -1,0 +1,80 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="ACA2" name="ACA2 — Listado de estudiantes">
+    <mxGraphModel dx="1407" dy="758" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1340" pageHeight="1020" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane4" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#E4DFEC;swimlaneFillColor=#FFFFFF;strokeColor=#8064A2;fontColor=#4C365D;fontStyle=1;fontSize=13;" value="ACA2 — LISTADO DE ESTUDIANTES" vertex="1">
+          <mxGeometry height="710" width="450" x="30" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="domain" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="710" width="800" x="510" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FCFAFE;strokeColor=#8064A2;fontSize=11;" value="&lt;b&gt;ConsultaAcademicaEndpoint&lt;/b&gt;&lt;hr&gt;+ listarEstudiantes(periodoId):&lt;br&gt;&amp;nbsp;&amp;nbsp;List&amp;lt;ListadoEstudianteDto&amp;gt;" vertex="1">
+          <mxGeometry height="115" width="360" x="75" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8064A2;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IConsultaAcademicaService&lt;/b&gt;&lt;hr&gt;+ listarEstudiantes(periodoId)&lt;hr&gt;&lt;i&gt;Solo lectura. Integra estudiante, carrera, curso y grupo. Sin cálculos.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="145" width="360" x="75" y="385" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IConsultaAcademicaRepository&lt;/b&gt;&lt;hr&gt;+ listarEstudiantes(periodoId)" vertex="1">
+          <mxGeometry height="105" width="360" x="75" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="n4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Read model:&lt;/b&gt; ListadoEstudianteDto&lt;br&gt;7 datos por estudiante" vertex="1">
+          <mxGeometry height="55" width="360" x="75" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="c4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#8064A2;" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#8064A2;" target="r4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Carrera&lt;/b&gt;&lt;hr&gt;id · nombre" vertex="1">
+          <mxGeometry height="100" width="190" x="545" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="dcu" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Curso&lt;/b&gt;&lt;hr&gt;id · nombre&lt;br&gt;nivel · carreraId" vertex="1">
+          <mxGeometry height="100" width="190" x="805" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="de" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Estudiante&lt;/b&gt;&lt;hr&gt;id · identificación&lt;br&gt;nombre · carreraId" vertex="1">
+          <mxGeometry height="105" width="190" x="545" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="dg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Grupo&lt;/b&gt;&lt;hr&gt;id · número&lt;br&gt;cursoId · periodoId" vertex="1">
+          <mxGeometry height="105" width="190" x="805" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="dpe" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Periodo&lt;/b&gt;&lt;hr&gt;id · año · número&lt;br&gt;activo" vertex="1">
+          <mxGeometry height="105" width="190" x="1065" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="dm" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Matricula&lt;/b&gt;&lt;hr&gt;estudianteId · cursoId&lt;br&gt;grupoId · periodoId" vertex="1">
+          <mxGeometry height="105" width="190" x="805" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="dd" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F7FBFF;strokeColor=#5B9BD5;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;read model&amp;gt;&amp;gt;&lt;br&gt;ListadoEstudianteDto&lt;/b&gt;&lt;hr&gt;7 datos por estudiante" vertex="1">
+          <mxGeometry height="105" width="230" x="1065" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="dr1" edge="1" parent="1" source="dc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;" target="dcu" value="1     0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dr2" edge="1" parent="1" source="dcu" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;" target="dg" value="1     0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dr3" edge="1" parent="1" source="dg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;" target="dpe" value="0..*     1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dr4" edge="1" parent="1" source="dc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;" target="de" value="1     0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dr5" edge="1" parent="1" source="dg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;" target="dm" value="1     0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dr6" edge="1" parent="1" source="de" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" target="dm" value="1        0..*">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="702" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dr7" edge="1" parent="1" source="dm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#5B9BD5;fontSize=10;" target="dd" value="genera">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

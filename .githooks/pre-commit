@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# Obtener la rama actual
+RAMA=$(git symbolic-ref --short -q HEAD)
+
+# Si no hay rama (HEAD desprendido), salir
+[ -n "$RAMA" ] || exit 0
+
+# Verificar si la rama es main o develop
+case "$RAMA" in
+    main|master|develop) ;;
+    *) exit 0 ;;
+esac
+
+# Permitir bypass por variable de entorno
+if [ -n "$PERMITIR_COMMIT_EN_MAIN" ]; then
+    exit 0
+fi
+
+# Detectar si es una operación automática de Git (merge, rebase, etc.)
+DIR_GIT=$(git rev-parse --git-dir)
+for EN_CURSO in MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD rebase-merge rebase-apply; do
+    if [ -e "$DIR_GIT/$EN_CURSO" ]; then
+        exit 0
+    fi
+done
+
+# Mensaje de advertencia
+printf '\n  X No se puede commitear directamente a %s.\n\n' "$RAMA" >&2
+printf '  La convencion del proyecto es: rama por tiquete -> PR -> Merge.\n\n' >&2
+printf '  Para mover tus cambios a una rama nueva sin perder nada, ejecuta:\n' >&2
+printf '      git checkout -b feat/tu-nombre-de-tarea\n' >&2
+printf '      git add -A && git commit -m "tus cambios"\n\n' >&2
+
+exit 1

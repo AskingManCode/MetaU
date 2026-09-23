@@ -1,0 +1,228 @@
+<mxfile host="app.diagrams.net" agent="Claude" pages="3">
+  <diagram id="pg1" name="Casos de uso">
+    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1120" pageHeight="740" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" parent="1" style="rounded=0;html=1;fillColor=none;strokeColor=#333333;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontStyle=1;fontSize=14;whiteSpace=wrap;" value="USR4 - Servicio para administrar módulos (/modulo)" vertex="1">
+          <mxGeometry height="660" width="820" x="240" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="80" width="40" x="105" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" parent="1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=top;fontSize=12;" value="Arquitecto del sistema&lt;br&gt;(cliente API REST)" vertex="1">
+          <mxGeometry height="46" width="230" x="10" y="374" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;" value="Crear módulo&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;POST /modulo&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v5" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;" value="Modificar módulo&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;PUT /modulo/{id}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v7" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v9" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;" value="Eliminar módulo&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;DELETE /modulo/{id}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v9" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;" value="Obtener todos los módulos&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;GET /modulo&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v11" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v13" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;" value="Obtener módulo por llave primaria&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;GET /modulo/{id}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="515" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v13" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v15" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Validar datos del módulo&lt;br&gt;(requeridos, sin espacios en blanco,&lt;br&gt;nombre solo letras y espacios)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="123" as="geometry" />
+        </mxCell>
+        <mxCell id="v16" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Validar token de autorización&lt;br&gt;(método validate, USR5)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="298" as="geometry" />
+        </mxCell>
+        <mxCell id="v17" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Registrar bitácora&lt;br&gt;(servicio GEN1)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="488" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v15" value="">
+          <mxGeometry relative="1" x="-0.2934" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v15" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.454" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="v9" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="v9" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="v11" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" edge="1" parent="1" source="v11" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" edge="1" parent="1" source="v13" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" edge="1" parent="1" source="v13" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.1195" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="pg2" name="Clases">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1550" pageHeight="740" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Controller" value="«RestController»&lt;br&gt;ModuloController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="470" height="194" as="geometry" />
+        </mxCell>
+        <mxCell id="v2" value="- servicio: ModuloService&lt;br&gt;- authClient: IAuthClient" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Controller">
+          <mxGeometry x="0" y="44" width="470" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Controller">
+          <mxGeometry x="0" y="88" width="470" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" value="+ crear(modulo: Modulo): Respuesta  «POST /modulo»&lt;br&gt;+ modificar(id: int, modulo: Modulo): Respuesta  «PUT /modulo/id»&lt;br&gt;+ eliminar(id: int): Respuesta  «DELETE /modulo/id»&lt;br&gt;+ obtenerTodos(): Respuesta  «GET /modulo»&lt;br&gt;+ obtenerPorId(id: int): Respuesta  «GET /modulo/id»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Controller">
+          <mxGeometry x="0" y="96" width="470" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="Service" value="«Service»&lt;br&gt;ModuloService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="620" y="60" width="480" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" value="- repositorio: ModuloRepository&lt;br&gt;- bitacora: IBitacoraClient" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Service">
+          <mxGeometry x="0" y="44" width="480" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="v6" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Service">
+          <mxGeometry x="0" y="88" width="480" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" value="+ crear(modulo: Modulo, usuario: String): Modulo&lt;br&gt;+ modificar(id: int, modulo: Modulo, usuario: String): Modulo&lt;br&gt;+ eliminar(id: int, usuario: String): void&lt;br&gt;+ obtenerTodos(usuario: String): List&amp;lt;Modulo&amp;gt;&lt;br&gt;+ obtenerPorId(id: int, usuario: String): Modulo&lt;br&gt;- validarRequeridos(modulo: Modulo): void&lt;br&gt;- validarNombre(nombre: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Service">
+          <mxGeometry x="0" y="96" width="480" height="134" as="geometry" />
+        </mxCell>
+        <mxCell id="Repo" value="«Repository»&lt;br&gt;ModuloRepository" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#fff2cc;strokeColor=#d6b656;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="60" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="v8" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Repo">
+          <mxGeometry x="0" y="44" width="280" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="v9" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Repo">
+          <mxGeometry x="0" y="54" width="280" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v10" value="+ insertar(modulo: Modulo): Modulo&lt;br&gt;+ actualizar(modulo: Modulo): Modulo&lt;br&gt;+ eliminar(id: int): void&lt;br&gt;+ listarTodos(): List&amp;lt;Modulo&amp;gt;&lt;br&gt;+ buscarPorId(id: int): Modulo" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Repo">
+          <mxGeometry x="0" y="62" width="280" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="usa" style="endArrow=open;endFill=0;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1.0000;exitY=0.6186;entryX=0.0000;entryY=0.5217;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Controller" target="Service">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="usa" style="endArrow=open;endFill=0;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1.0000;exitY=0.5217;entryX=0.0000;entryY=0.7500;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Service" target="Repo">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IAuthClient" value="«interface» «externa - USR5»&lt;br&gt;IAuthClient" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;swimlaneFillColor=#FFFFFF;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="260" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="v13" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IAuthClient">
+          <mxGeometry x="0" y="44" width="260" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="v14" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="IAuthClient">
+          <mxGeometry x="0" y="54" width="260" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v15" value="+ validate(token: String): boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IAuthClient">
+          <mxGeometry x="0" y="62" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="IBitacoraClient" value="«interface» «externa - GEN1»&lt;br&gt;IBitacoraClient" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;swimlaneFillColor=#FFFFFF;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="420" width="360" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="v16" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IBitacoraClient">
+          <mxGeometry x="0" y="44" width="360" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="v17" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="IBitacoraClient">
+          <mxGeometry x="0" y="54" width="360" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v18" value="+ registrar(usuario: String, descripcion: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IBitacoraClient">
+          <mxGeometry x="0" y="62" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="valida token" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.2553;exitY=1.0000;entryX=0.4615;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Controller" target="IAuthClient">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="registra bitácora" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.2500;exitY=1.0000;entryX=0.3333;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Service" target="IBitacoraClient">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Modulo" value="«Entity»&lt;br&gt;Modulo" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="420" width="240" height="106" as="geometry" />
+        </mxCell>
+        <mxCell id="v21" value="- idModulo: int&lt;br&gt;- nombre: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Modulo">
+          <mxGeometry x="0" y="44" width="240" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="v22" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Modulo">
+          <mxGeometry x="0" y="88" width="240" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v23" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Modulo">
+          <mxGeometry x="0" y="96" width="240" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="persiste" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.4286;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Repo" target="Modulo">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="crea / devuelve" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.9167;exitY=1.0000;entryX=0.0000;entryY=0.5000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Service" target="Modulo">
+          <mxGeometry x="0.5" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1060" y="473.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v26" value="&lt;b&gt;Reglas comunes a todas las operaciones&lt;/b&gt;&lt;br&gt;• Token obligatorio: el controlador lo valida contra /validate (USR5).&lt;br&gt;• Cada operación CRUD y cada error técnico se registra en bitácora (GEN1): alta = JSON nuevo; modificación = JSON anterior y actual; baja = JSON eliminado; consulta = «El usuario consulta &amp;lt;elemento&amp;gt;»." style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="610" width="900" height="92" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="pg3" name="Base de datos">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="420" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" value="&lt;b style=&#39;font-size:20px&#39;&gt;Base de datos - USR4 Módulos&lt;/b&gt;" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="600" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="MODULO" value="MODULO" style="swimlane;fontStyle=1;fontSize=14;childLayout=stackLayout;horizontal=1;startSize=32;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="MODULO_r0" value="PK&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id_modulo&amp;nbsp;&amp;nbsp;INT" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fillColor=none;strokeColor=#9673a6;fontStyle=1;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="MODULO">
+          <mxGeometry x="0" y="32" width="380" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="MODULO_r1" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;nombre&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(100)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="MODULO">
+          <mxGeometry x="0" y="56" width="380" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" value="Todos los datos son requeridos (no vacíos ni en blanco).&lt;br&gt;El nombre solo admite letras y espacios (validación en el servicio)." style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="460" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

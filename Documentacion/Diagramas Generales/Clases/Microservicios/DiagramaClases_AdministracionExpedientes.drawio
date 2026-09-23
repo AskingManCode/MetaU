@@ -1,0 +1,331 @@
+<mxfile host="app.diagrams.net" agent="Claude" pages="3">
+  <diagram id="pg1" name="Casos de uso">
+    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1120" pageHeight="740" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" parent="1" style="rounded=0;html=1;fillColor=none;strokeColor=#333333;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;fontStyle=1;fontSize=14;whiteSpace=wrap;" value="MAT3 - Servicio para administrar expedientes de estudiantes (/expediente)" vertex="1">
+          <mxGeometry height="660" width="820" x="240" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="80" width="40" x="105" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" parent="1" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=top;fontSize=12;" value="Arquitecto del sistema&lt;br&gt;(cliente API REST)" vertex="1">
+          <mxGeometry height="46" width="230" x="10" y="374" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=12;" value="Crear expediente&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;POST /expediente&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v5" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=12;" value="Modificar expediente&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;PUT /expediente/{id}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="185" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v7" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v9" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=12;" value="Eliminar expediente&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;DELETE /expediente/{id}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v9" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=12;" value="Obtener todos los expedientes&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;GET /expediente&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v11" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v13" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=12;" value="Obtener expediente por llave primaria&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;GET /expediente/{id}&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="250" x="270" y="515" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="v3" style="endArrow=none;html=1;rounded=0;strokeColor=#333333;" target="v13" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="v15" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Validar datos del expediente&lt;br&gt;(todos requeridos, no vacíos;&lt;br&gt;nombre solo letras y espacios)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="98" as="geometry" />
+        </mxCell>
+        <mxCell id="v16" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Validar email&lt;br&gt;(formato correcto y dominio&lt;br&gt;cuc.cr parametrizable)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="218" as="geometry" />
+        </mxCell>
+        <mxCell id="v17" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Validar token de autorización&lt;br&gt;(método validate, USR5)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="343" as="geometry" />
+        </mxCell>
+        <mxCell id="v18" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=11;" value="Registrar bitácora&lt;br&gt;(servicio GEN1)" vertex="1">
+          <mxGeometry height="84" width="290" x="615" y="488" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v15" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v15" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="e21" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v16" value="">
+          <mxGeometry relative="1" x="-0.3" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" edge="1" parent="1" source="v5" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v18" value="">
+          <mxGeometry relative="1" x="-0.1212" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e26" edge="1" parent="1" source="v7" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v18" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" edge="1" parent="1" source="v9" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.4504" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e28" edge="1" parent="1" source="v9" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v18" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" edge="1" parent="1" source="v11" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e30" edge="1" parent="1" source="v11" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v18" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+        <mxCell id="e31" edge="1" parent="1" source="v13" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v17" value="">
+          <mxGeometry relative="1" x="-0.45" as="geometry" />
+        </mxCell>
+        <mxCell id="e32" edge="1" parent="1" source="v13" style="endArrow=open;endFill=0;dashed=1;html=1;rounded=0;strokeColor=#555555;fontSize=10;fontStyle=2;labelBackgroundColor=#FFFFFF;" target="v18" value="">
+          <mxGeometry relative="1" x="-0.12" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="pg2" name="Clases">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1970" pageHeight="936" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Controller" value="«RestController»&lt;br&gt;ExpedienteController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#dae8fc;strokeColor=#6c8ebf;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="560" height="194" as="geometry" />
+        </mxCell>
+        <mxCell id="v2" value="- servicio: ExpedienteService&lt;br&gt;- authClient: IAuthClient" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Controller">
+          <mxGeometry x="0" y="44" width="560" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Controller">
+          <mxGeometry x="0" y="88" width="560" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" value="+ crear(estudiante: Estudiante): Respuesta  «POST /expediente»&lt;br&gt;+ modificar(id: int, estudiante: Estudiante): Respuesta  «PUT /expediente/id»&lt;br&gt;+ eliminar(id: int): Respuesta  «DELETE /expediente/id»&lt;br&gt;+ obtenerTodos(): Respuesta  «GET /expediente»&lt;br&gt;+ obtenerPorId(id: int): Respuesta  «GET /expediente/id»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Controller">
+          <mxGeometry x="0" y="96" width="560" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="Service" value="«Service»&lt;br&gt;ExpedienteService" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#d5e8d4;strokeColor=#82b366;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="710" y="60" width="530" height="248" as="geometry" />
+        </mxCell>
+        <mxCell id="v5" value="- repositorio: ExpedienteRepository&lt;br&gt;- bitacora: IBitacoraClient" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Service">
+          <mxGeometry x="0" y="44" width="530" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="v6" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Service">
+          <mxGeometry x="0" y="88" width="530" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v7" value="+ crear(estudiante: Estudiante, usuario: String): Estudiante&lt;br&gt;+ modificar(id: int, estudiante: Estudiante, usuario: String): Estudiante&lt;br&gt;+ eliminar(id: int, usuario: String): void&lt;br&gt;+ obtenerTodos(usuario: String): List&amp;lt;Estudiante&amp;gt;&lt;br&gt;+ obtenerPorId(id: int, usuario: String): Estudiante&lt;br&gt;- validarRequeridos(e: Estudiante): void&lt;br&gt;- validarNombre(nombre: String): void&lt;br&gt;- validarEmail(email: String): void  «formato y dominio parametrizable»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Service">
+          <mxGeometry x="0" y="96" width="530" height="152" as="geometry" />
+        </mxCell>
+        <mxCell id="Repo" value="«Repository»&lt;br&gt;ExpedienteRepository" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#fff2cc;strokeColor=#d6b656;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="60" width="360" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="v8" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Repo">
+          <mxGeometry x="0" y="44" width="360" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="v9" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Repo">
+          <mxGeometry x="0" y="54" width="360" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v10" value="+ insertar(estudiante: Estudiante): Estudiante&lt;br&gt;+ actualizar(estudiante: Estudiante): Estudiante&lt;br&gt;+ eliminar(id: int): void&lt;br&gt;+ listarTodos(): List&amp;lt;Estudiante&amp;gt;&lt;br&gt;+ buscarPorId(id: int): Estudiante" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Repo">
+          <mxGeometry x="0" y="62" width="360" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="usa" style="endArrow=open;endFill=0;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1.0000;exitY=0.6186;entryX=0.0000;entryY=0.4839;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Controller" target="Service">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="usa" style="endArrow=open;endFill=0;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=1.0000;exitY=0.4839;entryX=0.0000;entryY=0.7500;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Service" target="Repo">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="IAuthClient" value="«interface» «externa - USR5»&lt;br&gt;IAuthClient" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;swimlaneFillColor=#FFFFFF;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="438" width="260" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="v13" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IAuthClient">
+          <mxGeometry x="0" y="44" width="260" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="v14" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="IAuthClient">
+          <mxGeometry x="0" y="54" width="260" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v15" value="+ validate(token: String): boolean" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IAuthClient">
+          <mxGeometry x="0" y="62" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="IBitacoraClient" value="«interface» «externa - GEN1»&lt;br&gt;IBitacoraClient" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#f5f5f5;strokeColor=#666666;swimlaneFillColor=#FFFFFF;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="710" y="438" width="360" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="v16" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IBitacoraClient">
+          <mxGeometry x="0" y="44" width="360" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="v17" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="IBitacoraClient">
+          <mxGeometry x="0" y="54" width="360" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v18" value="+ registrar(usuario: String, descripcion: String): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="IBitacoraClient">
+          <mxGeometry x="0" y="62" width="360" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="valida token" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.2143;exitY=1.0000;entryX=0.4615;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Controller" target="IAuthClient">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="registra bitácora" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.2264;exitY=1.0000;entryX=0.3333;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Service" target="IBitacoraClient">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Estudiante" value="«Entity»&lt;br&gt;Estudiante" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="438" width="300" height="196" as="geometry" />
+        </mxCell>
+        <mxCell id="v21" value="- numeroIdentificacion: String&lt;br&gt;- tipoIdentificacion: String&lt;br&gt;- email: String&lt;br&gt;- nombreCompleto: String&lt;br&gt;- fechaNacimiento: Date&lt;br&gt;- direccion: Direccion&lt;br&gt;- telefonos: List&amp;lt;Telefono&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Estudiante">
+          <mxGeometry x="0" y="44" width="300" height="134" as="geometry" />
+        </mxCell>
+        <mxCell id="v22" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Estudiante">
+          <mxGeometry x="0" y="178" width="300" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v23" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Estudiante">
+          <mxGeometry x="0" y="186" width="300" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="persiste" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.3333;exitY=1.0000;entryX=0.4000;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Repo" target="Estudiante">
+          <mxGeometry x="0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="crea / devuelve" style="endArrow=open;endFill=0;dashed=1;html=1;strokeWidth=1.5;strokeColor=#555555;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.9245;exitY=1.0000;entryX=0.0000;entryY=0.5000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Service" target="Estudiante">
+          <mxGeometry x="0.5" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="536.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Direccion" value="«ValueObject»&lt;br&gt;Direccion" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="734" width="260" height="142" as="geometry" />
+        </mxCell>
+        <mxCell id="v26" value="- provincia: String&lt;br&gt;- canton: String&lt;br&gt;- distrito: String&lt;br&gt;- otrasSenas: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Direccion">
+          <mxGeometry x="0" y="44" width="260" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="v27" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Direccion">
+          <mxGeometry x="0" y="124" width="260" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v28" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Direccion">
+          <mxGeometry x="0" y="132" width="260" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="Telefono" value="«Entity»&lt;br&gt;Telefono" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fontSize=13;fillColor=#ffe6cc;strokeColor=#d79b00;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1670" y="734" width="240" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="v29" value="- numero: String" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Telefono">
+          <mxGeometry x="0" y="44" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="v30" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;html=1;" vertex="1" parent="Telefono">
+          <mxGeometry x="0" y="70" width="240" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="v31" value="" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;whiteSpace=nowrap;fontSize=12;" vertex="1" parent="Telefono">
+          <mxGeometry x="0" y="78" width="240" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="e32" value="" style="endArrow=open;endFill=0;startArrow=diamondThin;startFill=1;startSize=14;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.2000;exitY=1.0000;entryX=0.2308;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Estudiante" target="Direccion">
+          <mxGeometry x="0.0" relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l33" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;fontStyle=1;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="e32">
+          <mxGeometry x="-0.86" relative="1" as="geometry">
+            <mxPoint x="16" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l34" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;fontStyle=1;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="e32">
+          <mxGeometry x="0.86" relative="1" as="geometry">
+            <mxPoint x="16" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e35" value="teléfonos" style="endArrow=open;endFill=0;startArrow=diamondThin;startFill=1;startSize=14;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;fontSize=11;labelBackgroundColor=#FFFFFF;exitX=0.9000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Estudiante" target="Telefono">
+          <mxGeometry x="0.0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1620" y="689" />
+              <mxPoint x="1790.0" y="689" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l36" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;fontStyle=1;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="e35">
+          <mxGeometry x="-0.86" relative="1" as="geometry">
+            <mxPoint x="16" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l37" value="1..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;fontStyle=1;labelBackgroundColor=#FFFFFF;" vertex="1" connectable="0" parent="e35">
+          <mxGeometry x="0.86" relative="1" as="geometry">
+            <mxPoint x="16" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v38" value="&lt;b&gt;Reglas comunes a todas las operaciones&lt;/b&gt;&lt;br&gt;• Token obligatorio: el controlador lo valida contra /validate (USR5).&lt;br&gt;• Cada operación CRUD y cada error técnico se registra en bitácora (GEN1): alta = JSON nuevo; modificación = JSON anterior y actual; baja = JSON eliminado; consulta = «El usuario consulta &amp;lt;elemento&amp;gt;»." style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="628" width="900" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="pg3" name="Base de datos">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="640" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="v2" value="&lt;b style=&#39;font-size:20px&#39;&gt;Base de datos - MAT3 Expedientes de estudiantes&lt;/b&gt;" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=top;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="700" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE" value="ESTUDIANTE" style="swimlane;fontStyle=1;fontSize=14;childLayout=stackLayout;horizontal=1;startSize=32;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="400" height="248" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r0" value="PK&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;identificacion&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(30)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fillColor=none;strokeColor=#d79b00;fontStyle=1;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="32" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r1" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;tipo_identificacion&amp;nbsp;&amp;nbsp;VARCHAR(30)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="56" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r2" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;email&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(150)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="80" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r3" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;nombre_completo&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(150)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="104" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r4" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;fecha_nacimiento&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;DATE" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="128" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r5" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;provincia&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(50)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="152" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r6" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;canton&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(50)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="176" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r7" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;distrito&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(50)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="200" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_r8" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;otras_senas&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(250)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE">
+          <mxGeometry x="0" y="224" width="400" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_TELEFONO" value="ESTUDIANTE_TELEFONO" style="swimlane;fontStyle=1;fontSize=14;childLayout=stackLayout;horizontal=1;startSize=32;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;swimlaneFillColor=#FFFFFF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="80" width="380" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_TELEFONO_r0" value="PK&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;id_telefono&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;INT" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fillColor=none;strokeColor=#d79b00;fontStyle=1;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE_TELEFONO">
+          <mxGeometry x="0" y="32" width="380" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_TELEFONO_r1" value="FK&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;identificacion&amp;nbsp;&amp;nbsp;VARCHAR(30)" style="text;strokeColor=none;fillColor=none;fontStyle=2;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE_TELEFONO">
+          <mxGeometry x="0" y="56" width="380" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="ESTUDIANTE_TELEFONO_r2" value="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;telefono&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;VARCHAR(20)" style="text;strokeColor=none;fillColor=none;html=1;align=left;verticalAlign=middle;spacingLeft=8;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontFamily=Courier New;fontSize=12;whiteSpace=nowrap;" vertex="1" parent="ESTUDIANTE_TELEFONO">
+          <mxGeometry x="0" y="80" width="380" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="endArrow=ERmandOne;startArrow=ERmany;endFill=0;startFill=0;html=1;strokeWidth=1.5;strokeColor=#333333;rounded=0;exitX=0.0000;exitY=0.5000;entryX=1.0000;entryY=0.5000;exitDx=0;exitDy=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ESTUDIANTE_TELEFONO_r1" target="ESTUDIANTE_r0">
+          <mxGeometry x="0.0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="148.0" />
+              <mxPoint x="500" y="124.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v4" value="Un estudiante puede tener varios teléfonos (HU: «teléfono(s)»).&lt;br&gt;Todos los datos son requeridos; el nombre solo letras y espacios; el email con formato válido y dominio cuc.cr (parametrizable)." style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="600" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

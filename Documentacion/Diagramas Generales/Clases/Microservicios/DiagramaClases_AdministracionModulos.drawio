@@ -1,0 +1,46 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="USR4C" name="USR4 — Módulos (clases)">
+    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="930" pageHeight="1020" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#DAE8FC;swimlaneFillColor=#FFFFFF;strokeColor=#6C8EBF;fontColor=#1F3864;fontStyle=1;fontSize=13;" value="USR4 — MÓDULOS" vertex="1">
+          <mxGeometry height="710" width="450" x="30" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="domain" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="710" width="390" x="510" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#6C8EBF;fontSize=11;" value="&lt;b&gt;ModulosEndpoints&lt;/b&gt;&lt;hr&gt;- servicio: ModuloService&lt;br&gt;- authClient: IAuthClient&lt;hr&gt;+ crear(modulo: Modulo): Respuesta  &amp;laquo;POST /modulo&amp;raquo;&lt;br&gt;+ modificar(id: int, modulo: Modulo): Respuesta  &amp;laquo;PUT /modulo/id&amp;raquo;&lt;br&gt;+ eliminar(id: int): Respuesta  &amp;laquo;DELETE /modulo/id&amp;raquo;&lt;br&gt;+ obtenerTodos(): Respuesta  &amp;laquo;GET /modulo&amp;raquo;&lt;br&gt;+ obtenerPorId(id: int): Respuesta  &amp;laquo;GET /modulo/id&amp;raquo;" vertex="1">
+          <mxGeometry height="160" width="360" x="75" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" value="&lt;b&gt;&amp;laquo;interface&amp;raquo; &amp;laquo;Service&amp;raquo;&lt;br&gt;ModuloService&lt;/b&gt;&lt;hr&gt;+ crear(modulo: Modulo, usuario: String): Modulo&lt;br&gt;+ modificar(id: int, modulo: Modulo, usuario: String): Modulo&lt;br&gt;+ eliminar(id: int, usuario: String): void&lt;br&gt;+ obtenerTodos(usuario: String): List&amp;lt;Modulo&amp;gt;&lt;br&gt;+ obtenerPorId(id: int, usuario: String): Modulo&lt;br&gt;- validarRequeridos(modulo: Modulo): void&lt;br&gt;- validarNombre(nombre: String): void&lt;hr&gt;&lt;i&gt;Datos requeridos, sin espacios en blanco; nombre solo letras y espacios.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="185" width="360" x="75" y="375" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;laquo;interface&amp;raquo; &amp;laquo;Repository&amp;raquo;&lt;br&gt;ModuloRepository&lt;/b&gt;&lt;hr&gt;+ insertar(modulo: Modulo): Modulo&lt;br&gt;+ actualizar(modulo: Modulo): Modulo&lt;br&gt;+ eliminar(id: int): void&lt;br&gt;+ listarTodos(): List&amp;lt;Modulo&amp;gt;&lt;br&gt;+ buscarPorId(id: int): Modulo" vertex="1">
+          <mxGeometry height="115" width="360" x="75" y="595" as="geometry" />
+        </mxCell>
+        <mxCell id="n1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;align=left;spacing=6;" value="&lt;b&gt;Entidad:&lt;/b&gt; Modulo&lt;br&gt;idModulo (PK) · nombre" vertex="1">
+          <mxGeometry height="55" width="360" x="75" y="735" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#6C8EBF;" target="s1" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="s1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#6C8EBF;" target="r1" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="r1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#7F8C8D;fontSize=10;" target="n1" value="persiste" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dm" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&amp;laquo;Entity&amp;raquo;&lt;br&gt;&lt;b&gt;Modulo&lt;/b&gt;&lt;hr&gt;- idModulo: int&lt;br&gt;- nombre: String" vertex="1">
+          <mxGeometry height="90" width="300" x="545" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="iauth" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;dashed=1;fillColor=#FFFFFF;strokeColor=#6C8EBF;fontSize=11;" value="&amp;laquo;interface&amp;raquo; &amp;laquo;externa - USR5&amp;raquo;&lt;br&gt;&lt;b&gt;IAuthClient&lt;/b&gt;&lt;hr&gt;+ validate(token: String): boolean" vertex="1">
+          <mxGeometry height="65" width="300" x="545" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="ibit" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;dashed=1;fillColor=#FFFFFF;strokeColor=#6C8EBF;fontSize=11;" value="&amp;laquo;interface&amp;raquo; &amp;laquo;externa - GEN1&amp;raquo;&lt;br&gt;&lt;b&gt;IBitacoraClient&lt;/b&gt;&lt;hr&gt;+ registrar(usuario: String, descripcion: String): void" vertex="1">
+          <mxGeometry height="75" width="300" x="545" y="435" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

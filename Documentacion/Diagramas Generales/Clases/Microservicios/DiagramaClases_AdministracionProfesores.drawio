@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="ACD6" name="ACD6 — Administración de profesores">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1440" pageHeight="848" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="laneL" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#E2F0D9;swimlaneFillColor=#FFFFFF;strokeColor=#70AD47;fontColor=#375623;fontStyle=1;fontSize=13;" value="ACD6 — PROFESORES" vertex="1">
+          <mxGeometry height="778" width="410" x="30" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="laneR" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="778" width="940" x="470" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F9FDF7;strokeColor=#70AD47;fontSize=11;" value="&lt;b&gt;ProfesorEndpoints&lt;/b&gt;&lt;hr&gt;+ MapearEndpoints(app) &amp;#160;// /profesor&lt;br&gt;+ crear(dto)&lt;br&gt;+ actualizar(numeroIdentificacion, dto)&lt;br&gt;+ eliminar(numeroIdentificacion)&lt;br&gt;+ obtener(numeroIdentificacion)&lt;br&gt;+ listar()" vertex="1">
+          <mxGeometry height="132" width="350" x="60" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#70AD47;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IProfesorService&lt;/b&gt;&lt;hr&gt;+ crear(dto): Profesor&lt;br&gt;+ actualizar(numeroIdentificacion, dto): Profesor&lt;br&gt;+ eliminar(numeroIdentificacion)&lt;br&gt;+ obtener(numeroIdentificacion): Profesor&lt;br&gt;+ listar(): List&amp;lt;Profesor&amp;gt;&lt;hr&gt;&lt;i&gt;Todos los datos son requeridos, sin vacíos ni espacios en blanco.&lt;br&gt;El nombre solo puede contener letras y espacios.&lt;br&gt;Debe ser mayor de edad.&lt;br&gt;Email con formato válido y del dominio cuc.ac.cr (dominio&lt;br&gt;parametrizable).&lt;br&gt;Todas las operaciones exigen token válido y registran bitácora.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="230" width="350" x="60" y="277" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IProfesorRepository&lt;/b&gt;&lt;hr&gt;+ insertar(profesor)&lt;br&gt;+ obtenerPorIdentificacion(numeroIdentificacion): Profesor&lt;br&gt;+ listar(): List&amp;lt;Profesor&amp;gt;&lt;br&gt;+ actualizar(profesor)&lt;br&gt;+ eliminar(numeroIdentificacion)" vertex="1">
+          <mxGeometry height="132" width="350" x="60" y="552" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F0F0F0;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Entidad: Profesor&lt;/b&gt;&lt;hr&gt;NumeroIdentificacion · TipoIdentificacion · Email ·&lt;br&gt;NombreCompleto · FechaNacimiento · Telefonos" vertex="1">
+          <mxGeometry height="74" width="350" x="60" y="714" as="geometry" />
+        </mxCell>
+        <mxCell id="tok" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8A8A8A;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;ITokenValidator (USR5)&lt;/b&gt;&lt;hr&gt;+ validar(token): bool&lt;br&gt;llama a /validate" vertex="1">
+          <mxGeometry height="88" width="260" x="500" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="bit" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8A8A8A;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr&gt;+ registrar(usuario, descripcion)&lt;br&gt;llama a /bitacora" vertex="1">
+          <mxGeometry height="88" width="260" x="500" y="251" as="geometry" />
+        </mxCell>
+        <mxCell id="par" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8A8A8A;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IParametroClient (USR3)&lt;/b&gt;&lt;hr&gt;+ obtenerValor(identificador): string&lt;br&gt;llama a /parametro" vertex="1">
+          <mxGeometry height="88" width="260" x="500" y="359" as="geometry" />
+        </mxCell>
+        <mxCell id="pro" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;strokeWidth=1.5;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Profesor&lt;/b&gt;&lt;hr&gt;+ NumeroIdentificacion: string&lt;br&gt;+ TipoIdentificacion: string&lt;br&gt;+ Email: string&lt;br&gt;+ NombreCompleto: string&lt;br&gt;+ FechaNacimiento: DateTime&lt;br&gt;+ Telefonos: List&amp;lt;string&amp;gt;" vertex="1">
+          <mxGeometry height="146" width="250" x="810" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="car" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Carrera (ACD2)&lt;/b&gt;&lt;hr&gt;+ IdCarrera: string&lt;br&gt;+ ..." vertex="1">
+          <mxGeometry height="88" width="250" x="810" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="gru" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Grupo (ACD4)&lt;/b&gt;&lt;hr&gt;+ IdGrupo: int&lt;br&gt;+ ..." vertex="1">
+          <mxGeometry height="88" width="230" x="1150" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="dto1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt;&lt;br&gt;ProfesorRequest&lt;/b&gt;&lt;hr&gt;+ NumeroIdentificacion: string&lt;br&gt;+ TipoIdentificacion: string&lt;br&gt;+ Email: string&lt;br&gt;+ NombreCompleto: string&lt;br&gt;+ FechaNacimiento: DateTime&lt;br&gt;+ Telefonos: List&amp;lt;string&amp;gt;" vertex="1">
+          <mxGeometry height="146" width="230" x="1150" y="248" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="ep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#70AD47;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" target="svc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#70AD47;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" target="repo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="ep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#70AD47;exitX=1.0000;exitY=0.3333;entryX=0.0000;entryY=0.5000;" target="tok">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#70AD47;exitX=1.0000;exitY=0.0783;entryX=0.0000;entryY=0.5000;" target="bit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#70AD47;exitX=1.0000;exitY=0.5478;entryX=0.0000;entryY=0.5000;" target="par">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="pro" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" target="car">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6l0" connectable="0" parent="e6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.7" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e6l1" connectable="0" parent="e6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.7" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="pro" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;exitX=1.0000;exitY=0.2740;entryX=0.0000;entryY=0.4545;" target="gru">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7l0" connectable="0" parent="e7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.7" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e7l1" connectable="0" parent="e7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.7" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

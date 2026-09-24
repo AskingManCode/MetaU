@@ -1,0 +1,56 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="GEN1 Bitacora" id="GEN1_Bitacora">
+    <mxGraphModel dx="1531" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c11" parent="1" style="text;html=0;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;" value="GEN1 – Diagrama de clases: Registro de bitácoras " vertex="1">
+          <mxGeometry height="26" width="700" x="20" y="5" as="geometry" />
+        </mxCell>
+        <mxCell id="cls_ctrl" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;swimlaneFillColor=#ffffff;marginBottom=0;" value="«interface» &#xa;Bitácora" vertex="1">
+          <mxGeometry height="64" width="360" x="300" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c13" parent="cls_ctrl" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ registrar(request: BitacoraRequest): Response  [POST]" vertex="1">
+          <mxGeometry height="24" width="360" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cls_auth" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Servicio externo USR5»&#xa;AuthService" vertex="1">
+          <mxGeometry height="64" width="250" x="740" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c14" parent="cls_auth" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ validate(token: String): boolean" vertex="1">
+          <mxGeometry height="24" width="250" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cls_svc" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#d5e8d4;strokeColor=#82b366;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Service»&#xa;BitacoraService" vertex="1">
+          <mxGeometry height="80" width="360" x="300" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="c15" parent="cls_svc" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ registrar(usuario: String, descripcion: String): Bitacora&#xa;- validarDatosRequeridos(usuario, descripcion): void" vertex="1">
+          <mxGeometry height="40" width="360" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cls_bit" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#fff2cc;strokeColor=#d6b656;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Entidad»&#xa;Bitacora" vertex="1">
+          <mxGeometry height="112" width="360" x="300" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="c16" parent="cls_bit" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="- idBitacora: Long&#xa;- fecha: LocalDateTime&#xa;- usuario: String&#xa;- descripcion: String" vertex="1">
+          <mxGeometry height="72" width="360" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c18" edge="1" parent="1" source="cls_ctrl" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1;entryX=0.5000;entryY=0;" target="cls_svc" value="delega en">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c19" edge="1" parent="1" source="cls_ctrl" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;exitX=1;exitY=0.5000;entryX=0;entryY=0.5000;" target="cls_auth" value="valida token">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c20" edge="1" parent="1" source="cls_svc" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1;entryX=0.5000;entryY=0;" target="cls_bit" value="crea">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c21" connectable="0" parent="c20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.85" as="geometry">
+            <mxPoint y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c22" connectable="0" parent="c20" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="*" vertex="1">
+          <mxGeometry relative="1" x="0.85" as="geometry">
+            <mxPoint y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

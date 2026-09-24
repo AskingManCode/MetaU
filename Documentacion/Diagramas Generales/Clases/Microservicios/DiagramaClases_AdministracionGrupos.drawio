@@ -10,14 +10,14 @@
         <mxCell id="domain" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
           <mxGeometry height="710" width="390" x="510" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="c1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#9673A6;fontSize=11;" value="&lt;b&gt;&amp;laquo;RestController&amp;raquo;&lt;br&gt;GrupoController&lt;/b&gt;&lt;hr&gt;- servicio: GrupoService&lt;br&gt;- authClient: IAuthClient&lt;hr&gt;+ crear(grupo: Grupo): Respuesta  &amp;laquo;POST /grupo&amp;raquo;&lt;br&gt;+ modificar(id: int, grupo: Grupo): Respuesta  &amp;laquo;PUT /grupo/id&amp;raquo;&lt;br&gt;+ eliminar(id: int): Respuesta  &amp;laquo;DELETE /grupo/id&amp;raquo;&lt;br&gt;+ obtenerTodos(): Respuesta  &amp;laquo;GET /grupo&amp;raquo;&lt;br&gt;+ obtenerPorId(id: int): Respuesta  &amp;laquo;GET /grupo/id&amp;raquo;" vertex="1">
+        <mxCell id="c1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#9673A6;fontSize=11;" value="&lt;b&gt;GruposEndpoints&lt;/b&gt;&lt;hr&gt;- servicio: GrupoService&lt;br&gt;- authClient: IAuthClient&lt;hr&gt;+ crear(grupo: Grupo): Respuesta  &amp;laquo;POST /grupo&amp;raquo;&lt;br&gt;+ modificar(id: int, grupo: Grupo): Respuesta  &amp;laquo;PUT /grupo/id&amp;raquo;&lt;br&gt;+ eliminar(id: int): Respuesta  &amp;laquo;DELETE /grupo/id&amp;raquo;&lt;br&gt;+ obtenerTodos(): Respuesta  &amp;laquo;GET /grupo&amp;raquo;&lt;br&gt;+ obtenerPorId(id: int): Respuesta  &amp;laquo;GET /grupo/id&amp;raquo;" vertex="1">
           <mxGeometry height="160" width="360" x="75" y="180" as="geometry" />
         </mxCell>
         <mxCell id="s1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" value="&lt;b&gt;&amp;laquo;interface&amp;raquo; &amp;laquo;Service&amp;raquo;&lt;br&gt;GrupoService&lt;/b&gt;&lt;hr&gt;+ crear(grupo: Grupo, usuario: String): Grupo&lt;br&gt;+ modificar(id: int, grupo: Grupo, usuario: String): Grupo&lt;br&gt;+ eliminar(id: int, usuario: String): void&lt;br&gt;+ obtenerTodos(usuario: String): List&amp;lt;Grupo&amp;gt;&lt;br&gt;+ obtenerPorId(id: int, usuario: String): Grupo&lt;br&gt;- validarRequeridos(grupo: Grupo): void&lt;br&gt;- validarExistencias(grupo: Grupo): void&lt;hr&gt;&lt;i&gt;validarExistencias: curso, profesor y periodo deben existir.&lt;/i&gt;" vertex="1">
           <mxGeometry height="175" width="360" x="75" y="375" as="geometry" />
         </mxCell>
         <mxCell id="r1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;laquo;interface&amp;raquo; &amp;laquo;Repository&amp;raquo;&lt;br&gt;GrupoRepository&lt;/b&gt;&lt;hr&gt;+ insertar(grupo: Grupo): Grupo&lt;br&gt;+ actualizar(grupo: Grupo): Grupo&lt;br&gt;+ eliminar(id: int): void&lt;br&gt;+ listarTodos(): List&amp;lt;Grupo&amp;gt;&lt;br&gt;+ buscarPorId(id: int): Grupo" vertex="1">
-          <mxGeometry height="115" width="360" x="75" y="595" as="geometry" />
+          <mxGeometry height="130" width="360" x="75" y="595" as="geometry" />
         </mxCell>
         <mxCell id="n1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;align=left;spacing=6;" value="&lt;b&gt;Entidad:&lt;/b&gt; Grupo&lt;br&gt;idGrupo (PK) · numeroGrupo · idCurso (FK)&lt;br&gt;idProfesor (FK) · horario · cupo · idPeriodo (FK)" vertex="1">
           <mxGeometry height="65" width="360" x="75" y="735" as="geometry" />
@@ -43,7 +43,7 @@
         <mxCell id="dper" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;dashed=1;fillColor=#F7F7F7;strokeColor=#9673A6;fontSize=11;" value="&lt;b&gt;Periodo&lt;/b&gt;&lt;hr&gt;id · año · numero &amp;laquo;ACD5&amp;raquo;" vertex="1">
           <mxGeometry height="60" width="300" x="545" y="550" as="geometry" />
         </mxCell>
-        <mxCell id="9MQFU1nj0f-IroFVsegq-1" edge="1" parent="1" source="dg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;dashed=1;strokeColor=#404040;fontSize=10;" target="dc" vertex="1">
+        <mxCell id="beAoGa10EXX9Ep4cHY66-1" edge="1" parent="1" source="dg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;dashed=1;strokeColor=#404040;fontSize=10;" target="dc" vertex="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r2" edge="1" parent="1" source="dg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;dashed=1;strokeColor=#404040;fontSize=10;" target="dp" vertex="1">

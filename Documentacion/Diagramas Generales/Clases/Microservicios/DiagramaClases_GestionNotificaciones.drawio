@@ -1,0 +1,61 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="IPN3" name="IPN3 — Gestión de notificaciones">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1120" pageHeight="645" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="laneL" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#D6EEEE;swimlaneFillColor=#FFFFFF;strokeColor=#2A8C8C;fontColor=#17365D;fontStyle=1;fontSize=13;" value="IPN3 — NOTIFICACIONES" vertex="1">
+          <mxGeometry height="575" width="410" x="30" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="laneR" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="575" width="620" x="470" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F3FBFB;strokeColor=#2A8C8C;fontSize=11;" value="&lt;b&gt;NotificacionesEndpoints&lt;/b&gt;&lt;hr&gt;+ MapearEndpoints(app) &amp;#160;// /notificar&lt;br&gt;+ enviar(dto)" vertex="1">
+          <mxGeometry height="74" width="350" x="60" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#2A8C8C;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;INotificacionService&lt;/b&gt;&lt;hr&gt;+ enviar(dto): bool&lt;hr&gt;&lt;i&gt;Email, asunto y cuerpo son requeridos.&lt;br&gt;El cuerpo puede enviarse en formato HTML.&lt;br&gt;Servidor y cuenta de correo se obtienen de los parámetros del&lt;br&gt;sistema.&lt;br&gt;Todas las operaciones exigen token válido y registran bitácora.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="158" width="350" x="60" y="219" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;ICorreoSender&lt;/b&gt;&lt;hr&gt;+ enviar(destino, asunto, cuerpoHtml): bool" vertex="1">
+          <mxGeometry height="74" width="350" x="60" y="422" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F0F0F0;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Modelo: NotificacionRequest&lt;/b&gt;&lt;hr&gt;Email · Asunto · Cuerpo" vertex="1">
+          <mxGeometry height="59" width="350" x="60" y="526" as="geometry" />
+        </mxCell>
+        <mxCell id="tok" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8A8A8A;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;ITokenValidator (USR5)&lt;/b&gt;&lt;hr&gt;+ validar(token): bool&lt;br&gt;llama a /validate" vertex="1">
+          <mxGeometry height="88" width="260" x="500" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="bit" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8A8A8A;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr&gt;+ registrar(usuario, descripcion)&lt;br&gt;llama a /bitacora" vertex="1">
+          <mxGeometry height="88" width="260" x="500" y="208" as="geometry" />
+        </mxCell>
+        <mxCell id="par" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#8A8A8A;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IParametroClient (USR3)&lt;/b&gt;&lt;hr&gt;+ obtenerValor(identificador): string&lt;br&gt;llama a /parametro" vertex="1">
+          <mxGeometry height="88" width="260" x="500" y="316" as="geometry" />
+        </mxCell>
+        <mxCell id="dto1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt;&lt;br&gt;NotificacionRequest&lt;/b&gt;&lt;hr&gt;+ Email: string&lt;br&gt;+ Asunto: string&lt;br&gt;+ Cuerpo: string &amp;#160;// HTML" vertex="1">
+          <mxGeometry height="102" width="250" x="810" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cfg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Config&amp;gt;&amp;gt;&lt;br&gt;ConfiguracionCorreo&lt;/b&gt;&lt;hr&gt;+ Servidor: string&lt;br&gt;+ Puerto: int&lt;br&gt;+ Cuenta: string&lt;br&gt;+ Clave: string" vertex="1">
+          <mxGeometry height="117" width="250" x="810" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="ep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#2A8C8C;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" target="svc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#2A8C8C;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;" target="repo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="ep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#2A8C8C;exitX=1.0000;exitY=0.5946;entryX=0.0000;entryY=0.5000;" target="tok">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#2A8C8C;exitX=1.0000;exitY=0.2089;entryX=0.0000;entryY=0.5000;" target="bit">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#2A8C8C;exitX=1.0000;exitY=0.8924;entryX=0.0000;entryY=0.5000;" target="par">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="repo" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;dashed=1;strokeColor=#2A8C8C;exitX=1.0000;exitY=0.5000;entryX=0.0000;entryY=0.5043;" target="cfg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

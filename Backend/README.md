@@ -24,7 +24,7 @@ Cada microservicio es independiente y puede desplegarse por separado.
 ## Lista de Microservicios
 
 ### MicroservicioUsuarios
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Brandon Guido Navarro*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/usuario`  
 **Endpoints:**  
@@ -38,7 +38,7 @@ Administra la identidad de los usuarios del sistema (creación, modificación, e
 ---
 
 ### MicroservicioRoles
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Brandon Guido Navarro*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/rol`  
 **Endpoints:**  
@@ -52,7 +52,7 @@ Gestiona los roles que se pueden asignar a los usuarios del sistema.
 ---
 
 ### MicroservicioParametros
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Jiménez Arrieta*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/parametro`  
 **Endpoints:**  
@@ -66,7 +66,7 @@ Administra los parámetros de configuración global del sistema.
 ---
 
 ### MicroservicioModulos
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Brandon Guido Navarro*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/modulo`  
 **Endpoints:**  
@@ -80,7 +80,7 @@ Administra los módulos funcionales del sistema.
 ---
 
 ### MicroservicioLogin
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Julián Solano Obando*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/login`  
 **Endpoints:**  
@@ -94,7 +94,7 @@ Maneja la autenticación de usuarios, generación y validación de tokens JWT, y
 ---
 
 ### MicroservicioInstituciones
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Julián Solano Obando*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/institucion`  
 **Endpoints:**  
@@ -108,7 +108,7 @@ Administra las instituciones educativas registradas en el sistema.
 ---
 
 ### MicroservicioCarreras
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Julián Solano Obando*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/carrera`  
 **Endpoints:**  
@@ -122,7 +122,7 @@ Gestiona las carreras ofrecidas por las instituciones.
 ---
 
 ### MicroservicioCursos
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Julián Solano Obando*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/curso`  
 **Endpoints:**  
@@ -136,7 +136,7 @@ Administra los cursos pertenecientes a las carreras.
 ---
 
 ### MicroservicioGrupos
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Obando Ramírez*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/grupo`  
 **Endpoints:**  
@@ -150,7 +150,7 @@ Gestiona los grupos de cursos, incluyendo profesor, horario, cupo y periodo.
 ---
 
 ### MicroservicioPeriodos
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Obando Ramírez*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/periodo`  
 **Endpoints:**  
@@ -164,7 +164,7 @@ Administra los periodos académicos del sistema.
 ---
 
 ### MicroservicioProfesores
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Obando Ramírez*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/profesor`  
 **Endpoints:**  
@@ -178,7 +178,7 @@ Administra los expedientes de los profesores.
 ---
 
 ### MicroservicioPreMatriculas
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Anthony Gamboa Elizondo*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/prematricula`  
 **Endpoints:**  
@@ -192,7 +192,7 @@ Gestiona el proceso de prematrícula de estudiantes.
 ---
 
 ### MicroservicioMatriculas
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Anthony Gamboa Elizondo*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/matricula`  
 **Endpoints:**  
@@ -206,7 +206,7 @@ Administra el proceso de matrícula formal de estudiantes.
 ---
 
 ### MicroservicioExpedientesEstudiantes
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Anthony Gamboa Elizondo*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/expediente`  
 **Endpoints:**  
@@ -220,7 +220,7 @@ Gestiona el expediente completo de los estudiantes (datos personales, dirección
 ---
 
 ### MicroservicioDirecciones
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Jiménez Arrieta*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/provincias`  
 **Endpoints:**  
@@ -234,7 +234,7 @@ Provee la información geográfica de Costa Rica (provincias, cantones y distrit
 ---
 
 ### MicroservicioNotas
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Anthony Gamboa Elizondo*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/notas`  
 **Endpoints:**  
@@ -248,7 +248,7 @@ Gestiona el desglose de rubros de evaluación y el registro de notas de los estu
 ---
 
 ### MicroservicioHistorialAcademico
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Obando Ramírez*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/historialacademico`  
 **Endpoints:**  
@@ -262,7 +262,7 @@ Consulta el historial académico de un estudiante (cursos y promedios obtenidos)
 ---
 
 ### MicroservicioListaEstudiantes
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Brandon Guido Navarro*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/listadoestudiantes`  
 **Endpoints:**  
@@ -276,7 +276,7 @@ Genera listados de estudiantes matriculados en un periodo específico.
 ---
 
 ### MicroservicioFacturacion
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Jiménez Arrieta*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/factura`  
 **Endpoints:**  
@@ -290,7 +290,7 @@ Genera y administra las facturas a partir de la matrícula de los estudiantes.
 ---
 
 ### MicroservicioPagos
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Jiménez Arrieta*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/pago`  
 **Endpoints:**  
@@ -304,7 +304,7 @@ Registra y gestiona los pagos realizados sobre las facturas.
 ---
 
 ### MicroservicioNotificaciones
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Jiménez Arrieta*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/notificar`  
 **Endpoints:**  
@@ -318,7 +318,7 @@ Envía notificaciones por correo electrónico de forma parametrizable.
 ---
 
 ### MicroservicioBitacoras
-**Responsable:** *(pendiente de asignar)*  
+**Responsable:** *Sebastián Obando Ramírez*  
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/bitacora`  
 **Endpoints:**  

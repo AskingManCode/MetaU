@@ -28,21 +28,21 @@ namespace MicroservicioRoles.Repository
         public async Task<int> CrearAsync(Rol rol)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "INSERT INTO ROL (ID_ROL, NOMBRE) VALUES (@Id_Rol, @Nombre)";
+            var sql = "INSERT INTO ROL (ID_ROL, NOMBRE) VALUES (@IdRol, @Nombre)";
             return await connection.ExecuteAsync(sql, rol);
         }
 
         public async Task<int> ActualizarAsync(Rol rol)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "UPDATE ROL SET NOMBRE = @Nombre WHERE ID_ROL = @Id_Rol";
+            var sql = "UPDATE ROL SET NOMBRE = @Nombre WHERE ID_ROL = @IdRol";
             return await connection.ExecuteAsync(sql, rol);
         }
 
         public async Task<int> EliminarAsync(string id)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "DELETE FROM ROL WHERE ID_ROL = @Id_Rol";
+            var sql = "DELETE FROM ROL WHERE ID_ROL = @id";
             return await connection.ExecuteAsync(sql, new { id });
         }
 

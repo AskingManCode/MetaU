@@ -1,6 +1,7 @@
 ﻿namespace MicroservicioRoles.Services
 {
-    public class IBitacoraService
+    public interface IBitacoraService
     {
+        Task RegistrarAsync(string Usuario, string Descripcion);
     }
 }

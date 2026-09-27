@@ -1,6 +1,13 @@
-﻿namespace MicroservicioRoles.Services
+﻿using MicroservicioRoles.Entities;
+
+namespace MicroservicioRoles.Services
 {
-    public class IRolService
+    public interface IRolService
     {
+        Task<IEnumerable<Rol>> ObtenerTodosAsync();
+        Task<Rol?> ObtenerPorIdAsync(string id);
+        Task<int> CrearAsync(Rol rol);
+        Task<int> ActualizarAsync(Rol rol);
+        Task<int> EliminarAsync(string id);
     }
 }

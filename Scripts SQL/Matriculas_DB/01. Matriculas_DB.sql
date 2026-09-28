@@ -61,7 +61,7 @@ GO
 IF OBJECT_ID('dbo.Estudiantes', 'U') IS NULL
     CREATE TABLE Estudiantes (
         EstudianteID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
-        UsuarioID UNIQUEIDENTIFIER NOT NULL, -- REF: Usuarios_DB.Usuarios
+        UsuarioID UNIQUEIDENTIFIER NULL, -- REF: Usuarios_DB.Usuarios
         TipoIdentificacionCode VARCHAR(15) NOT NULL,
         Identificacion VARCHAR(30) NOT NULL,
         NombreCompleto VARCHAR(175) NOT NULL,
@@ -78,9 +78,7 @@ IF OBJECT_ID('dbo.Estudiantes', 'U') IS NULL
 
         CONSTRAINT FK_Estudiantes_TipoIdentificacion
             FOREIGN KEY (TipoIdentificacionCode) REFERENCES TiposIdentificacion(TipoIdentificacionCode),
-
-        CONSTRAINT UQ_Estudiantes_UsuarioID
-            UNIQUE (UsuarioID),
+        
 
         CONSTRAINT UQ_Estudiantes_Identificacion
             UNIQUE (Identificacion),

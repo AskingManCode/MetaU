@@ -19,7 +19,7 @@ GO
 
 
 /* ============================================================
-   1. AUDITORÍA
+   AUDITORÍA
    ============================================================ */
 IF OBJECT_ID('dbo.Bitacoras', 'U') IS NULL
     CREATE TABLE Bitacoras (

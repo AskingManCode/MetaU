@@ -1,6 +1,6 @@
 ﻿namespace MicroservicioModulos.Services
 {
-    public class BitacoraServiceMock
+    public class BitacoraServiceMock : IBitacoraService
     {
         public Task RegistrarAsync(string usuario, string descripcion)
         {

@@ -1,40 +1,42 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using MicroservicioModulos.Entities;
+using MicroservicioModulos.Repository;
+using Microsoft.AspNetCore.Identity;
 using System.Reflection;
 
 namespace MicroservicioModulos.Services
 {
     public class ModuloService : IModuloService
     {
-        private readonly ModuloService _moduloService;
+        private readonly ModuloRepository _moduloRepository;
 
-        public ModuloService(ModuloService moduloService)
+        public ModuloService(ModuloRepository moduloRepository)
         {
-            _moduloService = moduloService;
+            _moduloRepository = moduloRepository;
         }
 
-        public async Task<IEnumerable<Module>> ObtenerTodosAsync()
+        public async Task<IEnumerable<Modulos>> ObtenerTodosAsync()
         {
-            return await _moduloService.ObtenerTodosAsync();
+            return await _moduloRepository.ObtenerTodosAsync();
         }
 
-        public async Task<Module?> ObtenerPorIdAsync(string id)
+        public async Task<Modulos?> ObtenerPorIdAsync(string id)
         {
-            return await _moduloService.ObtenerPorIdAsync(id);
+            return await _moduloRepository.ObtenerPorIdAsync(id);
         }
 
-        public async Task<int> CrearAsync(Module module)
+        public async Task<int> CrearAsync(Modulos modulos)
         {
-            return await _moduloService.CrearAsync(module);
+            return await _moduloRepository.CrearAsync(modulos);
         }
 
-        public async Task<int> ActualizarAsync(Module module)
+        public async Task<int> ActualizarAsync(Modulos modulos)
         {
-            return await _moduloService.ActualizarAsync(module);
+            return await _moduloRepository.ActualizarAsync(modulos);
         }
 
         public async Task<int> EliminarAsync(string id)
         {
-            return await _moduloService.EliminarAsync(id);
+            return await _moduloRepository.EliminarAsync(id);
         }
     }
 }

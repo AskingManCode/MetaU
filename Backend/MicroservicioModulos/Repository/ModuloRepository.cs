@@ -18,14 +18,14 @@ namespace MicroservicioModulos.Repository
             return await connection.QueryAsync<Modulos>("SELECT ID_MODULO, NOMBRE FROM MODULO");
         }
 
-        public async Task<Modulos> ObtenerpPorIdAsync(string id)
+        public async Task<Modulos> ObtenerPorIdAsync(string id)
         {
             using var connection = _dbconnectionFactory.CrearConexion();
             var sql = "SELECT ID_MODULO, NOMBRE FROM MODELO WHERE ID_MODELO = @id";
             return await connection.QueryFirstOrDefaultAsync<Modulos>(sql, new { id });
         }
 
-        public async Task<int> CreateAsync(Modulos modulos)
+        public async Task<int> CrearAsync(Modulos modulos)
         {
             using var connection = _dbconnectionFactory.CrearConexion();
             var sql = "INSERT INTO MODULO (ID_MODULO, NOMBRE) VALUES (@IdModulo, @Nombre)";
@@ -39,7 +39,7 @@ namespace MicroservicioModulos.Repository
             return await connection.ExecuteAsync(sql, modulos);
         }
 
-        public async Task<int> DeleteAsync(string id)
+        public async Task<int> EliminarAsync(string id)
         {
             using var connection = _dbconnectionFactory.CrearConexion();
             var sql = "DELETE FROM MODULO WHERE ID_MODULO = @id";

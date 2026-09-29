@@ -1,23 +1,43 @@
+using MicroservicioModulos;
+using MicroservicioModulos.Repository;
+using MicroservicioModulos.Services;
+using MicroservicioRoles;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ClientApps", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+// Inyección de dependencias
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+builder.Services.AddScoped<ModuloRepository>();
+builder.Services.AddScoped<ModuloService>();
+
+builder.Services.AddScoped<IAuthService, AuthServiceMock>();
+builder.Services.AddScoped<IBitacoraService, BitacoraServiceMock>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
+app.UseCors("ClientApps");
 
-app.UseAuthorization();
-
-app.MapControllers();
+app.MapModuloEndpoints();
 
 app.Run();

@@ -14,7 +14,7 @@ GO
 
 
 /* ============================================================
-   1. PROVINCIAS
+   PROVINCIAS
    ============================================================ */
 IF OBJECT_ID('dbo.Provincias', 'U') IS NULL
     CREATE TABLE Provincias (
@@ -38,7 +38,7 @@ GO
 
 
 /* ============================================================
-   2. CANTONES
+   CANTONES
    ============================================================ */
 IF OBJECT_ID('dbo.Cantones', 'U') IS NULL
     CREATE TABLE Cantones (
@@ -69,7 +69,7 @@ GO
 
 
 /* ============================================================
-   3. DISTRITOS
+   DISTRITOS
    ============================================================ */
 IF OBJECT_ID('dbo.Distritos', 'U') IS NULL
     CREATE TABLE Distritos (

@@ -4,10 +4,10 @@ namespace MicroservicioExpedientesEstudiantes.Services
 {
     public interface IExpedienteService
     {
-        Task<Estudiante> Crear(EstudianteRequest request, string usuario);
-        Task<Estudiante> Modificar(string identificacion, EstudianteRequest request, string usuario);
-        Task Eliminar(string identificacion, string usuario);
-        Task<List<Estudiante>> ObtenerTodos(string usuario);
-        Task<Estudiante?> ObtenerPorId(string identificacion, string usuario);
+        Task<Estudiante> Crear(EstudianteRequest request, ContextoUsuario contexto);
+        Task<Estudiante> Modificar(string identificacion, EstudianteRequest request, ContextoUsuario contexto);
+        Task Eliminar(string identificacion, ContextoUsuario contexto);
+        Task<List<Estudiante>> ObtenerTodos(ContextoUsuario contexto);
+        Task<Estudiante?> ObtenerPorId(string identificacion, ContextoUsuario contexto);
     }
 }

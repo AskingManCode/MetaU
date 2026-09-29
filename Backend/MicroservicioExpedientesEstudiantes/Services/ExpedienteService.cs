@@ -27,7 +27,7 @@ namespace MicroservicioExpedientesEstudiantes.Services
             _bitacoraClient = bitacoraClient;
         }
 
-        public async Task<Estudiante> Crear(EstudianteRequest request, string usuario)
+        public async Task<Estudiante> Crear(EstudianteRequest request, ContextoUsuario contexto)
         {
             await ValidarDatosRequeridos(request);
 
@@ -37,16 +37,16 @@ namespace MicroservicioExpedientesEstudiantes.Services
             var estudiante = MapearAEntidad(request);
             var creado = await _repository.Insertar(estudiante);
 
-            await _bitacoraClient.Registrar(usuario, JsonSerializer.Serialize(creado));
+            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(creado));
             return creado;
         }
 
-        public async Task<Estudiante> Modificar(string identificacion, EstudianteRequest request, string usuario)
+        public async Task<Estudiante> Modificar(string identificacion, EstudianteRequest request, ContextoUsuario contexto)
         {
+            await ValidarDatosRequeridos(request);
+
             var anterior = await _repository.BuscarPorId(identificacion)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
-
-            await ValidarDatosRequeridos(request);
 
             var actualizado = MapearAEntidad(request);
             actualizado.Identificacion = identificacion;
@@ -54,30 +54,30 @@ namespace MicroservicioExpedientesEstudiantes.Services
             var resultado = await _repository.Actualizar(actualizado)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
-            await _bitacoraClient.Registrar(usuario, JsonSerializer.Serialize(new { anterior, actual = resultado }));
+            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(new { anterior, actual = resultado }));
             return resultado;
         }
 
-        public async Task Eliminar(string identificacion, string usuario)
+        public async Task Eliminar(string identificacion, ContextoUsuario contexto)
         {
             var existente = await _repository.BuscarPorId(identificacion)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
             await _repository.Eliminar(identificacion);
-            await _bitacoraClient.Registrar(usuario, JsonSerializer.Serialize(existente));
+            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(existente));
         }
 
-        public async Task<List<Estudiante>> ObtenerTodos(string usuario)
+        public async Task<List<Estudiante>> ObtenerTodos(ContextoUsuario contexto)
         {
             var lista = await _repository.ListarTodos();
-            await _bitacoraClient.Registrar(usuario, "El usuario consulta expedientes de estudiantes");
+            await _bitacoraClient.Registrar(contexto, "El usuario consulta expedientes de estudiantes");
             return lista;
         }
 
-        public async Task<Estudiante?> ObtenerPorId(string identificacion, string usuario)
+        public async Task<Estudiante?> ObtenerPorId(string identificacion, ContextoUsuario contexto)
         {
             var estudiante = await _repository.BuscarPorId(identificacion);
-            await _bitacoraClient.Registrar(usuario, $"El usuario consulta expediente {identificacion}");
+            await _bitacoraClient.Registrar(contexto, $"El usuario consulta expediente {identificacion}");
             return estudiante;
         }
 

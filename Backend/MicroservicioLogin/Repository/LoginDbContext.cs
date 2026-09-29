@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MicroservicioLogin.Entities;
 
-namespace MicroservicioLogin.Data
+namespace MicroservicioLogin.Repository
 {
     public class LoginDbContext : DbContext
     {
@@ -22,6 +22,7 @@ namespace MicroservicioLogin.Data
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(150);
                 entity.Property(u => u.ContrasenaHash).IsRequired();
                 entity.Property(u => u.Rol).IsRequired().HasMaxLength(50);
+                entity.Property(u => u.Activo).IsRequired();
                 entity.HasIndex(u => u.Email).IsUnique();
             });
 

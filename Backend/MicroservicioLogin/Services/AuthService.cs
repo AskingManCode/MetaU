@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
-using MicroservicioLogin.DTOs;
 using MicroservicioLogin.Entities;
 using MicroservicioLogin.Repository;
 
@@ -34,7 +33,7 @@ namespace MicroservicioLogin.Services
         public async Task<LoginResponse?> LoginAsync(string email, string contrasena)
         {
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(email);
-            if (usuario is null || !_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
+            if (usuario is null || !usuario.Activo || !_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
             {
                 return null;
             }
@@ -71,6 +70,12 @@ namespace MicroservicioLogin.Services
             var usuario = await _usuarioRepository.ObtenerPorIdAsync(tokenGuardado.UsuarioId);
             if (usuario is null)
             {
+                return null;
+            }
+
+            if (!usuario.Activo)
+            {
+                await _refreshTokenRepository.RevocarAsync(tokenGuardado);
                 return null;
             }
 

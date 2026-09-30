@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using MicroservicioLogin.Entities;
+using MicroservicioLogin.DTOs;
 
 namespace MicroservicioLogin.Services
 {

@@ -5,7 +5,7 @@ namespace MicroservicioLogin.Repository
     public interface IRefreshTokenRepository
     {
         Task GuardarAsync(RefreshToken refreshToken);
-        Task<RefreshToken?> ObtenerVigentePorTokenAsync(string token);
-        Task RevocarAsync(RefreshToken refreshToken);
+        Task<RefreshToken?> ObtenerVigentePorHashAsync(string tokenHash);
+        Task RevocarAsync(int refreshTokenId);
     }
 }

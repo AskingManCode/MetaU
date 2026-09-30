@@ -1,67 +1,93 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MicroservicioLogin.Entities;
+using Microsoft.AspNetCore.Mvc;
+using MicroservicioLogin.DTOs;
 using MicroservicioLogin.Services;
 
 namespace MicroservicioLogin
 {
     public static class LoginEndpoints
     {
-        public static void MapearEndpoints(this IEndpointRouteBuilder app)
+        public static IEndpointRouteBuilder MapLoginEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/login", LoginAsync)
-                .WithName("Login");
-            app.MapPost("/refresh", RefreshAsync)
-                .WithName("RefreshToken");
-            app.MapPost("/validate", Validate)
-                .WithName("ValidateToken");
+            app.MapPost("/login", LoginAsync);
+            app.MapPost("/refresh", RefreshAsync);
+            app.MapPost("/validate", ValidarAsync);
+
+            return app;
         }
 
         private static async Task<IResult> LoginAsync(
-            [FromHeader(Name = "Email")] string? email,
-            [FromHeader(Name = "Contrasena")] string? contrasena,
+            [FromHeader(Name = "usuario")] string? usuario,
+            [FromHeader(Name = "contrasena")] string? contrasena,
             IAuthService authService)
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(contrasena))
+            if (string.IsNullOrWhiteSpace(usuario) || string.IsNullOrWhiteSpace(contrasena))
             {
-                return Results.Json(new { mensaje = "Correo y/o contraseña incorrectos" }, statusCode: StatusCodes.Status401Unauthorized);
+                return Results.Json(
+                    new ErrorResponse { Mensaje = "Usuario y/o contraseña incorrectos" },
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            var request = new LoginRequest { Email = email.Trim(), Contrasena = contrasena };
-            var response = await authService.LoginAsync(request.Email, request.Contrasena);
-            return response is null
-                ? Results.Json(new { mensaje = "Correo y/o contraseña incorrectos" }, statusCode: StatusCodes.Status401Unauthorized)
-                : Results.Json(response, statusCode: StatusCodes.Status201Created);
+            var respuesta = await authService.LoginAsync(usuario, contrasena);
+            if (respuesta is null)
+            {
+                return Results.Json(
+                    new ErrorResponse { Mensaje = "Usuario y/o contraseña incorrectos" },
+                    statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            return Results.Json(respuesta, statusCode: StatusCodes.Status201Created);
         }
 
-        private static async Task<IResult> RefreshAsync(
-            [FromHeader(Name = "RefreshToken")] string? refreshToken,
-            IAuthService authService)
+        private static async Task<IResult> RefreshAsync(RefreshRequest solicitud, IAuthService authService)
         {
-            if (string.IsNullOrWhiteSpace(refreshToken))
+            if (string.IsNullOrWhiteSpace(solicitud.RefreshToken))
             {
-                return Results.Json(new { mensaje = "Refresh token inválido" }, statusCode: StatusCodes.Status401Unauthorized);
+                return Results.Json(
+                    new ErrorResponse { Mensaje = "No autorizado" },
+                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            var response = await authService.RefreshAsync(refreshToken);
-            return response is null
-                ? Results.Json(new { mensaje = "Refresh token inválido" }, statusCode: StatusCodes.Status401Unauthorized)
-                : Results.Ok(response);
+            var respuesta = await authService.RefreshAsync(solicitud.RefreshToken);
+            if (respuesta is null)
+            {
+                return Results.Json(
+                    new ErrorResponse { Mensaje = "No autorizado" },
+                    statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            return Results.Json(respuesta, statusCode: StatusCodes.Status201Created);
         }
 
-        private static IResult Validate(
-            [FromHeader(Name = "Authorization")] string? authorization,
+        private static IResult ValidarAsync(
+            [FromHeader(Name = "Authorization")] string? autorizacion,
             IAuthService authService)
         {
-            const string bearerPrefix = "Bearer ";
-            if (authorization is null || !authorization.StartsWith(bearerPrefix, StringComparison.OrdinalIgnoreCase))
+            var token = ExtraerTokenDeHeader(autorizacion);
+            if (token is null)
             {
-                return Results.Unauthorized();
+                return Results.StatusCode(StatusCodes.Status401Unauthorized);
             }
 
-            var token = authorization[bearerPrefix.Length..].Trim();
-            return !string.IsNullOrWhiteSpace(token) && authService.Validar(token) is not null
-                ? Results.Ok(true)
-                : Results.Unauthorized();
+            var principal = authService.Validar(token);
+            if (principal is null)
+            {
+                return Results.StatusCode(StatusCodes.Status401Unauthorized);
+            }
+
+            return Results.Json(true, statusCode: StatusCodes.Status200OK);
+        }
+
+        private static string? ExtraerTokenDeHeader(string? headerAutorizacion)
+        {
+            if (string.IsNullOrWhiteSpace(headerAutorizacion))
+            {
+                return null;
+            }
+
+            const string prefijo = "Bearer ";
+            return headerAutorizacion.StartsWith(prefijo, StringComparison.OrdinalIgnoreCase)
+                ? headerAutorizacion[prefijo.Length..]
+                : headerAutorizacion;
         }
     }
 }

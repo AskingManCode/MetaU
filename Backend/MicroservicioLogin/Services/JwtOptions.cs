@@ -1,8 +1,7 @@
 namespace MicroservicioLogin.Services
 {
-    // Se llena desde appsettings.json (sección "Jwt") Si más adelante decidimos
-    // traer estos valores desde MicroservicioParametros, solo cambiar de dónde
-    // se llena esta clase — AuthService y JwtTokenService no se tocan
+    // Se llena desde appsettings.json (seccion "Jwt"). Sigue pendiente si esto
+    // debe leerse de la tabla de parametros de USR3 en vez de config local.
     public class JwtOptions
     {
         public string ClaveSecreta { get; set; } = string.Empty;

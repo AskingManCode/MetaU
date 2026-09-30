@@ -1,18 +1,19 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
+using MicroservicioLogin.DTOs;
 using MicroservicioLogin.Entities;
 using MicroservicioLogin.Repository;
 
 namespace MicroservicioLogin.Services
 {
-    // Orquesta login/refresh/validate. No sabe de EF Core, ni de JWT, ni de
-    // BCrypt: solo coordina las abstracciones (DIP). Cambiar cualquiera de
-    // esas piezas no obliga a tocar esta clase.
+    // Orquesta login/refresh/validate. No conoce Dapper, JWT ni BCrypt
+    // directamente, solo las interfaces (DIP).
     public class AuthService : IAuthService
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IRefreshTokenHasher _refreshTokenHasher;
         private readonly ITokenService _tokenService;
         private readonly JwtOptions _opciones;
 
@@ -20,12 +21,14 @@ namespace MicroservicioLogin.Services
             IUsuarioRepository usuarioRepository,
             IRefreshTokenRepository refreshTokenRepository,
             IPasswordHasher passwordHasher,
+            IRefreshTokenHasher refreshTokenHasher,
             ITokenService tokenService,
             IOptions<JwtOptions> opciones)
         {
             _usuarioRepository = usuarioRepository;
             _refreshTokenRepository = refreshTokenRepository;
             _passwordHasher = passwordHasher;
+            _refreshTokenHasher = refreshTokenHasher;
             _tokenService = tokenService;
             _opciones = opciones.Value;
         }
@@ -33,18 +36,18 @@ namespace MicroservicioLogin.Services
         public async Task<LoginResponse?> LoginAsync(string email, string contrasena)
         {
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(email);
-            if (usuario is null || !usuario.Activo || !_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
+            if (usuario is null || !usuario.Estado || !_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
             {
                 return null;
             }
 
-            var (accessToken, expiracion) = _tokenService.GenerarAccessToken(usuario.Id, usuario.Email, usuario.Rol);
+            var (accessToken, expiracion) = _tokenService.GenerarAccessToken(usuario.UsuarioID, usuario.Email, usuario.RolCode);
             var refreshTokenTexto = _tokenService.GenerarRefreshToken();
 
             await _refreshTokenRepository.GuardarAsync(new RefreshToken
             {
-                UsuarioId = usuario.Id,
-                Token = refreshTokenTexto,
+                UsuarioID = usuario.UsuarioID,
+                TokenHash = _refreshTokenHasher.Hash(refreshTokenTexto),
                 FechaCreacion = DateTime.UtcNow,
                 FechaExpiracion = DateTime.UtcNow.AddMinutes(_opciones.MinutosExpiracionRefreshToken),
                 Revocado = false
@@ -55,40 +58,35 @@ namespace MicroservicioLogin.Services
                 ExpiresIn = expiracion,
                 AccessToken = accessToken,
                 RefreshToken = refreshTokenTexto,
-                UsuarioId = usuario.Id
+                UsuarioId = usuario.UsuarioID
             };
         }
 
         public async Task<RefreshResponse?> RefreshAsync(string refreshTokenTexto)
         {
-            var tokenGuardado = await _refreshTokenRepository.ObtenerVigentePorTokenAsync(refreshTokenTexto);
+            var hash = _refreshTokenHasher.Hash(refreshTokenTexto);
+            var tokenGuardado = await _refreshTokenRepository.ObtenerVigentePorHashAsync(hash);
             if (tokenGuardado is null)
             {
                 return null;
             }
 
-            var usuario = await _usuarioRepository.ObtenerPorIdAsync(tokenGuardado.UsuarioId);
-            if (usuario is null)
+            var usuario = await _usuarioRepository.ObtenerPorIdAsync(tokenGuardado.UsuarioID);
+            if (usuario is null || !usuario.Estado)
             {
                 return null;
             }
 
-            if (!usuario.Activo)
-            {
-                await _refreshTokenRepository.RevocarAsync(tokenGuardado);
-                return null;
-            }
+            // Rotacion: el refresh token usado se revoca y se entrega uno nuevo.
+            await _refreshTokenRepository.RevocarAsync(tokenGuardado.RefreshTokenID);
 
-            // Rotación: el refresh token usado se revoca y se emite uno nuevo.
-            await _refreshTokenRepository.RevocarAsync(tokenGuardado);
-
-            var (accessToken, expiracion) = _tokenService.GenerarAccessToken(usuario.Id, usuario.Email, usuario.Rol);
+            var (accessToken, expiracion) = _tokenService.GenerarAccessToken(usuario.UsuarioID, usuario.Email, usuario.RolCode);
             var nuevoRefreshTokenTexto = _tokenService.GenerarRefreshToken();
 
             await _refreshTokenRepository.GuardarAsync(new RefreshToken
             {
-                UsuarioId = usuario.Id,
-                Token = nuevoRefreshTokenTexto,
+                UsuarioID = usuario.UsuarioID,
+                TokenHash = _refreshTokenHasher.Hash(nuevoRefreshTokenTexto),
                 FechaCreacion = DateTime.UtcNow,
                 FechaExpiracion = DateTime.UtcNow.AddMinutes(_opciones.MinutosExpiracionRefreshToken),
                 Revocado = false

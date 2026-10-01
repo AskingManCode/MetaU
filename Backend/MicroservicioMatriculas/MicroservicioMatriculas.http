@@ -1,6 +1,40 @@
-@MicroservicioMatriculas_HostAddress = http://localhost:5163
+@MicroservicioMatriculas_HostAddress = https://localhost:7070
+@Token = PEGAR_TOKEN_DEL_LOGIN
+@UsuarioId = PEGAR_GUID_DEL_USUARIO
 
-GET {{MicroservicioMatriculas_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{MicroservicioMatriculas_HostAddress}}/matricula
+Authorization: Bearer {{Token}}
+Usuario: {{UsuarioId}}
+Content-Type: application/json
 
-###
+{
+  "identificacion": "123456789",
+  "cursoCode": "CURSO1",
+  "grupoCode": "GRUPO1",
+  "observaciones": "Sin observaciones",
+  "periodoID": "00000000-0000-0000-0000-000000000000"
+}
+
+
+PUT {{MicroservicioMatriculas_HostAddress}}/matricula/1
+Authorization: Bearer {{Token}}
+Usuario: {{UsuarioId}}
+Content-Type: application/json
+
+{
+  "identificacion": "123456789",
+  "cursoCode": "CURSO1",
+  "grupoCode": "GRUPO2",
+  "observaciones": "Cambio de grupo",
+  "periodoID": "00000000-0000-0000-0000-000000000000"
+}
+
+
+DELETE {{MicroservicioMatriculas_HostAddress}}/matricula/1
+Authorization: Bearer {{Token}}
+Usuario: {{UsuarioId}}
+
+
+GET {{MicroservicioMatriculas_HostAddress}}/matricula?cursoCode=CURSO1&grupoCode=GRUPO1
+Authorization: Bearer {{Token}}
+Usuario: {{UsuarioId}}

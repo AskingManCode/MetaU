@@ -15,17 +15,25 @@ namespace MicroservicioBitacoras
         {
             var token = ObtenerToken(context);
 
-            if (!await authService.ValidarTokenAsync(token))
+            if (string.IsNullOrWhiteSpace(token) || !await authService.ValidarTokenAsync(token))
                 return Results.Unauthorized();
+
+            if (!Guid.TryParse(context.Request.Headers["X-Usuario-Id"], out var usuario))
+                return Results.BadRequest(new { mensaje = "El usuario es requerido" });
 
             try
             {
+                request.Usuario = usuario;
                 await service.RegistrarAsync(request);
                 return Results.Ok();
             }
             catch (ArgumentException ex)
             {
-                return Results.BadRequest(ex.Message);
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch
+            {
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
 
@@ -33,11 +41,18 @@ namespace MicroservicioBitacoras
         {
             var token = ObtenerToken(context);
 
-            if (!await authService.ValidarTokenAsync(token))
+            if (string.IsNullOrWhiteSpace(token) || !await authService.ValidarTokenAsync(token))
                 return Results.Unauthorized();
 
-            var bitacoras = await service.ObtenerTodosAsync();
-            return Results.Ok(bitacoras);
+            try
+            {
+                var bitacoras = await service.ObtenerTodosAsync();
+                return Results.Ok(bitacoras);
+            }
+            catch
+            {
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+            }
         }
 
         private static string ObtenerToken(HttpContext context)

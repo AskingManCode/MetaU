@@ -59,16 +59,25 @@ namespace MicroservicioLogin
         }
 
         private static IResult ValidarAsync(
-            [FromHeader(Name = "Authorization")] string? autorizacion,
+            HttpContext context,
             IAuthService authService)
-        {
+                {
+            var autorizacion = context.Request.Headers.Authorization.ToString();
+
+            if (string.IsNullOrWhiteSpace(autorizacion))
+            {
+                return Results.StatusCode(StatusCodes.Status401Unauthorized);
+            }
+
             var token = ExtraerTokenDeHeader(autorizacion);
+
             if (token is null)
             {
                 return Results.StatusCode(StatusCodes.Status401Unauthorized);
             }
 
             var principal = authService.Validar(token);
+
             if (principal is null)
             {
                 return Results.StatusCode(StatusCodes.Status401Unauthorized);

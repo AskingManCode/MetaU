@@ -14,7 +14,7 @@ namespace MicroservicioBitacoras.Services
 
         public async Task RegistrarAsync(BitacoraRequest request)
         {
-            if (request.Usuario <= 0)
+            if (request.Usuario == Guid.Empty)
                 throw new ArgumentException("El usuario es requerido");
 
             if (string.IsNullOrWhiteSpace(request.Descripcion))

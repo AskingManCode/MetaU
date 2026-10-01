@@ -16,7 +16,7 @@ namespace MicroservicioLogin.Services
             _opciones = opciones.Value;
         }
 
-        public (string token, DateTime expiresAt) GenerarAccessToken(int usuarioId, string email, string rol)
+        public (string token, DateTime expiresAt) GenerarAccessToken(Guid usuarioId, string email, string rolCode)
         {
             var expiracion = DateTime.UtcNow.AddMinutes(_opciones.MinutosExpiracionAccessToken);
 
@@ -24,7 +24,7 @@ namespace MicroservicioLogin.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuarioId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim(ClaimTypes.Role, rol),
+                new Claim(ClaimTypes.Role, rolCode),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

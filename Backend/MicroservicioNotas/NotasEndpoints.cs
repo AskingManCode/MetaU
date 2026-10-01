@@ -21,8 +21,8 @@ namespace MicroservicioNotas
             app.MapGet("/obtenerdesglose", (string grupoCode, HttpRequest http, INotaService servicio) =>
                 Ejecutar(http, async contexto => Results.Ok(await servicio.ObtenerDesglose(grupoCode, contexto))));
 
-            app.MapGet("/obtenernotas", (string identificacion, string idCurso, HttpRequest http, INotaService servicio) =>
-                Ejecutar(http, async contexto => Results.Ok(await servicio.ObtenerNotas(identificacion, idCurso, contexto))));
+            app.MapGet("/obtenernotas", (string identificacion, string grupoCode, HttpRequest http, INotaService servicio) =>
+                Ejecutar(http, async contexto => Results.Ok(await servicio.ObtenerNotas(identificacion, grupoCode, contexto))));
         }
 
         private static async Task<IResult> Ejecutar(HttpRequest http, Func<ContextoUsuario, Task<IResult>> accion)

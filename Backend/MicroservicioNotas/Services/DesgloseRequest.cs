@@ -8,7 +8,7 @@ namespace MicroservicioNotas.Services
 
     public class RubroItem
     {
-        public string Nombre { get; set; } = string.Empty;
+        public string NombreRubro { get; set; } = string.Empty;
         public decimal Porcentaje { get; set; }
     }
 }

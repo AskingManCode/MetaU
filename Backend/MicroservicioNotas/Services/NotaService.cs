@@ -31,10 +31,10 @@ namespace MicroservicioNotas.Services
             if (string.IsNullOrWhiteSpace(request.GrupoCode) || request.Rubros.Count == 0)
                 throw new ValidacionException("Debe indicarse el grupo y al menos un rubro.");
 
-            if (request.Rubros.Any(r => string.IsNullOrWhiteSpace(r.Nombre) || r.Porcentaje <= 0))
+            if (request.Rubros.Any(r => string.IsNullOrWhiteSpace(r.NombreRubro) || r.Porcentaje <= 0))
                 throw new ValidacionException("Todos los rubros requieren nombre y un porcentaje mayor a cero.");
 
-            var grupo = await _grupoClient.ObtenerPorCodigo(request.GrupoCode)
+            _ = await _grupoClient.ObtenerPorCodigo(request.GrupoCode)
                 ?? throw new ValidacionException($"El grupo {request.GrupoCode} no existe.");
 
             var total = await _parametroClient.ObtenerValorNumerico("TOTRUBRO");
@@ -47,8 +47,7 @@ namespace MicroservicioNotas.Services
             var rubros = request.Rubros.Select(r => new Rubro
             {
                 GrupoCode = request.GrupoCode,
-                CursoCode = grupo.CursoCode,
-                Nombre = r.Nombre,
+                NombreRubro = r.NombreRubro,
                 Porcentaje = r.Porcentaje
             }).ToList();
 
@@ -59,9 +58,9 @@ namespace MicroservicioNotas.Services
 
         public async Task<NotaRubro> AsignarNotaRubro(NotaRubroRequest request, ContextoUsuario contexto)
         {
-            var nota = await ValidarYMapear(request, contexto);
+            var (nota, estudianteId) = await ValidarYMapear(request, contexto);
 
-            var existente = await _repository.ObtenerNota(request.IdRubro, request.Identificacion);
+            var existente = await _repository.ObtenerNota(request.RubroID, estudianteId);
             if (existente is not null)
                 throw new ConflictoException("Ya existe una nota para ese rubro y estudiante; use modificar en vez de asignar.");
 
@@ -72,9 +71,9 @@ namespace MicroservicioNotas.Services
 
         public async Task<NotaRubro> ModificarNotaRubro(NotaRubroRequest request, ContextoUsuario contexto)
         {
-            var nota = await ValidarYMapear(request, contexto);
+            var (nota, estudianteId) = await ValidarYMapear(request, contexto);
 
-            var anterior = await _repository.ObtenerNota(request.IdRubro, request.Identificacion)
+            var anterior = await _repository.ObtenerNota(request.RubroID, estudianteId)
                 ?? throw new NoEncontradoException("No existe una nota para ese rubro y estudiante.");
 
             var actualizada = await _repository.ActualizarNota(nota)
@@ -91,35 +90,40 @@ namespace MicroservicioNotas.Services
             return rubros;
         }
 
-        public async Task<List<NotaRubro>> ObtenerNotas(string identificacion, string cursoCode, ContextoUsuario contexto)
+        public async Task<List<NotaRubro>> ObtenerNotas(string identificacion, string grupoCode, ContextoUsuario contexto)
         {
-            var notas = await _repository.ListarNotas(identificacion, cursoCode);
-            await _bitacoraClient.Registrar(contexto, $"El usuario consulta notas de {identificacion} en curso {cursoCode}");
+            var estudianteId = await _expedienteClient.ObtenerEstudianteID(identificacion, contexto)
+                ?? throw new ValidacionException($"El estudiante {identificacion} no existe.");
+
+            var notas = await _repository.ListarNotas(estudianteId, grupoCode);
+            await _bitacoraClient.Registrar(contexto, $"El usuario consulta notas de {identificacion} en grupo {grupoCode}");
             return notas;
         }
 
-        private async Task<NotaRubro> ValidarYMapear(NotaRubroRequest request, ContextoUsuario contexto)
+        private async Task<(NotaRubro nota, Guid estudianteId)> ValidarYMapear(NotaRubroRequest request, ContextoUsuario contexto)
         {
             if (string.IsNullOrWhiteSpace(request.Identificacion))
                 throw new ValidacionException("Debe indicarse la identificación del estudiante.");
 
-            _ = await _repository.ObtenerRubro(request.IdRubro)
-                ?? throw new ValidacionException($"El rubro {request.IdRubro} no existe.");
+            _ = await _repository.ObtenerRubro(request.RubroID)
+                ?? throw new ValidacionException($"El rubro {request.RubroID} no existe.");
 
-            if (!await _expedienteClient.Existe(request.Identificacion, contexto))
-                throw new ValidacionException($"El estudiante {request.Identificacion} no existe.");
+            var estudianteId = await _expedienteClient.ObtenerEstudianteID(request.Identificacion, contexto)
+                ?? throw new ValidacionException($"El estudiante {request.Identificacion} no existe.");
 
             var min = await _parametroClient.ObtenerValorNumerico("NOTAMIN");
             var max = await _parametroClient.ObtenerValorNumerico("NOTAMAX");
             if (request.Nota < min || request.Nota > max)
                 throw new ValidacionException($"La nota debe estar entre {min} y {max}.");
 
-            return new NotaRubro
+            var nota = new NotaRubro
             {
-                IdRubro = request.IdRubro,
-                Identificacion = request.Identificacion,
+                RubroID = request.RubroID,
+                EstudianteID = estudianteId,
                 Nota = request.Nota
             };
+
+            return (nota, estudianteId);
         }
     }
 }

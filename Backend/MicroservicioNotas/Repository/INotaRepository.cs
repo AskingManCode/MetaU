@@ -6,11 +6,11 @@ namespace MicroservicioNotas.Repository
     {
         Task ReemplazarDesglose(string grupoCode, List<Rubro> rubros);
         Task<List<Rubro>> ListarRubrosPorGrupo(string grupoCode);
-        Task<Rubro?> ObtenerRubro(int idRubro);
+        Task<Rubro?> ObtenerRubro(Guid rubroId);
         Task<bool> ExistenNotasEnGrupo(string grupoCode);
         Task<NotaRubro> InsertarNota(NotaRubro nota);
         Task<NotaRubro?> ActualizarNota(NotaRubro nota);
-        Task<NotaRubro?> ObtenerNota(int idRubro, string identificacion);
-        Task<List<NotaRubro>> ListarNotas(string identificacion, string cursoCode);
+        Task<NotaRubro?> ObtenerNota(Guid rubroId, Guid estudianteId);
+        Task<List<NotaRubro>> ListarNotas(Guid estudianteId, string grupoCode);
     }
 }

@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace MicroservicioNotas.Services
 {
@@ -11,14 +12,19 @@ namespace MicroservicioNotas.Services
             _http = http;
         }
 
-        public async Task<bool> Existe(string identificacion, ContextoUsuario contexto)
+        private record ExpedienteResponse(Guid EstudianteID);
+
+        public async Task<Guid?> ObtenerEstudianteID(string identificacion, ContextoUsuario contexto)
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, $"/expediente/{identificacion}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
             request.Headers.Add("Usuario", contexto.UsuarioId.ToString());
 
             using var response = await _http.SendAsync(request);
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode) return null;
+
+            var expediente = await response.Content.ReadFromJsonAsync<ExpedienteResponse>();
+            return expediente?.EstudianteID;
         }
     }
 }

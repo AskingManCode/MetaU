@@ -8,32 +8,35 @@ namespace MicroservicioNotas.Repository
         public NotaDbContext(DbContextOptions<NotaDbContext> options) : base(options) { }
 
         public DbSet<Rubro> Rubros => Set<Rubro>();
-        public DbSet<NotaRubro> Notas => Set<NotaRubro>();
+        public DbSet<NotaRubro> NotasXEstudiante => Set<NotaRubro>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Rubro>(r =>
             {
-                r.ToTable("Rubro");
-                r.HasKey(x => x.IdRubro);
-                r.Property(x => x.IdRubro).ValueGeneratedOnAdd();
+                r.ToTable("Rubros");
+                r.HasKey(x => x.RubroID);
+                r.Property(x => x.RubroID).HasDefaultValueSql("NEWSEQUENTIALID()").ValueGeneratedOnAdd();
                 r.Property(x => x.GrupoCode).HasMaxLength(15).IsRequired();
-                r.Property(x => x.CursoCode).HasMaxLength(15).IsRequired();
-                r.Property(x => x.Nombre).HasMaxLength(150).IsRequired();
+                r.Property(x => x.NombreRubro).HasMaxLength(100).IsRequired();
                 r.Property(x => x.Porcentaje).HasColumnType("decimal(5,2)");
+                r.Property(x => x.Bloqueado).HasDefaultValue(true);
+                r.Property(x => x.Estado).HasDefaultValue(true);
+                r.HasIndex(x => new { x.GrupoCode, x.NombreRubro }).IsUnique();
             });
 
             modelBuilder.Entity<NotaRubro>(n =>
             {
-                n.ToTable("NotaRubro");
-                n.HasKey(x => x.IdNota);
-                n.Property(x => x.IdNota).ValueGeneratedOnAdd();
-                n.Property(x => x.Identificacion).HasMaxLength(20).IsRequired();
+                n.ToTable("NotasXEstudiante");
+                n.HasKey(x => x.NotaXEstudianteID);
+                n.Property(x => x.NotaXEstudianteID).ValueGeneratedOnAdd();
                 n.Property(x => x.Nota).HasColumnType("decimal(5,2)");
+                n.Property(x => x.FechaRegistro).HasColumnType("date");
+                n.HasIndex(x => new { x.RubroID, x.EstudianteID }).IsUnique();
 
                 n.HasOne<Rubro>()
                     .WithMany()
-                    .HasForeignKey(x => x.IdRubro);
+                    .HasForeignKey(x => x.RubroID);
             });
         }
     }

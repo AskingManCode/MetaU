@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
 using MicroservicioParametros.Entities;
 using MicroservicioParametros.Services;
-using MicroservicioParametros.Validators;
 using Microsoft.Data.SqlClient;
-using System.Text.Json;
 
 namespace MicroservicioParametros
 {
@@ -14,8 +12,8 @@ namespace MicroservicioParametros
             app.MapPost("/parametro", Crear);
             app.MapPatch("/parametro/{ParametroCode}", Modificar);
             app.MapDelete("/parametro/{ParametroCode}", Eliminar);
-            app.MapGet("/parametro", ObtenerTodos);
             app.MapGet("/parametro/{ParametroCode}", ObtenerPorID);
+            app.MapGet("/parametro", ObtenerTodos);
 
         }
 
@@ -87,12 +85,48 @@ namespace MicroservicioParametros
             throw new NotImplementedException();
         }
 
-        public static async Task<IResult> ObtenerTodos()
+        private static async Task<IResult> ObtenerPorID(
+            string ParametroCode,
+            IParametroService service,
+            IAuthServiceClient auth/*,
+            IBitacoraServiceClient bitacora*/)
         {
-            throw new NotImplementedException();
+            /*var acceso = await ValidarAccesoAsync(httpRequest, auth);
+
+            if (acceso.Error != null)
+                return acceso.Error;*/
+
+            try
+            {
+                var parametro = await service.ObtenerPorIDAsync(ParametroCode);
+
+                if (parametro is null)
+                    return Results.NotFound(new { mensaje = $"No se encontró el parámetro con código '{ParametroCode}'." });
+
+                /*await bitacora.RegistrarAsync(
+                    acceso.Usuario,
+                    "El usuario consulta periodo",
+                    acceso.Token);*/
+
+                return Results.Ok(parametro); // 200
+            }
+            catch (ArgumentException ex)
+            {
+                // await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token);
+
+                return Results.BadRequest(new { mensaje = ex.Message }); // 400
+            }
+            catch (Exception)
+            {
+                // await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token);
+
+                return Results.Json(
+                    new { mensaje = "Error interno del servidor" },
+                    statusCode: 500);
+            }
         }
 
-        public static async Task<IResult> ObtenerPorID()
+        public static async Task<IResult> ObtenerTodos()
         {
             throw new NotImplementedException();
         }

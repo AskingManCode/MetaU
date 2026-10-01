@@ -29,7 +29,9 @@ builder.Services.AddHttpClient<IExpedienteClient, ExpedienteClient>(c =>
     c.BaseAddress = new Uri(builder.Configuration["Servicios:ExpedienteUrl"]
         ?? throw new InvalidOperationException("Falta Servicios:ExpedienteUrl en appsettings.")));
 
-builder.Services.AddScoped<IParametroClient, ParametroClient>();
+builder.Services.AddHttpClient<IParametroClient, ParametroClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["Servicios:ParametroUrl"]
+        ?? throw new InvalidOperationException("Falta Servicios:ParametroUrl en appsettings.")));
 
 var app = builder.Build();
 

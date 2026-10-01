@@ -16,5 +16,13 @@ namespace MicroservicioParametros.Services
         {   
             return await _repository.CrearAsync(request);
         }
+
+        public async Task<ParametroResponse?> ObtenerPorIDAsync(string parametroCode)
+        {
+            if (string.IsNullOrWhiteSpace(parametroCode))
+                throw new ArgumentException("El código del parámetro es obligatorio.");
+
+            return await _repository.ObtenerPorIDAsync(parametroCode);
+        }
     }
 }

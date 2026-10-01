@@ -27,5 +27,19 @@ namespace MicroservicioParametros.Repository
                 commandType: CommandType.StoredProcedure
             );
         }
+
+        public async Task<ParametroResponse?> ObtenerPorIDAsync(string parametroCode)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            return await connection.QuerySingleOrDefaultAsync<ParametroResponse>(
+                "dbo.usp_Parametros_ObtenerPorID",
+                new 
+                { 
+                    ParametroCode = parametroCode 
+                },
+                commandType: CommandType.StoredProcedure
+            );
+        }
     }
 }

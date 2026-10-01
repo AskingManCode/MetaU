@@ -1,6 +1,7 @@
 ﻿namespace MicroservicioUsuarios.Services
 {
-    public class IBitacoraServiceClient
+    public interface IBitacoraServiceClient
     {
+        Task RegistrarAsycn(int usuario, string descripcion, string token);
     }
 }

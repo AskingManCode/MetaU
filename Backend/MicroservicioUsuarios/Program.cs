@@ -1,23 +1,39 @@
+using MicroservicioUsuarios;
+using MicroservicioUsuarios.Repository;
+using MicroservicioUsuarios.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ClientApps", policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+});
+
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+builder.Services.AddScoped<IAuthService, AuthServiceMock>();
+
+builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>()
+    .ConfigureHttpClient(client =>
+    {
+        var url = builder.Configuration["Servicios:BitacoraUrl"];
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            client.BaseAddress = new Uri(url);
+        }
+    });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
+app.UseCors("ClientApps");
+app.MapUsuarioEndpoints();
 
 app.Run();

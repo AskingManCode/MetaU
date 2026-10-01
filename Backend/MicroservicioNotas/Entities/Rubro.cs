@@ -2,10 +2,11 @@ namespace MicroservicioNotas.Entities
 {
     public class Rubro
     {
-        public int IdRubro { get; set; }
+        public Guid RubroID { get; set; }
         public string GrupoCode { get; set; } = string.Empty;
-        public string CursoCode { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
+        public string NombreRubro { get; set; } = string.Empty;
         public decimal Porcentaje { get; set; }
+        public bool Bloqueado { get; set; } = true;
+        public bool Estado { get; set; } = true;
     }
 }

@@ -25,29 +25,29 @@ namespace MicroservicioNotas.Repository
             return await _db.Rubros.Where(r => r.GrupoCode == grupoCode).AsNoTracking().ToListAsync();
         }
 
-        public async Task<Rubro?> ObtenerRubro(int idRubro)
+        public async Task<Rubro?> ObtenerRubro(Guid rubroId)
         {
-            return await _db.Rubros.AsNoTracking().FirstOrDefaultAsync(r => r.IdRubro == idRubro);
+            return await _db.Rubros.AsNoTracking().FirstOrDefaultAsync(r => r.RubroID == rubroId);
         }
 
         public async Task<bool> ExistenNotasEnGrupo(string grupoCode)
         {
-            return await _db.Notas
-                .Join(_db.Rubros, n => n.IdRubro, r => r.IdRubro, (n, r) => r)
+            return await _db.NotasXEstudiante
+                .Join(_db.Rubros, n => n.RubroID, r => r.RubroID, (n, r) => r)
                 .AnyAsync(r => r.GrupoCode == grupoCode);
         }
 
         public async Task<NotaRubro> InsertarNota(NotaRubro nota)
         {
-            _db.Notas.Add(nota);
+            _db.NotasXEstudiante.Add(nota);
             await _db.SaveChangesAsync();
             return nota;
         }
 
         public async Task<NotaRubro?> ActualizarNota(NotaRubro nota)
         {
-            var existente = await _db.Notas
-                .FirstOrDefaultAsync(n => n.IdRubro == nota.IdRubro && n.Identificacion == nota.Identificacion);
+            var existente = await _db.NotasXEstudiante
+                .FirstOrDefaultAsync(n => n.RubroID == nota.RubroID && n.EstudianteID == nota.EstudianteID);
 
             if (existente is null) return null;
 
@@ -56,17 +56,17 @@ namespace MicroservicioNotas.Repository
             return existente;
         }
 
-        public async Task<NotaRubro?> ObtenerNota(int idRubro, string identificacion)
+        public async Task<NotaRubro?> ObtenerNota(Guid rubroId, Guid estudianteId)
         {
-            return await _db.Notas.AsNoTracking()
-                .FirstOrDefaultAsync(n => n.IdRubro == idRubro && n.Identificacion == identificacion);
+            return await _db.NotasXEstudiante.AsNoTracking()
+                .FirstOrDefaultAsync(n => n.RubroID == rubroId && n.EstudianteID == estudianteId);
         }
 
-        public async Task<List<NotaRubro>> ListarNotas(string identificacion, string cursoCode)
+        public async Task<List<NotaRubro>> ListarNotas(Guid estudianteId, string grupoCode)
         {
-            return await _db.Notas
-                .Join(_db.Rubros, n => n.IdRubro, r => r.IdRubro, (n, r) => new { Nota = n, Rubro = r })
-                .Where(x => x.Nota.Identificacion == identificacion && x.Rubro.CursoCode == cursoCode)
+            return await _db.NotasXEstudiante
+                .Join(_db.Rubros, n => n.RubroID, r => r.RubroID, (n, r) => new { Nota = n, Rubro = r })
+                .Where(x => x.Nota.EstudianteID == estudianteId && x.Rubro.GrupoCode == grupoCode)
                 .Select(x => x.Nota)
                 .AsNoTracking()
                 .ToListAsync();

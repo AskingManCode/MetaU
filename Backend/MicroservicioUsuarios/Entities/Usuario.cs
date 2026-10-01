@@ -9,6 +9,6 @@
         public string NombreCompleto { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string ContrasenaHash { get; set; } = null!;
-        public string Estado { get; set; } = null!;
+        public bool Estado { get; set; } = true;
     }
 }

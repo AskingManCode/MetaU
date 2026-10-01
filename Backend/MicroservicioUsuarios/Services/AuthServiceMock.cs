@@ -1,6 +1,6 @@
 ﻿namespace MicroservicioUsuarios.Services
 {
-    public class AuthServiceMock
+    public class AuthServiceMock : IAuthService
     {
         public Task<bool> ValidarAsync(string token)
         {

@@ -50,7 +50,7 @@ namespace MicroservicioExpedientesEstudiantes
             var usuarioHeader = http.Headers["Usuario"].ToString();
 
             if (string.IsNullOrWhiteSpace(token) ||
-                !int.TryParse(usuarioHeader, out var usuarioId) ||
+                !Guid.TryParse(usuarioHeader, out var usuarioId) ||
                 !await authClient.Validate(token))
             {
                 return Results.Json(new { mensaje = "No autorizado" }, statusCode: StatusCodes.Status401Unauthorized);

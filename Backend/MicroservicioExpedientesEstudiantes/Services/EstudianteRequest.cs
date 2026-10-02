@@ -7,9 +7,9 @@ namespace MicroservicioExpedientesEstudiantes.Services
         public string Email { get; set; } = string.Empty;
         public string NombreCompleto { get; set; } = string.Empty;
         public DateOnly FechaNacimiento { get; set; }
-        public string Provincia { get; set; } = string.Empty;
-        public string Canton { get; set; } = string.Empty;
-        public string Distrito { get; set; } = string.Empty;
+        public Guid ProvinciaID { get; set; }
+        public Guid CantonID { get; set; }
+        public Guid DistritoID { get; set; }
         public string OtrasSenas { get; set; } = string.Empty;
         public List<string> Telefonos { get; set; } = new();
     }

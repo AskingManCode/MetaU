@@ -19,6 +19,7 @@ namespace MicroservicioExpedientesEstudiantes.Services
                 Content = JsonContent.Create(new { Usuario = contexto.UsuarioId, Descripcion = descripcion })
             };
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
+            request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 
             using var response = await _http.SendAsync(request);
             response.EnsureSuccessStatusCode();

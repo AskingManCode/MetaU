@@ -33,11 +33,10 @@ namespace MicroservicioExpedientesEstudiantes.Repository
             existente.FechaNacimiento = estudiante.FechaNacimiento;
             existente.Direccion = estudiante.Direccion;
 
-            existente.Telefonos.Clear();
-            foreach (var tel in estudiante.Telefonos)
-            {
-                existente.Telefonos.Add(new Telefono { Numero = tel.Numero, Identificacion = existente.Identificacion });
-            }
+            _db.RemoveRange(existente.Telefonos);
+            existente.Telefonos = estudiante.Telefonos
+                .Select(t => new Telefono { EstudianteID = existente.EstudianteID, Numero = t.Numero })
+                .ToList();
 
             await _db.SaveChangesAsync();
             return existente;
@@ -45,9 +44,12 @@ namespace MicroservicioExpedientesEstudiantes.Repository
 
         public async Task<bool> Eliminar(string identificacion)
         {
-            var existente = await _db.Estudiantes.FirstOrDefaultAsync(e => e.Identificacion == identificacion);
+            var existente = await _db.Estudiantes
+                .Include(e => e.Telefonos)
+                .FirstOrDefaultAsync(e => e.Identificacion == identificacion);
             if (existente is null) return false;
 
+            _db.RemoveRange(existente.Telefonos);
             _db.Estudiantes.Remove(existente);
             await _db.SaveChangesAsync();
             return true;
@@ -69,6 +71,11 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         public async Task<bool> Existe(string identificacion)
         {
             return await _db.Estudiantes.AnyAsync(e => e.Identificacion == identificacion);
+        }
+
+        public async Task<bool> ExisteEmail(string email, string? identificacionExcluir = null)
+        {
+            return await _db.Estudiantes.AnyAsync(e => e.Email == email && e.Identificacion != identificacionExcluir);
         }
     }
 }

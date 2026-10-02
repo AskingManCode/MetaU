@@ -14,7 +14,7 @@ namespace MicroservicioBitacoras.Repository
                 ?? throw new InvalidOperationException("No se encontro la cadena de conexion SeguridadAuditoria");
         }
 
-        public async Task RegistrarAsync(int usuario, string descripcion)
+        public async Task RegistrarAsync(Guid usuario, string descripcion)
         {
             const string query = """
                 INSERT INTO dbo.Bitacora (Usuario, Descripcion)
@@ -24,7 +24,7 @@ namespace MicroservicioBitacoras.Repository
             await using var connection = new SqlConnection(_connectionString);
             await using var command = new SqlCommand(query, connection);
 
-            command.Parameters.Add("@Usuario", SqlDbType.Int).Value = usuario;
+            command.Parameters.Add("@Usuario", SqlDbType.UniqueIdentifier).Value = usuario;
             command.Parameters.Add("@Descripcion", SqlDbType.NVarChar, -1).Value = descripcion;
 
             await connection.OpenAsync();
@@ -39,6 +39,7 @@ namespace MicroservicioBitacoras.Repository
                 """;
 
             var bitacoras = new List<Bitacora>();
+
             await using var connection = new SqlConnection(_connectionString);
             await using var command = new SqlCommand(query, connection);
 
@@ -51,7 +52,7 @@ namespace MicroservicioBitacoras.Repository
                 {
                     IdBitacora = reader.GetInt64(0),
                     FechaBitacora = reader.GetDateTime(1),
-                    Usuario = reader.GetInt32(2),
+                    Usuario = reader.GetGuid(2),
                     Descripcion = reader.GetString(3)
                 });
             }

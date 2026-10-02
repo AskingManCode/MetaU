@@ -29,12 +29,12 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task<Estudiante> Crear(EstudianteRequest request, ContextoUsuario contexto)
         {
-            await ValidarDatosRequeridos(request);
+            await ValidarDatosRequeridos(request, esCreacion: true, identificacionOriginal: null);
 
             if (await _repository.Existe(request.Identificacion))
                 throw new ConflictoException("Ya existe un expediente con esa identificación.");
 
-            var estudiante = MapearAEntidad(request);
+            var estudiante = MapearAEntidad(request, Guid.NewGuid());
             var creado = await _repository.Insertar(estudiante);
 
             await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(creado));
@@ -43,12 +43,12 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task<Estudiante> Modificar(string identificacion, EstudianteRequest request, ContextoUsuario contexto)
         {
-            await ValidarDatosRequeridos(request);
-
             var anterior = await _repository.BuscarPorId(identificacion)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
-            var actualizado = MapearAEntidad(request);
+            await ValidarDatosRequeridos(request, esCreacion: false, identificacionOriginal: identificacion);
+
+            var actualizado = MapearAEntidad(request, anterior.EstudianteID);
             actualizado.Identificacion = identificacion;
 
             var resultado = await _repository.Actualizar(actualizado)
@@ -81,16 +81,16 @@ namespace MicroservicioExpedientesEstudiantes.Services
             return estudiante;
         }
 
-        private async Task ValidarDatosRequeridos(EstudianteRequest request)
+        private async Task ValidarDatosRequeridos(EstudianteRequest request, bool esCreacion, string? identificacionOriginal)
         {
             if (EsVacioOEnBlanco(request.Identificacion) ||
                 EsVacioOEnBlanco(request.TipoIdentificacion) ||
                 EsVacioOEnBlanco(request.Email) ||
                 EsVacioOEnBlanco(request.NombreCompleto) ||
-                EsVacioOEnBlanco(request.Provincia) ||
-                EsVacioOEnBlanco(request.Canton) ||
-                EsVacioOEnBlanco(request.Distrito) ||
                 EsVacioOEnBlanco(request.OtrasSenas) ||
+                request.ProvinciaID == Guid.Empty ||
+                request.CantonID == Guid.Empty ||
+                request.DistritoID == Guid.Empty ||
                 request.FechaNacimiento == default)
             {
                 throw new ValidacionException("Todos los datos son requeridos y no pueden ser vacíos ni espacios en blanco.");
@@ -108,12 +108,16 @@ namespace MicroservicioExpedientesEstudiantes.Services
             var dominio = await _parametroClient.ObtenerValor("DOMEST");
             if (!request.Email.EndsWith("@" + dominio, StringComparison.OrdinalIgnoreCase))
                 throw new ValidacionException($"El email debe pertenecer al dominio {dominio}.");
+
+            if (await _repository.ExisteEmail(request.Email, esCreacion ? null : identificacionOriginal))
+                throw new ConflictoException($"Ya existe un estudiante con el email {request.Email}.");
         }
 
         private static bool EsVacioOEnBlanco(string valor) => string.IsNullOrWhiteSpace(valor);
 
-        private static Estudiante MapearAEntidad(EstudianteRequest request) => new()
+        private static Estudiante MapearAEntidad(EstudianteRequest request, Guid estudianteId) => new()
         {
+            EstudianteID = estudianteId,
             Identificacion = request.Identificacion,
             TipoIdentificacion = request.TipoIdentificacion,
             Email = request.Email,
@@ -121,13 +125,13 @@ namespace MicroservicioExpedientesEstudiantes.Services
             FechaNacimiento = request.FechaNacimiento,
             Direccion = new Direccion
             {
-                Provincia = request.Provincia,
-                Canton = request.Canton,
-                Distrito = request.Distrito,
+                ProvinciaID = request.ProvinciaID,
+                CantonID = request.CantonID,
+                DistritoID = request.DistritoID,
                 OtrasSenas = request.OtrasSenas
             },
             Telefonos = request.Telefonos
-                .Select(numero => new Telefono { Numero = numero })
+                .Select(numero => new Telefono { EstudianteID = estudianteId, Numero = numero })
                 .ToList()
         };
     }

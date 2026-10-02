@@ -10,5 +10,6 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         Task<List<Estudiante>> ListarTodos();
         Task<Estudiante?> BuscarPorId(string identificacion);
         Task<bool> Existe(string identificacion);
+        Task<bool> ExisteEmail(string email, string? identificacionExcluir = null);
     }
 }

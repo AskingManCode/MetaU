@@ -14,7 +14,7 @@ namespace MicroservicioRoles.Repository
 
         public IDbConnection CrearConexion()
         {
-            return new SqlConnection(_configuracion.GetConnectionString("DefaultConnection"));
+            return new SqlConnection(_configuracion.GetConnectionString("Usuarios_DB"));
         }
     }
 }

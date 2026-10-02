@@ -17,14 +17,12 @@ namespace MicroservicioBitacoras.Services
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, "validate");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            using var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
                 return false;
 
             response.EnsureSuccessStatusCode();
-
             return await response.Content.ReadFromJsonAsync<bool>();
         }
     }

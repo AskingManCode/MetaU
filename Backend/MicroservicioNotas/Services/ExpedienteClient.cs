@@ -23,7 +23,8 @@ namespace MicroservicioNotas.Services
             using var response = await _http.SendAsync(request);
             if (!response.IsSuccessStatusCode) return null;
 
-            var expediente = await response.Content.ReadFromJsonAsync<ExpedienteResponse>();
+            var expediente = await response.Content.ReadFromJsonAsync<ExpedienteResponse>(
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             return expediente?.EstudianteID;
         }
     }

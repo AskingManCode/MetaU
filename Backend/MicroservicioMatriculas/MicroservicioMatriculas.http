@@ -4,7 +4,7 @@
 
 POST {{MicroservicioMatriculas_HostAddress}}/matricula
 Authorization: Bearer {{Token}}
-Usuario: {{UsuarioId}}
+X-Usuario-Id: {{UsuarioId}}
 Content-Type: application/json
 
 {
@@ -18,7 +18,7 @@ Content-Type: application/json
 
 PUT {{MicroservicioMatriculas_HostAddress}}/matricula/1
 Authorization: Bearer {{Token}}
-Usuario: {{UsuarioId}}
+X-Usuario-Id: {{UsuarioId}}
 Content-Type: application/json
 
 {
@@ -32,9 +32,9 @@ Content-Type: application/json
 
 DELETE {{MicroservicioMatriculas_HostAddress}}/matricula/1
 Authorization: Bearer {{Token}}
-Usuario: {{UsuarioId}}
+X-Usuario-Id: {{UsuarioId}}
 
 
 GET {{MicroservicioMatriculas_HostAddress}}/matricula?cursoCode=CURSO1&grupoCode=GRUPO1
 Authorization: Bearer {{Token}}
-Usuario: {{UsuarioId}}
+X-Usuario-Id: {{UsuarioId}}}

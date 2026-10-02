@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MicroservicioParametros.Entities;
 using MicroservicioParametros.Services;
+using MicroservicioParametros.Services.Clients;
 using Microsoft.Data.SqlClient;
 
 namespace MicroservicioParametros
@@ -9,11 +10,13 @@ namespace MicroservicioParametros
     {
         public static void MapParametrosEndpoints(this WebApplication app)
         {
-            app.MapPost("/parametro", Crear);
-            app.MapPatch("/parametro/{ParametroCode}", Modificar);
-            app.MapDelete("/parametro/{ParametroCode}", Eliminar);
-            app.MapGet("/parametro/{ParametroCode}", ObtenerPorID);
-            app.MapGet("/parametro", ObtenerTodos);
+            var group = app.MapGroup("/api/parametro");
+
+            group.MapPost("/", Crear);
+            group.MapPatch("/{ParametroCode}", Modificar);
+            group.MapDelete("/{ParametroCode}", Eliminar);
+            group.MapGet("/{ParametroCode}", ObtenerPorID);
+            group.MapGet("/", ObtenerTodos);
 
         }
 
@@ -21,14 +24,14 @@ namespace MicroservicioParametros
             ParametroRequest request,
             HttpRequest httpRequest,
             IParametroService service,
-            IValidator<ParametroRequest> validator/*,
-            IAuthServiceClient auth,
+            IValidator<ParametroRequest> validator,
+            IAuthServiceValidator authValidator/*,
             IBitacoraServiceClient bitacora*/)
         {
-            /*var acceso = await ValidarAccesoAsync(httpRequest, auth);
+            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
-            if (acceso.Error != null)
-                return acceso.Error;*/
+            if (error is not null)
+                return error;
 
             var validationResult = await validator.ValidateAsync(request);
 
@@ -56,7 +59,7 @@ namespace MicroservicioParametros
                 return Results.Created($"/parametro/{parametroCreado.ParametroCode}", parametroCreado); // 201
 
             }
-            catch (SqlException ex)
+            catch (SqlException)
             {
                 //await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token);
 
@@ -87,14 +90,15 @@ namespace MicroservicioParametros
 
         private static async Task<IResult> ObtenerPorID(
             string ParametroCode,
+            HttpRequest httpRequest,
             IParametroService service,
-            IAuthServiceClient auth/*,
-            IBitacoraServiceClient bitacora*/)
+            IAuthServiceValidator authValidator,
+            IBitacoraServiceClient bitacora)
         {
-            /*var acceso = await ValidarAccesoAsync(httpRequest, auth);
+            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
-            if (acceso.Error != null)
-                return acceso.Error;*/
+            if (error is not null)
+                return error;
 
             try
             {
@@ -103,22 +107,37 @@ namespace MicroservicioParametros
                 if (parametro is null)
                     return Results.NotFound(new { mensaje = $"No se encontró el parámetro con código '{ParametroCode}'." });
 
-                /*await bitacora.RegistrarAsync(
-                    acceso.Usuario,
-                    "El usuario consulta periodo",
-                    acceso.Token);*/
+                try
+                {
+                    await bitacora.RegistrarBitacoraAsync(usuario, $"Consulta parametro {ParametroCode}", token);
+                }
+                catch
+                {
+                }
 
                 return Results.Ok(parametro); // 200
             }
             catch (ArgumentException ex)
             {
-                // await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token);
+                try
+                {
+                    await bitacora.RegistrarBitacoraAsync(usuario, $"Error consulta parametro {ParametroCode}: {ex.Message}", token);
+                }
+                catch
+                {
+                }
 
                 return Results.BadRequest(new { mensaje = ex.Message }); // 400
             }
             catch (Exception)
             {
-                // await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token);
+                try
+                {
+                    await bitacora.RegistrarBitacoraAsync(usuario, $"Error tecnico al obtener parametro {ParametroCode}", token);
+                }
+                catch
+                {
+                }
 
                 return Results.Json(
                     new { mensaje = "Error interno del servidor" },

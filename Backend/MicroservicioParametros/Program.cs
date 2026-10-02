@@ -1,8 +1,8 @@
-
 using FluentValidation;
 using MicroservicioParametros;
 using MicroservicioParametros.Repository;
 using MicroservicioParametros.Services;
+using MicroservicioParametros.Services.Clients;
 using MicroservicioParametros.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,19 +23,40 @@ builder.Services.AddCors(options =>
 });
 
 // FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<ParametrosRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<ParametroRequestValidator>();
 
 // Inyección de dependencias
 builder.Services.AddSingleton<IDBConnectionFactory, DBConnectionFactory>(); // Solo necesita leer la connection string una vez
 builder.Services.AddScoped<IParametroService, ParametroService>();
 builder.Services.AddScoped<IParametroRepository, ParametroRepository>();
 
-// Falta agregar microservicios login y bitacora
+// Auth Service Client
+builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
+{
+    var url = builder.Configuration["MicroservicioLogin:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(url))
+        throw new InvalidOperationException("No se configuró 'MicroservicioLogin:BaseUrl'");
+
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddScoped<IAuthServiceValidator, AuthServiceValidator>(); 
+
+builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(client =>
+{
+    var url = builder.Configuration["MicroservicioBitacoras:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(url))
+        throw new InvalidOperationException("No se configuró 'MicroservicioBitacoras:BaseUrl'");
+
+    client.BaseAddress = new Uri(url);
+});
 
 var app = builder.Build();
 
-// Swagger en todos los ambientes (development/staging/production)
-if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
+// Swagger solo en ambiente de desarrollo
+if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();

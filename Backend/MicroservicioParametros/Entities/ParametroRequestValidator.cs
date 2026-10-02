@@ -3,9 +3,9 @@ using MicroservicioParametros.Entities;
 
 namespace MicroservicioParametros.Validators
 {
-    public class ParametrosRequestValidator : AbstractValidator<ParametroRequest>
+    public class ParametroRequestValidator : AbstractValidator<ParametroRequest>
     {
-        public ParametrosRequestValidator()
+        public ParametroRequestValidator()
         {
             RuleFor(x => x.ParametroCode)
                 .NotEmpty().WithMessage("El código del parámetro es obligatorio.")

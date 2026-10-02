@@ -47,7 +47,8 @@ namespace MicroservicioMatriculas.Services
                 {
                     CursoCode = curso.CursoCode,
                     GrupoCode = grupo.GrupoCode,
-                    Estado = true
+                    Estado = true,
+                    Observaciones = request.Observaciones.Trim()
                 };
 
                 matricula = new Matricula
@@ -83,7 +84,8 @@ namespace MicroservicioMatriculas.Services
                         MatriculaID = matricula.MatriculaID,
                         CursoCode = curso.CursoCode,
                         GrupoCode = grupo.GrupoCode,
-                        Estado = true
+                        Estado = true,
+                        Observaciones = request.Observaciones.Trim()
                     };
                     await _repositorio.InsertarCurso(detalle);
                 }
@@ -123,8 +125,8 @@ namespace MicroservicioMatriculas.Services
                 throw new ConflictoException("El grupo no tiene cupo disponible.");
 
             detalle.GrupoCode = grupo.GrupoCode;
-            await _repositorio.GuardarCambios();
             detalle.Observaciones = request.Observaciones.Trim();
+            await _repositorio.GuardarCambios();
 
             var actual = Mapear(detalle, identificacion, matricula.PeriodoID);
 
@@ -193,8 +195,8 @@ namespace MicroservicioMatriculas.Services
             var periodo = await _periodos.ObtenerPorId(request.PeriodoID, contexto)
                 ?? throw new NoEncontradoException("No existe el periodo indicado.");
 
-            var hoy = DateOnly.FromDateTime(DateTime.Today);
-            if (hoy < periodo.FechaInicio || hoy > periodo.FechaFin)
+            var hoy = DateTime.Today;
+            if (hoy < periodo.FechaInicio.Date || hoy > periodo.FechaFin.Date)
                 throw new ValidacionException("El periodo indicado no está activo.");
 
             return (curso, grupo);

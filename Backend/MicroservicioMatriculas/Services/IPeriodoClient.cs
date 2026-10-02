@@ -5,5 +5,5 @@ namespace MicroservicioMatriculas.Services
         Task<PeriodoInfo?> ObtenerPorId(Guid periodoId, ContextoUsuario contexto);
     }
 
-    public record PeriodoInfo(Guid PeriodoID, DateOnly FechaInicio, DateOnly FechaFin);
+    public record PeriodoInfo(Guid PeriodoID, DateTime FechaInicio, DateTime FechaFin);
 }

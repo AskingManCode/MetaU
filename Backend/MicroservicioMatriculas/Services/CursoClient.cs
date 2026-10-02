@@ -17,7 +17,7 @@ namespace MicroservicioMatriculas.Services
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, $"/curso/{Uri.EscapeDataString(cursoCode)}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
-            request.Headers.Add("Usuario", contexto.UsuarioId.ToString());
+            request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 
             using var response = await _http.SendAsync(request);
             if (response.StatusCode == HttpStatusCode.NotFound) return null;

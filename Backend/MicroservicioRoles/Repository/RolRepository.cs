@@ -15,34 +15,35 @@ namespace MicroservicioRoles.Repository
         public async Task<IEnumerable<Rol>> ObtenerTodosAsync()
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            return await connection.QueryAsync<Rol>("SELECT ID_ROL, NOMBRE FROM ROL");
+            var sql = "SELECT RolCode AS IdRol, NombreRol AS Nombre FROM Roles";
+            return await connection.QueryAsync<Rol>(sql);
         }
 
         public async Task<Rol?> ObtenerPorIdAsync(string id)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "SELECT ID_ROL, NOMBRE FROM ROL WHERE ID_ROL = @Id";
+            var sql = "SELECT RolCode AS IdRol, NombreRol AS Nombre FROM Roles WHERE RolCode = @id";
             return await connection.QueryFirstOrDefaultAsync<Rol>(sql, new { id });
         }
 
         public async Task<int> CrearAsync(Rol rol)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "INSERT INTO ROL (ID_ROL, NOMBRE) VALUES (@IdRol, @Nombre)";
+            var sql = "INSERT INTO Roles (RolCode, NombreRol) VALUES (@IdRol, @Nombre)";
             return await connection.ExecuteAsync(sql, rol);
         }
 
         public async Task<int> ActualizarAsync(Rol rol)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "UPDATE ROL SET NOMBRE = @Nombre WHERE ID_ROL = @IdRol";
+            var sql = "UPDATE Roles SET NombreRol = @Nombre WHERE RolCode = @IdRol";
             return await connection.ExecuteAsync(sql, rol);
         }
 
         public async Task<int> EliminarAsync(string id)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = "DELETE FROM ROL WHERE ID_ROL = @id";
+            var sql = "DELETE FROM Roles WHERE RolCode = @id";
             return await connection.ExecuteAsync(sql, new { id });
         }
 

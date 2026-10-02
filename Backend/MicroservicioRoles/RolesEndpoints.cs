@@ -13,26 +13,30 @@ namespace MicroservicioRoles
                 .WithTags(nameof(Rol))
                 .RequireCors("ClientApps");
 
-            async Task<bool> TokenValidoAsync(HttpRequest request, IAuthService authService)
-            {
-                if (!request.Headers.TryGetValue("Authorization", out var token))
-                    return false;
+            string ObtenerToken(HttpRequest request) =>
+              request.Headers.Authorization.ToString().Replace("Bearer ", "");
 
-                return await authService.ValidarAsync(token.ToString().Replace("Bearer ", ""));
-            }
+            async Task<bool> TokenValidoAsync(HttpRequest request, IAuthServiceClient authService)
+                => await authService.ValidarAsync(ObtenerToken(request));
+
+            bool ObtenerUsuarioId(HttpRequest request, out Guid usuarioId)
+                => Guid.TryParse(request.Headers["X-Usuario-Id"], out usuarioId) && usuarioId != Guid.Empty;
 
             // GET Obtener Todos
             group.MapGet("/", async (
                 HttpRequest request,
                 [FromServices] IRolService rolService,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraService bitacoraService) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
                 if (!await TokenValidoAsync(request, authService))
                     return Results.Unauthorized();
 
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
+
                 var roles = await rolService.ObtenerTodosAsync();
-                await bitacoraService.RegistrarAsync("sistema", "El usuario consulta roles");
+                await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta roles", ObtenerToken(request));
                 return Results.Ok(roles);
             })
             .WithName("GetAllRoles")
@@ -43,17 +47,20 @@ namespace MicroservicioRoles
                 HttpRequest request,
                 string id,
                 [FromServices] IRolService rolService,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraService bitacoraService) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
                 if (!await TokenValidoAsync(request, authService))
                     return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 var rol = await rolService.ObtenerPorIdAsync(id);
                 if (rol is null)
                     return Results.NotFound(new { message = $"No existe un rol con ID '{id}'" });
 
-                await bitacoraService.RegistrarAsync("sistema", $"El usuario consulta rol {id}");
+                await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta rol " + id, ObtenerToken(request));
                 return Results.Ok(rol);
             })
             .WithName("GetRolById")
@@ -64,11 +71,14 @@ namespace MicroservicioRoles
                 HttpRequest request,
                 [FromBody] Rol rol,
                 [FromServices] IRolService rolService,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraService bitacoraService) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
                 if (!await TokenValidoAsync(request, authService))
                     return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 if (string.IsNullOrWhiteSpace(rol.IdRol) || string.IsNullOrWhiteSpace(rol.Nombre))
                     return Results.BadRequest(new { message = "El ID y el nombre del rol son obligatorios y no pueden estar vacíos" });
@@ -84,7 +94,7 @@ namespace MicroservicioRoles
                 if (rows <= 0)
                     return Results.Problem("No se pudo crear el rol");
 
-                await bitacoraService.RegistrarAsync("sistema", $"Registro nuevo: {System.Text.Json.JsonSerializer.Serialize(rol)}");
+                await bitacoraService.RegistrarAsync(usuarioId, System.Text.Json.JsonSerializer.Serialize(rol), ObtenerToken(request));
 
                 return Results.Created($"/rol/{rol.IdRol}", rol);
             })
@@ -97,11 +107,14 @@ namespace MicroservicioRoles
                 string id,
                 [FromBody] Rol rol,
                 [FromServices] IRolService rolService,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraService bitacoraService) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
                 if (!await TokenValidoAsync(request, authService))
                     return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 if (!string.Equals(id, rol.IdRol, StringComparison.OrdinalIgnoreCase))
                     return Results.BadRequest(new { message = "El ID de la ruta y el del cuerpo no coinciden" });
@@ -123,7 +136,7 @@ namespace MicroservicioRoles
                 var actual = await rolService.ObtenerPorIdAsync(id) ?? rol;
 
                 var detalle = System.Text.Json.JsonSerializer.Serialize(new { anterior, actual });
-                await bitacoraService.RegistrarAsync("sistema", detalle);
+                await bitacoraService.RegistrarAsync(usuarioId, detalle, ObtenerToken(request));
 
                 return Results.Ok(actual);
             })
@@ -135,11 +148,14 @@ namespace MicroservicioRoles
                 HttpRequest request,
                 string id,
                 [FromServices] IRolService rolService,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraService bitacoraService) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
                 if (!await TokenValidoAsync(request, authService))
                     return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 var exists = await rolService.ObtenerPorIdAsync(id);
                 if (exists is null)
@@ -149,7 +165,7 @@ namespace MicroservicioRoles
                 if (deleted <= 0)
                     return Results.Problem("No se pudo eliminar el rol");
 
-                await bitacoraService.RegistrarAsync("sistema", System.Text.Json.JsonSerializer.Serialize(exists));
+                await bitacoraService.RegistrarAsync(usuarioId, System.Text.Json.JsonSerializer.Serialize(exists), ObtenerToken(request));
 
                 return Results.NoContent();
             })

@@ -24,5 +24,26 @@ namespace MicroservicioParametros.Services
 
             return await _repository.ObtenerPorIDAsync(parametroCode);
         }
+
+        public async Task<ParametroResponse?> ModificarAsync(string parametroCode, ParametroRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(parametroCode))
+                throw new ArgumentException("El código del parámetro es obligatorio.");
+
+            return await _repository.ModificarAsync(parametroCode, request);
+        }
+
+        public async Task<IEnumerable<ParametroResponse>> ObtenerTodosAsync()
+        {
+            return await _repository.ObtenerTodosAsync();
+        }
+
+        public async Task<ParametroResponse?> EliminarAsync(string parametroCode, bool eliminacionFisica)
+        {
+            if (string.IsNullOrWhiteSpace(parametroCode))
+                throw new ArgumentException("El código del parámetro es obligatorio.");
+
+            return await _repository.EliminarAsync(parametroCode, eliminacionFisica);
+        }
     }
 }

@@ -16,7 +16,8 @@ namespace MicroservicioParametros.Services.Clients
             using var request = new HttpRequestMessage(HttpMethod.Post, "bitacora");
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            
+            request.Headers.Add("X-Usuario-Id", usuario.ToString());
+
             request.Content = JsonContent.Create(new
             {
                 Usuario = usuario,

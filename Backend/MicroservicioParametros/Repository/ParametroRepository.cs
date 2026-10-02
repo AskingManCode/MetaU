@@ -41,5 +41,45 @@ namespace MicroservicioParametros.Repository
                 commandType: CommandType.StoredProcedure
             );
         }
+
+        public async Task<ParametroResponse?> ModificarAsync(string parametroCode, ParametroRequest request)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            return await connection.QuerySingleOrDefaultAsync<ParametroResponse>(
+                "dbo.usp_Parametros_Modificar",
+                new
+                {
+                    ParametroCode = parametroCode,
+                    request.Valor
+                },
+                commandType: CommandType.StoredProcedure
+            );
+        }
+
+        public async Task<IEnumerable<ParametroResponse>> ObtenerTodosAsync()
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            return await connection.QueryAsync<ParametroResponse>(
+                "dbo.usp_Parametros_ObtenerTodos",
+                commandType: CommandType.StoredProcedure
+            );
+        }
+
+        public async Task<ParametroResponse?> EliminarAsync(string parametroCode, bool eliminacionFisica)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            return await connection.QuerySingleOrDefaultAsync<ParametroResponse>(
+                "dbo.usp_Parametros_Eliminar",
+                new
+                {
+                    ParametroCode = parametroCode,
+                    EliminacionFisica = eliminacionFisica
+                },
+                commandType: CommandType.StoredProcedure
+            );
+        }
     }
 }

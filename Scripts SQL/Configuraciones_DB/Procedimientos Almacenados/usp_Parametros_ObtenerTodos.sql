@@ -1,14 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Parametros_ObtenerPorID
-   Descripción: Consulta un parámetro existente en la tabla Parametros
+   STORED PROCEDURE: usp_Parametros_ObtenerTodos
+   Descripción: Consulta todos los parámetros de la tabla Parametros
    Base de datos: Configuraciones_DB
    ============================================================ */
 
 USE Configuraciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Parametros_ObtenerPorID
-    @ParametroCode VARCHAR(10)
+CREATE OR ALTER PROCEDURE dbo.usp_Parametros_ObtenerTodos
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,6 +17,6 @@ BEGIN
         Valor,
         Estado
     FROM dbo.Parametros
-    WHERE ParametroCode = UPPER(@ParametroCode)
+    ORDER BY ParametroCode;
 END
 GO

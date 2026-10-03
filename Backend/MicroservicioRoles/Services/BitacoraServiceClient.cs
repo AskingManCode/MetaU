@@ -14,12 +14,20 @@ namespace MicroservicioRoles.Services
 
         public async Task RegistrarAsync(Guid usuario, string descripcion, string token)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, "bitacora");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            request.Content = JsonContent.Create(new { Usuario = usuario, Descripcion = descripcion });
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, "bitacora");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Add("X-Usuario-Id", usuario.ToString());
+                request.Content = JsonContent.Create(new { Usuario = usuario, Descripcion = descripcion });
 
-            using var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+                using var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException)
+            {
+                Console.WriteLine($"[BITACORA] No se pudo registrar: {descripcion}");
+            }
         }
     }
 }

@@ -379,17 +379,17 @@ namespace MicroservicioParametros
 
                 return Results.Ok(parametro); // 200
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException)
             {
                 try
                 {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error consulta parametro {ParametroCode}: {ex.Message}", token);
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error consulta parametro {ParametroCode}", token);
                 }
                 catch
                 {
                 }
 
-                return Results.BadRequest(new { mensaje = ex.Message }); // 400
+                return Results.BadRequest(new { mensaje = $"Error consulta parametro {ParametroCode}" }); // 400
             }
             catch (Exception)
             {

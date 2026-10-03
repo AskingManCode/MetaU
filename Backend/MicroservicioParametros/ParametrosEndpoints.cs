@@ -258,6 +258,21 @@ namespace MicroservicioParametros
             if (error is not null)
                 return error;
 
+            // Validar que el código venga en mayúsculas
+            if (ParametroCode != ParametroCode.ToUpperInvariant())
+            {
+                try
+                {
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Intento de eliminar parámetro con código no en mayúsculas: {ParametroCode}",
+                        token);
+                }
+                catch { }
+
+                return Results.BadRequest(new { mensaje = "El código del parámetro debe estar en mayúsculas." });
+            }
+
             try
             {
                 var parametroEliminado = await service.EliminarAsync(ParametroCode, eliminacionFisica);
@@ -355,6 +370,21 @@ namespace MicroservicioParametros
 
             if (error is not null)
                 return error;
+
+            // Validar que el código venga en mayúsculas
+            if (ParametroCode != ParametroCode.ToUpperInvariant())
+            {
+                try
+                {
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Intento de consulta de parámetro con código no en mayúsculas: {ParametroCode}",
+                        token);
+                }
+                catch { }
+
+                return Results.BadRequest(new { mensaje = "El código del parámetro debe estar en mayúsculas." });
+            }
 
             try
             {

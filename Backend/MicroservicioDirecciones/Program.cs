@@ -1,4 +1,6 @@
+using MicroservicioDirecciones;
 using MicroservicioDirecciones.Repository;
+using MicroservicioDirecciones.Services;
 using MicroservicioDirecciones.Services.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,8 +22,8 @@ builder.Services.AddCors(options =>
 
 // Inyeccion de dependencias
 builder.Services.AddSingleton<IDBConnectionFactory, DBConnectionFactory>();
-// builder.Services.AddCoped<IDireccionService, DireccionService>();
-// builder.Services.AddCoped<IDireccionRepository, DireccionRepository>();
+builder.Services.AddScoped<IDireccionService, DireccionService>();
+builder.Services.AddScoped<IDireccionRepository, DireccionRepository>();
 
 // Auth Service Client
 builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
@@ -60,6 +62,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("ClientApps");
 
-// app.MapUbicacionesEndpoints();
+app.MapDireccionesEndpoints();
 
 app.Run();

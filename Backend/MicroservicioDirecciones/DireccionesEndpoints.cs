@@ -60,7 +60,7 @@ namespace MicroservicioDirecciones
         }
 
         private static async Task<IResult> ObtenerCantones(
-            Guid ProvinciaID,
+            string ProvinciaID,
             HttpRequest httpRequest,
             IDireccionService service,
             IAuthServiceValidator authServiceValidator,
@@ -71,9 +71,22 @@ namespace MicroservicioDirecciones
             if (error is not null)
                 return error;
 
+            if (!Guid.TryParse(ProvinciaID, out var provinciaGuid))
+            {
+                try
+                {
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Intento de consulta de cantones con ProvinciaID inválido: {ProvinciaID}",
+                        token);
+                }
+                catch { }
+
+                return Results.BadRequest(new { mensaje = "El identificador de la provincia no es válido." });
+            }
             try
             {
-                var cantones = await service.ObtenerCantonesAsync(ProvinciaID);
+                var cantones = await service.ObtenerCantonesAsync(provinciaGuid);
 
                 try
                 {
@@ -145,8 +158,8 @@ namespace MicroservicioDirecciones
         }
 
         private static async Task<IResult> ObtenerDistritos(
-            Guid ProvinciaID,
-            Guid CantonID,
+            string ProvinciaID,
+            string CantonID,
             HttpRequest httpRequest,
             IDireccionService service,
             IAuthServiceValidator authServiceValidator,
@@ -157,9 +170,36 @@ namespace MicroservicioDirecciones
             if (error is not null)
                 return error;
 
+            if (!Guid.TryParse(ProvinciaID, out var provinciaGuid))
+            {
+                try
+                {
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Intento de consulta de distritos con ProvinciaID inválido: {ProvinciaID}",
+                        token);
+                }
+                catch { }
+
+                return Results.BadRequest(new { mensaje = "El identificador de la provincia no es válido." });
+            }
+
+            if (!Guid.TryParse(CantonID, out var cantonGuid))
+            {
+                try
+                {
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Intento de consulta de distritos con CantonID inválido: {CantonID}",
+                        token);
+                }
+                catch { }
+
+                return Results.BadRequest(new { mensaje = "El identificador del cantón no es válido." });
+            }
             try
             {
-                var distritos = await service.ObtenerDistritosAsync(ProvinciaID, CantonID);
+                var distritos = await service.ObtenerDistritosAsync(provinciaGuid, cantonGuid);
 
                 try
                 {

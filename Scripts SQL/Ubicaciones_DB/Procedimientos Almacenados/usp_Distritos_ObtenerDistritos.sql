@@ -12,30 +12,44 @@ CREATE OR ALTER PROCEDURE usp_Distritos_ObtenerDistritos
 	@CantonID UNIQUEIDENTIFIER
 AS
 BEGIN
-	SET NOCOUNT ON;
+    SET NOCOUNT ON;
 
-	IF @ProvinciaID IS NULL
-	BEGIN
-		RAISERROR('El identificador de la provincia es obligatorio.', 16, 1);
-		RETURN;
-	END
+    IF @ProvinciaID IS NULL
+    BEGIN
+        RAISERROR('El identificador de la provincia es obligatorio.', 16, 1);
+        RETURN;
+    END
+    
+    -- Validar que la provincia exista y esté activa
+    IF NOT EXISTS (SELECT 1 FROM dbo.Provincias WHERE ProvinciaID = @ProvinciaID AND Estado = 1)
+    BEGIN
+        RAISERROR('No se encontró la provincia especificada.', 16, 1);
+        RETURN;
+    END
 
-	IF @CantonID IS NULL
-	BEGIN
-		RAISERROR('El identificador del cantón es obligatorio.', 16, 1);
-		RETURN;
-	END
+    -- Validar que el cantón exista y esté activo
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM dbo.Cantones 
+        WHERE CantonID = @CantonID 
+          AND ProvinciaID = @ProvinciaID 
+          AND Estado = 1
+    )
+    BEGIN
+        RAISERROR('No se encontró el cantón especificado para esa provincia.', 16, 1);
+        RETURN;
+    END
 
-	SELECT
-		ProvinciaID,
-		CantonID,
-		DistritoID,
-		Nombre,
-		Estado
-	FROM dbo.Distritos
-	WHERE ProvinciaID = @ProvinciaID
-		AND CantonID = @CantonID
-		AND Estado = 1
-	ORDER BY Nombre;
-END;
+    SELECT 
+        DistritoID,
+        CantonID,
+        ProvinciaID,
+        Nombre,
+        Estado
+    FROM dbo.Distritos
+    WHERE ProvinciaID = @ProvinciaID
+      AND CantonID = @CantonID
+      AND Estado = 1
+    ORDER BY Nombre;
+END
 GO

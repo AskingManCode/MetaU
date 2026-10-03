@@ -19,14 +19,21 @@ BEGIN
         RETURN;
     END
 
+    -- Validar que la provincia exista y esté activa
+    IF NOT EXISTS (SELECT 1 FROM dbo.Provincias WHERE ProvinciaID = @ProvinciaID AND Estado = 1)
+    BEGIN
+        RAISERROR('No se encontró la provincia especificada.', 16, 1);
+        RETURN;
+    END
+
     SELECT 
-        ProvinciaID,
         CantonID,
+        ProvinciaID,
         Nombre,
         Estado
     FROM dbo.Cantones
     WHERE ProvinciaID = @ProvinciaID
       AND Estado = 1
     ORDER BY Nombre;
-END;
+END
 GO

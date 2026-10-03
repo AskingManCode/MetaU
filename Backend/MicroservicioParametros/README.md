@@ -119,7 +119,7 @@ Las operaciones registran acciones en MicroservicioBitacoras. Si la bitácora no
 
 ## Ejecutar y configurar
 
-Requisitos: .NET 10, SQL Server con la base de datos `Configuraciones_DB` creada y los procedimientos almacenados de parámetros instalados. La definición está en [`Scripts SQL/Configuraciones_DB`](../../Scripts%20SQL/Configuraciones_DB/01.%20Configuraciones_DB.sql); los procedimientos están en su carpeta [`Scripts SQL/Procedimientos Almacenados`](../../Scripts%20SQL/Configuraciones_DB/Procedimientos%20Almacenados).
+Requisitos: .NET 10, SQL Server con la base de datos `Configuraciones_DB` creada y los procedimientos almacenados de parámetros instalados. La definición está en [`Scripts SQL/Configuraciones_DB`](../../Scripts%20SQL/Configuraciones_DB/01.%20Configuraciones_DB.sql); los procedimientos están en su carpeta [`Scripts SQL/Configuraciones_DB/Procedimientos Almacenados`](../../Scripts%20SQL/Configuraciones_DB/Procedimientos%20Almacenados).
 
 Desde la raíz del repositorio:
 

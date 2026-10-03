@@ -14,7 +14,7 @@ namespace MicroservicioModulos.Repository
 
         public IDbConnection CrearConexion()
         {
-            return new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            return new SqlConnection(_configuration.GetConnectionString("UsuariosDB"));
         }
     }
 }

@@ -5,8 +5,7 @@ Este directorio contiene todos los microservicios del backend de **MetaU**, cons
 Cada microservicio es independiente y puede desplegarse por separado.
 
 > **Nota:**  
-> - La documentación oficial de cada endpoint se irá agregando durante el desarrollo.  
-> - El diagrama de clases de cada microservicio se incorporará próximamente y probablemente irá evolucionando.  
+> - La documentación de endpoints y diagramas se agrega gradualmente; consulta la sección de cada microservicio.
 > - La URL base de cada microservicio se agregará más adelante.
 
 ---
@@ -52,16 +51,23 @@ Gestiona los roles que se pueden asignar a los usuarios del sistema.
 ---
 
 ### MicroservicioParametros
-**Responsable:** *Sebastián Jiménez Arrieta*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/parametro`  
-**Endpoints:**  
-*(pendiente de definir)*  
+**Responsable:** *Sebastián Jiménez Arrieta* 
+
+**URL base:** *https://localhost:PORT/api/parametro* (Este servicio tendrá un deploy en el futuro) 
+
+**Endpoint base:** `/api/parametro` 
+
+**Endpoints:** 
+- `GET /api/parametro/` — lista los parámetros.
+- `GET /api/parametro/{ParametroCode}` — consulta un parámetro por código.
+- `POST /api/parametro/` — crea un parámetro.
+- `PATCH /api/parametro/{ParametroCode}` — actualiza su valor.
+- `DELETE /api/parametro/{ParametroCode}?eliminacionFisica=false` — desactiva el parámetro; con `true` lo elimina físicamente.
 
 Administra los parámetros de configuración global del sistema.
 
-**Diagrama de clases:**  
-*(pendiente de agregar)*
+**Guía de uso:** 
+[MicroservicioParametros/README.md](MicroservicioParametros/README.md) — autenticación, formato de datos, ejemplos, respuestas y configuración.
 
 ---
 

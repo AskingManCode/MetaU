@@ -227,15 +227,19 @@ Gestiona el expediente completo de los estudiantes (datos personales, dirección
 
 ### MicroservicioDirecciones
 **Responsable:** *Sebastián Jiménez Arrieta*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/provincias`  
+
+**URL base:** `http://localhost:PORT` (Este servicio tendrá un deploy en el futuro)
+
+**Endpoint base:** `/api`
+
 **Endpoints:**  
-*(pendiente de definir)*  
+- `GET /api/provincias` — lista las provincias activas.
+- `GET /api/cantones/{ProvinciaID}` — lista los cantones activos de una provincia.
+- `GET /api/distritos/{ProvinciaID}/{CantonID}` — lista los distritos activos del cantón indicado.
 
 Provee la información geográfica de Costa Rica (provincias, cantones y distritos).
 
-**Diagrama de clases:**  
-*(pendiente de agregar)*
+**Guía de uso:** [MicroservicioDirecciones/README.md](MicroservicioDirecciones/README.md) — autenticación, ejemplos, respuestas y configuración.
 
 ---
 

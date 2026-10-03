@@ -1,34 +1,123 @@
 <mxfile host="app.diagrams.net">
   <diagram id="MAT4" name="MAT4 — Direcciones">
-    <mxGraphModel dx="1407" dy="758" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1420" pageHeight="794" math="0" shadow="0">
+    <mxGraphModel dx="1407" dy="758" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1650" pageHeight="1300" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell id="c2" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#FCE4D6;swimlaneFillColor=#FFFFFF;strokeColor=#C55A11;fontColor=#17365D;fontStyle=1;fontSize=13;" value="MAT4 — DIRECCIONES" vertex="1"><mxGeometry x="30" y="50" width="450" height="714" as="geometry"/></mxCell>
-        <mxCell id="c3" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1"><mxGeometry x="510" y="50" width="880" height="714" as="geometry"/></mxCell>
-        <mxCell id="m4_ep" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFAF7;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;DireccionesEndpoints&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ MapearEndpoints(app)&lt;br&gt;+ provincias()   // /provincias&lt;br&gt;+ cantones(provincia)   // /cantones&lt;br&gt;+ distritos(provincia, canton)   // /distritos" vertex="1"><mxGeometry x="75" y="90" width="360" height="112" as="geometry"/></mxCell>
-        <mxCell id="m4_svc" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IDireccionesService&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ listarProvincias(): List&amp;lt;Provincia&amp;gt;&lt;br&gt;+ listarCantones(idProvincia): List&amp;lt;Canton&amp;gt;&lt;br&gt;+ listarDistritos(idProvincia, idCanton): List&amp;lt;Distrito&amp;gt;&lt;hr size=&quot;1&quot;&gt;&lt;i&gt;Servicio de solo lectura: no crea ni modifica datos.&lt;br&gt;Todos los parámetros indicados son requeridos.&lt;br&gt;En distritos, el cantón debe corresponder a la provincia; si&lt;br&gt;no, la consulta es incorrecta.&lt;br&gt;Todas las operaciones exigen token válido y registran&lt;br&gt;bitácora.&lt;/i&gt;" vertex="1"><mxGeometry x="75" y="247" width="360" height="217" as="geometry"/></mxCell>
-        <mxCell id="m4_repo" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IDireccionesRepository&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ listarProvincias(): List&amp;lt;Provincia&amp;gt;&lt;br&gt;+ listarCantones(idProvincia): List&amp;lt;Canton&amp;gt;&lt;br&gt;+ listarDistritos(idCanton): List&amp;lt;Distrito&amp;gt;&lt;br&gt;+ cantonPerteneceAProvincia(idCanton, idProvincia): bool" vertex="1"><mxGeometry x="75" y="509" width="360" height="128" as="geometry"/></mxCell>
-        <mxCell id="m4_note" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Entidades: Provincia · Canton · Distrito&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Catálogo cargado con el script de datos iniciales." vertex="1"><mxGeometry x="75" y="667" width="360" height="67" as="geometry"/></mxCell>
-        <mxCell id="m4_tv" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;ITokenValidator (USR5)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ validar(token): bool&lt;br&gt;llama a /validate" vertex="1"><mxGeometry x="535" y="90" width="270" height="98" as="geometry"/></mxCell>
-        <mxCell id="m4_bit" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ registrar(usuario, descripcion)&lt;br&gt;llama a /bitacora" vertex="1"><mxGeometry x="535" y="287" width="270" height="98" as="geometry"/></mxCell>
-        <mxCell id="m4_pr" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Provincia&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ IdProvincia: int&lt;br&gt;+ Nombre: string" vertex="1"><mxGeometry x="845" y="90" width="230" height="98" as="geometry"/></mxCell>
-        <mxCell id="m4_ca" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Canton&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ IdCanton: int&lt;br&gt;+ IdProvincia: int&lt;br&gt;+ Nombre: string" vertex="1"><mxGeometry x="845" y="248" width="230" height="113" as="geometry"/></mxCell>
-        <mxCell id="m4_di" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Distrito&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ IdDistrito: int&lt;br&gt;+ IdCanton: int&lt;br&gt;+ Nombre: string" vertex="1"><mxGeometry x="845" y="421" width="230" height="113" as="geometry"/></mxCell>
-        <mxCell id="m4_ex" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Expediente (MAT3)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Dirección del estudiante:&lt;br&gt;+ IdProvincia · IdCanton&lt;br&gt;+ IdDistrito · OtrasSenas" vertex="1"><mxGeometry x="1145" y="238" width="210" height="113" as="geometry"/></mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="m4_ep" target="m4_svc" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#C55A11;endArrow=open;endFill=0;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="m4_svc" target="m4_repo" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#C55A11;endArrow=open;endFill=0;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="m4_ep" target="m4_tv" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#C55A11;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=1.0000;exitY=0.5000;entryX=0.0000;entryY=0.5714;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e4" edge="1" parent="1" source="m4_svc" target="m4_bit" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#C55A11;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=1.0000;exitY=0.5000;entryX=0.0000;entryY=0.6990;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="m4_pr" target="m4_ca" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#404040;endArrow=none;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e6" edge="1" parent="1" source="m4_ca" target="m4_di" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#404040;endArrow=none;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e7" edge="1" parent="1" source="m4_ex" target="m4_pr" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#7F8C8D;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=0.0000;exitY=0.5000;entryX=1.0000;entryY=0.5000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1110" y="294"/><mxPoint x="1110" y="139"/></Array></mxGeometry></mxCell>
-        <mxCell id="e8" edge="1" parent="1" source="m4_ex" target="m4_ca" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#7F8C8D;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=0.0000;exitY=0.5000;entryX=1.0000;entryY=0.5000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1110" y="294"/><mxPoint x="1110" y="304"/></Array></mxGeometry></mxCell>
-        <mxCell id="e9" edge="1" parent="1" source="m4_ex" target="m4_di" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#7F8C8D;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=0.0000;exitY=0.5000;entryX=1.0000;entryY=0.5000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1110" y="294"/><mxPoint x="1110" y="477"/></Array></mxGeometry></mxCell>
-        <mxCell id="c4" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1"><mxGeometry x="957" y="194" width="34" height="16" as="geometry"/></mxCell>
-        <mxCell id="c5" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1"><mxGeometry x="963" y="226" width="34" height="16" as="geometry"/></mxCell>
-        <mxCell id="c6" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1"><mxGeometry x="957" y="367" width="34" height="16" as="geometry"/></mxCell>
-        <mxCell id="c7" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1"><mxGeometry x="963" y="399" width="34" height="16" as="geometry"/></mxCell>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lane1" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#FCE4D6;swimlaneFillColor=#FFFFFF;strokeColor=#C55A11;fontColor=#17365D;fontStyle=1;fontSize=13;" value="MAT4 — DIRECCIONES" vertex="1">
+          <mxGeometry height="1090" width="550" x="30" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="lane2" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#FCE4D6;swimlaneFillColor=#FFFFFF;strokeColor=#C55A11;fontColor=#17365D;fontStyle=1;fontSize=13;" value="SEGURIDAD, BITÁCORA E INFRAESTRUCTURA" vertex="1">
+          <mxGeometry height="1090" width="550" x="610" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="domain" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO" vertex="1">
+          <mxGeometry height="685" width="390" x="1190" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFAF7;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;static&amp;gt;&amp;gt;&lt;br&gt;DireccionesEndpoints&lt;/b&gt;&lt;hr&gt;+ MapDireccionesEndpoints(app)&lt;hr&gt;- ObtenerProvincias()&lt;br&gt;- ObtenerCantones(ProvinciaID)&lt;br&gt;- ObtenerDistritos(ProvinciaID, CantonID)&lt;hr&gt;&lt;i&gt;/api: GET /provincias · /cantones/{ProvinciaID}&lt;br&gt;· /distritos/{ProvinciaID}/{CantonID}&lt;/i&gt;" vertex="1">
+          <mxGeometry height="165" width="470" x="70" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IDireccionService&lt;/b&gt;&lt;hr&gt;+ ObtenerProvinciasAsync(): IEnumerable&amp;lt;ProvinciaResponse&amp;gt;&lt;br&gt;+ ObtenerCantonesAsync(ProvinciaID): IEnumerable&amp;lt;CantonResponse&amp;gt;&lt;br&gt;+ ObtenerDistritosAsync(ProvinciaID, CantonID): IEnumerable&amp;lt;DistritoResponse&amp;gt;" vertex="1">
+          <mxGeometry height="110" width="470" x="70" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFAF7;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;DireccionService&lt;/b&gt;&lt;hr&gt;- _repository: IDireccionRepository&lt;hr&gt;+ ObtenerProvinciasAsync(): IEnumerable&amp;lt;ProvinciaResponse&amp;gt;&lt;br&gt;+ ObtenerCantonesAsync(ProvinciaID): IEnumerable&amp;lt;CantonResponse&amp;gt;&lt;br&gt;+ ObtenerDistritosAsync(ProvinciaID, CantonID): IEnumerable&amp;lt;DistritoResponse&amp;gt;&lt;hr&gt;&lt;i&gt;ArgumentException si ProvinciaID o CantonID es Guid.Empty.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="135" width="470" x="70" y="605" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IDireccionRepository&lt;/b&gt;&lt;hr&gt;+ ObtenerProvinciasAsync(): IEnumerable&amp;lt;ProvinciaResponse&amp;gt;&lt;br&gt;+ ObtenerCantonesAsync(ProvinciaID): IEnumerable&amp;lt;CantonResponse&amp;gt;&lt;br&gt;+ ObtenerDistritosAsync(ProvinciaID, CantonID): IEnumerable&amp;lt;DistritoResponse&amp;gt;" vertex="1">
+          <mxGeometry height="110" width="470" x="70" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;DireccionRepository&lt;/b&gt;&lt;hr&gt;- _connectionFactory: IDBConnectionFactory&lt;hr&gt;+ ObtenerProvinciasAsync(): IEnumerable&amp;lt;ProvinciaResponse&amp;gt;&lt;br&gt;+ ObtenerCantonesAsync(ProvinciaID): IEnumerable&amp;lt;CantonResponse&amp;gt;&lt;br&gt;+ ObtenerDistritosAsync(ProvinciaID, CantonID): IEnumerable&amp;lt;DistritoResponse&amp;gt;&lt;hr&gt;&lt;i&gt;Dapper · Stored Procedures dbo.usp_*_Obtener*&lt;/i&gt;" vertex="1">
+          <mxGeometry height="135" width="470" x="70" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C55A11;" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C55A11;" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C55A11;" target="r1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="r2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C55A11;" target="r1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iav" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthServiceValidator&lt;/b&gt;&lt;hr&gt;+ ValidarAsync(request: HttpRequest): (Guid, string, IResult?)" vertex="1">
+          <mxGeometry height="80" width="470" x="650" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="av" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFAF7;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;AuthServiceValidator&lt;/b&gt;&lt;hr&gt;- _authClient: IAuthServiceClient&lt;hr&gt;+ ValidarAsync(request: HttpRequest): (Guid, string, IResult?)&lt;hr&gt;&lt;i&gt;Valida Bearer token y header UsuarioGUID.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="125" width="470" x="650" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="iac" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthServiceClient&lt;/b&gt;&lt;hr&gt;+ ValidarTokenAsync(token): bool" vertex="1">
+          <mxGeometry height="80" width="470" x="650" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="ac" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFAF7;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;AuthServiceClient&lt;/b&gt;&lt;hr&gt;- _httpClient: HttpClient&lt;hr&gt;+ ValidarTokenAsync(token): bool&lt;hr&gt;&lt;i&gt;POST validate (Microservicio Login)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="470" x="650" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="ibc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IBitacoraServiceClient&lt;/b&gt;&lt;hr&gt;+ RegistrarBitacoraAsync(usuario, descripcion, token)" vertex="1">
+          <mxGeometry height="80" width="470" x="650" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="bc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFAF7;strokeColor=#C55A11;fontSize=11;" value="&lt;b&gt;BitacoraServiceClient&lt;/b&gt;&lt;hr&gt;- _httpClient: HttpClient&lt;hr&gt;+ RegistrarBitacoraAsync(usuario, descripcion, token)&lt;hr&gt;&lt;i&gt;POST bitacora (Microservicio Bitácoras)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="470" x="650" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="idbf" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IDBConnectionFactory&lt;/b&gt;&lt;hr&gt;+ CreateConnection(): IDbConnection" vertex="1">
+          <mxGeometry height="80" width="470" x="650" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="dbf" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;DBConnectionFactory&lt;/b&gt;&lt;hr&gt;- _configuration: IConfiguration&lt;hr&gt;+ CreateConnection(): IDbConnection&lt;hr&gt;&lt;i&gt;SqlConnection · cadena DefaultConnection&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="470" x="650" y="1065" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="av" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C55A11;" target="iav">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="av" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C55A11;" target="iac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="ac" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C55A11;" target="iac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="bc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C55A11;" target="ibc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="dbf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C55A11;" target="idbf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C55A11;exitX=1;exitY=0.3;entryX=0;entryY=0.5;" target="iav">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="592" y="220" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C55A11;exitX=1;exitY=0.7;entryX=0;entryY=0.5;" target="ibc">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="598" y="740" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="r2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C55A11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="idbf">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="595" y="995" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="dp" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;ProvinciaResponse&lt;/b&gt;&lt;hr&gt;+ ProvinciaID: Guid&lt;br&gt;+ Nombre: string&lt;br&gt;+ Estado: bool" vertex="1">
+          <mxGeometry height="90" width="300" x="1235" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="dc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;CantonResponse&lt;/b&gt;&lt;hr&gt;+ ProvinciaID: Guid&lt;br&gt;+ CantonID: Guid&lt;br&gt;+ Nombre: string&lt;br&gt;+ Estado: bool" vertex="1">
+          <mxGeometry height="105" width="300" x="1235" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="dd" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;DistritoResponse&lt;/b&gt;&lt;hr&gt;+ ProvinciaID: Guid&lt;br&gt;+ CantonID: Guid&lt;br&gt;+ DistritoID: Guid&lt;br&gt;+ Nombre: string&lt;br&gt;+ Estado: bool" vertex="1">
+          <mxGeometry height="120" width="300" x="1235" y="495" as="geometry" />
+        </mxCell>
+        <mxCell id="n1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Program.cs&lt;/b&gt;&lt;br&gt;Singleton: IDBConnectionFactory&lt;br&gt;Scoped: Service, Repository, AuthValidator&lt;br&gt;HttpClient tipado: Auth y Bitácora&lt;br&gt;CORS ClientApps" vertex="1">
+          <mxGeometry height="100" width="300" x="1235" y="675" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="dp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeWidth=2;strokeColor=#404040;" target="dc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="dc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeWidth=2;strokeColor=#404040;" target="dd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1">
+          <mxGeometry height="18" width="30" x="1392" y="272" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1">
+          <mxGeometry height="18" width="40" x="1392" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1">
+          <mxGeometry height="18" width="30" x="1392" y="437" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1">
+          <mxGeometry height="18" width="40" x="1392" y="475" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

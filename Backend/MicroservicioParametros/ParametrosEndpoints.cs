@@ -27,7 +27,7 @@ namespace MicroservicioParametros
             IParametroService service,
             IValidator<ParametroRequest> validator,
             IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacora)
+            IBitacoraServiceClient bitacoraServiceClient)
         {
             var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
@@ -54,7 +54,7 @@ namespace MicroservicioParametros
 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Se creó el parámetro {parametroCreado.ParametroCode}: " + JsonSerializer.Serialize(parametroCreado),
                         token);
@@ -75,7 +75,7 @@ namespace MicroservicioParametros
                     {
                         try
                         {
-                            await bitacora.RegistrarBitacoraAsync(
+                            await bitacoraServiceClient.RegistrarBitacoraAsync(
                                 usuario,
                                 $"Error al crear parámetro {request.ParametroCode}: ya existe",
                                 token);
@@ -90,7 +90,7 @@ namespace MicroservicioParametros
                     
                     try
                     {
-                        await bitacora.RegistrarBitacoraAsync(
+                        await bitacoraServiceClient.RegistrarBitacoraAsync(
                             usuario,
                             $"Error de validación al crear parámetro {request.ParametroCode}.",
                             token);
@@ -102,7 +102,7 @@ namespace MicroservicioParametros
                 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error técnico al crear parámetro {request.ParametroCode}",
                         token);
@@ -117,7 +117,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error técnico al crear parámetro {request.ParametroCode}",
                         token);
@@ -137,7 +137,7 @@ namespace MicroservicioParametros
             IParametroService service,
             IValidator<ParametroRequest> validator,
             IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacora)
+            IBitacoraServiceClient bitacoraServiceClient)
         {
             var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
@@ -173,7 +173,7 @@ namespace MicroservicioParametros
                 {
                     try
                     {
-                        await bitacora.RegistrarBitacoraAsync(
+                        await bitacoraServiceClient.RegistrarBitacoraAsync(
                             usuario,
                             $"Intento de modificar parámetro inexistente: {ParametroCode}",
                             token);
@@ -185,7 +185,7 @@ namespace MicroservicioParametros
 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Se modificó el parámetro {ParametroCode}: Original: "
                         + JsonSerializer.Serialize(parametroAnterior)
@@ -202,7 +202,7 @@ namespace MicroservicioParametros
                 {
                     try
                     {
-                        await bitacora.RegistrarBitacoraAsync(
+                        await bitacoraServiceClient.RegistrarBitacoraAsync(
                             usuario,
                             $"Error de validación al modificar parámetro {ParametroCode}",
                             token);
@@ -214,7 +214,7 @@ namespace MicroservicioParametros
 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error técnico al modificar parámetro {ParametroCode}",
                         token);
@@ -227,7 +227,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error al modificar parámetro {ParametroCode}",
                         token);
@@ -240,7 +240,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error técnico al modificar parámetro {ParametroCode}",
                         token);
@@ -257,7 +257,7 @@ namespace MicroservicioParametros
             HttpRequest httpRequest,
             IParametroService service,
             IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacora)
+            IBitacoraServiceClient bitacoraServiceClient)
         {
             var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
@@ -272,7 +272,7 @@ namespace MicroservicioParametros
                 {
                     try
                     {
-                        await bitacora.RegistrarBitacoraAsync(
+                        await bitacoraServiceClient.RegistrarBitacoraAsync(
                             usuario,
                             $"Intento de eliminar parámetro inexistente: {ParametroCode}",
                             token);
@@ -286,7 +286,7 @@ namespace MicroservicioParametros
 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Se eliminó ({tipoEliminacion}) el parámetro {ParametroCode}: {JsonSerializer.Serialize(parametroEliminado)}",
                         token);
@@ -301,7 +301,7 @@ namespace MicroservicioParametros
                 {
                     try
                     {
-                        await bitacora.RegistrarBitacoraAsync(
+                        await bitacoraServiceClient.RegistrarBitacoraAsync(
                             usuario,
                             $"Error de validación al eliminar parámetro {ParametroCode}",
                             token);
@@ -313,7 +313,7 @@ namespace MicroservicioParametros
                 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error técnico al eliminar parámetro {ParametroCode}",
                         token);
@@ -326,7 +326,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error al eliminar parámetro {ParametroCode}",
                         token);
@@ -339,7 +339,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Error técnico al eliminar parámetro {ParametroCode}",
                         token);
@@ -355,7 +355,7 @@ namespace MicroservicioParametros
             HttpRequest httpRequest,
             IParametroService service,
             IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacora)
+            IBitacoraServiceClient bitacoraServiceClient)
         {
             var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
@@ -371,7 +371,7 @@ namespace MicroservicioParametros
 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(usuario, $"Consulta parametro {ParametroCode}", token);
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Consulta parametro {ParametroCode}", token);
                 }
                 catch
                 {
@@ -383,7 +383,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(usuario, $"Error consulta parametro {ParametroCode}: {ex.Message}", token);
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error consulta parametro {ParametroCode}: {ex.Message}", token);
                 }
                 catch
                 {
@@ -395,7 +395,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(usuario, $"Error tecnico al obtener parametro {ParametroCode}", token);
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error tecnico al obtener parametro {ParametroCode}", token);
                 }
                 catch
                 {
@@ -411,7 +411,7 @@ namespace MicroservicioParametros
             HttpRequest httpRequest,
             IParametroService service,
             IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacora)
+            IBitacoraServiceClient bitacoraServiceClient)
         {
             var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
 
@@ -424,7 +424,7 @@ namespace MicroservicioParametros
 
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         $"Consulta de todos los parámetros.",
                         token);
@@ -437,7 +437,7 @@ namespace MicroservicioParametros
             {
                 try
                 {
-                    await bitacora.RegistrarBitacoraAsync(
+                    await bitacoraServiceClient.RegistrarBitacoraAsync(
                         usuario,
                         "Error técnico al consultar todos los parámetros",
                         token);

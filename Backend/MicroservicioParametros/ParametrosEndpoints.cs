@@ -66,21 +66,52 @@ namespace MicroservicioParametros
 
                 return Results.Created($"/api/parametro/{parametroCreado.ParametroCode}", parametroCreado);
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
+                
+                if (ex.Number == 50000)
+                {
+                    if (ex.Message.Contains("Ya existe un parámetro"))
+                    {
+                        try
+                        {
+                            await bitacora.RegistrarBitacoraAsync(
+                                usuario,
+                                $"Error al crear parámetro {request.ParametroCode}: ya existe",
+                                token);
+                        }
+                        catch { }
+
+                        return Results.Conflict(new
+                        {
+                            mensaje = $"Ya existe un parámetro con el código {request.ParametroCode}."
+                        });
+                    }
+                    
+                    try
+                    {
+                        await bitacora.RegistrarBitacoraAsync(
+                            usuario,
+                            $"Error de validación al crear parámetro {request.ParametroCode}.",
+                            token);
+                    }
+                    catch { }
+
+                    return Results.BadRequest(new { mensaje = ex.Message });
+                }
+                
                 try
                 {
                     await bitacora.RegistrarBitacoraAsync(
                         usuario,
-                        $"Error al crear parámetro {request.ParametroCode}: ya existe",
+                        $"Error técnico al crear parámetro {request.ParametroCode}",
                         token);
                 }
                 catch { }
 
-                return Results.Conflict(new
-                {
-                    mensaje = $"Ya existe un parámetro con el código '{request.ParametroCode}'."
-                });
+                return Results.Json(
+                    new { mensaje = "Error interno del servidor" },
+                    statusCode: 500);
             }
             catch (Exception)
             {
@@ -112,7 +143,7 @@ namespace MicroservicioParametros
 
             if (error is not null)
                 return error;
-            
+
             request.ParametroCode = ParametroCode;
 
             var validationResult = await validator.ValidateAsync(request);
@@ -156,14 +187,41 @@ namespace MicroservicioParametros
                 {
                     await bitacora.RegistrarBitacoraAsync(
                         usuario,
-                        $"Se modificó el parámetro {ParametroCode}: Original: " 
-                        + JsonSerializer.Serialize(parametroAnterior) 
+                        $"Se modificó el parámetro {ParametroCode}: Original: "
+                        + JsonSerializer.Serialize(parametroAnterior)
                         + " Modificado: " + JsonSerializer.Serialize(parametroModificado),
                         token);
                 }
                 catch { }
 
-                return Results.Ok(parametroModificado); // 200
+                return Results.Ok(parametroModificado);
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 50000)
+                {
+                    try
+                    {
+                        await bitacora.RegistrarBitacoraAsync(
+                            usuario,
+                            $"Error de validación al modificar parámetro {ParametroCode}",
+                            token);
+                    }
+                    catch { }
+
+                    return Results.BadRequest(new { mensaje = $"Error de validación al modificar parámetro {ParametroCode}" });
+                }
+
+                try
+                {
+                    await bitacora.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Error técnico al modificar parámetro {ParametroCode}",
+                        token);
+                }
+                catch { }
+
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
             catch (ArgumentException ex)
             {
@@ -171,12 +229,12 @@ namespace MicroservicioParametros
                 {
                     await bitacora.RegistrarBitacoraAsync(
                         usuario,
-                        $"Error al modificar parámetro {ParametroCode}: {ex.Message}",
+                        $"Error al modificar parámetro {ParametroCode}",
                         token);
                 }
                 catch { }
 
-                return Results.BadRequest(new { mensaje = ex.Message });
+                return Results.BadRequest(new { mensaje = $"Error al modificar parámetro {ParametroCode}" });
             }
             catch (Exception)
             {
@@ -189,9 +247,7 @@ namespace MicroservicioParametros
                 }
                 catch { }
 
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
 
@@ -237,7 +293,34 @@ namespace MicroservicioParametros
                 }
                 catch { }
 
-                return Results.Ok(parametroEliminado); // 200
+                return Results.Ok(parametroEliminado);
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 50000)
+                {
+                    try
+                    {
+                        await bitacora.RegistrarBitacoraAsync(
+                            usuario,
+                            $"Error de validación al eliminar parámetro {ParametroCode}",
+                            token);
+                    }
+                    catch { }
+
+                    return Results.BadRequest(new { mensaje = $"Error de validación al eliminar parámetro {ParametroCode}" });
+                }
+                
+                try
+                {
+                    await bitacora.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Error técnico al eliminar parámetro {ParametroCode}",
+                        token);
+                }
+                catch { }
+
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
             catch (ArgumentException ex)
             {
@@ -245,12 +328,12 @@ namespace MicroservicioParametros
                 {
                     await bitacora.RegistrarBitacoraAsync(
                         usuario,
-                        $"Error al eliminar parámetro {ParametroCode}: {ex.Message}",
+                        $"Error al eliminar parámetro {ParametroCode}",
                         token);
                 }
                 catch { }
 
-                return Results.BadRequest(new { mensaje = ex.Message });
+                return Results.BadRequest(new { mensaje = $"Error al eliminar parámetro {ParametroCode}" });
             }
             catch (Exception)
             {
@@ -263,9 +346,7 @@ namespace MicroservicioParametros
                 }
                 catch { }
 
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
 

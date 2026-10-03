@@ -30,7 +30,7 @@ BEGIN
         END
 
         -- Verificar si ya existe
-        IF EXISTS (SELECT 1 FROM dbo.Parametros WHERE ParametroCode = @ParametroCode)
+        IF EXISTS (SELECT 1 FROM dbo.Parametros WHERE ParametroCode = UPPER(@ParametroCode))
         BEGIN
             RAISERROR('Ya existe un parámetro con el código ''%s''.', 16, 1, @ParametroCode);
             RETURN;

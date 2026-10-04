@@ -8,9 +8,20 @@ namespace MicroservicioUsuarios.Services
     {
         private readonly IUsuarioRepository _repository;
         private readonly IPasswordHasher _passwordHasher;
-        private const string ROL_ESTUDIANTE = "EST";
-        private const string ROL_PROFESOR = "PROF";
-        private const string ROL_ADMIN = "ADMIN";
+        private readonly IParametroServiceClient _parametroServiceClient;
+        private readonly IRolServiceClient _rolServiceClient;
+
+        public UsuarioService(
+            IUsuarioRepository repository,
+            IPasswordHasher passwordHasher,
+            IParametroServiceClient parametroServiceClient,
+            IRolServiceClient rolServiceClient)
+        {
+            _repository = repository;
+            _passwordHasher = passwordHasher;
+            _parametroServiceClient = parametroServiceClient;
+            _rolServiceClient = rolServiceClient;
+        }
 
         public UsuarioService(IUsuarioRepository repository, IPasswordHasher passwordHasher)
         {
@@ -40,18 +51,31 @@ namespace MicroservicioUsuarios.Services
             if (!Regex.IsMatch(dto.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 return Task.FromResult((false, (string?)"El formato del email no es valido"));
 
-            var dominio = dto.Email.Split('@').Last().ToLowerInvariant();
+            var dominioEmail = dto.Email.Split('@').Last().ToLowerInvariant();
 
-            if (dominio != "cuc.cr" && dominio != "cuc.ac.cr")
-                return Task.FromResult((false, (string?)"El email debe pertenecer al dominio cuc.cr o cuc.ac.cr."));
+            var dominioEstudiante = await _parametroServiceClient.ObtenerValorAsync(PARAM_DOMINIO_ESTUDIANTE, usuarioId, token);
+            var dominioDocente = await _parametroServiceClient.ObtenerValorAsync(PARAM_DOMINIO_DOCENTE, usuarioId, token);
 
-            if (dominio == "cuc.cr" && dto.IdRol != ROL_ESTUDIANTE)
-                return Task.FromResult((false, (string?)"Los emails del dominio cuc.cr deben tener rol Estudiante"));
+            if (string.IsNullOrWhiteSpace(dominioEstudiante) || string.IsNullOrWhiteSpace(dominioDocente))
+                return (false, "No se pudieron obtener los dominios configurados. Intente más tarde.");
 
-            if (dominio == "cuc.ac.cr" && dto.IdRol != ROL_PROFESOR && dto.IdRol != ROL_ADMIN)
-                return Task.FromResult((false, (string?)"Los emails del dominio cuc.ac.cr deben tener rol Profesor o Administrador"));
+            dominioEstudiante = dominioEstudiante.ToLowerInvariant();
+            dominioDocente = dominioDocente.ToLowerInvariant();
 
-            return Task.FromResult((true, (string?)null));
+            if (dominioEmail != dominioEstudiante && dominioEmail != dominioDocente)
+                return (false, $"El email debe pertenecer al dominio {dominioEstudiante} o {dominioDocente}.");
+
+            var rol = await _rolServiceClient.ObtenerPorIdAsync(dto.IdRol, usuarioId, token);
+            if (rol is null)
+                return (false, $"El rol '{dto.IdRol}' no existe.");
+
+            var nombreRol = rol.Nombre.Trim().ToLowerInvariant();
+
+            if (dominioEmail == dominioEstudiante && nombreRol != "estudiante")
+                return (false, $"Los emails del dominio {dominioEstudiante} deben tener rol Estudiante.");
+
+            if (dominioEmail == dominioDocente && nombreRol != "profesor" && nombreRol != "administrador")
+                return (false, $"Los emails del dominio {dominioDocente} deben tener rol Profesor o Administrador.");
         }
 
         public async Task<int> CrearAsync(UsuarioRequest dto)

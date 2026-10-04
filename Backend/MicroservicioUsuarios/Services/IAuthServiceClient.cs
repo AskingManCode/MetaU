@@ -1,6 +1,6 @@
 ﻿namespace MicroservicioUsuarios.Services
 {
-    public interface IAuthService
+    public interface IAuthServiceClient
     {
         Task<bool> ValidarAsync(string token);
     }

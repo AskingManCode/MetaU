@@ -16,7 +16,7 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
-builder.Services.AddScoped<IAuthService, AuthServiceMock>();
+builder.Services.AddScoped<IAuthServiceClient, AuthServiceClient>();
 
 builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>()
     .ConfigureHttpClient(client =>

@@ -2,6 +2,6 @@
 {
     public interface IBitacoraServiceClient
     {
-        Task RegistrarAsycn(int usuario, string descripcion, string token);
+        Task RegistrarAsycn(Guid usuario, string descripcion, string token);
     }
 }

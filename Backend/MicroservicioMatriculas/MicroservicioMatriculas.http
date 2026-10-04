@@ -1,7 +1,9 @@
 @MicroservicioMatriculas_HostAddress = https://localhost:7070
 @Token = PEGAR_TOKEN_DEL_LOGIN
 @UsuarioId = PEGAR_GUID_DEL_USUARIO
+@MatriculaId = PEGAR_ID_DE_LA_MATRICULA
 
+### Matricular
 POST {{MicroservicioMatriculas_HostAddress}}/matricula
 Authorization: Bearer {{Token}}
 X-Usuario-Id: {{UsuarioId}}
@@ -15,8 +17,8 @@ Content-Type: application/json
   "periodoID": "00000000-0000-0000-0000-000000000000"
 }
 
-
-PUT {{MicroservicioMatriculas_HostAddress}}/matricula/1
+### Modificar la matricula (el id lo devuelve el POST)
+PUT {{MicroservicioMatriculas_HostAddress}}/matricula/{{MatriculaId}}
 Authorization: Bearer {{Token}}
 X-Usuario-Id: {{UsuarioId}}
 Content-Type: application/json
@@ -29,12 +31,12 @@ Content-Type: application/json
   "periodoID": "00000000-0000-0000-0000-000000000000"
 }
 
-
-DELETE {{MicroservicioMatriculas_HostAddress}}/matricula/1
+### Eliminar matricula
+DELETE {{MicroservicioMatriculas_HostAddress}}/matricula/{{MatriculaId}}
 Authorization: Bearer {{Token}}
 X-Usuario-Id: {{UsuarioId}}
 
-
+### Obtener estudiantes matriculados en un curso y grupo
 GET {{MicroservicioMatriculas_HostAddress}}/matricula?cursoCode=CURSO1&grupoCode=GRUPO1
 Authorization: Bearer {{Token}}
-X-Usuario-Id: {{UsuarioId}}}
+X-Usuario-Id: {{UsuarioId}}

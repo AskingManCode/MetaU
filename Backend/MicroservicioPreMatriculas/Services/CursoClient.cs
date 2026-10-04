@@ -1,11 +1,13 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace MicroservicioPreMatriculas.Services
 {
     public class CursoClient : ICursoClient
     {
+        private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
         private readonly HttpClient _http;
 
         public CursoClient(HttpClient http)
@@ -23,7 +25,7 @@ namespace MicroservicioPreMatriculas.Services
             if (response.StatusCode == HttpStatusCode.NotFound) return null;
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<CursoInfo>();
+            return await response.Content.ReadFromJsonAsync<CursoInfo>(JsonOpts);
         }
     }
 }

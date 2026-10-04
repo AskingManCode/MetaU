@@ -1,11 +1,13 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace MicroservicioMatriculas.Services
 {
     public class GrupoClient : IGrupoClient
     {
+        private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
         private readonly HttpClient _http;
 
         public GrupoClient(HttpClient http)
@@ -23,7 +25,7 @@ namespace MicroservicioMatriculas.Services
             if (response.StatusCode == HttpStatusCode.NotFound) return null;
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<GrupoInfo>();
+            return await response.Content.ReadFromJsonAsync<GrupoInfo>(JsonOpts);
         }
     }
 }

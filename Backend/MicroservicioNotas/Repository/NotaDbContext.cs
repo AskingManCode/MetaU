@@ -31,7 +31,10 @@ namespace MicroservicioNotas.Repository
                 n.HasKey(x => x.NotaXEstudianteID);
                 n.Property(x => x.NotaXEstudianteID).ValueGeneratedOnAdd();
                 n.Property(x => x.Nota).HasColumnType("decimal(5,2)");
-                n.Property(x => x.FechaRegistro).HasColumnType("date");
+                n.Property(x => x.FechaRegistro)
+                    .HasColumnType("date")
+                    .HasDefaultValueSql("CAST(GETDATE() AS DATE)")
+                    .ValueGeneratedOnAdd();
                 n.HasIndex(x => new { x.RubroID, x.EstudianteID }).IsUnique();
 
                 n.HasOne<Rubro>()

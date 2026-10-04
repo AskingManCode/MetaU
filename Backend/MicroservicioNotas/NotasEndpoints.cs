@@ -31,7 +31,7 @@ namespace MicroservicioNotas
             var bitacoraClient = http.HttpContext.RequestServices.GetRequiredService<IBitacoraClient>();
 
             var token = http.Headers.Authorization.ToString().Replace("Bearer ", "");
-            var usuarioHeader = http.Headers["Usuario"].ToString();
+            var usuarioHeader = http.Headers["X-Usuario-Id"].ToString();
 
             if (string.IsNullOrWhiteSpace(token) ||
                 !Guid.TryParse(usuarioHeader, out var usuarioId) ||

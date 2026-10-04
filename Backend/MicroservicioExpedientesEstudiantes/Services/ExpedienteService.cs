@@ -17,6 +17,9 @@ namespace MicroservicioExpedientesEstudiantes.Services
         private static readonly Regex FormatoEmail =
             new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
+        private static readonly Regex EspaciosRepetidos =
+            new(@"\s{2,}", RegexOptions.Compiled);
+
         public ExpedienteService(
             IExpedienteRepository repository,
             IParametroClient parametroClient,
@@ -29,13 +32,16 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task<Estudiante> Crear(EstudianteRequest request, ContextoUsuario contexto)
         {
-            await ValidarDatosRequeridos(request, esCreacion: true, identificacionOriginal: null);
+            Normalizar(request);
+            await ValidarDatosRequeridos(request, request.Identificacion);
 
             if (await _repository.Existe(request.Identificacion))
                 throw new ConflictoException("Ya existe un expediente con esa identificación.");
 
             var estudiante = MapearAEntidad(request, Guid.NewGuid());
-            var creado = await _repository.Insertar(estudiante);
+
+            var creado = await _repository.Reactivar(estudiante)
+                ?? await _repository.Insertar(estudiante);
 
             await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(creado));
             return creado;
@@ -43,10 +49,13 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task<Estudiante> Modificar(string identificacion, EstudianteRequest request, ContextoUsuario contexto)
         {
+            identificacion = identificacion.Trim();
+
             var anterior = await _repository.BuscarPorId(identificacion)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
-            await ValidarDatosRequeridos(request, esCreacion: false, identificacionOriginal: identificacion);
+            Normalizar(request);
+            await ValidarDatosRequeridos(request, identificacion);
 
             var actualizado = MapearAEntidad(request, anterior.EstudianteID);
             actualizado.Identificacion = identificacion;
@@ -60,6 +69,8 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task Eliminar(string identificacion, ContextoUsuario contexto)
         {
+            identificacion = identificacion.Trim();
+
             var existente = await _repository.BuscarPorId(identificacion)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
@@ -76,12 +87,14 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task<Estudiante?> ObtenerPorId(string identificacion, ContextoUsuario contexto)
         {
+            identificacion = identificacion.Trim();
+
             var estudiante = await _repository.BuscarPorId(identificacion);
             await _bitacoraClient.Registrar(contexto, $"El usuario consulta expediente {identificacion}");
             return estudiante;
         }
 
-        private async Task ValidarDatosRequeridos(EstudianteRequest request, bool esCreacion, string? identificacionOriginal)
+        private async Task ValidarDatosRequeridos(EstudianteRequest request, string identificacionExcluirEmail)
         {
             if (EsVacioOEnBlanco(request.Identificacion) ||
                 EsVacioOEnBlanco(request.TipoIdentificacion) ||
@@ -109,9 +122,25 @@ namespace MicroservicioExpedientesEstudiantes.Services
             if (!request.Email.EndsWith("@" + dominio, StringComparison.OrdinalIgnoreCase))
                 throw new ValidacionException($"El email debe pertenecer al dominio {dominio}.");
 
-            if (await _repository.ExisteEmail(request.Email, esCreacion ? null : identificacionOriginal))
+            if (await _repository.ExisteEmail(request.Email, identificacionExcluirEmail))
                 throw new ConflictoException($"Ya existe un estudiante con el email {request.Email}.");
         }
+
+        private static void Normalizar(EstudianteRequest request)
+        {
+            request.Identificacion = request.Identificacion?.Trim() ?? string.Empty;
+            request.TipoIdentificacion = request.TipoIdentificacion?.Trim() ?? string.Empty;
+            request.Email = request.Email?.Trim() ?? string.Empty;
+            request.NombreCompleto = ColapsarEspacios(request.NombreCompleto);
+            request.OtrasSenas = ColapsarEspacios(request.OtrasSenas);
+            request.Telefonos = (request.Telefonos ?? new List<string>())
+                .Select(t => t?.Trim() ?? string.Empty)
+                .Distinct()
+                .ToList();
+        }
+
+        private static string ColapsarEspacios(string? valor) =>
+            string.IsNullOrWhiteSpace(valor) ? string.Empty : EspaciosRepetidos.Replace(valor.Trim(), " ");
 
         private static bool EsVacioOEnBlanco(string valor) => string.IsNullOrWhiteSpace(valor);
 

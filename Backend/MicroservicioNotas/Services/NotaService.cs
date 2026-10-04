@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using MicroservicioNotas.Entities;
 using MicroservicioNotas.Repository;
 
@@ -28,30 +29,36 @@ namespace MicroservicioNotas.Services
 
         public async Task<List<Rubro>> CargarDesglose(DesgloseRequest request, ContextoUsuario contexto)
         {
-            if (string.IsNullOrWhiteSpace(request.GrupoCode) || request.Rubros.Count == 0)
+            var grupoCode = request.GrupoCode?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(grupoCode) || request.Rubros is null || request.Rubros.Count == 0)
                 throw new ValidacionException("Debe indicarse el grupo y al menos un rubro.");
 
             if (request.Rubros.Any(r => string.IsNullOrWhiteSpace(r.NombreRubro) || r.Porcentaje <= 0))
                 throw new ValidacionException("Todos los rubros requieren nombre y un porcentaje mayor a cero.");
 
-            _ = await _grupoClient.ObtenerPorCodigo(request.GrupoCode)
-                ?? throw new ValidacionException($"El grupo {request.GrupoCode} no existe.");
+            var nombres = request.Rubros.Select(r => NormalizarNombre(r.NombreRubro)).ToList();
+            if (nombres.Distinct(StringComparer.OrdinalIgnoreCase).Count() != nombres.Count)
+                throw new ValidacionException("No pueden repetirse los nombres de los rubros.");
+
+            _ = await _grupoClient.ObtenerPorCodigo(grupoCode, contexto)
+                ?? throw new ValidacionException($"El grupo {grupoCode} no existe.");
 
             var total = await _parametroClient.ObtenerValorNumerico("TOTRUBRO");
             if (request.Rubros.Sum(r => r.Porcentaje) != total)
                 throw new ValidacionException($"La sumatoria de los rubros debe sumar siempre {total}.");
 
-            if (await _repository.ExistenNotasEnGrupo(request.GrupoCode))
+            if (await _repository.ExistenNotasEnGrupo(grupoCode))
                 throw new ConflictoException("No es posible modificar los rubros: ya hay notas asignadas para este grupo.");
 
             var rubros = request.Rubros.Select(r => new Rubro
             {
-                GrupoCode = request.GrupoCode,
-                NombreRubro = r.NombreRubro,
+                GrupoCode = grupoCode,
+                NombreRubro = NormalizarNombre(r.NombreRubro),
                 Porcentaje = r.Porcentaje
             }).ToList();
 
-            await _repository.ReemplazarDesglose(request.GrupoCode, rubros);
+            await _repository.ReemplazarDesglose(grupoCode, rubros);
             await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(rubros));
             return rubros;
         }
@@ -125,5 +132,8 @@ namespace MicroservicioNotas.Services
 
             return (nota, estudianteId);
         }
+
+        private static string NormalizarNombre(string nombre) =>
+            Regex.Replace(nombre.Trim(), @"\s{2,}", " ");
     }
 }

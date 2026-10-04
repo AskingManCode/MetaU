@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -16,12 +17,13 @@ namespace MicroservicioNotas.Services
 
         public async Task<Guid?> ObtenerEstudianteID(string identificacion, ContextoUsuario contexto)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"/expediente/{identificacion}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"/expediente/{Uri.EscapeDataString(identificacion)}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
-            request.Headers.Add("Usuario", contexto.UsuarioId.ToString());
+            request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 
             using var response = await _http.SendAsync(request);
-            if (!response.IsSuccessStatusCode) return null;
+            if (response.StatusCode == HttpStatusCode.NotFound) return null;
+            response.EnsureSuccessStatusCode();
 
             var expediente = await response.Content.ReadFromJsonAsync<ExpedienteResponse>(
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });

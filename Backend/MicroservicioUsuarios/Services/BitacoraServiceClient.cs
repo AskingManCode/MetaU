@@ -12,14 +12,22 @@ namespace MicroservicioUsuarios.Services
             _httpClient = httpClient;
         }
 
-        public async Task RegistrarAsycn(int usuario, string descripcion, string token)
+        public async Task RegistrarAsycn(Guid usuario, string descripcion, string token)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Post, "bitacora");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            request.Content = JsonContent.Create(new { Usuario = usuario, Descripcion = descripcion });
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Post, "bitacora");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.Add("X-Usuario-Id", usuario.ToString());
+                request.Content = JsonContent.Create(new { Usuario = usuario, Descripcion = descripcion });
 
-            using var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+                using var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException)
+            {
+                Console.WriteLine($"[BITACORA] No se pudo registrar: {descripcion}");
+            }
         }
     }
 }

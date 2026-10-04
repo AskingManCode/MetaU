@@ -20,6 +20,6 @@ namespace MicroservicioUsuarios.Entities
         public string IdRol { get; set; } = null!;
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "La contrasena es obligatorio")]
-        public string Contrasena { get; set; } = null!;
+        public string? Contrasena { get; set; } = null!;
     }
 }

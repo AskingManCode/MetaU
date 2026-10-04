@@ -10,116 +10,158 @@ namespace MicroservicioUsuarios
         {
             var group = routes.MapGroup("/usuario").WithTags(nameof(Usuario)).RequireCors("ClientApps");
 
-            async Task<bool> TokenValidoAsync(HttpRequest request, IAuthService authService)
-            {
-                if (!request.Headers.TryGetValue("Authorization", out var token)) return false;
-                return await authService.ValidarAsync(token.ToString().Replace("Bearer ", ""));
-            }
+            string ObtenerToken(HttpRequest request) =>
+                request.Headers.Authorization.ToString().Replace("Bearer ", "");
 
-            string ObtenerToken(HttpRequest request)
-                => request.Headers.Authorization.ToString().Replace("Bearer ", "");
+            async Task<bool> TokenValidoAsync(HttpRequest request, IAuthServiceClient authService)
+                => await authService.ValidarAsync(ObtenerToken(request));
 
-            // GET de filtrar o listar
+            bool ObtenerUsuarioId(HttpRequest request, out Guid usuarioId)
+                => Guid.TryParse(request.Headers["X-Usuario-Id"], out usuarioId) && usuarioId != Guid.Empty;
+
+            // GET listar o filtrar
             group.MapGet("/", async (
                 HttpRequest request,
                 string? identificacion, string? nombre, string? tipo,
                 [FromServices] IUsuarioService service,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraServiceClient bitacora) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
-                if (!await TokenValidoAsync(request, authService)) return Results.Unauthorized();
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 var hayFiltro = identificacion is not null || nombre is not null || tipo is not null;
                 var usuarios = hayFiltro
                     ? await service.FiltrarAsync(identificacion, nombre, tipo)
                     : await service.ListarAsync();
 
-                await bitacora.RegistrarAsycn(0, "El usuario consulta usuarios", ObtenerToken(request));
+                await bitacoraService.RegistrarAsycn(usuarioId, "El usuario consulta usuarios", ObtenerToken(request));
                 return Results.Ok(usuarios);
-            });
+            })
+            .WithName("GetAllUsuarios")
+            .WithOpenApi();
 
             // GET email
             group.MapGet("/{email}", async (
                 HttpRequest request, string email,
                 [FromServices] IUsuarioService service,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraServiceClient bitacora) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
-                if (!await TokenValidoAsync(request, authService)) return Results.Unauthorized();
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 var usuario = await service.ObtenerAsync(email);
-                if (usuario is null) return Results.NotFound(new { message = $"No existe un usuario con email '{email}'." });
+                if (usuario is null)
+                    return Results.NotFound(new { message = $"No existe un usuario con email '{email}'" });
 
-                await bitacora.RegistrarAsycn(0, $"El usuario consulta usuario {email}", ObtenerToken(request));
+                await bitacoraService.RegistrarAsycn(usuarioId, "El usuario consulta usuario " + email, ObtenerToken(request));
                 return Results.Ok(usuario);
-            });
+            })
+            .WithName("GetUsuarioByEmail")
+            .WithOpenApi();
 
-            // POST 
+            // POST
             group.MapPost("/", async (
                 HttpRequest request, [FromBody] UsuarioRequest dto,
                 [FromServices] IUsuarioService service,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraServiceClient bitacora) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
-                if (!await TokenValidoAsync(request, authService)) return Results.Unauthorized();
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
 
-                var (valido, error) = await service.ValidarAsync(dto, actualizacion: false);
-                if (!valido) return Results.BadRequest(new { message = error });
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
+
+                var (valido, error) = await service.ValidarAsync(dto, actualizacion: false, usuarioId, ObtenerToken(request));
+                if (!valido)
+                    return Results.BadRequest(new { message = error });
 
                 var existente = await service.ObtenerAsync(dto.Email);
-                if (existente is not null) return Results.Conflict(new { message = $"Ya existe un usuario con email '{dto.Email}'." });
+                if (existente is not null)
+                    return Results.Conflict(new { message = $"Ya existe un usuario con email '{dto.Email}'" });
 
                 var filas = await service.CrearAsync(dto);
-                if (filas <= 0) return Results.Problem("No se pudo crear el usuario");
-
-                await bitacora.RegistrarAsycn(0, $"Registro nuevo: {System.Text.Json.JsonSerializer.Serialize(new { dto.Email, dto.Nombre })}", ObtenerToken(request));
+                if (filas <= 0)
+                    return Results.Problem("No se pudo crear el usuario");
 
                 var creado = await service.ObtenerAsync(dto.Email);
+
+                await bitacoraService.RegistrarAsycn(usuarioId, System.Text.Json.JsonSerializer.Serialize(new { dto.Email, dto.Nombre }), ObtenerToken(request));
+
                 return Results.Created($"/usuario/{dto.Email}", creado);
-            });
+            })
+            .WithName("CreateUsuario")
+            .WithOpenApi();
 
             // PUT 
             group.MapPut("/{email}", async (
                 HttpRequest request, string email, [FromBody] UsuarioRequest dto,
                 [FromServices] IUsuarioService service,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraServiceClient bitacora) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
-                if (!await TokenValidoAsync(request, authService)) return Results.Unauthorized();
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
 
-                var (valido, error) = await service.ValidarAsync(dto, actualizacion: true);
-                if (!valido) return Results.BadRequest(new { message = error });
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
+
+                var (valido, error) = await service.ValidarAsync(dto, actualizacion: true, usuarioId, ObtenerToken(request));
+                if (!valido)
+                    return Results.BadRequest(new { message = error });
 
                 var anterior = await service.ObtenerAsync(email);
-                if (anterior is null) return Results.NotFound(new { message = $"No existe un usuario con email '{email}'." });
+                if (anterior is null)
+                    return Results.NotFound(new { message = $"No existe un usuario con email '{email}'" });
 
                 var filas = await service.ActualizarAsync(email, dto);
-                if (filas <= 0) return Results.Problem("No se pudo actualizar el usuario");
+                if (filas <= 0)
+                    return Results.Problem("No se pudo actualizar el usuario");
 
                 var actual = await service.ObtenerAsync(email);
-                await bitacora.RegistrarAsycn(0, System.Text.Json.JsonSerializer.Serialize(new { anterior, actual }), ObtenerToken(request));
+                var detalle = System.Text.Json.JsonSerializer.Serialize(new { anterior, actual });
+                await bitacoraService.RegistrarAsycn(usuarioId, detalle, ObtenerToken(request));
 
                 return Results.Ok(actual);
-            });
+            })
+            .WithName("UpdateUsuario")
+            .WithOpenApi();
 
             // DELETE 
             group.MapDelete("/{email}", async (
                 HttpRequest request, string email,
                 [FromServices] IUsuarioService service,
-                [FromServices] IAuthService authService,
-                [FromServices] IBitacoraServiceClient bitacora) =>
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
             {
-                if (!await TokenValidoAsync(request, authService)) return Results.Unauthorized();
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
 
                 var existente = await service.ObtenerAsync(email);
-                if (existente is null) return Results.NotFound(new { message = $"No existe un usuario con email '{email}'." });
+                if (existente is null)
+                    return Results.NotFound(new { message = $"No existe un usuario con email '{email}'" });
 
                 var filas = await service.EliminarAsync(email);
-                if (filas <= 0) return Results.Problem("No se pudo eliminar el usuario");
+                if (filas <= 0)
+                    return Results.Problem("No se pudo eliminar el usuario");
 
-                await bitacora.RegistrarAsycn(0, System.Text.Json.JsonSerializer.Serialize(existente), ObtenerToken(request));
+                await bitacoraService.RegistrarAsycn(usuarioId, System.Text.Json.JsonSerializer.Serialize(existente), ObtenerToken(request));
+
                 return Results.NoContent();
-            });
+            })
+            .WithName("DeleteUsuario")
+            .WithOpenApi();
         }
     }
 }

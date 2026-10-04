@@ -17,10 +17,9 @@ namespace MicroservicioExpedientesEstudiantes.Repository
                 e.HasKey(x => x.EstudianteID);
                 e.Property(x => x.EstudianteID).HasDefaultValueSql("NEWSEQUENTIALID()").ValueGeneratedOnAdd();
                 e.Property(x => x.Identificacion).HasMaxLength(30).IsRequired();
-                e.Property(x => x.TipoIdentificacion).HasMaxLength(15).IsRequired();
+                e.Property(x => x.TipoIdentificacion).HasColumnName("TipoIdentificacionCode").HasMaxLength(15).IsRequired();
                 e.Property(x => x.Email).HasMaxLength(150).IsRequired();
                 e.Property(x => x.NombreCompleto).HasMaxLength(175).IsRequired();
-                e.Property(x => x.Estado).HasDefaultValue(true);
 
                 e.HasIndex(x => x.Identificacion).IsUnique();
                 e.HasIndex(x => x.Email).IsUnique();

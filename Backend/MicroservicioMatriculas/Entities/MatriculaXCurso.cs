@@ -7,7 +7,6 @@ namespace MicroservicioMatriculas.Entities
         public string CursoCode { get; set; } = string.Empty;
         public string GrupoCode { get; set; } = string.Empty;
         public bool Estado { get; set; }
-        public string? Observaciones { get; set; }
         public Matricula Matricula { get; set; } = null!;
     }
 }

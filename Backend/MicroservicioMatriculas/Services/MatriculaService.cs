@@ -47,8 +47,7 @@ namespace MicroservicioMatriculas.Services
                 {
                     CursoCode = curso.CursoCode,
                     GrupoCode = grupo.GrupoCode,
-                    Estado = true,
-                    Observaciones = request.Observaciones.Trim()
+                    Estado = true
                 };
 
                 matricula = new Matricula
@@ -73,7 +72,6 @@ namespace MicroservicioMatriculas.Services
                 {
                     existente.GrupoCode = grupo.GrupoCode;
                     existente.Estado = true;
-                    existente.Observaciones = request.Observaciones.Trim();
                     await _repositorio.GuardarCambios();
                     detalle = existente;
                 }
@@ -84,8 +82,7 @@ namespace MicroservicioMatriculas.Services
                         MatriculaID = matricula.MatriculaID,
                         CursoCode = curso.CursoCode,
                         GrupoCode = grupo.GrupoCode,
-                        Estado = true,
-                        Observaciones = request.Observaciones.Trim()
+                        Estado = true
                     };
                     await _repositorio.InsertarCurso(detalle);
                 }
@@ -93,7 +90,8 @@ namespace MicroservicioMatriculas.Services
 
             var creada = Mapear(detalle, estudiante.Identificacion, request.PeriodoID);
 
-            await _bitacora.Registrar(contexto, JsonSerializer.Serialize(creada));
+            await RegistrarBitacora(contexto,
+                $"Se creó la matrícula {creada.Id}: " + JsonSerializer.Serialize(creada));
 
             return creada;
         }
@@ -113,7 +111,7 @@ namespace MicroservicioMatriculas.Services
                 request.PeriodoID != matricula.PeriodoID)
             {
                 throw new ValidacionException(
-                    "Solo se pueden modificar el grupo y las observaciones de la matrícula; la identificación, el curso y el periodo no pueden cambiar.");
+                    "Solo se puede modificar el grupo de la matrícula; la identificación, el curso y el periodo no pueden cambiar.");
             }
 
             var anterior = Mapear(detalle, identificacion, matricula.PeriodoID);
@@ -125,12 +123,12 @@ namespace MicroservicioMatriculas.Services
                 throw new ConflictoException("El grupo no tiene cupo disponible.");
 
             detalle.GrupoCode = grupo.GrupoCode;
-            detalle.Observaciones = request.Observaciones.Trim();
             await _repositorio.GuardarCambios();
 
             var actual = Mapear(detalle, identificacion, matricula.PeriodoID);
 
-            await _bitacora.Registrar(contexto, JsonSerializer.Serialize(new { anterior, actual }));
+            await RegistrarBitacora(contexto,
+                $"Se modificó la matrícula {id}: " + JsonSerializer.Serialize(new { anterior, actual }));
 
             return actual;
         }
@@ -145,7 +143,8 @@ namespace MicroservicioMatriculas.Services
             detalle.Estado = false;
             await _repositorio.GuardarCambios();
 
-            await _bitacora.Registrar(contexto, JsonSerializer.Serialize(eliminada));
+            await RegistrarBitacora(contexto,
+                $"Se eliminó la matrícula {id}: " + JsonSerializer.Serialize(eliminada));
         }
 
         public async Task<List<EstudianteMatriculadoResponse>> ObtenerEstudiantesMatriculados(
@@ -156,7 +155,7 @@ namespace MicroservicioMatriculas.Services
 
             var estudiantes = await _repositorio.ListarEstudiantesMatriculados(cursoCode.Trim(), grupoCode.Trim());
 
-            await _bitacora.Registrar(contexto,
+            await RegistrarBitacora(contexto,
                 $"El usuario consulta estudiantes matriculados en el curso {cursoCode.Trim()} y grupo {grupoCode.Trim()}");
 
             return estudiantes
@@ -172,11 +171,22 @@ namespace MicroservicioMatriculas.Services
 
             var matriculas = await _repositorio.ListarCursosPorEstudiante(identificacion.Trim());
 
-            await _bitacora.Registrar(contexto, $"El usuario consulta las matriculas del estudiante {identificacion.Trim()}");
+            await RegistrarBitacora(contexto, $"El usuario consulta las matriculas del estudiante {identificacion.Trim()}");
 
             return matriculas
                 .Select(x => Mapear(x, x.Matricula.Estudiante.Identificacion, x.Matricula.PeriodoID))
                 .ToList();
+        }
+
+        private async Task RegistrarBitacora(ContextoUsuario contexto, string descripcion)
+        {
+            try
+            {
+                await _bitacora.Registrar(contexto, descripcion);
+            }
+            catch
+            {
+            }
         }
 
         private static void ValidarRequest(MatriculaRequest request)
@@ -186,7 +196,6 @@ namespace MicroservicioMatriculas.Services
             if (string.IsNullOrWhiteSpace(request.Identificacion)) faltantes.Add("identificacion");
             if (string.IsNullOrWhiteSpace(request.CursoCode)) faltantes.Add("cursoCode");
             if (string.IsNullOrWhiteSpace(request.GrupoCode)) faltantes.Add("grupoCode");
-            if (string.IsNullOrWhiteSpace(request.Observaciones)) faltantes.Add("observaciones");
             if (request.PeriodoID == Guid.Empty) faltantes.Add("periodoID");
 
             if (faltantes.Count > 0)
@@ -217,6 +226,6 @@ namespace MicroservicioMatriculas.Services
         }
 
         private static MatriculaResponse Mapear(MatriculaXCurso detalle, string identificacion, Guid periodoId) =>
-            new(detalle.MatriculaXCursoID, detalle.MatriculaID, identificacion, detalle.CursoCode, detalle.GrupoCode, periodoId, detalle.Observaciones);
+            new(detalle.MatriculaXCursoID, detalle.MatriculaID, identificacion, detalle.CursoCode, detalle.GrupoCode, periodoId);
     }
 }

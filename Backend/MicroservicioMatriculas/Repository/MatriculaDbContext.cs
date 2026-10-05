@@ -47,7 +47,6 @@ namespace MicroservicioMatriculas.Repository
                 c.Property(x => x.MatriculaXCursoID).HasColumnName("MatriculaXCurso").ValueGeneratedOnAdd();
                 c.Property(x => x.CursoCode).HasMaxLength(15).IsRequired();
                 c.Property(x => x.GrupoCode).HasMaxLength(15).IsRequired();
-                c.Property(x => x.Observaciones).HasMaxLength(300);
             });
         }
     }

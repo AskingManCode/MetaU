@@ -4,7 +4,7 @@
     {
         public Guid UsuarioId { get; set; }
         public string RolCode { get; set; } = null!;
-        public string TipoIndentificacionCode { get; set; } = null!;
+        public string TipoIdentificacionCode { get; set; } = null!;
         public string Identificacion { get; set; } = null!;
         public string NombreCompleto { get; set; } = null!;
         public string Email { get; set; } = null!;

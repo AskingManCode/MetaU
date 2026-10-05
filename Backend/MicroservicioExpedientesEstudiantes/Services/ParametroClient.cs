@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace MicroservicioExpedientesEstudiantes.Services
@@ -13,16 +14,24 @@ namespace MicroservicioExpedientesEstudiantes.Services
             _http = http;
         }
 
-        public async Task<string> ObtenerValor(string identificador)
+        public async Task<string> ObtenerValor(string identificador, ContextoUsuario contexto)
         {
             try
             {
-                var response = await _http.GetAsync($"parametro/{identificador}");
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Get, $"api/parametro/{Uri.EscapeDataString(identificador)}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
+                request.Headers.Add("UsuarioGUID", contexto.UsuarioId.ToString());
+
+                using var response = await _http.SendAsync(request);
                 if (response.StatusCode == HttpStatusCode.NotFound) return DominioPorDefecto;
                 response.EnsureSuccessStatusCode();
 
                 var parametro = await response.Content.ReadFromJsonAsync<ParametroResponse>();
-                return string.IsNullOrWhiteSpace(parametro?.Valor) ? DominioPorDefecto : parametro.Valor;
+
+                return parametro is { Estado: true } && !string.IsNullOrWhiteSpace(parametro.Valor)
+                    ? parametro.Valor
+                    : DominioPorDefecto;
             }
             catch (HttpRequestException)
             {

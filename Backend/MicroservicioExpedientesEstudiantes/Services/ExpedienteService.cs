@@ -33,7 +33,7 @@ namespace MicroservicioExpedientesEstudiantes.Services
         public async Task<Estudiante> Crear(EstudianteRequest request, ContextoUsuario contexto)
         {
             Normalizar(request);
-            await ValidarDatosRequeridos(request, request.Identificacion);
+            await ValidarDatosRequeridos(request, request.Identificacion, contexto);
 
             if (await _repository.Existe(request.Identificacion))
                 throw new ConflictoException("Ya existe un expediente con esa identificación.");
@@ -43,7 +43,8 @@ namespace MicroservicioExpedientesEstudiantes.Services
             var creado = await _repository.Reactivar(estudiante)
                 ?? await _repository.Insertar(estudiante);
 
-            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(creado));
+            await RegistrarBitacora(contexto,
+                $"Se creó el expediente {creado.Identificacion}: " + JsonSerializer.Serialize(creado));
             return creado;
         }
 
@@ -55,7 +56,7 @@ namespace MicroservicioExpedientesEstudiantes.Services
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
             Normalizar(request);
-            await ValidarDatosRequeridos(request, identificacion);
+            await ValidarDatosRequeridos(request, identificacion, contexto);
 
             var actualizado = MapearAEntidad(request, anterior.EstudianteID);
             actualizado.Identificacion = identificacion;
@@ -63,7 +64,9 @@ namespace MicroservicioExpedientesEstudiantes.Services
             var resultado = await _repository.Actualizar(actualizado)
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
-            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(new { anterior, actual = resultado }));
+            await RegistrarBitacora(contexto,
+                $"Se modificó el expediente {identificacion}: " +
+                JsonSerializer.Serialize(new { anterior, actual = resultado }));
             return resultado;
         }
 
@@ -75,13 +78,14 @@ namespace MicroservicioExpedientesEstudiantes.Services
                 ?? throw new NoEncontradoException("No existe un expediente con esa identificación.");
 
             await _repository.Eliminar(identificacion);
-            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(existente));
+            await RegistrarBitacora(contexto,
+                $"Se eliminó el expediente {identificacion}: " + JsonSerializer.Serialize(existente));
         }
 
         public async Task<List<Estudiante>> ObtenerTodos(ContextoUsuario contexto)
         {
             var lista = await _repository.ListarTodos();
-            await _bitacoraClient.Registrar(contexto, "El usuario consulta expedientes de estudiantes");
+            await RegistrarBitacora(contexto, "El usuario consulta expedientes de estudiantes");
             return lista;
         }
 
@@ -90,11 +94,23 @@ namespace MicroservicioExpedientesEstudiantes.Services
             identificacion = identificacion.Trim();
 
             var estudiante = await _repository.BuscarPorId(identificacion);
-            await _bitacoraClient.Registrar(contexto, $"El usuario consulta expediente {identificacion}");
+            await RegistrarBitacora(contexto, $"El usuario consulta expediente {identificacion}");
             return estudiante;
         }
 
-        private async Task ValidarDatosRequeridos(EstudianteRequest request, string identificacionExcluirEmail)
+        private async Task RegistrarBitacora(ContextoUsuario contexto, string descripcion)
+        {
+            try
+            {
+                await _bitacoraClient.Registrar(contexto, descripcion);
+            }
+            catch
+            {
+            }
+        }
+
+        private async Task ValidarDatosRequeridos(
+            EstudianteRequest request, string identificacionExcluirEmail, ContextoUsuario contexto)
         {
             if (EsVacioOEnBlanco(request.Identificacion) ||
                 EsVacioOEnBlanco(request.TipoIdentificacion) ||
@@ -118,7 +134,7 @@ namespace MicroservicioExpedientesEstudiantes.Services
             if (!FormatoEmail.IsMatch(request.Email))
                 throw new ValidacionException("El formato del email no es válido.");
 
-            var dominio = await _parametroClient.ObtenerValor("DOMEST");
+            var dominio = await _parametroClient.ObtenerValor("DOMEST", contexto);
             if (!request.Email.EndsWith("@" + dominio, StringComparison.OrdinalIgnoreCase))
                 throw new ValidacionException($"El email debe pertenecer al dominio {dominio}.");
 

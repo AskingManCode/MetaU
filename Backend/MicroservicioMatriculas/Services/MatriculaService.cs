@@ -165,6 +165,20 @@ namespace MicroservicioMatriculas.Services
                 .ToList();
         }
 
+        public async Task<List<MatriculaResponse>> ObtenerMatriculasPorEstudiante(string identificacion, ContextoUsuario contexto)
+        {
+            if (string.IsNullOrWhiteSpace(identificacion))
+                throw new ValidacionException("La identificacion es requerida.");
+
+            var matriculas = await _repositorio.ListarCursosPorEstudiante(identificacion.Trim());
+
+            await _bitacora.Registrar(contexto, $"El usuario consulta las matriculas del estudiante {identificacion.Trim()}");
+
+            return matriculas
+                .Select(x => Mapear(x, x.Matricula.Estudiante.Identificacion, x.Matricula.PeriodoID))
+                .ToList();
+        }
+
         private static void ValidarRequest(MatriculaRequest request)
         {
             var faltantes = new List<string>();

@@ -7,5 +7,7 @@ namespace MicroservicioMatriculas.Services
         Task Eliminar(int id, ContextoUsuario contexto);
         Task<List<EstudianteMatriculadoResponse>> ObtenerEstudiantesMatriculados(
             string cursoCode, string grupoCode, ContextoUsuario contexto);
+
+        Task<List<MatriculaResponse>> ObtenerMatriculasPorEstudiante(string identificacion, ContextoUsuario contexto);
     }
 }

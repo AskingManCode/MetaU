@@ -56,5 +56,19 @@ namespace MicroservicioMatriculas.Repository
                          && c.Matricula.Estudiante.Estado)
                 .Select(c => c.Matricula.Estudiante)
                 .ToListAsync();
+
+        public Task<List<MatriculaXCurso>> ListarCursosPorEstudiante(string identificacion) =>
+    _db.MatriculasXCursos
+        .AsNoTracking()
+        .Include(x => x.Matricula)
+            .ThenInclude(x => x.Estudiante)
+        .Where(x =>
+            x.Estado &&
+            x.Matricula.Estado &&
+            x.Matricula.Estudiante.Estado &&
+            x.Matricula.Estudiante.Identificacion == identificacion)
+        .ToListAsync();
     }
+
+
 }

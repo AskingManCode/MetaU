@@ -13,5 +13,7 @@ namespace MicroservicioMatriculas.Repository
         Task InsertarCurso(MatriculaXCurso curso);
         Task GuardarCambios();
         Task<List<Estudiante>> ListarEstudiantesMatriculados(string cursoCode, string grupoCode);
+
+        Task<List<MatriculaXCurso>> ListarCursosPorEstudiante(string identificacion);
     }
 }

@@ -6,6 +6,5 @@ namespace MicroservicioMatriculas.Services
         string Identificacion,
         string CursoCode,
         string GrupoCode,
-        Guid PeriodoID,
-        string? Observaciones);
+        Guid PeriodoID);
 }

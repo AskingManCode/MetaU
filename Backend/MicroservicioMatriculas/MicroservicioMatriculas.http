@@ -13,7 +13,6 @@ Content-Type: application/json
   "identificacion": "123456789",
   "cursoCode": "CURSO1",
   "grupoCode": "GRUPO1",
-  "observaciones": "Sin observaciones",
   "periodoID": "00000000-0000-0000-0000-000000000000"
 }
 
@@ -27,7 +26,6 @@ Content-Type: application/json
   "identificacion": "123456789",
   "cursoCode": "CURSO1",
   "grupoCode": "GRUPO2",
-  "observaciones": "Cambio de grupo",
   "periodoID": "00000000-0000-0000-0000-000000000000"
 }
 

@@ -1,23 +1,43 @@
+using MicroservicioCursos;
+using MicroservicioCursos.Repository;
+using MicroservicioCursos.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
+builder.Services.AddScoped<ICursoService, CursoService>();
+
+builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["Servicios:LoginUrl"]
+        ?? throw new InvalidOperationException(
+            "No se encontro la URL del servicio de login"));
+});
+
+builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["Servicios:BitacoraUrl"]
+        ?? throw new InvalidOperationException(
+            "No se encontro la URL del servicio de bitacora"));
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
-{
     app.MapOpenApi();
-}
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapCursosEndpoints();
 
 app.Run();

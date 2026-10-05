@@ -70,7 +70,8 @@ namespace MicroservicioPreMatriculas.Services
 
             var creada = Mapear(prematricula);
 
-            await _bitacora.Registrar(contexto, JsonSerializer.Serialize(creada));
+            await RegistrarBitacora(contexto,
+                $"Se creó la prematrícula {creada.Id}: " + JsonSerializer.Serialize(creada));
 
             return creada;
         }
@@ -106,7 +107,8 @@ namespace MicroservicioPreMatriculas.Services
 
             var actual = Mapear(prematricula);
 
-            await _bitacora.Registrar(contexto, JsonSerializer.Serialize(new { anterior, actual }));
+            await RegistrarBitacora(contexto,
+                $"Se modificó la prematrícula {id}: " + JsonSerializer.Serialize(new { anterior, actual }));
 
             return actual;
         }
@@ -124,14 +126,15 @@ namespace MicroservicioPreMatriculas.Services
 
             await _repositorio.GuardarCambios();
 
-            await _bitacora.Registrar(contexto, JsonSerializer.Serialize(eliminada));
+            await RegistrarBitacora(contexto,
+                $"Se eliminó la prematrícula {id}: " + JsonSerializer.Serialize(eliminada));
         }
 
         public async Task<List<PrematriculaResponse>> ObtenerTodas(ContextoUsuario contexto)
         {
             var prematriculas = await _repositorio.ListarActivas();
 
-            await _bitacora.Registrar(contexto, "El usuario consulta las prematrículas");
+            await RegistrarBitacora(contexto, "El usuario consulta las prematrículas");
 
             return prematriculas.Select(Mapear).ToList();
         }
@@ -141,9 +144,20 @@ namespace MicroservicioPreMatriculas.Services
             var prematricula = await _repositorio.BuscarPorId(id)
                 ?? throw new NoEncontradoException("No existe una prematrícula con ese identificador.");
 
-            await _bitacora.Registrar(contexto, $"El usuario consulta la prematrícula {id}");
+            await RegistrarBitacora(contexto, $"El usuario consulta la prematrícula {id}");
 
             return Mapear(prematricula);
+        }
+
+        private async Task RegistrarBitacora(ContextoUsuario contexto, string descripcion)
+        {
+            try
+            {
+                await _bitacora.Registrar(contexto, descripcion);
+            }
+            catch
+            {
+            }
         }
 
         private static void ValidarRequest(PrematriculaRequest request)

@@ -80,7 +80,7 @@ namespace MicroservicioUsuarios
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                var (valido, error) = await service.ValidarAsync(dto, actualizacion: false, usuarioId, ObtenerToken(request));
+                var (valido, error) = await service.ValidarAsync(dto, false, usuarioId, ObtenerToken(request));
                 if (!valido)
                     return Results.BadRequest(new { message = error });
 
@@ -114,7 +114,7 @@ namespace MicroservicioUsuarios
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                var (valido, error) = await service.ValidarAsync(dto, actualizacion: true, usuarioId, ObtenerToken(request));
+                var (valido, error) = await service.ValidarAsync(dto, true, usuarioId, ObtenerToken(request));
                 if (!valido)
                     return Results.BadRequest(new { message = error });
 

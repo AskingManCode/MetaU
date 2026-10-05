@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace MicroservicioNotas.Services
@@ -20,18 +21,24 @@ namespace MicroservicioNotas.Services
             _http = http;
         }
 
-        public async Task<decimal> ObtenerValorNumerico(string identificador)
+        public async Task<decimal> ObtenerValorNumerico(string identificador, ContextoUsuario contexto)
         {
             try
             {
-                var response = await _http.GetAsync($"parametro/{identificador}");
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Get, $"api/parametro/{Uri.EscapeDataString(identificador)}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
+                request.Headers.Add("UsuarioGUID", contexto.UsuarioId.ToString());
+
+                using var response = await _http.SendAsync(request);
                 if (response.StatusCode == HttpStatusCode.NotFound)
                     return ValoresPorDefecto.GetValueOrDefault(identificador, 0m);
 
                 response.EnsureSuccessStatusCode();
                 var parametro = await response.Content.ReadFromJsonAsync<ParametroResponse>();
 
-                return decimal.TryParse(parametro?.Valor, NumberStyles.Number, CultureInfo.InvariantCulture, out var valor)
+                return parametro is { Estado: true } &&
+                       decimal.TryParse(parametro.Valor, NumberStyles.Number, CultureInfo.InvariantCulture, out var valor)
                     ? valor
                     : ValoresPorDefecto.GetValueOrDefault(identificador, 0m);
             }

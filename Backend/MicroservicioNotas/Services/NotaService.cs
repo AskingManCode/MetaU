@@ -44,7 +44,7 @@ namespace MicroservicioNotas.Services
             _ = await _grupoClient.ObtenerPorCodigo(grupoCode, contexto)
                 ?? throw new ValidacionException($"El grupo {grupoCode} no existe.");
 
-            var total = await _parametroClient.ObtenerValorNumerico("TOTRUBRO");
+            var total = await _parametroClient.ObtenerValorNumerico("TOTRUBRO", contexto);
             if (request.Rubros.Sum(r => r.Porcentaje) != total)
                 throw new ValidacionException($"La sumatoria de los rubros debe sumar siempre {total}.");
 
@@ -59,7 +59,8 @@ namespace MicroservicioNotas.Services
             }).ToList();
 
             await _repository.ReemplazarDesglose(grupoCode, rubros);
-            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(rubros));
+            await RegistrarBitacora(contexto,
+                $"Se cargó el desglose del grupo {grupoCode}: " + JsonSerializer.Serialize(rubros));
             return rubros;
         }
 
@@ -72,7 +73,9 @@ namespace MicroservicioNotas.Services
                 throw new ConflictoException("Ya existe una nota para ese rubro y estudiante; use modificar en vez de asignar.");
 
             var creada = await _repository.InsertarNota(nota);
-            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(creada));
+            await RegistrarBitacora(contexto,
+                $"Se asignó nota al estudiante {request.Identificacion} en el rubro {request.RubroID}: " +
+                JsonSerializer.Serialize(creada));
             return creada;
         }
 
@@ -86,14 +89,16 @@ namespace MicroservicioNotas.Services
             var actualizada = await _repository.ActualizarNota(nota)
                 ?? throw new NoEncontradoException("No existe una nota para ese rubro y estudiante.");
 
-            await _bitacoraClient.Registrar(contexto, JsonSerializer.Serialize(new { anterior, actual = actualizada }));
+            await RegistrarBitacora(contexto,
+                $"Se modificó la nota del estudiante {request.Identificacion} en el rubro {request.RubroID}: " +
+                JsonSerializer.Serialize(new { anterior, actual = actualizada }));
             return actualizada;
         }
 
         public async Task<List<Rubro>> ObtenerDesglose(string grupoCode, ContextoUsuario contexto)
         {
             var rubros = await _repository.ListarRubrosPorGrupo(grupoCode);
-            await _bitacoraClient.Registrar(contexto, $"El usuario consulta desglose del grupo {grupoCode}");
+            await RegistrarBitacora(contexto, $"El usuario consulta desglose del grupo {grupoCode}");
             return rubros;
         }
 
@@ -103,8 +108,19 @@ namespace MicroservicioNotas.Services
                 ?? throw new ValidacionException($"El estudiante {identificacion} no existe.");
 
             var notas = await _repository.ListarNotas(estudianteId, grupoCode);
-            await _bitacoraClient.Registrar(contexto, $"El usuario consulta notas de {identificacion} en grupo {grupoCode}");
+            await RegistrarBitacora(contexto, $"El usuario consulta notas de {identificacion} en grupo {grupoCode}");
             return notas;
+        }
+
+        private async Task RegistrarBitacora(ContextoUsuario contexto, string descripcion)
+        {
+            try
+            {
+                await _bitacoraClient.Registrar(contexto, descripcion);
+            }
+            catch
+            {
+            }
         }
 
         private async Task<(NotaRubro nota, Guid estudianteId)> ValidarYMapear(NotaRubroRequest request, ContextoUsuario contexto)
@@ -118,8 +134,8 @@ namespace MicroservicioNotas.Services
             var estudianteId = await _expedienteClient.ObtenerEstudianteID(request.Identificacion, contexto)
                 ?? throw new ValidacionException($"El estudiante {request.Identificacion} no existe.");
 
-            var min = await _parametroClient.ObtenerValorNumerico("NOTAMIN");
-            var max = await _parametroClient.ObtenerValorNumerico("NOTAMAX");
+            var min = await _parametroClient.ObtenerValorNumerico("NOTAMIN", contexto);
+            var max = await _parametroClient.ObtenerValorNumerico("NOTAMAX", contexto);
             if (request.Nota < min || request.Nota > max)
                 throw new ValidacionException($"La nota debe estar entre {min} y {max}.");
 

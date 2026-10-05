@@ -11,8 +11,8 @@ namespace MicroservicioUsuarios.Services
         private readonly IParametroServiceClient _parametroServiceClient;
         private readonly IRolServiceClient _rolServiceClient;
 
-        private const string Dominio_Estudiante = "DOMESTUD";
-        private const string Dominio_Profes = "DOMDOCENT";
+        private const string Dominio_Estudiante = "DOMEST";
+        private const string Dominio_Profes = "DOMPROF";
 
         public UsuarioService(
             IUsuarioRepository repository,
@@ -46,7 +46,7 @@ namespace MicroservicioUsuarios.Services
                 return (false, "El nombre solo puede tener letras y espacios");
 
             if (!Regex.IsMatch(dto.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                return (false, "El formato del email no es válido");
+                return (false, "El formato del email no es valido");
 
             var dominioEmail = dto.Email.Split('@').Last().ToLowerInvariant();
 
@@ -83,7 +83,7 @@ namespace MicroservicioUsuarios.Services
             {
                 UsuarioId = Guid.NewGuid(),
                 Email = dto.Email,
-                TipoIndentificacionCode = dto.TipoIdentificacion,
+                TipoIdentificacionCode = dto.TipoIdentificacion,
                 Identificacion = dto.Identificacion,
                 NombreCompleto = dto.Nombre,
                 RolCode = dto.IdRol,
@@ -99,7 +99,7 @@ namespace MicroservicioUsuarios.Services
             var existente = await _repository.ObtenerPorEmailAsync(email);
             if (existente is null) return 0;
 
-            existente.TipoIndentificacionCode = dto.TipoIdentificacion;
+            existente.TipoIdentificacionCode = dto.TipoIdentificacion;
             existente.Identificacion = dto.Identificacion;
             existente.NombreCompleto = dto.Nombre;
             existente.RolCode = dto.IdRol;

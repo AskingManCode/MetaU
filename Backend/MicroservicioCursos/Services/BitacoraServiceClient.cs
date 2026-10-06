@@ -24,6 +24,7 @@ namespace MicroservicioCursos.Services
                 new System.Net.Http.Headers.AuthenticationHeaderValue(
                     "Bearer",
                     token);
+            request.Headers.Add("X-Usuario-Id", usuario.ToString());
 
             request.Content = JsonContent.Create(new
             {

@@ -1,0 +1,176 @@
+diff --git a/Backend/MicroservicioCursos/Repository/CursoRepository.cs b/Backend/MicroservicioCursos/Repository/CursoRepository.cs
+index 4c19a91..c3094c3 100644
+--- a/Backend/MicroservicioCursos/Repository/CursoRepository.cs
++++ b/Backend/MicroservicioCursos/Repository/CursoRepository.cs
+@@ -1,123 +1,88 @@
+-﻿using Microsoft.Data.SqlClient;
++﻿using Dapper;
++using Microsoft.Data.SqlClient;
+ using MicroservicioCursos.Entities;
+-using System.Data;
+ 
+ namespace MicroservicioCursos.Repository
+ {
+     public class CursoRepository : ICursoRepository
+     {
+-        private readonly ISqlConnectionFactory _connectionFactory;
++        private readonly IDbConnectionFactory _conexiones;
+ 
+-        public CursoRepository(ISqlConnectionFactory connectionFactory)
++        public CursoRepository(IDbConnectionFactory conexiones)
+         {
+-            _connectionFactory = connectionFactory;
++            _conexiones = conexiones;
+         }
+ 
+         public async Task CrearAsync(Curso curso)
+         {
+-            await using var connection = _connectionFactory.CrearConexion();
+-            await using var command = new SqlCommand("dbo.usp_Cursos_Crear", connection);
+-            command.CommandType = CommandType.StoredProcedure;
++            const string sql = @"
++                INSERT INTO Cursos (CursoCode, CarreraCode, Nombre, Nivel)
++                VALUES (@CursoCode, @CarreraCode, @Nombre, @Nivel)";
+ 
+-            AgregarParametros(command, curso);
+-
+-            await connection.OpenAsync();
+-            await command.ExecuteNonQueryAsync();
++            using var conexion = _conexiones.CrearConexion();
++            try
++            {
++                await conexion.ExecuteAsync(sql, curso);
++            }
++            catch (SqlException ex) when (ex.Number == 547)
++            {
++                throw new ArgumentException($"No existe una carrera con el identificador {curso.CarreraCode}");
++            }
+         }
+ 
+         public async Task ModificarAsync(Curso curso)
+         {
+-            await using var connection = _connectionFactory.CrearConexion();
+-            await using var command = new SqlCommand("dbo.usp_Cursos_Modificar", connection);
+-            command.CommandType = CommandType.StoredProcedure;
++            const string sql = @"
++                UPDATE Cursos
++                SET Nombre = @Nombre, Nivel = @Nivel
++                WHERE CursoCode = @CursoCode AND Estado = 1";
+ 
+-            AgregarParametros(command, curso);
+-
+-            await connection.OpenAsync();
+-            await command.ExecuteNonQueryAsync();
++            using var conexion = _conexiones.CrearConexion();
++            await conexion.ExecuteAsync(sql, curso);
+         }
+ 
+         public async Task EliminarAsync(string cursoCode)
+         {
+-            await using var connection = _connectionFactory.CrearConexion();
+-            await using var command = new SqlCommand("dbo.usp_Cursos_Eliminar", connection);
+-            command.CommandType = CommandType.StoredProcedure;
+-
+-            command.Parameters.Add("@CursoCode", SqlDbType.VarChar, 15).Value = cursoCode;
++            const string sql = @"
++                UPDATE Cursos
++                SET Estado = 0
++                WHERE CursoCode = @CursoCode AND Estado = 1";
+ 
+-            await connection.OpenAsync();
+-            await command.ExecuteNonQueryAsync();
++            using var conexion = _conexiones.CrearConexion();
++            await conexion.ExecuteAsync(sql, new { CursoCode = cursoCode });
+         }
+ 
+         public async Task<IEnumerable<Curso>> ObtenerTodosAsync()
+         {
+-            var cursos = new List<Curso>();
+-
+-            await using var connection = _connectionFactory.CrearConexion();
+-            await using var command = new SqlCommand("dbo.usp_Cursos_ObtenerTodos", connection);
+-            command.CommandType = CommandType.StoredProcedure;
++            const string sql = @"
++                SELECT CursoCode, CarreraCode, Nombre, Nivel, Estado
++                FROM Cursos
++                WHERE Estado = 1";
+ 
+-            await connection.OpenAsync();
+-            await using var reader = await command.ExecuteReaderAsync();
+-
+-            while (await reader.ReadAsync())
+-                cursos.Add(MapearCurso(reader));
+-
+-            return cursos;
++            using var conexion = _conexiones.CrearConexion();
++            return await conexion.QueryAsync<Curso>(sql);
+         }
+ 
+         public async Task<Curso?> ObtenerPorIdAsync(string cursoCode)
+         {
+-            await using var connection = _connectionFactory.CrearConexion();
+-            await using var command = new SqlCommand("dbo.usp_Cursos_ObtenerPorId", connection);
+-            command.CommandType = CommandType.StoredProcedure;
+-
+-            command.Parameters.Add("@CursoCode", SqlDbType.VarChar, 15).Value = cursoCode;
++            const string sql = @"
++                SELECT CursoCode, CarreraCode, Nombre, Nivel, Estado
++                FROM Cursos
++                WHERE CursoCode = @CursoCode AND Estado = 1";
+ 
+-            await connection.OpenAsync();
+-            await using var reader = await command.ExecuteReaderAsync();
+-
+-            return await reader.ReadAsync() ? MapearCurso(reader) : null;
++            using var conexion = _conexiones.CrearConexion();
++            return await conexion.QuerySingleOrDefaultAsync<Curso>(sql, new { CursoCode = cursoCode });
+         }
+ 
+         public async Task<IEnumerable<Curso>> ObtenerPorCarreraAsync(string carreraCode)
+         {
+-            var cursos = new List<Curso>();
+-
+-            await using var connection = _connectionFactory.CrearConexion();
+-            await using var command = new SqlCommand("dbo.usp_Cursos_ObtenerPorCarrera", connection);
+-            command.CommandType = CommandType.StoredProcedure;
++            const string sql = @"
++                SELECT CursoCode, CarreraCode, Nombre, Nivel, Estado
++                FROM Cursos
++                WHERE CarreraCode = @CarreraCode AND Estado = 1";
+ 
+-            command.Parameters.Add("@CarreraCode", SqlDbType.VarChar, 15).Value = carreraCode;
+-
+-            await connection.OpenAsync();
+-            await using var reader = await command.ExecuteReaderAsync();
+-
+-            while (await reader.ReadAsync())
+-                cursos.Add(MapearCurso(reader));
+-
+-            return cursos;
+-        }
+-
+-        private static void AgregarParametros(SqlCommand command, Curso curso)
+-        {
+-            command.Parameters.Add("@CursoCode", SqlDbType.VarChar, 15).Value = curso.CursoCode;
+-            command.Parameters.Add("@CarreraCode", SqlDbType.VarChar, 15).Value = curso.CarreraCode;
+-            command.Parameters.Add("@Nombre", SqlDbType.VarChar, 150).Value = curso.Nombre;
+-            command.Parameters.Add("@Nivel", SqlDbType.TinyInt).Value = curso.Nivel;
+-            command.Parameters.Add("@Estado", SqlDbType.Bit).Value = curso.Estado;
+-        }
+-
+-        private static Curso MapearCurso(SqlDataReader reader)
+-        {
+-            return new Curso
+-            {
+-                CursoCode = reader.GetString(0),
+-                CarreraCode = reader.GetString(1),
+-                Nombre = reader.GetString(2),
+-                Nivel = reader.GetByte(3),
+-                Estado = reader.GetBoolean(4)
+-            };
++            using var conexion = _conexiones.CrearConexion();
++            return await conexion.QueryAsync<Curso>(sql, new { CarreraCode = carreraCode });
+         }
+     }
+ }
+\ No newline at end of file

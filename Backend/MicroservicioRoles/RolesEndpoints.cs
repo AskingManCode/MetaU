@@ -83,6 +83,9 @@ namespace MicroservicioRoles
                 if (string.IsNullOrWhiteSpace(rol.IdRol) || string.IsNullOrWhiteSpace(rol.Nombre))
                     return Results.BadRequest(new { message = "El ID y el nombre del rol son obligatorios y no pueden estar vacíos" });
 
+                if (!System.Text.RegularExpressions.Regex.IsMatch(rol.IdRol, @"^[A-Z]{1,15}$"))
+                    return Results.BadRequest(new { message = "El ID del rol solo puede tener letras mayusculas" });
+
                 if (!System.Text.RegularExpressions.Regex.IsMatch(rol.Nombre, @"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"))
                     return Results.BadRequest(new { message = "El nombre del rol solo puede tener letras y espacios" });
 

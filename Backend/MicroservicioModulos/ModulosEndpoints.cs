@@ -83,6 +83,10 @@ namespace MicroservicioModulos
                 if (string.IsNullOrWhiteSpace(modulo.IdModulo) || string.IsNullOrWhiteSpace(modulo.Nombre))
                     return Results.BadRequest(new { message = "El ID y el nombre del modulo son obligatorios y no pueden estar vacíos" });
 
+                if (!System.Text.RegularExpressions.Regex.IsMatch(modulo.IdModulo, @"^[A-Z]{1,15}$"))
+                    return Results.BadRequest(new { message = "El ID del rol solo puede tener letras mayusculas" });
+
+
                 if (!System.Text.RegularExpressions.Regex.IsMatch(modulo.Nombre, @"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"))
                     return Results.BadRequest(new { message = "El nombre del modulo solo puede tener letras y espacios" });
 

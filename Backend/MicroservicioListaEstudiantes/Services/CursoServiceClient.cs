@@ -15,22 +15,15 @@ namespace MicroservicioListaEstudiantes.Services
 
         public async Task<CursoDto?> ObtenerPorIdAsync(string id, Guid usuarioId, string token)
         {
-            try
-            {
-                using var request = new HttpRequestMessage(HttpMethod.Get, $"curso/{id}");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                request.Headers.Add("X-Usuario-Id", usuarioId.ToString());
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"curso/{id}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Headers.Add("X-Usuario-Id", usuarioId.ToString());
 
-                using var response = await _httpClient.SendAsync(request);
-                if (response.StatusCode == HttpStatusCode.NotFound) return null;
-                if (!response.IsSuccessStatusCode) return null;
+            using var response = await _httpClient.SendAsync(request);
+            if (response.StatusCode == HttpStatusCode.NotFound) return null;
+            response.EnsureSuccessStatusCode();
 
-                return await response.Content.ReadFromJsonAsync<CursoDto>();
-            }
-            catch (HttpRequestException)
-            {
-                return null; 
-            }
+            return await response.Content.ReadFromJsonAsync<CursoDto>();
         }
     }
 }

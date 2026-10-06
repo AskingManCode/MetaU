@@ -20,7 +20,7 @@ namespace MicroservicioListaEstudiantes
 
             group.MapGet("/", async (
                 HttpRequest request,
-                string periodo,
+                string? periodo,
                 [FromServices] IListadoEstudiantesService service,
                 [FromServices] IAuthServiceClient authService,
                 [FromServices] IBitacoraServiceClient bitacoraService) =>

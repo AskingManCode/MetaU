@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 
 builder.Services.AddScoped<ICursoRepository, CursoRepository>();
 builder.Services.AddScoped<ICursoService, CursoService>();
@@ -22,7 +22,7 @@ builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
 builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(client =>
 {
     client.BaseAddress = new Uri(
-        builder.Configuration["Servicios:BitacoraUrl"]
+        builder.Configuration["Servicios:BitacorasUrl"]
         ?? throw new InvalidOperationException(
             "No se encontro la URL del servicio de bitacora"));
 });

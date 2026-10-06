@@ -14,7 +14,7 @@ namespace MicroservicioCursos.Services
         public async Task<bool> ValidarTokenAsync(string token)
         {
             using var request = new HttpRequestMessage(
-                HttpMethod.Get,
+                HttpMethod.Post,
                 "validate");
 
             request.Headers.Authorization =

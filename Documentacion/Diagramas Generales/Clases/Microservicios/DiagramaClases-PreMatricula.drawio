@@ -1,138 +1,115 @@
 <mxfile host="app.diagrams.net">
-  <diagram name="MAT1 Prematricula" id="MAT1_Prematricula">
-    <mxGraphModel dx="1801" dy="951" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+  <diagram name="MAT1 — Administración de prematrícula" id="MAT1_UPDATED">
+    <mxGraphModel dx="655" dy="388" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1540" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="c11" parent="1" style="text;html=0;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;" value="MAT1 – Diagrama de clases: Administración de prematrícula " vertex="1">
-          <mxGeometry height="26" width="700" x="20" y="5" as="geometry" />
+        <mxCell id="m1laneL" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#D9EAD3;swimlaneFillColor=#FFFFFF;strokeColor=#548235;fontColor=#274E13;fontStyle=1;fontSize=13;" value="MAT1 — PREMATRÍCULA" vertex="1">
+          <mxGeometry height="1010" width="700" x="30" y="30" as="geometry" />
         </mxCell>
-        <mxCell id="cls_ctrl" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#dae8fc;strokeColor=#6c8ebf;swimlaneFillColor=#ffffff;marginBottom=0;" value="«interface»  &#xa;Prematricula" vertex="1">
-          <mxGeometry height="128" width="380" x="340" y="80" as="geometry" />
+        <mxCell id="m1laneR" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#E2F0D9;swimlaneFillColor=#FFFFFF;strokeColor=#70AD47;fontColor=#274E13;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="1010" width="740" x="760" y="30" as="geometry" />
         </mxCell>
-        <mxCell id="c13" parent="cls_ctrl" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ prematricular(p: Prematricula): Response  [POST]&#xa;+ modificar(id: String, p: Prematricula): Response  [PUT]&#xa;+ eliminar(id: String): Response  [DELETE]&#xa;+ obtenerTodas(): Response  [GET]&#xa;+ obtenerPorId(id: String): Response  [GET]" vertex="1">
-          <mxGeometry height="88" width="380" y="40" as="geometry" />
+        <mxCell id="m1auth" parent="m1laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IAuthClient (USR5)&lt;/b&gt;&lt;hr&gt;+ Validate(token): bool&lt;br&gt;POST /validate" vertex="1">
+          <mxGeometry height="105" width="300" x="400" y="260" as="geometry" />
         </mxCell>
-        <mxCell id="cls_auth" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Servicio externo USR5»&#xa;AuthService" vertex="1">
-          <mxGeometry height="64" width="250" x="800" y="80" as="geometry" />
+        <mxCell id="m1bit" parent="m1laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr&gt;+ Registrar(contexto, descripción)&lt;br&gt;POST /bitacora" vertex="1">
+          <mxGeometry height="110" width="300" x="400" y="440" as="geometry" />
         </mxCell>
-        <mxCell id="c14" parent="cls_auth" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ validate(token: String): boolean" vertex="1">
-          <mxGeometry height="24" width="250" y="40" as="geometry" />
+        <mxCell id="m1student" parent="m1laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Estudiante&lt;/b&gt;&lt;hr&gt;EstudianteID: Guid&lt;br&gt;Identificacion: string&lt;br&gt;NombreCompleto: string&lt;br&gt;Estado: bool" vertex="1">
+          <mxGeometry height="120" width="220" x="80" y="350" as="geometry" />
         </mxCell>
-        <mxCell id="cls_svc" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#d5e8d4;strokeColor=#82b366;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Service»&#xa;PrematriculaService" vertex="1">
-          <mxGeometry height="176" width="380" x="340" y="340" as="geometry" />
+        <mxCell id="m1detail" parent="m1laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; PrematriculaCurso&lt;/b&gt;&lt;hr&gt;PreMatriculaXCursoID: int&lt;br&gt;PreMatriculaID: Guid&lt;br&gt;CursoCode: string&lt;br&gt;Estado: bool" vertex="1">
+          <mxGeometry height="150" width="240" x="420" y="65" as="geometry" />
         </mxCell>
-        <mxCell id="c15" parent="cls_svc" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ prematricular(p: Prematricula): Prematricula&#xa;+ modificar(id: String, p: Prematricula): Prematricula&#xa;+ eliminar(id: String): void&#xa;+ obtenerTodas(): List&lt;Prematricula&gt;&#xa;+ obtenerPorId(id: String): Prematricula&#xa;- validarDatosRequeridos(p: Prematricula): void&#xa;- validarCursosPrimerNivel(cursos: List&lt;Curso&gt;): void&#xa;- validarPeriodoFuturo(periodo: Periodo): void" vertex="1">
-          <mxGeometry height="136" width="380" y="40" as="geometry" />
+        <mxCell id="m1end" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#548235;" value="&lt;b&gt;PreMatriculasEndpoints&lt;/b&gt;&lt;hr&gt;+ POST /prematricula&lt;br&gt;+ PUT /prematricula/{id:guid}&lt;br&gt;+ DELETE /prematricula/{id:guid}&lt;br&gt;+ GET /prematricula&lt;br&gt;+ GET /prematricula/{id:guid}&lt;br&gt;&lt;br&gt;- Ejecutar(http, acción): IResult" vertex="1">
+          <mxGeometry height="190" width="620" x="70" y="90" as="geometry" />
         </mxCell>
-        <mxCell id="cls_bit" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Servicio externo GEN1»&#xa;BitacoraService" vertex="1">
-          <mxGeometry height="64" width="280" x="800" y="340" as="geometry" />
+        <mxCell id="m1svc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#E2F0D9;strokeColor=#548235;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; IPrematriculaService&lt;/b&gt;&lt;hr&gt;+ Prematricular(request, contexto): PrematriculaResponse&lt;br&gt;+ Modificar(id: Guid, request, contexto): PrematriculaResponse&lt;br&gt;+ Eliminar(id: Guid, contexto): Task&lt;br&gt;+ ObtenerTodas(contexto): List&amp;lt;PrematriculaResponse&amp;gt;&lt;br&gt;+ ObtenerPorId(id: Guid, contexto): PrematriculaResponse&lt;br&gt;&lt;br&gt;&lt;b&gt;PrematriculaService&lt;/b&gt;&lt;br&gt;Implementa reglas, validaciones y bitácora." vertex="1">
+          <mxGeometry height="190" width="620" x="70" y="330" as="geometry" />
         </mxCell>
-        <mxCell id="c16" parent="cls_bit" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="+ registrar(usuario, descripcion): void" vertex="1">
-          <mxGeometry height="24" width="280" y="40" as="geometry" />
+        <mxCell id="m1repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; IPrematriculaRepository&lt;/b&gt;&lt;hr&gt;+ BuscarEstudiantePorIdentificacion()&lt;br&gt;+ BuscarPorEstudianteCarreraPeriodo()&lt;br&gt;+ BuscarPorId(Guid)&lt;br&gt;+ ListarActivas()&lt;br&gt;+ Insertar()&lt;br&gt;+ GuardarCambios()&lt;br&gt;&lt;br&gt;&lt;b&gt;PrematriculaRepository · PrematriculaDbContext&lt;/b&gt;&lt;br&gt;Entity Framework Core · Matriculas_DB" vertex="1">
+          <mxGeometry height="215" width="620" x="70" y="615" as="geometry" />
         </mxCell>
-        <mxCell id="cls_pre" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#fff2cc;strokeColor=#d6b656;swimlaneFillColor=#ffffff;marginBottom=0;" value="«Entidad»&#xa;Prematricula" vertex="1">
-          <mxGeometry height="80" width="300" x="340" y="660" as="geometry" />
+        <mxCell id="m1dto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; PrematriculaRequest&lt;/b&gt;&lt;hr&gt;Identificacion: string · CarreraCode: string&lt;br&gt;Cursos: List&amp;lt;string&amp;gt; · Observaciones: string?&lt;br&gt;PeriodoID: Guid&lt;br&gt;&lt;br&gt;&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; PrematriculaResponse&lt;/b&gt;&lt;br&gt;Id: Guid · Identificacion · CarreraCode&lt;br&gt;Cursos · Observaciones · PeriodoID" vertex="1">
+          <mxGeometry height="145" width="620" x="70" y="875" as="geometry" />
         </mxCell>
-        <mxCell id="c17" parent="cls_pre" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="- idPrematricula: String&#xa;- observaciones: String  [opcional]" vertex="1">
-          <mxGeometry height="40" width="300" y="40" as="geometry" />
+        <mxCell id="m1prem" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Prematricula&lt;/b&gt;&lt;hr&gt;PreMatriculaID: Guid&lt;br&gt;EstudianteID: Guid&lt;br&gt;CarreraCode: string&lt;br&gt;PeriodoID: Guid&lt;br&gt;Observaciones: string?&lt;br&gt;Estado: bool&lt;br&gt;Cursos: List&amp;lt;PrematriculaCurso&amp;gt;" vertex="1">
+          <mxGeometry height="160" width="300" x="800" y="90" as="geometry" />
         </mxCell>
-        <mxCell id="cls_est" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«MAT3»&#xa;Estudiante" vertex="1">
-          <mxGeometry height="80" width="220" x="20" y="640" as="geometry" />
+        <mxCell id="m1course" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; ICursoClient (ACD3)&lt;/b&gt;&lt;hr&gt;+ ObtenerPorCodigo(cursoCode)&lt;br&gt;GET /curso/{cursoCode}&lt;br&gt;Valida curso de primer nivel." vertex="1">
+          <mxGeometry height="125" width="300" x="800" y="575" as="geometry" />
         </mxCell>
-        <mxCell id="c18" parent="cls_est" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="- identificacion: String&#xa;- nombreCompleto: String" vertex="1">
-          <mxGeometry height="40" width="220" y="40" as="geometry" />
+        <mxCell id="m1period" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IPeriodoClient (ACD5)&lt;/b&gt;&lt;hr&gt;+ ObtenerPorId(periodoID)&lt;br&gt;GET /periodo/{periodoID}&lt;br&gt;Valida período futuro." vertex="1">
+          <mxGeometry height="125" width="300" x="800" y="750" as="geometry" />
         </mxCell>
-        <mxCell id="cls_car" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«ACD2»&#xa;Carrera" vertex="1">
-          <mxGeometry height="80" width="220" x="20" y="800" as="geometry" />
+        <mxCell id="m1ctx" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;ContextoUsuario&lt;/b&gt;&lt;hr&gt;UsuarioId: Guid&lt;br&gt;Token: string" vertex="1">
+          <mxGeometry height="95" width="300" x="1160" y="700" as="geometry" />
         </mxCell>
-        <mxCell id="c19" parent="cls_car" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="- idCarrera: String&#xa;- nombre: String" vertex="1">
-          <mxGeometry height="40" width="220" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="cls_cur" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«ACD3»&#xa;Curso" vertex="1">
-          <mxGeometry height="96" width="220" x="800" y="640" as="geometry" />
-        </mxCell>
-        <mxCell id="c20" parent="cls_cur" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="- idCurso: String&#xa;- nombre: String&#xa;- nivel: int" vertex="1">
-          <mxGeometry height="56" width="220" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="cls_per" parent="1" style="swimlane;fontStyle=1;align=center;startSize=40;html=0;horizontal=1;collapsible=0;resizable=0;fontSize=12;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;swimlaneFillColor=#ffffff;marginBottom=0;" value="«ACD5»&#xa;Periodo" vertex="1">
-          <mxGeometry height="112" width="220" x="800" y="800" as="geometry" />
-        </mxCell>
-        <mxCell id="c21" parent="cls_per" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;whiteSpace=wrap;html=0;fontSize=11;" value="- anio: int&#xa;- numero: int&#xa;- fechaInicio: Date&#xa;- fechaFin: Date" vertex="1">
-          <mxGeometry height="72" width="220" y="40" as="geometry" />
-        </mxCell>
-        <mxCell id="c22" edge="1" parent="1" source="cls_ctrl" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.5000;exitY=1;entryX=0.5000;entryY=0;" target="cls_svc" value="delega en">
+        <mxCell id="m1e1" edge="1" parent="1" source="m1end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m1svc" value="delega">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c23" edge="1" parent="1" source="cls_ctrl" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;exitX=1;exitY=0.2500;entryX=0;entryY=0.5000;" target="cls_auth" value="valida token">
+        <mxCell id="m1e2" edge="1" parent="1" source="m1svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m1repo" value="persiste">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c24" edge="1" parent="1" source="cls_svc" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;exitX=1;exitY=0.1818;entryX=0;entryY=0.5000;" target="cls_bit" value="registra bitácora">
+        <mxCell id="m1e3" edge="1" parent="1" source="m1prem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m1detail" value="1 a muchos">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c25" edge="1" parent="1" source="cls_svc" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.3947;exitY=1;entryX=0.5000;entryY=0;" target="cls_pre" value="administra">
+        <mxCell id="m1e4" edge="1" parent="1" source="m1prem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m1student" value="pertenece a">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c26" connectable="0" parent="c25" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
-          <mxGeometry relative="1" x="-0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
+        <mxCell id="m1e5" edge="1" parent="1" source="m1svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="m1auth" value="">
+          <mxGeometry relative="1" x="0.1296" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="447.5" />
+              <mxPoint x="750" y="330" />
+              <mxPoint x="1120" y="330" />
+              <mxPoint x="1120" y="422.5" />
+              <mxPoint x="1310" y="422.5" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="c27" connectable="0" parent="c25" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="*" vertex="1">
-          <mxGeometry relative="1" x="0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
+        <mxCell id="Z-F8Wc9dFYpV6q5KBFBE-2" connectable="0" parent="m1e5" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="valida token" vertex="1">
+          <mxGeometry relative="1" x="0.67" y="-1" as="geometry">
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="c28" edge="1" parent="1" source="cls_pre" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.3750;entryX=1;entryY=0.6250;" target="cls_est" value="realizada por">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="c29" connectable="0" parent="c28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="*" vertex="1">
-          <mxGeometry relative="1" x="-0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
+        <mxCell id="m1e6" edge="1" parent="1" source="m1svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="m1bit" value="">
+          <mxGeometry relative="1" x="0.1741" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="447.5" />
+              <mxPoint x="720" y="360" />
+              <mxPoint x="1100" y="360" />
+              <mxPoint x="1100" y="530" />
+              <mxPoint x="1160" y="530" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="c30" connectable="0" parent="c28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
-          <mxGeometry relative="1" x="0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
+        <mxCell id="Z-F8Wc9dFYpV6q5KBFBE-3" connectable="0" parent="m1e6" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="registra" vertex="1">
+          <mxGeometry relative="1" x="0.6617" y="-1" as="geometry">
+            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="c31" edge="1" parent="1" source="cls_pre" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.75;entryX=1;entryY=0.5;" target="cls_car" value="carrera deseada">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="c32" connectable="0" parent="c31" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="*" vertex="1">
-          <mxGeometry relative="1" x="-0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
+        <mxCell id="m1e7" edge="1" parent="1" source="m1svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="m1course" value="valida cursos">
+          <mxGeometry relative="1" x="0.1923" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="447.5" />
+              <mxPoint x="750" y="530" />
+              <mxPoint x="950" y="530" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="c33" connectable="0" parent="c31" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
-          <mxGeometry relative="1" x="0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="c34" edge="1" parent="1" source="cls_pre" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.4750;entryX=0;entryY=0.6042;" target="cls_cur" value="cursos">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="c35" connectable="0" parent="c34" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="*" vertex="1">
-          <mxGeometry relative="1" x="-0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="c36" connectable="0" parent="c34" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1..*" vertex="1">
-          <mxGeometry relative="1" x="0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="c37" edge="1" parent="1" source="cls_pre" style="endArrow=open;endSize=10;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.75;entryX=0;entryY=0.5;" target="cls_per" value="periodo">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="c38" connectable="0" parent="c37" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="*" vertex="1">
-          <mxGeometry relative="1" x="-0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="c39" connectable="0" parent="c37" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1;" value="1" vertex="1">
-          <mxGeometry relative="1" x="0.85" as="geometry">
-            <mxPoint y="-12" as="offset" />
+        <mxCell id="m1e8" edge="1" parent="1" source="m1svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="m1period" value="valida período">
+          <mxGeometry relative="1" x="-0.2427" as="geometry">
+            <Array as="points">
+              <mxPoint x="710" y="447.5" />
+              <mxPoint x="710" y="540" />
+              <mxPoint x="750" y="540" />
+              <mxPoint x="750" y="730" />
+              <mxPoint x="950" y="730" />
+            </Array>
+            <mxPoint x="530" y="470" as="sourcePoint" />
+            <mxPoint x="790" y="772.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>

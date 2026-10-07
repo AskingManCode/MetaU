@@ -1,6 +1,57 @@
-@MicroservicioExpedientesEstudiantes_HostAddress = http://localhost:5017
+@MicroservicioExpedientes_HostAddress = https://localhost:7113
+@Token = PEGAR_TOKEN_DEL_LOGIN
+@UsuarioId = PEGAR_GUID_DEL_USUARIO
+@Identificacion = 123456789
 
-GET {{MicroservicioExpedientesEstudiantes_HostAddress}}/weatherforecast/
-Accept: application/json
+### Crear expediente
+POST {{MicroservicioExpedientes_HostAddress}}/expediente
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
 
-###
+{
+  "identificacion": "123456789",
+  "tipoIdentificacion": "CEDULA",
+  "email": "estudiante@cuc.cr",
+  "nombreCompleto": "Juan Perez Mora",
+  "fechaNacimiento": "2000-01-15",
+  "provinciaID": "00000000-0000-0000-0000-000000000000",
+  "cantonID": "00000000-0000-0000-0000-000000000000",
+  "distritoID": "00000000-0000-0000-0000-000000000000",
+  "otrasSenas": "100 metros norte de la iglesia",
+  "telefonos": ["88888888", "22222222"]
+}
+
+### Modificar expediente
+PUT {{MicroservicioExpedientes_HostAddress}}/expediente/{{Identificacion}}
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
+
+{
+  "identificacion": "123456789",
+  "tipoIdentificacion": "CEDULA",
+  "email": "estudiante@cuc.cr",
+  "nombreCompleto": "Juan Perez Mora",
+  "fechaNacimiento": "2000-01-15",
+  "provinciaID": "00000000-0000-0000-0000-000000000000",
+  "cantonID": "00000000-0000-0000-0000-000000000000",
+  "distritoID": "00000000-0000-0000-0000-000000000000",
+  "otrasSenas": "Casa nueva",
+  "telefonos": ["88888888"]
+}
+
+### Eliminar expediente
+DELETE {{MicroservicioExpedientes_HostAddress}}/expediente/{{Identificacion}}
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+
+### Obtener todos los expedientes
+GET {{MicroservicioExpedientes_HostAddress}}/expediente
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+
+### Obtener expediente por identificación
+GET {{MicroservicioExpedientes_HostAddress}}/expediente/{{Identificacion}}
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}

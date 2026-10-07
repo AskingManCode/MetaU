@@ -1,1 +1,12 @@
-﻿
+{
+  "profiles": {
+    "MicroservicioLogin": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57074;http://localhost:57075"
+    }
+  }
+}

@@ -126,10 +126,6 @@ namespace MicroservicioUsuarios
                 if (anterior is null)
                     return Results.NotFound(new { message = $"No existe un usuario con email '{email}'" });
 
-                var mismaIdentificacion = await service.FiltrarAsync(dto.Identificacion, null, null);
-                if (mismaIdentificacion.Any())
-                    return Results.Conflict(new { message = $"Ya existe un usuario con la identificación '{dto.Identificacion}'" });
-
                 var filas = await service.ActualizarAsync(email, dto);
                 if (filas <= 0)
                     return Results.Problem("No se pudo actualizar el usuario");

@@ -32,7 +32,7 @@ Cada microservicio es independiente y puede desplegarse por separado.
 Administra la identidad de los usuarios del sistema (creación, modificación, eliminación y consulta).
 
 **Diagrama de clases:**  
-*(pendiente de agregar)*
+[DiagramaClases_Login.drawio](../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Login.drawio)
 
 ---
 
@@ -90,12 +90,16 @@ Administra los módulos funcionales del sistema.
 **URL base:** *(pendiente de definir)*  
 **Endpoint base:** `/login`  
 **Endpoints:**  
-*(pendiente de definir)*  
+- `POST /login` — autentica mediante los headers `NombreUsuario` y `Contrasena`.
+- `POST /refresh` — rota el refresh token recibido en el header `RefreshToken`; si la cuenta está inactiva, revoca ese token y responde `401`.
+- `POST /validate` — valida el JWT recibido como `Authorization: Bearer <token>`.
 
 Maneja la autenticación de usuarios, generación y validación de tokens JWT, y renovación de sesiones.
 
+Configurar mediante variables de entorno `ConnectionStrings__LoginDb`, `Jwt__ClaveSecreta` (mínimo 32 bytes), `Jwt__Issuer` y `Jwt__Audience`. No guardar secretos JWT ni credenciales de base de datos en el repositorio.
+
 **Diagrama de clases:**  
-*(pendiente de agregar)*
+[DiagramaClases_Login.drawio](../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Login.drawio)
 
 ---
 

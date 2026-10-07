@@ -1,34 +1,89 @@
 <mxfile host="app.diagrams.net">
-  <diagram id="USR5" name="USR5 — Login">
-    <mxGraphModel dx="1407" dy="758" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1420" pageHeight="794" math="0" shadow="0">
+  <diagram id="01_USR5_Login_CORREGIDO" name="USR5 — Login">
+    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1170" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell id="c2" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#D9EAF7;swimlaneFillColor=#FFFFFF;strokeColor=#5B9BD5;fontColor=#17365D;fontStyle=1;fontSize=13;" value="USR5 — LOGIN" vertex="1"><mxGeometry x="30" y="50" width="450" height="714" as="geometry"/></mxCell>
-        <mxCell id="c3" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1"><mxGeometry x="510" y="50" width="880" height="714" as="geometry"/></mxCell>
-        <mxCell id="u5_ep" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F7FBFF;strokeColor=#5B9BD5;fontSize=11;" value="&lt;b&gt;LoginEndpoints&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ MapearEndpoints(app)&lt;br&gt;+ login(usuario, contraseña)   // POST /login&lt;br&gt;+ refresh(refreshToken)   // /refresh&lt;br&gt;+ validate(token)   // /validate" vertex="1"><mxGeometry x="75" y="90" width="360" height="112" as="geometry"/></mxCell>
-        <mxCell id="u5_svc" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#5B9BD5;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthService&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ login(usuario, contraseña): TokenResponse&lt;br&gt;+ refresh(refreshToken): TokenResponse&lt;br&gt;+ validate(token): bool&lt;hr size=&quot;1&quot;&gt;&lt;i&gt;Usuario y contraseña requeridos (no nulos ni en blanco).&lt;br&gt;La contraseña se compara contra el hash almacenado.&lt;br&gt;Login fallido → 401 «Usuario y/o contraseña incorrectos».&lt;br&gt;Login exitoso responde 201; refresh o token inválido, 401.&lt;br&gt;JWT de 5 min por defecto (parametrizable); el refresh token&lt;br&gt;dura más.&lt;/i&gt;" vertex="1"><mxGeometry x="75" y="247" width="360" height="217" as="geometry"/></mxCell>
-        <mxCell id="u5_repo" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthRepository&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ obtenerUsuario(nombreUsuario): Usuario&lt;br&gt;+ guardarRefreshToken(refreshToken)&lt;br&gt;+ obtenerRefreshToken(token): RefreshToken&lt;br&gt;+ revocarRefreshToken(token)" vertex="1"><mxGeometry x="75" y="509" width="360" height="128" as="geometry"/></mxCell>
-        <mxCell id="u5_note" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;Entidades&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;Usuario · Rol · RefreshToken" vertex="1"><mxGeometry x="75" y="667" width="360" height="67" as="geometry"/></mxCell>
-        <mxCell id="u5_tok" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#5B9BD5;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;ITokenService&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ generarJwt(usuario): string&lt;br&gt;+ generarRefreshToken(): string&lt;br&gt;+ validarJwt(token): bool" vertex="1"><mxGeometry x="535" y="227" width="270" height="113" as="geometry"/></mxCell>
-        <mxCell id="u5_par" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IParametroClient (USR3)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ obtenerValor(identificador): string&lt;br&gt;vigencias del JWT y del refresh token" vertex="1"><mxGeometry x="535" y="365" width="270" height="98" as="geometry"/></mxCell>
-        <mxCell id="u5_bit" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt;&lt;br&gt;IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ registrar(usuario, descripcion)&lt;br&gt;llama a /bitacora" vertex="1"><mxGeometry x="535" y="488" width="270" height="98" as="geometry"/></mxCell>
-        <mxCell id="u5_rol" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Rol&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ IdRol: int&lt;br&gt;+ Nombre: string&lt;br&gt;+ Descripcion: string?" vertex="1"><mxGeometry x="845" y="90" width="200" height="113" as="geometry"/></mxCell>
-        <mxCell id="u5_usu" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;Usuario&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ IdUsuario: int&lt;br&gt;+ IdRol: int&lt;br&gt;+ NombreUsuario: string&lt;br&gt;+ PasswordHash: string&lt;br&gt;+ Activo: bool&lt;br&gt;+ FechaCreacion: DateTime" vertex="1"><mxGeometry x="1095" y="90" width="260" height="158" as="geometry"/></mxCell>
-        <mxCell id="u5_rt" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#404040;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt;&lt;br&gt;RefreshToken&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ IdRefreshToken: int&lt;br&gt;+ IdUsuario: int&lt;br&gt;+ Token: string&lt;br&gt;+ FechaCreacion: DateTime&lt;br&gt;+ FechaExpiracion: DateTime&lt;br&gt;+ Revocado: bool" vertex="1"><mxGeometry x="1095" y="308" width="260" height="158" as="geometry"/></mxCell>
-        <mxCell id="u5_lr" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt;&lt;br&gt;LoginRequest&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ NombreUsuario: string&lt;br&gt;+ Contraseña: string&lt;br&gt;(recibidos en headers)" vertex="1"><mxGeometry x="845" y="308" width="200" height="113" as="geometry"/></mxCell>
-        <mxCell id="u5_tr" parent="1" style="rounded=0;whiteSpace=nowrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt;&lt;br&gt;TokenResponse&lt;/b&gt;&lt;hr size=&quot;1&quot;&gt;+ ExpiresIn: DateTime&lt;br&gt;+ AccessToken: string   // JWT&lt;br&gt;+ RefreshToken: string&lt;br&gt;+ UsuarioID: int   // solo en /login" vertex="1"><mxGeometry x="845" y="496" width="510" height="128" as="geometry"/></mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="u5_ep" target="u5_svc" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#5B9BD5;endArrow=open;endFill=0;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="u5_svc" target="u5_repo" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#5B9BD5;endArrow=open;endFill=0;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="u5_svc" target="u5_tok" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#5B9BD5;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=1.0000;exitY=0.5000;entryX=0.0000;entryY=0.5000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="495" y="355"/><mxPoint x="495" y="283"/></Array></mxGeometry></mxCell>
-        <mxCell id="e4" edge="1" parent="1" source="u5_svc" target="u5_par" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#5B9BD5;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=1.0000;exitY=0.5000;entryX=0.0000;entryY=0.5000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="495" y="355"/><mxPoint x="495" y="414"/></Array></mxGeometry></mxCell>
-        <mxCell id="e5" edge="1" parent="1" source="u5_svc" target="u5_bit" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#5B9BD5;dashed=1;endArrow=open;endFill=0;startArrow=none;exitX=1.0000;exitY=0.5000;entryX=0.0000;entryY=0.5000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="495" y="355"/><mxPoint x="495" y="537"/></Array></mxGeometry></mxCell>
-        <mxCell id="e6" edge="1" parent="1" source="u5_rol" target="u5_usu" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#404040;endArrow=none;startArrow=none;exitX=1.0000;exitY=0.3540;entryX=0.0000;entryY=0.2532;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="e7" edge="1" parent="1" source="u5_usu" target="u5_rt" style="edgeStyle=none;html=1;rounded=0;strokeWidth=2;strokeColor=#404040;endArrow=none;startArrow=none;exitX=0.5000;exitY=1.0000;entryX=0.5000;entryY=0.0000;exitPerimeter=0;entryPerimeter=0;"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell>
-        <mxCell id="c4" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1"><mxGeometry x="1040" y="110" width="34" height="16" as="geometry"/></mxCell>
-        <mxCell id="c5" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1"><mxGeometry x="1064" y="110" width="34" height="16" as="geometry"/></mxCell>
-        <mxCell id="c6" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1"><mxGeometry x="1222" y="252" width="34" height="16" as="geometry"/></mxCell>
-        <mxCell id="c7" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1"><mxGeometry x="1228" y="288" width="34" height="16" as="geometry"/></mxCell>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D9EAF7;strokeColor=#5B9BD5;fontSize=18;align=left;spacingLeft=15;" value="&lt;b&gt;USR5 — DIAGRAMA DE CLASES: LOGIN&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;Autenticación, JWT y refresh token&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="1340" x="30" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ep" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#EAF2F8;strokeColor=#5B9BD5;" value="&lt;b&gt;LoginEndpoints&lt;/b&gt;&lt;hr&gt;+ MapearEndpoints(app)&lt;br&gt;+ login(usuario, contraseña): Response&lt;br&gt;+ refresh(refreshToken): Response&lt;br&gt;+ validate(token): Response" vertex="1">
+          <mxGeometry height="170" width="300" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="svcI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#E2F0D9;strokeColor=#70AD47;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthService&lt;/b&gt;&lt;hr&gt;+ login(usuario, contraseña): TokenResponse&lt;br&gt;+ refresh(refreshToken): TokenResponse&lt;br&gt;+ validate(token): bool" vertex="1">
+          <mxGeometry height="170" width="330" x="390" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#EAF2F8;strokeColor=#5B9BD5;" value="&lt;b&gt;AuthService&lt;/b&gt;&lt;hr&gt;+ login(usuario, contraseña)&lt;br&gt;+ refresh(refreshToken)&lt;br&gt;+ validate(token)&lt;hr&gt;&lt;i&gt;Valida credenciales y coordina tokens.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="170" width="330" x="770" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="repoI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#E2F0D9;strokeColor=#70AD47;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthRepository&lt;/b&gt;&lt;hr&gt;+ obtenerUsuario(nombreUsuario): Usuario&lt;br&gt;+ guardarRefreshToken(token)&lt;br&gt;+ obtenerRefreshToken(token): RefreshToken&lt;br&gt;+ revocarRefreshToken(token)" vertex="1">
+          <mxGeometry height="210" width="330" x="40" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#EAF2F8;strokeColor=#5B9BD5;" value="&lt;b&gt;AuthRepository&lt;/b&gt;&lt;hr&gt;+ obtenerUsuario(nombreUsuario)&lt;br&gt;+ guardarRefreshToken(token)&lt;br&gt;+ obtenerRefreshToken(token)&lt;br&gt;+ revocarRefreshToken(token)" vertex="1">
+          <mxGeometry height="210" width="310" x="410" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="tokenI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#E2F0D9;strokeColor=#70AD47;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;ITokenService&lt;/b&gt;&lt;hr&gt;+ generarJwt(usuario): string&lt;br&gt;+ generarRefreshToken(): string&lt;br&gt;+ validarJwt(token): bool" vertex="1">
+          <mxGeometry height="180" width="300" x="770" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="param" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FCE4D6;strokeColor=#ED7D31;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt; IParametroClient&lt;/b&gt;&lt;hr&gt;+ obtenerValor(identificador): string&lt;br&gt;&lt;i&gt;Vigencia JWT y refresh token&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="230" x="1120" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="bit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FCE4D6;strokeColor=#ED7D31;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt; IBitacoraClient&lt;/b&gt;&lt;hr&gt;+ registrar(usuario, descripcion)&lt;br&gt;&lt;i&gt;GEN1 — /bitacora&lt;/i&gt;" vertex="1">
+          <mxGeometry height="150" width="230" x="1120" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="rol" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Rol&lt;/b&gt;&lt;hr&gt;+ IdRol: int&lt;br&gt;+ Nombre: string&lt;br&gt;+ Descripcion: string?" vertex="1">
+          <mxGeometry height="150" width="230" x="40" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="usu" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Usuario&lt;/b&gt;&lt;hr&gt;+ IdUsuario: int&lt;br&gt;+ IdRol: int&lt;br&gt;+ NombreUsuario: string&lt;br&gt;+ PasswordHash: string&lt;br&gt;+ Activo: bool&lt;br&gt;+ FechaCreacion: DateTime" vertex="1">
+          <mxGeometry height="210" width="300" x="330" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="rt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; RefreshToken&lt;/b&gt;&lt;hr&gt;+ IdRefreshToken: int&lt;br&gt;+ IdUsuario: int&lt;br&gt;+ Token: string&lt;br&gt;+ FechaCreacion: DateTime&lt;br&gt;+ FechaExpiracion: DateTime&lt;br&gt;+ Revocado: bool" vertex="1">
+          <mxGeometry height="210" width="320" x="690" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="dto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#F3F3F3;strokeColor=#A6A6A6;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; LoginRequest&lt;/b&gt;&lt;hr&gt;+ NombreUsuario: string&lt;br&gt;+ Contraseña: string&lt;br&gt;&lt;i&gt;Headers de /login&lt;/i&gt;" vertex="1">
+          <mxGeometry height="140" width="250" x="1040" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="tr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#F3F3F3;strokeColor=#A6A6A6;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; TokenResponse&lt;/b&gt;&lt;hr&gt;+ ExpiresIn: DateTime&lt;br&gt;+ AccessToken: string&lt;br&gt;+ RefreshToken: string&lt;br&gt;+ UsuarioID: int &lt;i&gt;(solo /login)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="290" x="1040" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="rules" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#F3F3F3;strokeColor=#A6A6A6;dashed=1;" value="&lt;b&gt;Reglas de HU USR5&lt;/b&gt;&lt;hr&gt;• /login: POST; usuario y contraseña en headers.&lt;br&gt;• Éxito: 201 + expires_in, access_token, refresh_token, usuarioID.&lt;br&gt;• Fallo: 401 “Usuario y/o contraseña incorrectos”.&lt;br&gt;• /refresh: token válido → 201; inválido → 401 “No autorizado”.&lt;br&gt;• /validate: válido → 200 + true; inválido → 401.&lt;br&gt;• JWT por defecto 5 min y vigencia parametrizable; refresh superior y configurable.&lt;br&gt;• Todos los datos requeridos, no nulos ni blancos." vertex="1">
+          <mxGeometry height="220" width="820" x="390" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="ep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#5B9BD5;" target="svcI" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="svcI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#70AD47;" target="svc" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#5B9BD5;" target="repoI" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="repoI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#70AD47;" target="repo" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#5B9BD5;" target="tokenI" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#ED7D31;" target="param" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#ED7D31;dashed=1;" target="bit" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="rol" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;" target="usu" value="1       0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="usu" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;" target="rt" value="1       0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="dto" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#A6A6A6;" target="ep" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#A6A6A6;" target="tr" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

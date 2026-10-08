@@ -4,6 +4,6 @@ namespace MicroservicioNotificaciones.Services
 {
     public interface INotificacionesService
     {
-        Task<NotificarResponse> EnviarCorreoAsync(NotificarRequest request);
+        Task<NotificarResponse> EnviarCorreoAsync(NotificarRequest request, Guid usuarioId);
     }
 }

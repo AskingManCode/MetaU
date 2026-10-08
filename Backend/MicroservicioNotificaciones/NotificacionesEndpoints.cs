@@ -43,8 +43,8 @@ namespace MicroservicioNotificaciones
 
             try
             {
-                var resultado = await service.EnviarCorreoAsync(request);
-                
+                var resultado = await service.EnviarCorreoAsync(request, usuario);
+
                 try
                 {
                     await bitacoraService.RegistrarBitacoraAsync(
@@ -54,7 +54,7 @@ namespace MicroservicioNotificaciones
                 }
                 catch
                 {
-                    // No fallar la operación principal si la bitácora falla
+                    // No falla la operación principal si la bitácora falla
                 }
 
                 return Results.Ok(resultado);

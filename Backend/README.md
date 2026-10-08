@@ -319,15 +319,15 @@ Registra y gestiona los pagos realizados sobre las facturas.
 
 ### MicroservicioNotificaciones
 **Responsable:** *Sebastián Jiménez Arrieta*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/notificar`  
+**URL base local:** `http://localhost:5186` o `https://localhost:7234`
+
+**Endpoint base:** `/api/notificar`
 **Endpoints:**  
-*(pendiente de definir)*  
+- `POST /api/notificar/` — registra y envía un correo de notificación.
 
-Envía notificaciones por correo electrónico de forma parametrizable.
+Envía notificaciones por correo electrónico mediante SMTP y registra los intentos en `Notificaciones_DB`.
 
-**Diagrama de clases:**  
-*(pendiente de agregar)*
+**Guía de uso:** [MicroservicioNotificaciones/README.md](MicroservicioNotificaciones/README.md) — autenticación, validaciones, ejemplos, respuestas, configuración SMTP y persistencia.
 
 ---
 

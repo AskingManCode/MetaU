@@ -15,6 +15,10 @@ namespace MicroservicioFacturacion.Entities
             RuleFor(x => x.Monto)
                 .GreaterThan(0).WithMessage("El monto debe ser mayor que cero.")
                 .Must(m => m == MontoCurso).WithMessage($"El monto debe ser {MontoCurso} colones.");
+
+            RuleFor(x => x.PeriodoID)
+                .Must(periodoId => periodoId is null || periodoId != Guid.Empty)
+                .WithMessage("El periodo no puede ser vacío.");
         }
     }
 }

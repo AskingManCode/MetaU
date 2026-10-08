@@ -95,6 +95,26 @@ IF OBJECT_ID('dbo.Facturas', 'U') IS NULL
     );
 GO
 
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'UX_Facturas_MatriculaID'
+      AND object_id = OBJECT_ID('dbo.Facturas')
+)
+    CREATE UNIQUE INDEX UX_Facturas_MatriculaID
+        ON dbo.Facturas (MatriculaID);
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'IX_Facturas_PeriodoID_FechaEmision'
+      AND object_id = OBJECT_ID('dbo.Facturas')
+)
+    CREATE INDEX IX_Facturas_PeriodoID_FechaEmision
+        ON dbo.Facturas (PeriodoID, FechaEmision);
+GO
+
 IF OBJECT_ID('dbo.DetallesFacturas', 'U') IS NULL
     CREATE TABLE DetallesFacturas (
         DetalleFacturaID INT IDENTITY(1,1) NOT NULL,

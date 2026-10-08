@@ -1,6 +1,31 @@
-@MicroservicioPagos_HostAddress = http://localhost:5010
+@baseUrl = https://localhost:7233
+@token = REEMPLAZAR_TOKEN
+@usuarioId = 00000000-0000-0000-0000-000000000000
+@facturaId = 00000000-0000-0000-0000-000000000000
+@pagoId = 00000000-0000-0000-0000-000000000000
+@periodoId = 00000000-0000-0000-0000-000000000000
 
-GET {{MicroservicioPagos_HostAddress}}/weatherforecast/
-Accept: application/json
+### Registrar pago por el saldo pendiente total de una factura
+POST {{baseUrl}}/pago
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+Content-Type: application/json
 
-###
+{
+  "facturaID": "{{facturaId}}"
+}
+
+### Obtener un pago por ID
+GET {{baseUrl}}/pago/{{pagoId}}
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+
+### Listar pagos de un periodo
+GET {{baseUrl}}/pago/periodo/{{periodoId}}
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+
+### Reversar pago
+PATCH {{baseUrl}}/pago/{{pagoId}}
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}

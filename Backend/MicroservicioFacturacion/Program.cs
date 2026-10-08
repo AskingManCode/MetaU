@@ -1,5 +1,6 @@
 using FluentValidation;
 using MicroservicioFacturacion;
+using MicroservicioFacturacion.Entities;
 using MicroservicioFacturacion.Repository;
 using MicroservicioFacturacion.Services;
 using MicroservicioFacturacion.Services.Clients;
@@ -22,10 +23,10 @@ builder.Services.AddCors(options =>
 });
 
 // FluentValidation
-//builder.Services.AddValidatorsFromAssemblyContaining<FacturacionRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<FacturacionRequestValidator>();
 
 // Inyección de dependencias
-builder.Services.AddSingleton<IDBConnectionFactory, DBConnectionFactory>(); // Solo necesita leer la connection string una vez
+builder.Services.AddSingleton<IDBConnectionFactory, DBConnectionFactory>();
 builder.Services.AddScoped<IFacturacionService, FacturacionService>();
 builder.Services.AddScoped<IFacturacionRepository, FacturacionRepository>();
 
@@ -48,6 +49,16 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(cl
 
     if (string.IsNullOrWhiteSpace(url))
         throw new InvalidOperationException("No se configuró 'MicroservicioBitacoras:BaseUrl'");
+
+    client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHttpClient<IMatriculaServiceClient, MatriculaServiceClient>(client =>
+{
+    var url = builder.Configuration["MicroservicioMatriculas:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(url))
+        throw new InvalidOperationException("No se configuró 'MicroservicioMatriculas:BaseUrl'");
 
     client.BaseAddress = new Uri(url);
 });

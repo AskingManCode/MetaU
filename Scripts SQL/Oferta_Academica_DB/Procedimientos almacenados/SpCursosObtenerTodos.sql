@@ -1,4 +1,4 @@
-USE [Oferta_Academica_DBB]
+USE [Oferta_Academica_DB]
 GO
 
 /****** Objeto: StoredProcedure [dbo].[usp_Cursos_ObtenerTodos] Fecha de script: 04/10/2026 20:40:09 ******/

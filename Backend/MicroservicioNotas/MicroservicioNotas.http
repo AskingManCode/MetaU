@@ -1,6 +1,52 @@
-@MicroservicioNotas_HostAddress = http://localhost:5192
+@MicroservicioNotas_HostAddress = https://localhost:7284
+@Token = PEGAR_TOKEN_DEL_LOGIN
+@UsuarioId = PEGAR_GUID_DEL_USUARIO
 
-GET {{MicroservicioNotas_HostAddress}}/weatherforecast/
-Accept: application/json
+### Cargar desglose de rubros de un grupo (debe sumar 100)
+POST {{MicroservicioNotas_HostAddress}}/cargardesglose
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
 
-###
+{
+  "grupoCode": "GRUPO1",
+  "rubros": [
+    { "nombreRubro": "Tareas", "porcentaje": 30 },
+    { "nombreRubro": "Proyecto", "porcentaje": 40 },
+    { "nombreRubro": "Examen", "porcentaje": 30 }
+  ]
+}
+
+### Asignar nota a un rubro de un estudiante
+POST {{MicroservicioNotas_HostAddress}}/asignarnotarubro
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
+
+{
+  "rubroID": "00000000-0000-0000-0000-000000000000",
+  "identificacion": "123456789",
+  "nota": 85
+}
+
+### Modificar nota de un rubro de un estudiante
+PUT {{MicroservicioNotas_HostAddress}}/asignarnotarubro
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
+
+{
+  "rubroID": "00000000-0000-0000-0000-000000000000",
+  "identificacion": "123456789",
+  "nota": 90
+}
+
+### Obtener desglose de rubros de un grupo
+GET {{MicroservicioNotas_HostAddress}}/obtenerdesglose?grupoCode=GRUPO1
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+
+### Obtener notas de un estudiante en un grupo
+GET {{MicroservicioNotas_HostAddress}}/obtenernotas?identificacion=123456789&grupoCode=GRUPO1
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}

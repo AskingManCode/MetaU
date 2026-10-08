@@ -1,6 +1,42 @@
-@MicroservicioPreMatriculas_HostAddress = http://localhost:5232
+@MicroservicioPreMatriculas_HostAddress = https://localhost:7236
+@Token = PEGAR_TOKEN_DEL_LOGIN
+@UsuarioId = PEGAR_GUID_DEL_USUARIO
+@PrematriculaId = PEGAR_GUID_DE_LA_PREMATRICULA
 
-GET {{MicroservicioPreMatriculas_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{MicroservicioPreMatriculas_HostAddress}}/prematricula
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
 
-###
+{
+  "identificacion": "123456789",
+  "carreraCode": "CARRERA1",
+  "cursos": ["CURSO1", "CURSO2"],
+  "observaciones": "Opcional",
+  "periodoID": "00000000-0000-0000-0000-000000000000"
+}
+
+PUT {{MicroservicioPreMatriculas_HostAddress}}/prematricula/{{PrematriculaId}}
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+Content-Type: application/json
+
+{
+  "identificacion": "123456789",
+  "carreraCode": "CARRERA1",
+  "cursos": ["CURSO1"],
+  "observaciones": "Modificada",
+  "periodoID": "00000000-0000-0000-0000-000000000000"
+}
+
+DELETE {{MicroservicioPreMatriculas_HostAddress}}/prematricula/{{PrematriculaId}}
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+
+GET {{MicroservicioPreMatriculas_HostAddress}}/prematricula
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}
+
+GET {{MicroservicioPreMatriculas_HostAddress}}/prematricula/{{PrematriculaId}}
+Authorization: Bearer {{Token}}
+X-Usuario-Id: {{UsuarioId}}

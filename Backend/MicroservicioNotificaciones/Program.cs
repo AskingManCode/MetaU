@@ -1,7 +1,10 @@
 using MicroservicioNotificaciones;
+using MicroservicioNotificaciones.Entities;
 using MicroservicioNotificaciones.Repository;
 using MicroservicioNotificaciones.Services;
 using MicroservicioNotificaciones.Services.Clients;
+using MicroservicioNotificaciones.Configuration;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +24,7 @@ builder.Services.AddCors(options =>
 });
 
 // FluentValidation
-//builder.Services.AddValidatorsFromAssemblyContaining<ParametroRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<NotificarRequestValidator>();
 
 // Inyección de dependencias
 builder.Services.AddSingleton<IDBConnectionFactory, DBConnectionFactory>(); // Solo necesita leer la connection string una vez
@@ -50,6 +53,9 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(cl
 
     client.BaseAddress = new Uri(url);
 });
+
+// Configuración SMTP
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 
 var app = builder.Build();
 

@@ -88,6 +88,10 @@ namespace MicroservicioUsuarios
                 if (existente is not null)
                     return Results.Conflict(new { message = $"Ya existe un usuario con email '{dto.Email}'" });
 
+                var mismaIdentificacion = await service.FiltrarAsync(dto.Identificacion, null, null);
+                if (mismaIdentificacion.Any())
+                    return Results.Conflict(new { message = $"Ya existe un usuario con la identificación '{dto.Identificacion}'" });
+
                 var filas = await service.CrearAsync(dto);
                 if (filas <= 0)
                     return Results.Problem("No se pudo crear el usuario");

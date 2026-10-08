@@ -1,0 +1,50 @@
+MicroservicioCursos (ACD3)
+
+Servicio REST para administrar los cursos que pertenecen a las carreras en MetaU.
+
+Responsable: Julián Solano Obando HU: ACD3 – Servicio para Administrar Cursos Endpoint base: /curso URL local (http): http://localhost:5146 URL local (https): https://localhost:7136 URL base en producción: (pendiente de definir)
+
+Tecnologías
+.NET 10 + ASP.NET Core (Minimal APIs)
+Dapper (SQL directo) sobre SQL Server
+Base de datos:  confirmar (se espera Oferta_Academica_DB)
+Estructura
+text
+MicroservicioCursos/
+|-- Entities/       # Modelos y DTOs
+|-- Repository/     # Acceso a datos (Dapper)
+|-- Services/       # Reglas de negocio y validaciones
+|-- CursosEndpoints.cs
+|-- Program.cs
+Endpoints
+
+Todas las operaciones requieren el header Authorization: Bearer <access_token>, obtenido en MicroservicioLogin (POST /login).
+
+Método	Ruta	Descripción	Respuesta exitosa
+POST	/curso	Crear un curso	201
+PUT	/curso/{id}	Modificar un curso	200
+DELETE	/curso/{id}	Eliminar un curso	200
+GET	/curso	Obtener todos los cursos	200
+GET	/curso/{id}	Obtener un curso por llave primaria	200
+GET	/curso/carrera/{carreraId}	Obtener los cursos de una carrera	200
+
+ Confirmar la ruta "por carrera", los códigos de estado y si la eliminación es lógica o física.
+
+Cuerpo de crear / modificar
+
+ Ajustar los nombres de campo al DTO real.
+
+json
+{
+  "id": "TI-101",
+  "carreraId": "TI",
+  "nivel": 1,
+  "nombre": "Programacion Uno"
+}
+Validaciones
+Todos los datos son requeridos y no pueden ser vacíos ni espacios en blanco.
+El nombre del curso solo acepta letras y espacios.
+El nivel es numérico y debe estar entre 1 y 12.
+La carrera debe existir.
+Sin token válido, la respuesta es 401 Unauthorized.
+Datos inválidos responden 400 Bad Request; un registro inexistente, 404 Not Found.

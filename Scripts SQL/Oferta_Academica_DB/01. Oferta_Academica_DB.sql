@@ -9,8 +9,10 @@ BEGIN
 END
 GO
 
+
 USE Oferta_Academica_DB;
 GO
+
 
 /* NOTA: las columnas marcadas como REF en el diagrama apuntan a tablas de otras
    bases de datos. SQL Server no permite FOREIGN KEY entre bases de datos, por lo
@@ -21,30 +23,6 @@ GO
 /* ============================================================
    CATÁLOGOS
    ============================================================ */
-IF OBJECT_ID('dbo.TiposIdentificacion', 'U') IS NULL
-    CREATE TABLE TiposIdentificacion (
-        TipoIdentificacionCode VARCHAR(15) NOT NULL,
-        Nombre VARCHAR(75) NOT NULL,
-        Estado BIT NOT NULL DEFAULT 1,
-
-        CONSTRAINT PK_TiposIdentificacion
-            PRIMARY KEY CLUSTERED (TipoIdentificacionCode),
-
-        CONSTRAINT UQ_TiposIdentificacion_Nombre
-            UNIQUE (Nombre),
-
-        CONSTRAINT CH_TiposIdentificacion_TipoIdentificacionCode_Formato
-            CHECK (LEN(TRIM(TipoIdentificacionCode)) > 0
-                    AND TipoIdentificacionCode COLLATE Latin1_General_BIN NOT LIKE '%[^A-Z]%'),
-
-        CONSTRAINT CH_TiposIdentificacion_Nombre_NoVacio
-            CHECK (LEN(TRIM(Nombre)) > 0
-                    AND Nombre NOT LIKE ' %'
-                    AND Nombre NOT LIKE '% '
-                    AND Nombre NOT LIKE '%  %')
-    );
-GO
-
 IF OBJECT_ID('dbo.Instituciones', 'U') IS NULL
     CREATE TABLE Instituciones (
         InstitucionCode VARCHAR(15) NOT NULL,
@@ -71,6 +49,7 @@ IF OBJECT_ID('dbo.Instituciones', 'U') IS NULL
             CHECK (Nombre NOT LIKE '%[^A-Za-zÁÉÍÓÚáéíóúÑñ ]%')
     );
 GO
+
 
 IF OBJECT_ID('dbo.Periodos', 'U') IS NULL
     CREATE TABLE Periodos (
@@ -116,10 +95,6 @@ IF OBJECT_ID('dbo.Profesores', 'U') IS NULL
         CONSTRAINT PK_Profesores
             PRIMARY KEY CLUSTERED (ProfesorID),
 
-        CONSTRAINT FK_Profesores_TipoIdentificacion
-            FOREIGN KEY (TipoIdentificacionCode) 
-            REFERENCES TiposIdentificacion(TipoIdentificacionCode),
-
         CONSTRAINT UQ_Profesores_Identificacion
             UNIQUE (Identificacion),
 
@@ -158,6 +133,7 @@ IF OBJECT_ID('dbo.Profesores', 'U') IS NULL
             CHECK (FechaNacimiento <= DATEADD(YEAR, -18, CAST(GETDATE() AS DATE)))
     );
 GO
+
 
 IF OBJECT_ID('dbo.TelefonosXProfesores', 'U') IS NULL
     CREATE TABLE TelefonosXProfesores (
@@ -222,6 +198,7 @@ IF OBJECT_ID('dbo.Carreras', 'U') IS NULL
             CHECK (Nombre NOT LIKE '%[^A-Za-zÁÉÍÓÚáéíóúÑñ ]%')
     );
 GO
+
 
 IF OBJECT_ID('dbo.Cursos', 'U') IS NULL
     CREATE TABLE Cursos (

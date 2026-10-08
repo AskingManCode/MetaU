@@ -1,4 +1,4 @@
-USE [Oferta_Academica_DBB]
+USE [Oferta_Academica_DB]
 GO
 
 /****** Objeto: StoredProcedure [dbo].[usp_Profesor_Eliminar] Fecha de script: 04/10/2026 20:42:52 ******/
@@ -8,8 +8,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-
-CREATE   PROCEDURE [dbo].[usp_Profesor_Eliminar]
+      
+CREATE OR ALTER PROCEDURE [dbo].[usp_Profesor_Eliminar]
     @ProfesorID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -20,4 +20,3 @@ BEGIN
     WHERE ProfesorID = @ProfesorID
 END
 GO
-

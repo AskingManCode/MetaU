@@ -1,6 +1,43 @@
-@MicroservicioFacturacion_HostAddress = http://localhost:5173
+@baseUrl = https://localhost:7227
+@token = REEMPLAZAR_TOKEN
+@usuarioId = 00000000-0000-0000-0000-000000000000
+@facturaId = 00000000-0000-0000-0000-000000000000
+@periodoId = 00000000-0000-0000-0000-000000000000
 
-GET {{MicroservicioFacturacion_HostAddress}}/weatherforecast/
-Accept: application/json
+### Crear factura para el único periodo matriculado (subtotal fijo ₡30.000)
+POST {{baseUrl}}/api/factura/
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+Content-Type: application/json
 
-###
+{
+  "identificacionEstudiante": "123456789",
+  "monto": 30000
+}
+
+### Crear factura seleccionando el periodo de matrícula
+POST {{baseUrl}}/api/factura/
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+Content-Type: application/json
+
+{
+  "identificacionEstudiante": "123456789",
+  "monto": 30000,
+  "periodoID": "{{periodoId}}"
+}
+
+### Obtener factura
+GET {{baseUrl}}/api/factura/{{facturaId}}
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+
+### Listar facturas de un periodo
+GET {{baseUrl}}/api/factura/periodo/{{periodoId}}
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}
+
+### Anular factura
+PATCH {{baseUrl}}/api/factura/{{facturaId}}
+Authorization: Bearer {{token}}
+UsuarioGUID: {{usuarioId}}

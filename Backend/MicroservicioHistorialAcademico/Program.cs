@@ -39,7 +39,7 @@ builder.Services.AddHttpClient<INotasServiceClient, NotasServiceClient>(cliente 
 
 builder.Services.AddHttpClient<IMatriculaServiceClient, MatriculaServiceClient>(client =>
 {
-    var url = builder.Configuration["Servicios:MatriculasUrl"];
+    var url = builder.Configuration["Servicios:MatriculaUrl"];
 
     if (!string.IsNullOrWhiteSpace(url))
         client.BaseAddress = new Uri(url);

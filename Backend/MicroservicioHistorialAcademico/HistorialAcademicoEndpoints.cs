@@ -16,16 +16,16 @@ namespace MicroservicioHistorialAcademico
             if (!acceso.Autorizado)
                 return Results.Unauthorized();
 
-            if (string.IsNullOrWhiteSpace(tipoIdentificacion) || string.IsNullOrWhiteSpace(identificacion))
-                return Results.BadRequest(new { mensaje = "El tipo y la identificacion son requeridos" });
-
             try
             {
                 var historial = await service.ObtenerAsync(tipoIdentificacion, identificacion, acceso.Usuario, acceso.Token);
-
                 await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta historial academico", acceso.Token);
 
                 return Results.Ok(historial);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
@@ -33,7 +33,8 @@ namespace MicroservicioHistorialAcademico
             }
             catch (Exception ex)
             {
-                return Results.Problem(statusCode: 500, detail: ex.ToString());
+                await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token, ex);
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
 
@@ -49,10 +50,21 @@ namespace MicroservicioHistorialAcademico
             if (string.IsNullOrWhiteSpace(token) || !await auth.ValidarAsync(token))
                 return (false, string.Empty, Guid.Empty);
 
-            if (!Guid.TryParse(request.Headers["X-Usuario-Id"], out var usuario))
+            if (!Guid.TryParse(request.Headers["X-Usuario-Id"], out var usuario) || usuario == Guid.Empty)
                 return (false, string.Empty, Guid.Empty);
 
             return (true, token, usuario);
+        }
+
+        private static async Task RegistrarErrorAsync(IBitacoraServiceClient bitacora, Guid usuario, string token, Exception ex)
+        {
+            try
+            {
+                await bitacora.RegistrarAsync(usuario, $"Error tecnico en historial academico: {ex.Message}", token);
+            }
+            catch
+            {
+            }
         }
     }
 }

@@ -7,20 +7,26 @@ namespace MicroservicioProfesores.Services
     public class ProfesorService : IProfesorService
     {
         private readonly IProfesorRepository _repository;
+        private readonly IParametroServiceClient _parametros;
+        private readonly IConfiguration _configuration;
 
-        public ProfesorService(IProfesorRepository repository)
+        public ProfesorService(IProfesorRepository repository, IParametroServiceClient parametros, IConfiguration configuration)
         {
             _repository = repository;
+            _parametros = parametros;
+            _configuration = configuration;
         }
 
-        public async Task<Profesor> CrearAsync(Profesor profesor, string dominioCorreo)
+        public async Task<Profesor> CrearAsync(Profesor profesor, Guid usuario, string token)
         {
+            var dominioCorreo = await ObtenerDominioAsync(usuario, token);
             ValidarProfesor(profesor, dominioCorreo);
             return await _repository.CrearAsync(profesor);
         }
 
-        public async Task ModificarAsync(Profesor profesor, string dominioCorreo)
+        public async Task ModificarAsync(Profesor profesor, Guid usuario, string token)
         {
+            var dominioCorreo = await ObtenerDominioAsync(usuario, token);
             ValidarProfesor(profesor, dominioCorreo);
             await _repository.ModificarAsync(profesor);
         }
@@ -35,13 +41,36 @@ namespace MicroservicioProfesores.Services
             return _repository.ObtenerTodosAsync();
         }
 
-        public Task<Profesor?> ObtenerPorIdAsync(Guid profesorID)
+        public async Task<Profesor> ObtenerPorIdAsync(Guid profesorID)
         {
-            return _repository.ObtenerPorIdAsync(profesorID);
+            var profesor = await _repository.ObtenerPorIdAsync(profesorID);
+
+            if (profesor == null)
+                throw new KeyNotFoundException("El profesor no existe");
+
+            return profesor;
+        }
+
+        private async Task<string> ObtenerDominioAsync(Guid usuario, string token)
+        {
+            var identificador = _configuration["Parametros:IdentificadorDominioProfesor"];
+
+            if (string.IsNullOrWhiteSpace(identificador))
+                throw new InvalidOperationException("No se configuro el identificador del dominio del profesor");
+
+            var dominio = await _parametros.ObtenerValorAsync(identificador, usuario, token);
+
+            if (string.IsNullOrWhiteSpace(dominio))
+                throw new InvalidOperationException("No se encontro el dominio del profesor");
+
+            return dominio;
         }
 
         private static void ValidarProfesor(Profesor profesor, string dominioCorreo)
         {
+            if (profesor.UsuarioID == Guid.Empty)
+                throw new ArgumentException("El usuario del profesor es requerido");
+
             if (string.IsNullOrWhiteSpace(profesor.Identificacion))
                 throw new ArgumentException("La identificacion es requerida");
 

@@ -17,8 +17,11 @@ namespace MicroservicioHistorialAcademico.Services
             _cursos = cursos;
         }
 
-        public async Task<IEnumerable<HistorialAcademico>> ObtenerAsync(string tipoIdentificacion, string identificacion, Guid usuario, string token)
+        public async Task<IEnumerable<HistorialAcademico>> ObtenerAsync(string? tipoIdentificacion, string? identificacion, Guid usuario, string token)
         {
+            if (string.IsNullOrWhiteSpace(tipoIdentificacion) || string.IsNullOrWhiteSpace(identificacion))
+                throw new ArgumentException("El tipo y la identificacion son requeridos");
+
             var estudianteValido = await _expedientes.ValidarEstudianteAsync(tipoIdentificacion, identificacion, usuario, token);
 
             if (!estudianteValido)

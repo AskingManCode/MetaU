@@ -15,7 +15,7 @@ namespace MicroservicioProfesores
             app.MapGet("/profesor/{profesorID:guid}", ObtenerPorId);
         }
 
-        private static async Task<IResult> Crear(ProfesorRequest request, HttpRequest httpRequest, IProfesorService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora, IParametroServiceClient parametros, IConfiguration configuration)
+        private static async Task<IResult> Crear(ProfesorRequest request, HttpRequest httpRequest, IProfesorService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(httpRequest, auth);
 
@@ -24,10 +24,6 @@ namespace MicroservicioProfesores
 
             try
             {
-                if (request.UsuarioID == Guid.Empty)
-                    return Results.BadRequest(new { mensaje = "El usuario del profesor es requerido" });
-
-                var dominio = await ObtenerDominioAsync(parametros, configuration, acceso.Usuario, acceso.Token);
                 var profesor = new Profesor
                 {
                     UsuarioID = request.UsuarioID,
@@ -40,7 +36,7 @@ namespace MicroservicioProfesores
                     Telefonos = request.Telefonos
                 };
 
-                var creado = await service.CrearAsync(profesor, dominio);
+                var creado = await service.CrearAsync(profesor, acceso.Usuario, acceso.Token);
                 await bitacora.RegistrarAsync(acceso.Usuario, JsonSerializer.Serialize(creado), acceso.Token);
 
                 return Results.Created($"/profesor/{creado.ProfesorID}", creado);
@@ -56,7 +52,7 @@ namespace MicroservicioProfesores
             }
         }
 
-        private static async Task<IResult> Modificar(Guid profesorID, ProfesorRequest request, HttpRequest httpRequest, IProfesorService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora, IParametroServiceClient parametros, IConfiguration configuration)
+        private static async Task<IResult> Modificar(Guid profesorID, ProfesorRequest request, HttpRequest httpRequest, IProfesorService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(httpRequest, auth);
 
@@ -67,10 +63,6 @@ namespace MicroservicioProfesores
             {
                 var anterior = await service.ObtenerPorIdAsync(profesorID);
 
-                if (anterior == null)
-                    return Results.NotFound(new { mensaje = "El profesor no existe" });
-
-                var dominio = await ObtenerDominioAsync(parametros, configuration, acceso.Usuario, acceso.Token);
                 var profesor = new Profesor
                 {
                     ProfesorID = profesorID,
@@ -84,12 +76,16 @@ namespace MicroservicioProfesores
                     Telefonos = request.Telefonos
                 };
 
-                await service.ModificarAsync(profesor, dominio);
+                await service.ModificarAsync(profesor, acceso.Usuario, acceso.Token);
 
                 var descripcion = $"Anterior: {JsonSerializer.Serialize(anterior)} Actual: {JsonSerializer.Serialize(profesor)}";
                 await bitacora.RegistrarAsync(acceso.Usuario, descripcion, acceso.Token);
 
                 return Results.Ok(profesor);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
             }
             catch (ArgumentException ex)
             {
@@ -112,14 +108,14 @@ namespace MicroservicioProfesores
             try
             {
                 var profesor = await service.ObtenerPorIdAsync(profesorID);
-
-                if (profesor == null)
-                    return Results.NotFound(new { mensaje = "El profesor no existe" });
-
                 await service.EliminarAsync(profesorID);
                 await bitacora.RegistrarAsync(acceso.Usuario, JsonSerializer.Serialize(profesor), acceso.Token);
 
                 return Results.Ok(profesor);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
             }
             catch
             {
@@ -159,13 +155,13 @@ namespace MicroservicioProfesores
             try
             {
                 var profesor = await service.ObtenerPorIdAsync(profesorID);
-
-                if (profesor == null)
-                    return Results.NotFound(new { mensaje = "El profesor no existe" });
-
                 await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta profesor", acceso.Token);
 
                 return Results.Ok(profesor);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
             }
             catch
             {
@@ -190,21 +186,6 @@ namespace MicroservicioProfesores
                 return ("", Guid.Empty, Results.BadRequest(new { mensaje = "El usuario es requerido" }));
 
             return (token, usuario, null);
-        }
-
-        private static async Task<string> ObtenerDominioAsync(IParametroServiceClient parametros, IConfiguration configuration, Guid usuario, string token)
-        {
-            var identificador = configuration["Parametros:IdentificadorDominioProfesor"];
-
-            if (string.IsNullOrWhiteSpace(identificador))
-                throw new InvalidOperationException("No se configuro el identificador del dominio del profesor");
-
-            var dominio = await parametros.ObtenerValorAsync(identificador, usuario, token);
-
-            if (string.IsNullOrWhiteSpace(dominio))
-                throw new InvalidOperationException("No se encontro el dominio del profesor");
-
-            return dominio;
         }
 
         private static async Task RegistrarErrorAsync(IBitacoraServiceClient bitacora, Guid usuario, string token)

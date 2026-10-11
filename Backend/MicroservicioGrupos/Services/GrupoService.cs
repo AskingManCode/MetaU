@@ -14,19 +14,31 @@ namespace MicroservicioGrupos.Services
 
         public async Task CrearAsync(Grupo grupo)
         {
+            var existente = await _repository.ObtenerPorIdAsync(grupo.GrupoCode);
+
+            if (existente is not null)
+                throw new InvalidOperationException("El grupo ya existe");
+
             ValidarGrupo(grupo);
             await _repository.CrearAsync(grupo);
         }
 
-        public async Task ModificarAsync(Grupo grupo)
+        public async Task<Grupo> ModificarAsync(Grupo grupo)
         {
+            var anterior = await ObtenerPorIdAsync(grupo.GrupoCode);
+            grupo.Estado = anterior.Estado;
+
             ValidarGrupo(grupo);
             await _repository.ModificarAsync(grupo);
+
+            return anterior;
         }
 
-        public Task EliminarAsync(string grupoCode)
+        public async Task<Grupo> EliminarAsync(string grupoCode)
         {
-            return _repository.EliminarAsync(grupoCode);
+            var grupo = await ObtenerPorIdAsync(grupoCode);
+            await _repository.EliminarAsync(grupoCode);
+            return grupo;
         }
 
         public Task<IEnumerable<Grupo>> ObtenerTodosAsync()
@@ -34,9 +46,14 @@ namespace MicroservicioGrupos.Services
             return _repository.ObtenerTodosAsync();
         }
 
-        public Task<Grupo?> ObtenerPorIdAsync(string grupoCode)
+        public async Task<Grupo> ObtenerPorIdAsync(string grupoCode)
         {
-            return _repository.ObtenerPorIdAsync(grupoCode);
+            var grupo = await _repository.ObtenerPorIdAsync(grupoCode);
+
+            if (grupo is null)
+                throw new KeyNotFoundException("El grupo no existe");
+
+            return grupo;
         }
 
         private static void ValidarGrupo(Grupo grupo)

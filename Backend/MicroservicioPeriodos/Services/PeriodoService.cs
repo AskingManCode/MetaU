@@ -18,15 +18,22 @@ namespace MicroservicioPeriodos.Services
             return await _repository.CrearAsync(periodo);
         }
 
-        public async Task ModificarAsync(Periodo periodo)
+        public async Task<Periodo> ModificarAsync(Periodo periodo)
         {
+            var anterior = await ObtenerPorIdAsync(periodo.PeriodoID);
+            periodo.Estado = anterior.Estado;
+
             ValidarPeriodo(periodo);
             await _repository.ModificarAsync(periodo);
+
+            return anterior;
         }
 
-        public Task EliminarAsync(Guid periodoID)
+        public async Task<Periodo> EliminarAsync(Guid periodoID)
         {
-            return _repository.EliminarAsync(periodoID);
+            var periodo = await ObtenerPorIdAsync(periodoID);
+            await _repository.EliminarAsync(periodoID);
+            return periodo;
         }
 
         public Task<IEnumerable<Periodo>> ObtenerTodosAsync()
@@ -34,9 +41,14 @@ namespace MicroservicioPeriodos.Services
             return _repository.ObtenerTodosAsync();
         }
 
-        public Task<Periodo?> ObtenerPorIdAsync(Guid periodoID)
+        public async Task<Periodo> ObtenerPorIdAsync(Guid periodoID)
         {
-            return _repository.ObtenerPorIdAsync(periodoID);
+            var periodo = await _repository.ObtenerPorIdAsync(periodoID);
+
+            if (periodo == null)
+                throw new KeyNotFoundException("El periodo no existe");
+
+            return periodo;
         }
 
         private static void ValidarPeriodo(Periodo periodo)

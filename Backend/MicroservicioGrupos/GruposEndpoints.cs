@@ -19,19 +19,21 @@ namespace MicroservicioGrupos
         private static async Task<IResult> CrearAsync(HttpRequest request, GrupoRequest grupoRequest, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(request, auth);
+
             if (!acceso.Autorizado)
                 return Results.Unauthorized();
 
             try
             {
-                if (await service.ObtenerPorIdAsync(grupoRequest.GrupoCode) is not null)
-                    return Results.Conflict(new { mensaje = "El grupo ya existe" });
-
                 var grupo = CrearGrupo(grupoRequest);
                 await service.CrearAsync(grupo);
-
                 await bitacora.RegistrarAsync(acceso.Usuario, $"Crear grupo: {JsonSerializer.Serialize(grupo)}", acceso.Token);
+
                 return Results.Created($"/grupo/{grupo.GrupoCode}", grupo);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.Conflict(new { mensaje = ex.Message });
             }
             catch (ArgumentException ex)
             {
@@ -51,6 +53,7 @@ namespace MicroservicioGrupos
         private static async Task<IResult> ModificarAsync(string grupoCode, HttpRequest request, GrupoRequest grupoRequest, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(request, auth);
+
             if (!acceso.Autorizado)
                 return Results.Unauthorized();
 
@@ -59,17 +62,16 @@ namespace MicroservicioGrupos
                 if (!grupoCode.Equals(grupoRequest.GrupoCode, StringComparison.OrdinalIgnoreCase))
                     return Results.BadRequest(new { mensaje = "El identificador del grupo no coincide con la ruta" });
 
-                var anterior = await service.ObtenerPorIdAsync(grupoCode);
-                if (anterior is null)
-                    return Results.NotFound(new { mensaje = "El grupo no existe" });
-
                 var grupo = CrearGrupo(grupoRequest);
-                grupo.Estado = anterior.Estado;
+                var anterior = await service.ModificarAsync(grupo);
+                var descripcion = $"Modificar grupo: anterior={JsonSerializer.Serialize(anterior)}, actual={JsonSerializer.Serialize(grupo)}";
 
-                await service.ModificarAsync(grupo);
-
-                await bitacora.RegistrarAsync(acceso.Usuario, $"Modificar grupo: anterior={JsonSerializer.Serialize(anterior)}, actual={JsonSerializer.Serialize(grupo)}", acceso.Token);
+                await bitacora.RegistrarAsync(acceso.Usuario, descripcion, acceso.Token);
                 return Results.Ok(grupo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
             }
             catch (ArgumentException ex)
             {
@@ -85,19 +87,20 @@ namespace MicroservicioGrupos
         private static async Task<IResult> EliminarAsync(string grupoCode, HttpRequest request, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(request, auth);
+
             if (!acceso.Autorizado)
                 return Results.Unauthorized();
 
             try
             {
-                var grupo = await service.ObtenerPorIdAsync(grupoCode);
-                if (grupo is null)
-                    return Results.NotFound(new { mensaje = "El grupo no existe" });
-
-                await service.EliminarAsync(grupoCode);
-
+                var grupo = await service.EliminarAsync(grupoCode);
                 await bitacora.RegistrarAsync(acceso.Usuario, $"Eliminar grupo: {JsonSerializer.Serialize(grupo)}", acceso.Token);
+
                 return Results.Ok(grupo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
             }
             catch (Exception ex)
             {
@@ -109,14 +112,15 @@ namespace MicroservicioGrupos
         private static async Task<IResult> ObtenerTodosAsync(HttpRequest request, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(request, auth);
+
             if (!acceso.Autorizado)
                 return Results.Unauthorized();
 
             try
             {
                 var grupos = await service.ObtenerTodosAsync();
-
                 await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta grupos", acceso.Token);
+
                 return Results.Ok(grupos);
             }
             catch (Exception ex)
@@ -129,17 +133,20 @@ namespace MicroservicioGrupos
         private static async Task<IResult> ObtenerPorIdAsync(string grupoCode, HttpRequest request, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(request, auth);
+
             if (!acceso.Autorizado)
                 return Results.Unauthorized();
 
             try
             {
                 var grupo = await service.ObtenerPorIdAsync(grupoCode);
-                if (grupo is null)
-                    return Results.NotFound(new { mensaje = "El grupo no existe" });
-
                 await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta un grupo", acceso.Token);
+
                 return Results.Ok(grupo);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
             }
             catch (Exception ex)
             {

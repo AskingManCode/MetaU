@@ -5,9 +5,9 @@ namespace MicroservicioGrupos.Services
     public interface IGrupoService
     {
         Task CrearAsync(Grupo grupo);
-        Task ModificarAsync(Grupo grupo);
-        Task EliminarAsync(string grupoCode);
+        Task<Grupo> ModificarAsync(Grupo grupo);
+        Task<Grupo> EliminarAsync(string grupoCode);
         Task<IEnumerable<Grupo>> ObtenerTodosAsync();
-        Task<Grupo?> ObtenerPorIdAsync(string grupoCode);
+        Task<Grupo> ObtenerPorIdAsync(string grupoCode);
     }
 }

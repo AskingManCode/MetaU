@@ -4,10 +4,10 @@ namespace MicroservicioProfesores.Services
 {
     public interface IProfesorService
     {
-        Task<Profesor> CrearAsync(Profesor profesor, string dominioCorreo);
-        Task ModificarAsync(Profesor profesor, string dominioCorreo);
+        Task<Profesor> CrearAsync(Profesor profesor, Guid usuario, string token);
+        Task ModificarAsync(Profesor profesor, Guid usuario, string token);
         Task EliminarAsync(Guid profesorID);
         Task<IEnumerable<Profesor>> ObtenerTodosAsync();
-        Task<Profesor?> ObtenerPorIdAsync(Guid profesorID);
+        Task<Profesor> ObtenerPorIdAsync(Guid profesorID);
     }
 }

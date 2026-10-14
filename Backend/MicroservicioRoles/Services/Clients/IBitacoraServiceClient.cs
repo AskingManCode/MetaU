@@ -1,4 +1,4 @@
-﻿namespace MicroservicioRoles.Services
+﻿namespace MicroservicioRoles.Services.Clients
 {
     public interface IBitacoraServiceClient
     {

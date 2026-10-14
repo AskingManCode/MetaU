@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace MicroservicioRoles.Services
+namespace MicroservicioRoles.Services.Clients
 {
     public class BitacoraServiceClient : IBitacoraServiceClient
     {

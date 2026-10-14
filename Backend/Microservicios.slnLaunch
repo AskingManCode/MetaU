@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "Nuevo perfil",
+    "Projects": [
+      {
+        "Path": "MicroservicioBitacoras\\MicroservicioBitacoras.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioLogin\\MicroservicioLogin.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioRoles\\MicroservicioRoles.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

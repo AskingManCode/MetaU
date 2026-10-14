@@ -59,7 +59,7 @@ namespace MicroservicioMatriculas.Services
                 };
                 matricula.Cursos.Add(detalle);
 
-                await _repositorio.InsertarMatricula(matricula);
+                await _repositorio.CrearMatriculaAsync(matricula);
             }
             else
             {
@@ -72,7 +72,7 @@ namespace MicroservicioMatriculas.Services
                 {
                     existente.GrupoCode = grupo.GrupoCode;
                     existente.Estado = true;
-                    await _repositorio.GuardarCambios();
+                    await _repositorio.ActualizarCursoAsync(existente);
                     detalle = existente;
                 }
                 else
@@ -84,7 +84,7 @@ namespace MicroservicioMatriculas.Services
                         GrupoCode = grupo.GrupoCode,
                         Estado = true
                     };
-                    await _repositorio.InsertarCurso(detalle);
+                    await _repositorio.AgregarCursoAsync(detalle);
                 }
             }
 
@@ -123,7 +123,7 @@ namespace MicroservicioMatriculas.Services
                 throw new ConflictoException("El grupo no tiene cupo disponible.");
 
             detalle.GrupoCode = grupo.GrupoCode;
-            await _repositorio.GuardarCambios();
+            await _repositorio.ActualizarCursoAsync(detalle);
 
             var actual = Mapear(detalle, identificacion, matricula.PeriodoID);
 
@@ -140,8 +140,7 @@ namespace MicroservicioMatriculas.Services
 
             var eliminada = Mapear(detalle, detalle.Matricula.Estudiante.Identificacion, detalle.Matricula.PeriodoID);
 
-            detalle.Estado = false;
-            await _repositorio.GuardarCambios();
+            await _repositorio.EliminarCursoAsync(detalle);
 
             await RegistrarBitacora(contexto,
                 $"Se eliminó la matrícula {id}: " + JsonSerializer.Serialize(eliminada));

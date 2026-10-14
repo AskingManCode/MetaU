@@ -8,7 +8,8 @@ namespace MicroservicioPreMatriculas.Repository
         Task<Prematricula?> BuscarPorEstudianteCarreraPeriodo(Guid estudianteId, string carreraCode, Guid periodoId);
         Task<Prematricula?> BuscarPorId(Guid preMatriculaId);
         Task<List<Prematricula>> ListarActivas();
-        Task Insertar(Prematricula prematricula);
-        Task GuardarCambios();
+        Task CrearAsync(Prematricula prematricula);
+        Task ActualizarAsync(Prematricula prematricula);
+        Task EliminarAsync(Prematricula prematricula);
     }
 }

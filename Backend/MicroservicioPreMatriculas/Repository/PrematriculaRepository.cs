@@ -35,12 +35,23 @@ namespace MicroservicioPreMatriculas.Repository
                 .Where(p => p.Estado)
                 .ToListAsync();
 
-        public async Task Insertar(Prematricula prematricula)
+        public async Task CrearAsync(Prematricula prematricula)
         {
             _db.Prematriculas.Add(prematricula);
             await _db.SaveChangesAsync();
         }
 
-        public Task GuardarCambios() => _db.SaveChangesAsync();
+        public Task ActualizarAsync(Prematricula prematricula) =>
+            _db.SaveChangesAsync();
+
+        public async Task EliminarAsync(Prematricula prematricula)
+        {
+            prematricula.Estado = false;
+
+            foreach (var curso in prematricula.Cursos)
+                curso.Estado = false;
+
+            await _db.SaveChangesAsync();
+        }
     }
 }

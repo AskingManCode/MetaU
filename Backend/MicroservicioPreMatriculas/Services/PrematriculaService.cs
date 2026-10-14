@@ -53,7 +53,7 @@ namespace MicroservicioPreMatriculas.Services
                 };
                 AplicarCursos(prematricula, cursos);
 
-                await _repositorio.Insertar(prematricula);
+                await _repositorio.CrearAsync(prematricula);
             }
             else
             {
@@ -63,7 +63,7 @@ namespace MicroservicioPreMatriculas.Services
                 existente.Estado = true;
                 existente.Observaciones = observaciones;
                 AplicarCursos(existente, cursos);
-                await _repositorio.GuardarCambios();
+                await _repositorio.ActualizarAsync(existente);
 
                 prematricula = existente;
             }
@@ -103,7 +103,7 @@ namespace MicroservicioPreMatriculas.Services
             prematricula.Observaciones = NormalizarObservaciones(request.Observaciones);
             AplicarCursos(prematricula, cursos);
 
-            await _repositorio.GuardarCambios();
+            await _repositorio.ActualizarAsync(prematricula);
 
             var actual = Mapear(prematricula);
 
@@ -120,11 +120,7 @@ namespace MicroservicioPreMatriculas.Services
 
             var eliminada = Mapear(prematricula);
 
-            prematricula.Estado = false;
-            foreach (var curso in prematricula.Cursos)
-                curso.Estado = false;
-
-            await _repositorio.GuardarCambios();
+            await _repositorio.EliminarAsync(prematricula);
 
             await RegistrarBitacora(contexto,
                 $"Se eliminó la prematrícula {id}: " + JsonSerializer.Serialize(eliminada));

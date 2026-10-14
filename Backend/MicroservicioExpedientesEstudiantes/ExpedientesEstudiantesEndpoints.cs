@@ -33,13 +33,8 @@ namespace MicroservicioExpedientesEstudiantes
 
             grupo.MapGet("/{identificacion}", (string identificacion, HttpRequest http, IExpedienteService servicio) =>
                 Ejecutar(http, async contexto =>
-                {
-                    var estudiante = await servicio.ObtenerPorId(identificacion, contexto);
-                    return estudiante is null
-                        ? Results.NotFound(new { mensaje = "No existe un expediente con esa identificación." })
-                        : Results.Ok(estudiante);
-                }));
-        }
+                    Results.Ok(await servicio.ObtenerPorId(identificacion, contexto))));
+                    }
 
         private static async Task<IResult> Ejecutar(HttpRequest http, Func<ContextoUsuario, Task<IResult>> accion)
         {

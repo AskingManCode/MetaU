@@ -33,19 +33,26 @@ namespace MicroservicioMatriculas.Repository
                     .ThenInclude(m => m.Estudiante)
                 .FirstOrDefaultAsync(c => c.MatriculaXCursoID == matriculaXCursoId && c.Estado);
 
-        public async Task InsertarMatricula(Matricula matricula)
+        public async Task CrearMatriculaAsync(Matricula matricula)
         {
             _db.Matriculas.Add(matricula);
             await _db.SaveChangesAsync();
         }
 
-        public async Task InsertarCurso(MatriculaXCurso curso)
+        public async Task AgregarCursoAsync(MatriculaXCurso curso)
         {
             _db.MatriculasXCursos.Add(curso);
             await _db.SaveChangesAsync();
         }
 
-        public Task GuardarCambios() => _db.SaveChangesAsync();
+        public Task ActualizarCursoAsync(MatriculaXCurso curso) =>
+            _db.SaveChangesAsync();
+
+        public async Task EliminarCursoAsync(MatriculaXCurso curso)
+        {
+            curso.Estado = false;
+            await _db.SaveChangesAsync();
+        }
 
         public Task<List<Estudiante>> ListarEstudiantesMatriculados(string cursoCode, string grupoCode) =>
             _db.MatriculasXCursos.AsNoTracking()

@@ -89,12 +89,18 @@ namespace MicroservicioExpedientesEstudiantes.Services
             return lista;
         }
 
-        public async Task<Estudiante?> ObtenerPorId(string identificacion, ContextoUsuario contexto)
+        public async Task<Estudiante> ObtenerPorId(string identificacion, ContextoUsuario contexto)
         {
             identificacion = identificacion.Trim();
 
-            var estudiante = await _repository.BuscarPorId(identificacion);
-            await RegistrarBitacora(contexto, $"El usuario consulta expediente {identificacion}");
+            var estudiante = await _repository.BuscarPorId(identificacion)
+                ?? throw new NoEncontradoException(
+                    "No existe un expediente con esa identificación.");
+
+            await RegistrarBitacora(
+                contexto,
+                $"El usuario consulta expediente {identificacion}");
+
             return estudiante;
         }
 

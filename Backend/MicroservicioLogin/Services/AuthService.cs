@@ -33,8 +33,11 @@ namespace MicroservicioLogin.Services
             _opciones = opciones.Value;
         }
 
-        public async Task<LoginResponse?> LoginAsync(string email, string contrasena)
+        public async Task<LoginResponse?> LoginAsync(string? email, string? contrasena)
         {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(contrasena))
+                return null;
+
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(email);
             if (usuario is null || !usuario.Estado || !_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
             {
@@ -62,8 +65,11 @@ namespace MicroservicioLogin.Services
             };
         }
 
-        public async Task<RefreshResponse?> RefreshAsync(string refreshTokenTexto)
+        public async Task<RefreshResponse?> RefreshAsync(string? refreshTokenTexto)
         {
+            if (string.IsNullOrWhiteSpace(refreshTokenTexto))
+                return null;
+
             var hash = _refreshTokenHasher.Hash(refreshTokenTexto);
             var tokenGuardado = await _refreshTokenRepository.ObtenerVigentePorHashAsync(hash);
             if (tokenGuardado is null)
@@ -100,6 +106,21 @@ namespace MicroservicioLogin.Services
             };
         }
 
-        public ClaimsPrincipal? Validar(string accessToken) => _tokenService.ValidarAccessToken(accessToken);
+        public ClaimsPrincipal? Validar(string? authorization)
+        {
+            var token = ExtraerTokenDeHeader(authorization);
+            return token is null ? null : _tokenService.ValidarAccessToken(token);
+        }
+
+        private static string? ExtraerTokenDeHeader(string? headerAutorizacion)
+        {
+            if (string.IsNullOrWhiteSpace(headerAutorizacion))
+                return null;
+
+            const string prefijo = "Bearer ";
+            return headerAutorizacion.StartsWith(prefijo, StringComparison.OrdinalIgnoreCase)
+                ? headerAutorizacion[prefijo.Length..]
+                : headerAutorizacion;
+        }
     }
 }

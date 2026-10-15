@@ -1,6 +1,6 @@
 ﻿using MicroservicioCursos.Entities;
 using MicroservicioCursos.Services;
-using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MicroservicioCursos
 {
@@ -18,359 +18,116 @@ namespace MicroservicioCursos
 
         private static async Task<IResult> CrearAsync(
             CursoRequest request,
-            ICursoService service,
-            IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService,
-            HttpContext context)
+            [FromHeader(Name = "Authorization")] string? authorization,
+            [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            ICursoService service)
         {
-            var acceso = await ValidarAccesoAsync(context, authService);
-
-            if (acceso.Error != null)
-                return acceso.Error;
-
             try
             {
-                if (await service.ObtenerPorIdAsync(request.CursoCode) is not null)
-                    return Results.Conflict(new { mensaje = "El curso ya existe" });
-
-                var curso = CrearCurso(request);
-
-                await service.CrearAsync(curso);
-
-                await bitacoraService.RegistrarAsync(
-                    acceso.Usuario,
-                    JsonSerializer.Serialize(curso),
-                    acceso.Token);
-
+                var curso = await service.CrearAsync(request, authorization, usuarioId);
                 return Results.Created(
                     $"/curso/{curso.CursoCode}",
                     curso);
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                return Results.BadRequest(new { mensaje = ex.Message });
-            }
-            catch
-            {
-                await RegistrarErrorAsync(
-                    bitacoraService,
-                    acceso.Usuario,
-                    acceso.Token);
-
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return RespuestaError(ex, argumentoEsBadRequest: true);
             }
         }
 
         private static async Task<IResult> ModificarAsync(
             string cursoCode,
             CursoRequest request,
-            ICursoService service,
-            IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService,
-            HttpContext context)
+            [FromHeader(Name = "Authorization")] string? authorization,
+            [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            ICursoService service)
         {
-            var acceso = await ValidarAccesoAsync(context, authService);
-
-            if (acceso.Error != null)
-                return acceso.Error;
-
             try
             {
-                if (!cursoCode.Equals(
-                    request.CursoCode,
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    return Results.BadRequest(new
-                    {
-                        mensaje = "El identificador del curso no coincide con la ruta"
-                    });
-                }
-
-                var anterior = await service.ObtenerPorIdAsync(cursoCode);
-
-                if (anterior is null)
-                    return Results.NotFound(new
-                    {
-                        mensaje = "El curso no existe"
-                    });
-
-                var curso = CrearCurso(request);
-                curso.Estado = anterior.Estado;
-
-                await service.ModificarAsync(curso);
-
-                var descripcion =
-                    $"Anterior: {JsonSerializer.Serialize(anterior)} " +
-                    $"Actual: {JsonSerializer.Serialize(curso)}";
-
-                await bitacoraService.RegistrarAsync(
-                    acceso.Usuario,
-                    descripcion,
-                    acceso.Token);
-
+                var curso = await service.ModificarAsync(cursoCode, request, authorization, usuarioId);
                 return Results.Ok(curso);
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                return Results.BadRequest(new { mensaje = ex.Message });
-            }
-            catch
-            {
-                await RegistrarErrorAsync(
-                    bitacoraService,
-                    acceso.Usuario,
-                    acceso.Token);
-
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return RespuestaError(ex, argumentoEsBadRequest: true);
             }
         }
 
         private static async Task<IResult> EliminarAsync(
             string cursoCode,
-            ICursoService service,
-            IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService,
-            HttpContext context)
+            [FromHeader(Name = "Authorization")] string? authorization,
+            [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            ICursoService service)
         {
-            var acceso = await ValidarAccesoAsync(context, authService);
-
-            if (acceso.Error != null)
-                return acceso.Error;
-
             try
             {
-                var curso = await service.ObtenerPorIdAsync(cursoCode);
-
-                if (curso is null)
-                    return Results.NotFound(new
-                    {
-                        mensaje = "El curso no existe"
-                    });
-
-                await service.EliminarAsync(cursoCode);
-
-                await bitacoraService.RegistrarAsync(
-                    acceso.Usuario,
-                    JsonSerializer.Serialize(curso),
-                    acceso.Token);
-
+                var curso = await service.EliminarAsync(cursoCode, authorization, usuarioId);
                 return Results.Ok(curso);
             }
-            catch
+            catch (Exception ex)
             {
-                await RegistrarErrorAsync(
-                    bitacoraService,
-                    acceso.Usuario,
-                    acceso.Token);
-
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return RespuestaError(ex);
             }
         }
 
         private static async Task<IResult> ObtenerTodosAsync(
-            ICursoService service,
-            IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService,
-            HttpContext context)
+            [FromHeader(Name = "Authorization")] string? authorization,
+            [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            ICursoService service)
         {
-            var acceso = await ValidarAccesoAsync(context, authService);
-
-            if (acceso.Error != null)
-                return acceso.Error;
-
             try
             {
-                var cursos = await service.ObtenerTodosAsync();
-
-                await bitacoraService.RegistrarAsync(
-                    acceso.Usuario,
-                    "El usuario consulta cursos",
-                    acceso.Token);
-
+                var cursos = await service.ObtenerTodosAsync(authorization, usuarioId);
                 return Results.Ok(cursos);
             }
-            catch
+            catch (Exception ex)
             {
-                await RegistrarErrorAsync(
-                    bitacoraService,
-                    acceso.Usuario,
-                    acceso.Token);
-
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return RespuestaError(ex);
             }
         }
 
         private static async Task<IResult> ObtenerPorIdAsync(
             string cursoCode,
-            ICursoService service,
-            IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService,
-            HttpContext context)
+            [FromHeader(Name = "Authorization")] string? authorization,
+            [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            ICursoService service)
         {
-            var acceso = await ValidarAccesoAsync(context, authService);
-
-            if (acceso.Error != null)
-                return acceso.Error;
-
             try
             {
-                var curso = await service.ObtenerPorIdAsync(cursoCode);
-
-                if (curso is null)
-                    return Results.NotFound(new
-                    {
-                        mensaje = "El curso no existe"
-                    });
-
-                await bitacoraService.RegistrarAsync(
-                    acceso.Usuario,
-                    "El usuario consulta curso",
-                    acceso.Token);
-
+                var curso = await service.ObtenerPorIdAsync(cursoCode, authorization, usuarioId);
                 return Results.Ok(curso);
             }
-            catch
+            catch (Exception ex)
             {
-                await RegistrarErrorAsync(
-                    bitacoraService,
-                    acceso.Usuario,
-                    acceso.Token);
-
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return RespuestaError(ex);
             }
         }
 
         private static async Task<IResult> ObtenerPorCarreraAsync(
             string carreraCode,
-            ICursoService service,
-            IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService,
-            HttpContext context)
+            [FromHeader(Name = "Authorization")] string? authorization,
+            [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            ICursoService service)
         {
-            var acceso = await ValidarAccesoAsync(context, authService);
-
-            if (acceso.Error != null)
-                return acceso.Error;
-
             try
             {
-                if (string.IsNullOrWhiteSpace(carreraCode))
-                    return Results.BadRequest(new
-                    {
-                        mensaje = "La carrera es requerida"
-                    });
-
-                var cursos = await service.ObtenerPorCarreraAsync(
-                    carreraCode);
-
-                await bitacoraService.RegistrarAsync(
-                    acceso.Usuario,
-                    "El usuario consulta cursos por carrera",
-                    acceso.Token);
-
+                var cursos = await service.ObtenerPorCarreraAsync(carreraCode, authorization, usuarioId);
                 return Results.Ok(cursos);
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                return Results.BadRequest(new { mensaje = ex.Message });
-            }
-            catch
-            {
-                await RegistrarErrorAsync(
-                    bitacoraService,
-                    acceso.Usuario,
-                    acceso.Token);
-
-                return Results.Json(
-                    new { mensaje = "Error interno del servidor" },
-                    statusCode: 500);
+                return RespuestaError(ex, argumentoEsBadRequest: true);
             }
         }
 
-        private static Curso CrearCurso(CursoRequest request)
+        private static IResult RespuestaError(Exception ex, bool argumentoEsBadRequest = false) => ex switch
         {
-            return new Curso
-            {
-                CursoCode = request.CursoCode,
-                CarreraCode = request.CarreraCode,
-                Nombre = request.Nombre,
-                Nivel = request.Nivel,
-                Estado = true
-            };
-        }
-
-        private static async Task<(string Token, Guid Usuario, IResult? Error)> ValidarAccesoAsync(
-            HttpContext context,
-            IAuthServiceClient authService)
-        {
-            var authorization =
-                context.Request.Headers.Authorization.ToString();
-
-            if (!authorization.StartsWith(
-                "Bearer ",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                return ("", Guid.Empty, Results.Unauthorized());
-            }
-
-            var token = authorization["Bearer ".Length..].Trim();
-
-            if (string.IsNullOrWhiteSpace(token) ||
-                !await authService.ValidarTokenAsync(token))
-            {
-                return ("", Guid.Empty, Results.Unauthorized());
-            }
-
-            if (!Guid.TryParse(
-                context.Request.Headers["X-Usuario-Id"],
-                out var usuario) ||
-                usuario == Guid.Empty)
-            {
-                return (
-                    "",
-                    Guid.Empty,
-                    Results.BadRequest(new
-                    {
-                        mensaje = "El usuario es requerido"
-                    }));
-            }
-
-            return (token, usuario, null);
-        }
-
-        private static async Task RegistrarErrorAsync(
-            IBitacoraServiceClient bitacoraService,
-            Guid usuario,
-            string token)
-        {
-            try
-            {
-                await bitacoraService.RegistrarAsync(
-                    usuario,
-                    "Error tecnico en administracion de cursos",
-                    token);
-            }
-            catch
-            {
-            }
-        }
-    }
-
-    public class CursoRequest
-    {
-        public string CursoCode { get; set; } = string.Empty;
-        public string CarreraCode { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
-        public byte Nivel { get; set; }
+            UnauthorizedAccessException => Results.Unauthorized(),
+            UsuarioRequeridoException => Results.BadRequest(new { mensaje = ex.Message }),
+            ArgumentException when argumentoEsBadRequest => Results.BadRequest(new { mensaje = ex.Message }),
+            ConflictoException => Results.Conflict(new { mensaje = ex.Message }),
+            KeyNotFoundException => Results.NotFound(new { mensaje = ex.Message }),
+            _ => Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500)
+        };
     }
 }

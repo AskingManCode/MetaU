@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using MicroservicioUsuarios.Entities;
 using MicroservicioUsuarios.Repository;
+using MicroservicioUsuarios.Services.Clients;
+using MicroservicioUsuarios.Services.Helpers;
 
 namespace MicroservicioUsuarios.Services
 {
@@ -31,11 +33,21 @@ namespace MicroservicioUsuarios.Services
         public Task<IEnumerable<Usuario>> FiltrarAsync(string? identificacion, string? nombre, string? tipo)
             => _repository.FiltrarAsync(identificacion, nombre, tipo);
 
+        public Task<IEnumerable<Usuario>> ConsultarAsync(string? identificacion, string? nombre, string? tipo)
+        {
+            var hayFiltro = identificacion is not null || nombre is not null || tipo is not null;
+
+            return hayFiltro
+                ? FiltrarAsync(identificacion, nombre, tipo)
+                : ListarAsync();
+        }
+
         public Task<Usuario?> ObtenerAsync(string email) => _repository.ObtenerPorEmailAsync(email);
 
         public async Task<(bool exito, string? error)> ValidarAsync(UsuarioRequest dto, bool esActualizacion, Guid usuarioId, string token)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Nombre)
+            if (dto is null
+                || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Nombre)
                 || string.IsNullOrWhiteSpace(dto.Identificacion) || string.IsNullOrWhiteSpace(dto.TipoIdentificacion)
                 || string.IsNullOrWhiteSpace(dto.IdRol) || (!esActualizacion && string.IsNullOrWhiteSpace(dto.Contrasena)))
             {
@@ -77,8 +89,20 @@ namespace MicroservicioUsuarios.Services
             return (true, null);
         }
 
-        public async Task<int> CrearAsync(UsuarioRequest dto)
+        public async Task<Usuario> CrearAsync(UsuarioRequest dto, Guid usuarioId, string token)
         {
+            var (valido, error) = await ValidarAsync(dto, false, usuarioId, token);
+            if (!valido)
+                throw new ArgumentException(error);
+
+            var existente = await _repository.ObtenerPorEmailAsync(dto.Email);
+            if (existente is not null)
+                throw new InvalidOperationException($"Ya existe un usuario con email '{dto.Email}'");
+
+            var mismaIdentificacion = await _repository.FiltrarAsync(dto.Identificacion, null, null);
+            if (mismaIdentificacion.Any())
+                throw new InvalidOperationException($"Ya existe un usuario con la identificación '{dto.Identificacion}'");
+
             var usuario = new Usuario
             {
                 UsuarioId = Guid.NewGuid(),
@@ -91,25 +115,58 @@ namespace MicroservicioUsuarios.Services
                 Estado = true
             };
 
-            return await _repository.CrearAsync(usuario);
+            var filas = await _repository.CrearAsync(usuario);
+            if (filas <= 0)
+                throw new ApplicationException("No se pudo crear el usuario");
+
+            return await _repository.ObtenerPorEmailAsync(dto.Email) ?? usuario;
         }
 
-        public async Task<int> ActualizarAsync(string email, UsuarioRequest dto)
+        public async Task<(Usuario Anterior, Usuario Actual)> ActualizarAsync(string email, UsuarioRequest dto, Guid usuarioId, string token)
         {
-            var existente = await _repository.ObtenerPorEmailAsync(email);
-            if (existente is null) return 0;
+            var (valido, error) = await ValidarAsync(dto, true, usuarioId, token);
+            if (!valido)
+                throw new ArgumentException(error);
 
-            existente.TipoIdentificacionCode = dto.TipoIdentificacion;
-            existente.Identificacion = dto.Identificacion;
-            existente.NombreCompleto = dto.Nombre;
-            existente.RolCode = dto.IdRol;
+            var anterior = await _repository.ObtenerPorEmailAsync(email);
+            if (anterior is null)
+                throw new KeyNotFoundException($"No existe un usuario con email '{email}'");
+
+            var nuevo = new Usuario
+            {
+                UsuarioId = anterior.UsuarioId,
+                Email = anterior.Email,
+                Estado = anterior.Estado,
+                ContrasenaHash = anterior.ContrasenaHash,
+                TipoIdentificacionCode = dto.TipoIdentificacion,
+                Identificacion = dto.Identificacion,
+                NombreCompleto = dto.Nombre,
+                RolCode = dto.IdRol
+            };
 
             if (!string.IsNullOrWhiteSpace(dto.Contrasena))
-                existente.ContrasenaHash = _passwordHasher.Encriptar(dto.Contrasena);
+                nuevo.ContrasenaHash = _passwordHasher.Encriptar(dto.Contrasena);
 
-            return await _repository.ActualizarAsync(existente);
+            var filas = await _repository.ActualizarAsync(nuevo);
+            if (filas <= 0)
+                throw new ApplicationException("No se pudo actualizar el usuario");
+
+            var actual = await _repository.ObtenerPorEmailAsync(email) ?? nuevo;
+
+            return (anterior, actual);
         }
 
-        public Task<int> EliminarAsync(string email) => _repository.EliminarAsync(email);
+        public async Task<Usuario> EliminarAsync(string email)
+        {
+            var existente = await _repository.ObtenerPorEmailAsync(email);
+            if (existente is null)
+                throw new KeyNotFoundException($"No existe un usuario con email '{email}'");
+
+            var filas = await _repository.EliminarAsync(email);
+            if (filas <= 0)
+                throw new ApplicationException("No se pudo eliminar el usuario");
+
+            return existente;
+        }
     }
 }

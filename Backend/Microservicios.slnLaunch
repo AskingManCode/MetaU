@@ -13,6 +13,38 @@
       {
         "Path": "MicroservicioRoles\\MicroservicioRoles.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioModulos\\MicroservicioModulos.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioUsuarios\\MicroservicioUsuarios.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioParametros\\MicroservicioParametros.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioCarreras\\MicroservicioCarreras.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioCursos\\MicroservicioCursos.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioGrupos\\MicroservicioGrupos.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioMatriculas\\MicroservicioMatriculas.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "MicroservicioListaEstudiantes\\MicroservicioListaEstudiantes.csproj",
+        "Action": "Start"
       }
     ]
   }

@@ -1,4 +1,4 @@
-﻿namespace MicroservicioModulos.Services
+﻿namespace MicroservicioListaEstudiantes.Services.Clients
 {
     public interface IBitacoraServiceClient
     {

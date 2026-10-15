@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace MicroservicioUsuarios.Services
+namespace MicroservicioModulos.Services.Clients
 {
     public class BitacoraServiceClient : IBitacoraServiceClient
     {
@@ -12,7 +12,7 @@ namespace MicroservicioUsuarios.Services
             _httpClient = httpClient;
         }
 
-        public async Task RegistrarAsycn(Guid usuario, string descripcion, string token)
+        public async Task RegistrarAsync(Guid usuario, string descripcion, string token)
         {
             try
             {

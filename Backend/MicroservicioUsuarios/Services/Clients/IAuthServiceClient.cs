@@ -1,4 +1,4 @@
-﻿namespace MicroservicioModulos.Services
+﻿namespace MicroservicioUsuarios.Services.Clients
 {
     public interface IAuthServiceClient
     {

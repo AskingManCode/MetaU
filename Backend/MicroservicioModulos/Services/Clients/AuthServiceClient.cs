@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 
-namespace MicroservicioListaEstudiantes.Services
+namespace MicroservicioModulos.Services.Clients
 {
     public class AuthServiceClient : IAuthServiceClient
     {

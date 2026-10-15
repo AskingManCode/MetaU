@@ -1,4 +1,5 @@
 ﻿using MicroservicioListaEstudiantes.Services;
+using MicroservicioListaEstudiantes.Services.Clients;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MicroservicioListaEstudiantes
@@ -18,6 +19,26 @@ namespace MicroservicioListaEstudiantes
             bool ObtenerUsuarioId(HttpRequest request, out Guid usuarioId)
                 => Guid.TryParse(request.Headers["X-Usuario-Id"], out usuarioId) && usuarioId != Guid.Empty;
 
+            async Task<IResult> EjecutarAsync(Func<Task<IResult>> accion)
+            {
+                try
+                {
+                    return await accion();
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { message = ex.Message });
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return Results.NotFound(new { message = ex.Message });
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.Conflict(new { message = ex.Message });
+                }
+            }
+
             group.MapGet("/", async (
                 HttpRequest request,
                 string? periodo,
@@ -31,14 +52,14 @@ namespace MicroservicioListaEstudiantes
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                if (string.IsNullOrWhiteSpace(periodo) || !Guid.TryParse(periodo, out var periodoId))
-                    return Results.BadRequest(new { message = "El periodo es requerido y debe ser un identificador valido" });
+                return await EjecutarAsync(async () =>
+                {
+                    var listado = await service.ObtenerPorPeriodoAsync(periodo, usuarioId, ObtenerToken(request));
 
-                var listado = await service.ObtenerPorPeriodoAsync(periodoId, usuarioId, ObtenerToken(request));
+                    await bitacoraService.RegistrarAsync(usuarioId, $"El usuario consulta listado de estudiantes del periodo {periodo}", ObtenerToken(request));
 
-                await bitacoraService.RegistrarAsync(usuarioId, $"El usuario consulta listado de estudiantes del periodo {periodo}", ObtenerToken(request));
-
-                return Results.Ok(listado);
+                    return Results.Ok(listado);
+                });
             })
             .WithName("GetListadoEstudiantes")
             .WithOpenApi();

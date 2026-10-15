@@ -1,4 +1,4 @@
-﻿namespace MicroservicioListaEstudiantes.Services
+﻿namespace MicroservicioListaEstudiantes.Services.Clients
 {
     public class CarreraDto
     {

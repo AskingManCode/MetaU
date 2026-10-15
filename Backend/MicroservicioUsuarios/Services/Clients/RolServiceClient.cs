@@ -2,7 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace MicroservicioUsuarios.Services
+namespace MicroservicioUsuarios.Services.Clients
 {
     public class RolServiceClient : IRolServiceClient
     {

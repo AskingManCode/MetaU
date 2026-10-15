@@ -1,4 +1,4 @@
-﻿namespace MicroservicioUsuarios.Services
+﻿namespace MicroservicioListaEstudiantes.Services.Clients
 {
     public interface IAuthServiceClient
     {

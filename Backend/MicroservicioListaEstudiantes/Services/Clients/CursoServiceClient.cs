@@ -2,7 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace MicroservicioListaEstudiantes.Services
+namespace MicroservicioListaEstudiantes.Services.Clients
 {
     public class CursoServiceClient : ICursoServiceClient
     {

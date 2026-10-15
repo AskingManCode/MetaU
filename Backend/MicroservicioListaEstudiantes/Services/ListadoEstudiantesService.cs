@@ -1,4 +1,5 @@
 ﻿using MicroservicioListaEstudiantes.Entities;
+using MicroservicioListaEstudiantes.Services.Clients;
 
 namespace MicroservicioListaEstudiantes.Services
 {
@@ -21,10 +22,13 @@ namespace MicroservicioListaEstudiantes.Services
             _carreraClient = carreraClient;
         }
 
-        public async Task<IEnumerable<EstudianteMatriculado>> ObtenerPorPeriodoAsync(Guid periodo, Guid usuarioId, string token)
+        public async Task<IEnumerable<EstudianteMatriculado>> ObtenerPorPeriodoAsync(string? periodo, Guid usuarioId, string token)
         {
+            if (string.IsNullOrWhiteSpace(periodo) || !Guid.TryParse(periodo, out var periodoId))
+                throw new ArgumentException("El periodo es requerido y debe ser un identificador valido");
+
             var grupos = await _grupoClient.ObtenerTodosAsync(usuarioId, token);
-            var gruposDelPeriodo = grupos.Where(g => g.PeriodoID == periodo).ToList();
+            var gruposDelPeriodo = grupos.Where(g => g.PeriodoID == periodoId).ToList();
 
             var resultado = new List<EstudianteMatriculado>();
 
@@ -46,7 +50,7 @@ namespace MicroservicioListaEstudiantes.Services
                         Identificacion = est.Identificacion,
                         NombreCompleto = est.NombreCompleto,
                         Carrera = carrera?.Nombre ?? "N/D",
-                        Curso = curso?.Nombre ?? grupo.CursoCode, 
+                        Curso = curso?.Nombre ?? grupo.CursoCode,
                         Grupo = grupo.NumeroGrupo.ToString()
                     });
                 }

@@ -8,5 +8,6 @@ namespace MicroservicioPagos.Entities
         public DateTime FechaPago { get; set; }
         public DateTime? FechaReversion { get; set; }
         public string Estado { get; set; } = null!;
+        public FacturaResponse Factura { get; set; } = null!;
     }
 }

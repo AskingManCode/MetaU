@@ -4,9 +4,9 @@ namespace MicroservicioPagos.Services
 {
     public interface IPagosService
     {
-        Task<PagoResponse> CrearAsync(PagoRequest request);
-        Task<PagoResponse> ReversarAsync(Guid pagoId);
-        Task<PagoResponse?> ObtenerPorIDAsync(Guid pagoId);
-        Task<IEnumerable<PagoResponse>> ObtenerPorPeriodoAsync(Guid periodoId);
+        Task<PagoResponse> CrearAsync(Guid facturaId, HttpRequest httpRequest);
+        Task<PagoResponse> ReversarAsync(Guid pagoId, HttpRequest httpRequest);
+        Task<PagoResponse?> ObtenerPorIdAsync(Guid pagoId, HttpRequest httpRequest);
+        Task<IEnumerable<PagoResponse>> ObtenerPorPeriodoAsync(Guid periodoId, HttpRequest httpRequest);
     }
 }

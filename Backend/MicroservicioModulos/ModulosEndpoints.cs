@@ -1,6 +1,8 @@
 ﻿using MicroservicioModulos.Entities;
 using MicroservicioModulos.Services;
+using MicroservicioModulos.Services.Clients;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace MicroservicioModulos
 {
@@ -22,6 +24,27 @@ namespace MicroservicioModulos
             bool ObtenerUsuarioId(HttpRequest request, out Guid usuarioId)
                 => Guid.TryParse(request.Headers["X-Usuario-Id"], out usuarioId) && usuarioId != Guid.Empty;
 
+            // Convierte las excepciones del service en respuestas HTTP
+            async Task<IResult> EjecutarAsync(Func<Task<IResult>> accion)
+            {
+                try
+                {
+                    return await accion();
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { message = ex.Message });
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    return Results.NotFound(new { message = ex.Message });
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.Conflict(new { message = ex.Message });
+                }
+            }
+
             // GET Obtener Todos
             group.MapGet("/", async (
                 HttpRequest request,
@@ -35,9 +58,12 @@ namespace MicroservicioModulos
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                var modulos = await moduloService.ObtenerTodosAsync();
-                await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta modulos", ObtenerToken(request));
-                return Results.Ok(modulos);
+                return await EjecutarAsync(async () =>
+                {
+                    var modulos = await moduloService.ObtenerTodosAsync();
+                    await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta modulos", ObtenerToken(request));
+                    return Results.Ok(modulos);
+                });
             })
             .WithName("GetAllModulos")
             .WithOpenApi();
@@ -56,12 +82,12 @@ namespace MicroservicioModulos
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                var modulo = await moduloService.ObtenerPorIdAsync(id);
-                if (modulo is null)
-                    return Results.NotFound(new { message = $"No existe un modulo con ID '{id}'" });
-
-                await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta modulo " + id, ObtenerToken(request));
-                return Results.Ok(modulo);
+                return await EjecutarAsync(async () =>
+                {
+                    var modulo = await moduloService.ObtenerPorIdAsync(id);
+                    await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta modulo " + id, ObtenerToken(request));
+                    return Results.Ok(modulo);
+                });
             })
             .WithName("GetModuloById")
             .WithOpenApi();
@@ -80,27 +106,12 @@ namespace MicroservicioModulos
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                if (string.IsNullOrWhiteSpace(modulo.IdModulo) || string.IsNullOrWhiteSpace(modulo.Nombre))
-                    return Results.BadRequest(new { message = "El ID y el nombre del modulo son obligatorios y no pueden estar vacíos" });
-
-                if (!System.Text.RegularExpressions.Regex.IsMatch(modulo.IdModulo, @"^[A-Z]{1,15}$"))
-                    return Results.BadRequest(new { message = "El ID del rol solo puede tener letras mayusculas" });
-
-
-                if (!System.Text.RegularExpressions.Regex.IsMatch(modulo.Nombre, @"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"))
-                    return Results.BadRequest(new { message = "El nombre del modulo solo puede tener letras y espacios" });
-
-                var exists = await moduloService.ObtenerPorIdAsync(modulo.IdModulo);
-                if (exists is not null)
-                    return Results.Conflict(new { message = $"Ya existe un modulo con el ID '{modulo.IdModulo}'" });
-
-                var rows = await moduloService.CrearAsync(modulo);
-                if (rows <= 0)
-                    return Results.Problem("No se pudo crear el modulo");
-
-                await bitacoraService.RegistrarAsync(usuarioId, System.Text.Json.JsonSerializer.Serialize(modulo), ObtenerToken(request));
-
-                return Results.Created($"/modulo/{modulo.IdModulo}", modulo);
+                return await EjecutarAsync(async () =>
+                {
+                    var creado = await moduloService.CrearAsync(modulo);
+                    await bitacoraService.RegistrarAsync(usuarioId, JsonSerializer.Serialize(creado), ObtenerToken(request));
+                    return Results.Created($"/modulo/{creado.IdModulo}", creado);
+                });
             })
             .WithName("CreateModulo")
             .WithOpenApi();
@@ -120,29 +131,13 @@ namespace MicroservicioModulos
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                if (!string.Equals(id, modulo.IdModulo, StringComparison.OrdinalIgnoreCase))
-                    return Results.BadRequest(new { message = "El ID de la ruta y el del cuerpo no coinciden" });
-
-                if (string.IsNullOrWhiteSpace(modulo.Nombre))
-                    return Results.BadRequest(new { message = "El nombre del modulo es obligatorio" });
-
-                if (!System.Text.RegularExpressions.Regex.IsMatch(modulo.Nombre, @"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"))
-                    return Results.BadRequest(new { message = "El nombre del modulo solo puede tener letras y espacios" });
-
-                var anterior = await moduloService.ObtenerPorIdAsync(id);
-                if (anterior is null)
-                    return Results.NotFound(new { message = $"No existe un modulo con ID '{id}'" });
-
-                var updated = await moduloService.ActualizarAsync(modulo);
-                if (updated <= 0)
-                    return Results.Problem("No se pudo actualizar el modulo");
-
-                var actual = await moduloService.ObtenerPorIdAsync(id) ?? modulo;
-
-                var detalle = System.Text.Json.JsonSerializer.Serialize(new { anterior, actual });
-                await bitacoraService.RegistrarAsync(usuarioId, detalle, ObtenerToken(request));
-
-                return Results.Ok(actual);
+                return await EjecutarAsync(async () =>
+                {
+                    var (anterior, actual) = await moduloService.ActualizarAsync(id, modulo);
+                    var detalle = JsonSerializer.Serialize(new { anterior, actual });
+                    await bitacoraService.RegistrarAsync(usuarioId, detalle, ObtenerToken(request));
+                    return Results.Ok(actual);
+                });
             })
             .WithName("UpdateModulo")
             .WithOpenApi();
@@ -161,17 +156,12 @@ namespace MicroservicioModulos
                 if (!ObtenerUsuarioId(request, out var usuarioId))
                     return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                var exists = await moduloService.ObtenerPorIdAsync(id);
-                if (exists is null)
-                    return Results.NotFound(new { message = $"No existe un modulo con ID '{id}'" });
-
-                var deleted = await moduloService.EliminarAsync(id);
-                if (deleted <= 0)
-                    return Results.Problem("No se pudo eliminar el modulo");
-
-                await bitacoraService.RegistrarAsync(usuarioId, System.Text.Json.JsonSerializer.Serialize(exists), ObtenerToken(request));
-
-                return Results.NoContent();
+                return await EjecutarAsync(async () =>
+                {
+                    var eliminado = await moduloService.EliminarAsync(id);
+                    await bitacoraService.RegistrarAsync(usuarioId, JsonSerializer.Serialize(eliminado), ObtenerToken(request));
+                    return Results.NoContent();
+                });
             })
             .WithName("DeleteModulo")
             .WithOpenApi();

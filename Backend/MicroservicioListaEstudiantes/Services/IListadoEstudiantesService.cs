@@ -4,6 +4,6 @@ namespace MicroservicioListaEstudiantes.Services
 {
     public interface IListadoEstudiantesService
     {
-        Task<IEnumerable<EstudianteMatriculado>> ObtenerPorPeriodoAsync(Guid periodo, Guid usuarioId, string token);
+        Task<IEnumerable<EstudianteMatriculado>> ObtenerPorPeriodoAsync(string? periodo, Guid usuarioId, string token);
     }
 }

@@ -5,9 +5,9 @@ namespace MicroservicioModulos.Services
     public interface IModuloService
     {
         Task<IEnumerable<Modulos>> ObtenerTodosAsync();
-        Task<Modulos?> ObtenerPorIdAsync(string id);
-        Task<int> CrearAsync(Modulos modulos);
-        Task<int> ActualizarAsync(Modulos modulos);
-        Task<int> EliminarAsync(string id);
+        Task<Modulos> ObtenerPorIdAsync(string id);
+        Task<Modulos> CrearAsync(Modulos modulo);
+        Task<(Modulos Anterior, Modulos Actual)> ActualizarAsync(string id, Modulos modulo);
+        Task<Modulos> EliminarAsync(string id);
     }
 }

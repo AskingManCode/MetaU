@@ -5,9 +5,9 @@ namespace MicroservicioRoles.Services
     public interface IRolService
     {
         Task<IEnumerable<Rol>> ObtenerTodosAsync();
-        Task<Rol?> ObtenerPorIdAsync(string id);
-        Task<int> CrearAsync(Rol rol);
-        Task<int> ActualizarAsync(Rol rol);
-        Task<int> EliminarAsync(string id);
+        Task<Rol> ObtenerPorIdAsync(string id);
+        Task<Rol> CrearAsync(Rol rol);
+        Task<(Rol Anterior, Rol Actual)> ActualizarAsync(string id, Rol rol);
+        Task<Rol> EliminarAsync(string id);
     }
 }

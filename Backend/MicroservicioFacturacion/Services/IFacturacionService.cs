@@ -4,9 +4,9 @@ namespace MicroservicioFacturacion.Services
 {
     public interface IFacturacionService
     {
-        Task<FacturaResponse> CrearAsync(FacturacionRequest request, Guid usuarioId, string token);
-        Task<FacturaResponse> AnularAsync(Guid facturaId);
-        Task<FacturaResponse?> ObtenerPorIdAsync(Guid facturaId);
-        Task<IEnumerable<FacturaResponse>> ObtenerPorPeriodoAsync(Guid periodoId);
+        Task<FacturaResponse> CrearAsync(FacturacionRequest request, HttpRequest httpRequest);
+        Task<FacturaResponse> AnularAsync(Guid facturaId, HttpRequest httpRequest);
+        Task<FacturaResponse?> ObtenerPorIdAsync(Guid facturaId, HttpRequest httpRequest);
+        Task<IEnumerable<FacturaResponse>> ObtenerPorPeriodoAsync(Guid periodoId, HttpRequest httpRequest);
     }
 }

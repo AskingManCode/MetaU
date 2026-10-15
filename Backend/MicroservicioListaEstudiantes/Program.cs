@@ -1,5 +1,6 @@
 using MicroservicioListaEstudiantes;
 using MicroservicioListaEstudiantes.Services;
+using MicroservicioListaEstudiantes.Services.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -2,8 +2,8 @@ namespace MicroservicioFacturacion.Entities
 {
     public class FacturacionRequest
     {
-        public string IdentificacionEstudiante { get; set; } = null!;
+        public string EstudianteIdentificacion { get; set; } = null!;
         public decimal Monto { get; set; }
-        public Guid? PeriodoID { get; set; }
+        public Guid PeriodoID { get; set; }
     }
 }

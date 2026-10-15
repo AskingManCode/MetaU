@@ -1,6 +1,8 @@
 using MicroservicioUsuarios;
 using MicroservicioUsuarios.Repository;
 using MicroservicioUsuarios.Services;
+using MicroservicioUsuarios.Services.Clients;
+using MicroservicioUsuarios.Services.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 

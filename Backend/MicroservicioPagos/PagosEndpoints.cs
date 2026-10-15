@@ -1,7 +1,5 @@
-using FluentValidation;
-using MicroservicioPagos.Entities.DTOs;
+using MicroservicioPagos.Entities;
 using MicroservicioPagos.Services;
-using MicroservicioPagos.Services.Clients;
 using Microsoft.Data.SqlClient;
 
 namespace MicroservicioPagos
@@ -12,240 +10,149 @@ namespace MicroservicioPagos
         {
             var group = app.MapGroup("/pago");
 
-            group.MapPost("", Crear);
-            group.MapPatch("/{PagoID:guid}", Reversar);
-            group.MapGet("/{PagoID:guid}", ObtenerPorID);
-            group.MapGet("/periodo/{PeriodoID:guid}", ObtenerPorPeriodo);
+            group.MapPost("/{FacturaID}", Crear);
+            group.MapPatch("/{PagoID}", Reversar);
+            group.MapGet("/{PagoID}", ObtenerPorID);
+            group.MapGet("/periodo/{PeriodoID}", ObtenerPorPeriodo);
         }
 
         private static async Task<IResult> Crear(
-            PagoRequest request,
+            Guid facturaId,
             HttpRequest httpRequest,
-            IPagosService service,
-            IValidator<PagoRequest> validator,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IPagosService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-            if (error is not null)
-                return error;
-
-            var validationResult = await validator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                var errores = validationResult.Errors.Select(validation => new
-                {
-                    campo = validation.PropertyName,
-                    mensaje = validation.ErrorMessage
-                });
-                return Results.BadRequest(new { errores });
-            }
-
             try
             {
-                var pago = await service.CrearAsync(request);
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Se registró el pago {pago.PagoID} de la factura {pago.FacturaID}.", token);
-                }
-                catch { }
-
+                var pago = await service.CrearAsync(facturaId, httpRequest);
                 return Results.Created($"/pago/{pago.PagoID}", pago);
             }
-            catch (SqlException exception)
+            catch (UnauthorizedAccessException ex)
             {
-                if (exception.Number == 50000)
-                {
-                    var conflicto = exception.Message.Contains("pagada", StringComparison.OrdinalIgnoreCase)
-                        || exception.Message.Contains("anulada", StringComparison.OrdinalIgnoreCase)
-                        || exception.Message.Contains("pendiente", StringComparison.OrdinalIgnoreCase);
-                    try
-                    {
-                        await bitacoraServiceClient.RegistrarBitacoraAsync(
-                            usuario, $"Error al registrar el pago: {exception.Message}", token);
-                    }
-                    catch { }
-
-                    if (exception.Message.Contains("No existe la factura", StringComparison.OrdinalIgnoreCase))
-                        return Results.NotFound(new { mensaje = exception.Message });
-
-                    return conflicto
-                        ? Results.Conflict(new { mensaje = exception.Message })
-                        : Results.BadRequest(new { mensaje = exception.Message });
-                }
-
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, "Error técnico al registrar un pago.", token);
-                }
-                catch { }
-
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (Exception)
+            catch (ArgumentException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, "Error técnico al registrar un pago.", token);
-                }
-                catch { }
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.Conflict(new { mensaje = ex.Message });
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Message.Contains("No existe la factura", StringComparison.OrdinalIgnoreCase))
+                    return Results.NotFound(new { mensaje = ex.Message });
 
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                var esConflicto = ex.Message.Contains("pagada", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("anulada", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("pendiente", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("saldo", StringComparison.OrdinalIgnoreCase);
+
+                return esConflicto
+                    ? Results.Conflict(new { mensaje = ex.Message })
+                    : Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return Results.Json(new 
+                { 
+                    mensaje = "Error interno del servidor" 
+                }, statusCode: 500);
             }
         }
 
         private static async Task<IResult> Reversar(
             Guid PagoID,
             HttpRequest httpRequest,
-            IPagosService service,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IPagosService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-            if (error is not null)
-                return error;
-
             try
             {
-                var pago = await service.ReversarAsync(PagoID);
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Se reversó el pago {PagoID}.", token);
-                }
-                catch { }
-
+                var pago = await service.ReversarAsync(PagoID, httpRequest);
                 return Results.Ok(pago);
             }
-            catch (KeyNotFoundException exception)
+            catch (UnauthorizedAccessException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Intento de reversar un pago inexistente {PagoID}.", token);
-                }
-                catch { }
-
-                return Results.NotFound(new { mensaje = exception.Message });
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (InvalidOperationException exception)
+            catch (KeyNotFoundException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error al reversar el pago {PagoID}: {exception.Message}", token);
-                }
-                catch { }
-
-                return Results.Conflict(new { mensaje = exception.Message });
+                return Results.NotFound(new { mensaje = ex.Message });
             }
-            catch (SqlException)
+            catch (InvalidOperationException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error técnico al reversar el pago {PagoID}.", token);
-                }
-                catch { }
-
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                return Results.Conflict(new { mensaje = ex.Message });
             }
-            catch (Exception)
+            catch (SqlException ex)
             {
-                try
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return Results.Json(new
                 {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error técnico al reversar el pago {PagoID}.", token);
-                }
-                catch { }
-
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
 
         private static async Task<IResult> ObtenerPorID(
             Guid PagoID,
             HttpRequest httpRequest,
-            IPagosService service,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IPagosService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-            if (error is not null)
-                return error;
-
             try
             {
-                var pago = await service.ObtenerPorIDAsync(PagoID);
+                var pago = await service.ObtenerPorIdAsync(PagoID, httpRequest);
+
                 if (pago is null)
                     return Results.NotFound(new { mensaje = $"No se encontró el pago '{PagoID}'." });
 
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Consulta del pago {PagoID}.", token);
-                }
-                catch { }
-
                 return Results.Ok(pago);
             }
-            catch (SqlException exception) when (exception.Number == 50000)
+            catch (UnauthorizedAccessException ex)
             {
-                return Results.NotFound(new { mensaje = exception.Message });
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                try
+                return Results.Json(new
                 {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(usuario, $"Error técnico al consultar el pago {PagoID}.", token);
-                }
-                catch { }
-
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
 
         private static async Task<IResult> ObtenerPorPeriodo(
             Guid PeriodoID,
             HttpRequest httpRequest,
-            IPagosService service,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IPagosService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-            if (error is not null)
-                return error;
-
             try
             {
-                var pagos = await service.ObtenerPorPeriodoAsync(PeriodoID);
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Consulta de pagos del periodo {PeriodoID}.", token);
-                }
-                catch { }
-
+                var pagos = await service.ObtenerPorPeriodoAsync(PeriodoID, httpRequest);
                 return Results.Ok(pagos);
             }
-            catch (SqlException exception) when (exception.Number == 50000)
+            catch (UnauthorizedAccessException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"No se encontraron pagos para el periodo {PeriodoID}: {exception.Message}", token);
-                }
-                catch { }
-
-                return Results.NotFound(new { mensaje = exception.Message });
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                try
+                return Results.Json(new
                 {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error técnico al consultar pagos del periodo {PeriodoID}.", token);
-                }
-                catch { }
-
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
     }

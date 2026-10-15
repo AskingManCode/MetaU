@@ -1,6 +1,7 @@
 /* ============================================================
    STORED PROCEDURE: usp_Pagos_Crear
-   Descripción: Registra el pago del saldo total pendiente de una factura.
+   Descripción: Registra el pago del saldo total pendiente de una factura
+                y marca la factura como PAGADA.
    Base de datos: Facturacion_DB
    ============================================================ */
 
@@ -22,10 +23,7 @@ BEGIN
 
     BEGIN TRY
         IF @FacturaID IS NULL
-        BEGIN
-            RAISERROR('El identificador de la factura es obligatorio.', 16, 1);
-            RETURN;
-        END
+            THROW 50001, 'El identificador de la factura es obligatorio.', 1;
 
         IF NOT EXISTS (
             SELECT 1
@@ -33,10 +31,15 @@ BEGIN
             WHERE EstadoPagoCode = 'ACT'
               AND Estado = 1
         )
-        BEGIN
-            RAISERROR('No existe un estado activo para registrar pagos.', 16, 1);
-            RETURN;
-        END
+            THROW 50002, 'No existe un estado activo para registrar pagos.', 1;
+
+        IF NOT EXISTS (
+            SELECT 1
+            FROM dbo.EstadosFacturas
+            WHERE EstadoFacturaCode = 'PAG'
+              AND Estado = 1
+        )
+            THROW 50003, 'No existe un estado activo ''PAG'' para facturas.', 1;
 
         BEGIN TRANSACTION;
 
@@ -47,28 +50,16 @@ BEGIN
         WHERE factura.FacturaID = @FacturaID;
 
         IF @TotalFactura IS NULL
-        BEGIN
-            RAISERROR('No existe la factura indicada.', 16, 1);
-            RETURN;
-        END
+            THROW 50004, 'No existe la factura indicada.', 1;
 
-        IF @EstadoFactura = 'ANU'
-        BEGIN
-            RAISERROR('No se puede pagar una factura anulada.', 16, 1);
-            RETURN;
-        END
+        IF @EstadoFactura = 'ANU' OR @EstadoFactura = 'ANUL'
+            THROW 50005, 'No se puede pagar una factura anulada.', 1;
 
         IF @EstadoFactura = 'PAG'
-        BEGIN
-            RAISERROR('La factura ya está pagada.', 16, 1);
-            RETURN;
-        END
+            THROW 50006, 'La factura ya está pagada.', 1;
 
         IF @EstadoFactura <> 'PEND'
-        BEGIN
-            RAISERROR('La factura no está pendiente de pago.', 16, 1);
-            RETURN;
-        END
+            THROW 50007, 'La factura no está pendiente de pago.', 1;
 
         SELECT @MontoPagado = ISNULL(SUM(Monto), 0)
         FROM dbo.Pagos WITH (UPDLOCK, HOLDLOCK)
@@ -76,11 +67,9 @@ BEGIN
           AND EstadoPagoCode = 'ACT';
 
         SET @MontoPago = @TotalFactura - @MontoPagado;
+
         IF @MontoPago <= 0
-        BEGIN
-            RAISERROR('La factura no tiene saldo pendiente de pago.', 16, 1);
-            RETURN;
-        END
+            THROW 50008, 'La factura no tiene saldo pendiente de pago.', 1;
 
         DECLARE @PagoCreado TABLE (PagoID UNIQUEIDENTIFIER);
 
@@ -90,28 +79,25 @@ BEGIN
 
         SELECT @PagoID = PagoID FROM @PagoCreado;
 
+        -- Marcar la factura como pagada
         UPDATE dbo.Facturas
         SET EstadoFacturaCode = 'PAG'
         WHERE FacturaID = @FacturaID
           AND EstadoFacturaCode = 'PEND';
 
         IF @@ROWCOUNT <> 1
-            RAISERROR('La factura no está pendiente de pago.', 16, 1);
+            THROW 50009, 'No se pudo actualizar el estado de la factura a pagada.', 1;
 
         COMMIT TRANSACTION;
 
         SELECT @PagoID AS PagoID;
+
     END TRY
     BEGIN CATCH
         IF XACT_STATE() <> 0
             ROLLBACK TRANSACTION;
 
-        DECLARE
-            @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE(),
-            @ErrorSeverity INT = ERROR_SEVERITY(),
-            @ErrorState INT = ERROR_STATE();
-
-        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+        THROW;
     END CATCH
 END
 GO

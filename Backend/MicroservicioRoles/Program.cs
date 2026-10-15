@@ -1,6 +1,7 @@
 using MicroservicioRoles;
 using MicroservicioRoles.Repository;
 using MicroservicioRoles.Services;
+using MicroservicioRoles.Services.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 

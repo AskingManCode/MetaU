@@ -1,52 +1,227 @@
-﻿using MicroservicioCursos.Entities;
-using MicroservicioCursos.Repository;
+﻿using System.Text.Json;
 using System.Text.RegularExpressions;
+using MicroservicioCursos.Entities;
+using MicroservicioCursos.Repository;
 
 namespace MicroservicioCursos.Services
 {
     public class CursoService : ICursoService
     {
         private readonly ICursoRepository _repository;
+        private readonly IAuthServiceClient _authService;
+        private readonly IBitacoraServiceClient _bitacoraService;
 
-        public CursoService(ICursoRepository repository)
+        public CursoService(
+            ICursoRepository repository,
+            IAuthServiceClient authService,
+            IBitacoraServiceClient bitacoraService)
         {
             _repository = repository;
+            _authService = authService;
+            _bitacoraService = bitacoraService;
         }
 
-        public async Task CrearAsync(Curso curso)
+        public Task<Curso> CrearAsync(CursoRequest request, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: false,
+                async () =>
+                {
+                    if (await _repository.ObtenerPorIdAsync(request.CursoCode) is not null)
+                        throw new ConflictoException("El curso ya existe");
+
+                    var curso = CrearCurso(request);
+                    await CrearInternoAsync(curso);
+                    return curso;
+                },
+                curso => JsonSerializer.Serialize(curso));
+
+        public async Task<Curso> ModificarAsync(
+            string cursoCode,
+            CursoRequest request,
+            string? authorization,
+            string? usuarioId)
+        {
+            var resultado = await EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: false,
+                async () =>
+                {
+                    if (!cursoCode.Equals(request.CursoCode, StringComparison.OrdinalIgnoreCase))
+                        throw new ArgumentException("El identificador del curso no coincide con la ruta");
+
+                    var anterior = await _repository.ObtenerPorIdAsync(cursoCode);
+                    if (anterior is null)
+                        throw new KeyNotFoundException("El curso no existe");
+
+                    var curso = CrearCurso(request);
+                    curso.Estado = anterior.Estado;
+                    await ModificarInternoAsync(curso);
+
+                    return (Anterior: anterior, Actual: curso);
+                },
+                resultado => $"Anterior: {JsonSerializer.Serialize(resultado.Anterior)} Actual: {JsonSerializer.Serialize(resultado.Actual)}");
+
+            return resultado.Actual;
+        }
+
+        public Task<Curso> EliminarAsync(string cursoCode, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: true,
+                async () =>
+                {
+                    var curso = await _repository.ObtenerPorIdAsync(cursoCode);
+                    if (curso is null)
+                        throw new KeyNotFoundException("El curso no existe");
+
+                    await _repository.EliminarAsync(cursoCode);
+                    return curso;
+                },
+                curso => JsonSerializer.Serialize(curso));
+
+        public Task<IEnumerable<Curso>> ObtenerTodosAsync(string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: true,
+                () => _repository.ObtenerTodosAsync(),
+                _ => "El usuario consulta cursos");
+
+        public Task<Curso> ObtenerPorIdAsync(string cursoCode, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: true,
+                async () => await _repository.ObtenerPorIdAsync(cursoCode)
+                    ?? throw new KeyNotFoundException("El curso no existe"),
+                _ => "El usuario consulta curso");
+
+        public Task<IEnumerable<Curso>> ObtenerPorCarreraAsync(
+            string carreraCode,
+            string? authorization,
+            string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: false,
+                async () =>
+                {
+                    if (string.IsNullOrWhiteSpace(carreraCode))
+                        throw new ArgumentException("La carrera es requerida");
+
+                    return await _repository.ObtenerPorCarreraAsync(carreraCode);
+                },
+                _ => "El usuario consulta cursos por carrera");
+
+        private async Task CrearInternoAsync(Curso curso)
         {
             ValidarCurso(curso);
             await _repository.CrearAsync(curso);
         }
 
-        public async Task ModificarAsync(Curso curso)
+        private async Task ModificarInternoAsync(Curso curso)
         {
             ValidarCurso(curso);
             await _repository.ModificarAsync(curso);
         }
 
-        public Task EliminarAsync(string cursoCode)
+        private async Task<T> EjecutarAutorizadaAsync<T>(
+            string? authorization,
+            string? usuarioIdHeader,
+            bool registrarErrorEnArgumento,
+            Func<Task<T>> accion,
+            Func<T, string> descripcion)
         {
-            return _repository.EliminarAsync(cursoCode);
+            Acceso? acceso = null;
+
+            try
+            {
+                acceso = await ValidarAccesoAsync(authorization, usuarioIdHeader);
+                var resultado = await accion();
+                await _bitacoraService.RegistrarAsync(acceso.UsuarioId, descripcion(resultado), acceso.Token);
+                return resultado;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                throw;
+            }
+            catch (UsuarioRequeridoException)
+            {
+                throw;
+            }
+            catch (ArgumentException)
+            {
+                if (registrarErrorEnArgumento && acceso is not null)
+                    await RegistrarErrorAsync(acceso.UsuarioId, acceso.Token);
+
+                throw;
+            }
+            catch (ConflictoException)
+            {
+                throw;
+            }
+            catch (KeyNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                if (acceso is not null)
+                    await RegistrarErrorAsync(acceso.UsuarioId, acceso.Token);
+
+                throw;
+            }
         }
 
-        public Task<IEnumerable<Curso>> ObtenerTodosAsync()
+        private async Task<Acceso> ValidarAccesoAsync(string? authorization, string? usuarioIdHeader)
         {
-            return _repository.ObtenerTodosAsync();
+            var token = ObtenerToken(authorization);
+            if (string.IsNullOrWhiteSpace(token) || !await _authService.ValidarTokenAsync(token))
+                throw new UnauthorizedAccessException();
+
+            if (!Guid.TryParse(usuarioIdHeader, out var usuarioId) || usuarioId == Guid.Empty)
+                throw new UsuarioRequeridoException();
+
+            return new Acceso(usuarioId, token);
         }
 
-        public Task<Curso?> ObtenerPorIdAsync(string cursoCode)
+        private static string ObtenerToken(string? authorization)
         {
-            return _repository.ObtenerPorIdAsync(cursoCode);
+            if (string.IsNullOrWhiteSpace(authorization) ||
+                !authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Empty;
+            }
+
+            return authorization["Bearer ".Length..].Trim();
         }
 
-        public Task<IEnumerable<Curso>> ObtenerPorCarreraAsync(string carreraCode)
+        private async Task RegistrarErrorAsync(Guid usuarioId, string token)
         {
-            if (string.IsNullOrWhiteSpace(carreraCode))
-                throw new ArgumentException("La carrera es requerida");
-
-            return _repository.ObtenerPorCarreraAsync(carreraCode);
+            try
+            {
+                await _bitacoraService.RegistrarAsync(
+                    usuarioId,
+                    "Error tecnico en administracion de cursos",
+                    token);
+            }
+            catch
+            {
+            }
         }
+
+        private static Curso CrearCurso(CursoRequest request) => new()
+        {
+            CursoCode = request.CursoCode,
+            CarreraCode = request.CarreraCode,
+            Nombre = request.Nombre,
+            Nivel = request.Nivel,
+            Estado = true
+        };
 
         private static void ValidarCurso(Curso curso)
         {
@@ -68,5 +243,7 @@ namespace MicroservicioCursos.Services
             if (curso.Nivel < 1 || curso.Nivel > 12)
                 throw new ArgumentException("El nivel debe estar entre 1 y 12");
         }
+
+        private sealed record Acceso(Guid UsuarioId, string Token);
     }
 }

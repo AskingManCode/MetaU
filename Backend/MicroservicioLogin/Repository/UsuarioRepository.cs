@@ -1,5 +1,4 @@
 using Dapper;
-using MicroservicioLogin.Database;
 using MicroservicioLogin.Entities;
 
 namespace MicroservicioLogin.Repository

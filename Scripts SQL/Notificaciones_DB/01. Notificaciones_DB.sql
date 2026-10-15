@@ -126,11 +126,18 @@ IF OBJECT_ID('dbo.Notificaciones', 'U') IS NULL
             CHECK (ParametrosJson IS NULL OR ISJSON(ParametrosJson) = 1),
 
         CONSTRAINT CH_Notificaciones_MensajeError_NoVacio
-            CHECK (MensajeError IS NULL
-                    OR (LEN(TRIM(MensajeError)) > 0
-                        AND MensajeError NOT LIKE ' %'
-                        AND MensajeError NOT LIKE '% '
-                        AND MensajeError NOT LIKE '%  %')),
+        CHECK (
+            (
+                EstadoNotificacion = 'ERROR'
+                AND MensajeError IS NOT NULL
+                AND LEN(LTRIM(RTRIM(MensajeError))) > 0
+            )
+            OR
+            (
+                EstadoNotificacion <> 'ERROR'
+                AND (MensajeError IS NULL OR MensajeError = '')
+            )
+        ),
 
         CONSTRAINT CH_Notificaciones_FechaEnvio
             CHECK (FechaEnvio IS NULL OR FechaEnvio >= FechaCreacion),

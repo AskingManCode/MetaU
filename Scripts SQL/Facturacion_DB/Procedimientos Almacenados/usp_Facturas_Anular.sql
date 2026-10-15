@@ -1,6 +1,6 @@
 /* ============================================================
    STORED PROCEDURE: usp_Facturas_Anular
-   Descripción: Anula una factura existente.
+   Descripción: Anula una factura existente (cambia estado a ANU)
    Base de datos: Facturacion_DB
    ============================================================ */
 
@@ -21,26 +21,46 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (
-            SELECT 1
-            FROM dbo.Facturas
-            WHERE FacturaID = @FacturaID
+        -- Verificar que la factura exista
+        IF NOT EXISTS (SELECT 1 FROM dbo.Facturas WHERE FacturaID = @FacturaID)
+        BEGIN
+            -- No existe
+            RETURN;
+        END
+
+        -- Verificar que no esté ya anulada
+        IF EXISTS (
+            SELECT 1 
+            FROM dbo.Facturas 
+            WHERE FacturaID = @FacturaID 
+              AND EstadoFacturaCode = 'ANU'
         )
         BEGIN
-            SELECT CAST(0 AS BIT) AS Anulada;
+            RAISERROR('La factura ya se encuentra anulada.', 16, 1);
+            RETURN;
+        END
+
+        -- Verificar que exista el estado ANU activo
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM dbo.EstadosFacturas 
+            WHERE EstadoFacturaCode = 'ANU' AND Estado = 1
+        )
+        BEGIN
+            RAISERROR('No existe un estado activo ''ANU'' para anular facturas.', 16, 1);
             RETURN;
         END
 
         UPDATE dbo.Facturas
-        SET EstadoFacturaCode = 'ANU',
+        SET 
+            EstadoFacturaCode = 'ANU',
             FechaAnulacion = SYSDATETIME()
         WHERE FacturaID = @FacturaID
           AND EstadoFacturaCode <> 'ANU';
 
-        SELECT CAST(IIF(@@ROWCOUNT = 1, 1, 0) AS BIT) AS Anulada;
     END TRY
     BEGIN CATCH
-        DECLARE
+        DECLARE 
             @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE(),
             @ErrorSeverity INT = ERROR_SEVERITY(),
             @ErrorState INT = ERROR_STATE();

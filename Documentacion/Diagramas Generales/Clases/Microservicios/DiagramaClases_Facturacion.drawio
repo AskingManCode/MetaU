@@ -1,50 +1,149 @@
 <mxfile host="app.diagrams.net">
   <diagram id="IPN1C" name="IPN1 — Facturación (clases)">
-    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="930" pageHeight="1020" math="0" shadow="0">
+    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2050" pageHeight="1400" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="laneA" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#FDE9D9;swimlaneFillColor=#FFFFFF;strokeColor=#C0504D;fontColor=#7A1F1F;fontStyle=1;fontSize=13;" value="SEGURIDAD Y BITÁCORA" vertex="1">
+          <mxGeometry height="1205" width="460" x="30" y="120" as="geometry" />
+        </mxCell>
         <mxCell id="lane" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#FDE9D9;swimlaneFillColor=#FFFFFF;strokeColor=#C0504D;fontColor=#7A1F1F;fontStyle=1;fontSize=13;" value="IPN1 — FACTURACIÓN" vertex="1">
-          <mxGeometry height="710" width="450" x="30" y="120" as="geometry" />
+          <mxGeometry height="1205" width="520" x="520" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="domain" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
-          <mxGeometry height="710" width="390" x="510" y="120" as="geometry" />
+        <mxCell id="laneC" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#FDE9D9;swimlaneFillColor=#FFFFFF;strokeColor=#C0504D;fontColor=#7A1F1F;fontStyle=1;fontSize=13;" value="MICROSERVICIOS EXTERNOS Y DATOS" vertex="1">
+          <mxGeometry height="1205" width="480" x="1070" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="c1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#C0504D;fontSize=11;" value="&lt;b&gt;FacturacionEndpoints&lt;/b&gt;&lt;hr&gt;- servicio: FacturaService&lt;br&gt;- authClient: IAuthClient&lt;hr&gt;+ crear(idEstudiante: String, monto: BigDecimal): Respuesta  &amp;laquo;POST /factura&amp;raquo;&lt;br&gt;+ reversar(idFactura: int): Respuesta  &amp;laquo;PUT /factura/id/anular&amp;raquo;&lt;br&gt;+ obtenerPorId(idFactura: int): Respuesta  &amp;laquo;GET /factura/id&amp;raquo;&lt;br&gt;+ listarPorPeriodo(idPeriodo: int): Respuesta  &amp;laquo;GET /factura?periodo=id&amp;raquo;" vertex="1">
-          <mxGeometry height="160" width="360" x="75" y="180" as="geometry" />
+        <mxCell id="domain" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO" vertex="1">
+          <mxGeometry height="1105" width="390" x="1580" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="s1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FDE9D9;strokeColor=#C0504D;fontSize=11;" value="&lt;b&gt;&amp;laquo;interface&amp;raquo; &amp;laquo;Service&amp;raquo;&lt;br&gt;FacturaService&lt;/b&gt;&lt;hr&gt;+ crear(idEstudiante: String, monto: BigDecimal, usuario: String): Factura&lt;br&gt;+ reversar(idFactura: int, usuario: String): Factura&lt;br&gt;+ obtenerPorId(idFactura: int, usuario: String): Factura&lt;br&gt;+ listarPorPeriodo(idPeriodo: int, usuario: String): List&amp;lt;Factura&amp;gt;&lt;br&gt;- calcularImpuesto(monto: BigDecimal): BigDecimal  &amp;laquo;2 %&amp;raquo;&lt;br&gt;- validarRequeridos(idEstudiante: String, monto: BigDecimal): void&lt;hr&gt;&lt;i&gt;MONTO_CURSO = ₡30.000 · impuesto = 2 % del monto · estado inicial: pendiente.&lt;/i&gt;" vertex="1">
-          <mxGeometry height="195" width="360" x="75" y="375" as="geometry" />
+        <mxCell id="c1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;static&amp;gt;&amp;gt;&lt;br&gt;FacturacionEndpoints&lt;/b&gt;&lt;hr&gt;+ MapFacturacionEndpoints(app)&lt;hr&gt;- Crear(request)&lt;br&gt;- Anular(FacturaID)&lt;br&gt;- ObtenerPorID(FacturaID)&lt;br&gt;- ObtenerPorPeriodo(PeriodoID)&lt;hr&gt;&lt;i&gt;/api/factura: POST · PATCH /{FacturaID}&lt;br&gt;GET /{FacturaID} · GET /periodo/{PeriodoID}&lt;br&gt;Mapea excepciones a 401/400/404/409/500.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="190" width="460" x="550" y="180" as="geometry" />
         </mxCell>
-        <mxCell id="r1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFF9E6;strokeColor=#BF9000;fontSize=11;" value="&lt;b&gt;&amp;laquo;interface&amp;raquo; &amp;laquo;Repository&amp;raquo;&lt;br&gt;FacturaRepository&lt;/b&gt;&lt;hr&gt;+ insertar(factura: Factura): Factura  &amp;laquo;encabezado + detalle&amp;raquo;&lt;br&gt;+ actualizarEstado(idFactura: int, estado: String): void&lt;br&gt;+ buscarPorId(idFactura: int): Factura&lt;br&gt;+ listarPorPeriodo(idPeriodo: int): List&amp;lt;Factura&amp;gt;" vertex="1">
-          <mxGeometry height="105" width="360" x="75" y="595" as="geometry" />
+        <mxCell id="s1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FDE9D9;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IFacturacionService&lt;/b&gt;&lt;hr&gt;+ CrearAsync(request, httpRequest): FacturaResponse&lt;br&gt;+ AnularAsync(facturaId, httpRequest): FacturaResponse&lt;br&gt;+ ObtenerPorIdAsync(facturaId, httpRequest): FacturaResponse?&lt;br&gt;+ ObtenerPorPeriodoAsync(periodoId, httpRequest): IEnumerable&amp;lt;FacturaResponse&amp;gt;" vertex="1">
+          <mxGeometry height="120" width="460" x="550" y="430" as="geometry" />
         </mxCell>
-        <mxCell id="n1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;align=left;spacing=6;" value="&lt;b&gt;Entidad (encabezado):&lt;/b&gt; Factura&lt;br&gt;idFactura (PK) · idEstudiante (FK) · idPeriodo (FK)&lt;br&gt;monto · impuesto · total · estado · detalles" vertex="1">
-          <mxGeometry height="65" width="360" x="75" y="735" as="geometry" />
+        <mxCell id="s2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;FacturacionService&lt;/b&gt;&lt;hr&gt;- _repository: IFacturacionRepository&lt;br&gt;- _matriculaClient: IMatriculaServiceClient&lt;br&gt;- _periodoClient: IPeriodoServiceClient&lt;br&gt;- _authValidator: IAuthServiceValidator&lt;br&gt;- _bitacoraClient: IBitacoraServiceClient&lt;br&gt;- _validator: IValidator&amp;lt;FacturacionRequest&amp;gt;&lt;br&gt;- MontoPorCurso: decimal = 30000&lt;hr&gt;+ CrearAsync(request, httpRequest): FacturaResponse&lt;br&gt;+ AnularAsync(facturaId, httpRequest): FacturaResponse&lt;br&gt;+ ObtenerPorIdAsync(facturaId, httpRequest): FacturaResponse?&lt;br&gt;+ ObtenerPorPeriodoAsync(periodoId, httpRequest): IEnumerable&amp;lt;FacturaResponse&amp;gt;&lt;hr&gt;&lt;i&gt;Valida token, request, periodo y matrícula;&lt;br&gt;monto = cursos × 30000; registra bitácora.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="245" width="460" x="550" y="610" as="geometry" />
         </mxCell>
-        <mxCell id="e1" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;" target="s1" vertex="1">
+        <mxCell id="r1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFF9E6;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IFacturacionRepository&lt;/b&gt;&lt;hr&gt;+ CrearConDetallesAsync(identificacionEstudiante, matriculaId,&lt;br&gt;  periodoId, monto, detalles): Guid&lt;br&gt;+ AnularAsync(facturaId): bool&lt;br&gt;+ ObtenerPorIdAsync(facturaId): FacturaResponse?&lt;br&gt;+ ObtenerPorPeriodoAsync(periodoId): IEnumerable&amp;lt;FacturaResponse&amp;gt;" vertex="1">
+          <mxGeometry height="135" width="460" x="550" y="915" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFF9E6;strokeColor=#BF9000;" value="&lt;b&gt;FacturacionRepository&lt;/b&gt;&lt;hr&gt;- _connectionFactory: IDBConnectionFactory&lt;br&gt;- MapearFactura(rows): FacturaResponse&lt;hr&gt;+ CrearConDetallesAsync(identificacionEstudiante, matriculaId,&lt;br&gt;  periodoId, monto, detalles): Guid&lt;br&gt;+ AnularAsync(facturaId): bool&lt;br&gt;+ ObtenerPorIdAsync(facturaId): FacturaResponse?&lt;br&gt;+ ObtenerPorPeriodoAsync(periodoId): IEnumerable&amp;lt;FacturaResponse&amp;gt;&lt;hr&gt;&lt;i&gt;Dapper · SP dbo.usp_Facturas_* · transacción en CrearConDetallesAsync&lt;/i&gt;" vertex="1">
+          <mxGeometry height="180" width="460" x="550" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;" target="s1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" edge="1" parent="1" source="s1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;" target="r1" vertex="1">
+        <mxCell id="e2" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="s1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" edge="1" parent="1" source="r1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#7F8C8D;fontSize=10;" target="n1" value="persiste" vertex="1">
+        <mxCell id="e3" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;" target="r1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="df" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&amp;laquo;Entity&amp;raquo; (encabezado)&lt;br&gt;&lt;b&gt;Factura&lt;/b&gt;&lt;hr&gt;- idFactura: int&lt;br&gt;- idEstudiante: String&lt;br&gt;- idPeriodo: int&lt;br&gt;- monto: BigDecimal&lt;br&gt;- impuesto: BigDecimal&lt;br&gt;- total: BigDecimal&lt;br&gt;- estado: String&lt;br&gt;- detalles: List&amp;lt;FacturaDetalle&amp;gt;" vertex="1">
-          <mxGeometry height="175" width="300" x="545" y="200" as="geometry" />
-        </mxCell>
-        <mxCell id="dfd" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fillColor=#FFFFFF;strokeColor=#7F8C8D;fontSize=11;" value="&amp;laquo;Entity&amp;raquo; (detalle)&lt;br&gt;&lt;b&gt;FacturaDetalle&lt;/b&gt;&lt;hr&gt;- idDetalle: int&lt;br&gt;- detalle: String = &amp;quot;Servicios estudiantiles&amp;quot;&lt;br&gt;- monto: BigDecimal" vertex="1">
-          <mxGeometry height="100" width="300" x="545" y="415" as="geometry" />
-        </mxCell>
-        <mxCell id="rfd" edge="1" parent="1" source="df" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;startArrow=none;strokeColor=#404040;fontSize=10;" target="dfd" value="1        1..*" vertex="1">
+        <mxCell id="e4" edge="1" parent="1" source="r2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="r1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="iauth" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;dashed=1;fillColor=#FFFFFF;strokeColor=#C0504D;fontSize=11;" value="&amp;laquo;interface&amp;raquo; &amp;laquo;externa - USR5&amp;raquo;&lt;br&gt;&lt;b&gt;IAuthClient&lt;/b&gt;&lt;hr&gt;+ validate(token: String): boolean" vertex="1">
-          <mxGeometry height="65" width="300" x="545" y="555" as="geometry" />
+        <mxCell id="iav" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FDE9D9;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthServiceValidator&lt;/b&gt;&lt;hr&gt;+ ValidarAsync(request: HttpRequest): (Guid, string, IResult?)" vertex="1">
+          <mxGeometry height="80" width="400" x="60" y="180" as="geometry" />
         </mxCell>
-        <mxCell id="ibit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;align=left;spacing=6;" value="&lt;b&gt;Estados de Factura&lt;/b&gt;&lt;br&gt;pendiente → pagada (IPN2) / anulada (reverso)&lt;br&gt;&lt;b&gt;Relaciones externas&lt;/b&gt;&lt;br&gt;idEstudiante → ESTUDIANTE (MAT3)&lt;br&gt;idPeriodo → PERIODO (ACD5)" vertex="1">
-          <mxGeometry height="90" width="300" x="545" y="650" as="geometry" />
+        <mxCell id="av" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;AuthServiceValidator&lt;/b&gt;&lt;hr&gt;- _authClient: IAuthServiceClient&lt;hr&gt;+ ValidarAsync(request: HttpRequest): (Guid, string, IResult?)&lt;hr&gt;&lt;i&gt;Valida Bearer token y header UsuarioGUID.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="125" width="400" x="60" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="iac" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FDE9D9;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthServiceClient&lt;/b&gt;&lt;hr&gt;+ ValidarTokenAsync(token): bool" vertex="1">
+          <mxGeometry height="80" width="400" x="60" y="525" as="geometry" />
+        </mxCell>
+        <mxCell id="ac" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;AuthServiceClient&lt;/b&gt;&lt;hr&gt;- _httpClient: HttpClient&lt;hr&gt;+ ValidarTokenAsync(token): bool&lt;hr&gt;&lt;i&gt;POST validate (Microservicio Login)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="400" x="60" y="675" as="geometry" />
+        </mxCell>
+        <mxCell id="ibc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FDE9D9;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IBitacoraServiceClient&lt;/b&gt;&lt;hr&gt;+ RegistrarBitacoraAsync(usuario, descripcion, token)" vertex="1">
+          <mxGeometry height="80" width="400" x="60" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="bc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;BitacoraServiceClient&lt;/b&gt;&lt;hr&gt;- _httpClient: HttpClient&lt;hr&gt;+ RegistrarBitacoraAsync(usuario, descripcion, token)&lt;hr&gt;&lt;i&gt;POST bitacora (Microservicio Bitácoras)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="400" x="60" y="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="av" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="iav">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="av" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;" target="iac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="ac" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="iac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="bc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="ibc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="imc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FDE9D9;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IMatriculaServiceClient&lt;/b&gt;&lt;hr&gt;+ ObtenerPorEstudianteAsync(identificacion,&lt;br&gt;  usuarioId, token): IReadOnlyList&amp;lt;MatriculaFacturacionResponse&amp;gt;" vertex="1">
+          <mxGeometry height="95" width="420" x="1100" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="mc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;MatriculaServiceClient&lt;/b&gt;&lt;hr&gt;- _httpClient: HttpClient&lt;hr&gt;+ ObtenerPorEstudianteAsync(identificacion,&lt;br&gt;  usuarioId, token): IReadOnlyList&amp;lt;MatriculaFacturacionResponse&amp;gt;&lt;hr&gt;&lt;i&gt;GET matricula/?identificacion=…&lt;/i&gt;" vertex="1">
+          <mxGeometry height="120" width="420" x="1100" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="ipc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FDE9D9;strokeColor=#C0504D;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IPeriodoServiceClient&lt;/b&gt;&lt;hr&gt;+ ObtenerPorIdAsync(periodoId, usuarioId, token): bool" vertex="1">
+          <mxGeometry height="80" width="420" x="1100" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="pc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#C0504D;" value="&lt;b&gt;PeriodoServiceClient&lt;/b&gt;&lt;hr&gt;- _httpClient: HttpClient&lt;hr&gt;+ ObtenerPorIdAsync(periodoId, usuarioId, token): bool&lt;hr&gt;&lt;i&gt;GET periodo/{periodoId} · false si responde 404&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="420" x="1100" y="685" as="geometry" />
+        </mxCell>
+        <mxCell id="idbf" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFF9E6;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IDBConnectionFactory&lt;/b&gt;&lt;hr&gt;+ CreateConnection(): IDbConnection" vertex="1">
+          <mxGeometry height="80" width="420" x="1100" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="dbf" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFF9E6;strokeColor=#BF9000;" value="&lt;b&gt;DBConnectionFactory&lt;/b&gt;&lt;hr&gt;- _configuration: IConfiguration&lt;hr&gt;+ CreateConnection(): IDbConnection&lt;hr&gt;&lt;i&gt;SqlConnection · cadena DefaultConnection&lt;/i&gt;" vertex="1">
+          <mxGeometry height="115" width="420" x="1100" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="mc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="imc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="pc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="ipc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="dbf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;dashed=1;strokeWidth=2;strokeColor=#C0504D;" target="idbf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;exitX=0;exitY=0.3;entryX=1;entryY=0.5;" target="iav">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="220" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;exitX=0;exitY=0.7;entryX=1;entryY=0.5;" target="ibc">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="510" y="900" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;exitX=1;exitY=0.3;entryX=0;entryY=0.5;" target="imc">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1048" y="227" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;exitX=1;exitY=0.7;entryX=0;entryY=0.5;" target="ipc">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1056" y="575" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="r2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#C0504D;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="idbf">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1062" y="1040" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="dreq" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;FacturacionRequest&lt;/b&gt;&lt;hr&gt;+ EstudianteIdentificacion: string&lt;br&gt;+ Monto: decimal&lt;br&gt;+ PeriodoID: Guid" vertex="1">
+          <mxGeometry height="90" width="330" x="1610" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="dval" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;FacturacionRequestValidator&lt;/b&gt;&lt;br&gt;&lt;i&gt;AbstractValidator&amp;lt;FacturacionRequest&amp;gt;&lt;/i&gt;&lt;hr&gt;+ FacturacionRequestValidator()&lt;hr&gt;&lt;i&gt;EstudianteIdentificacion: obligatorio,&lt;br&gt;≤ 30 caracteres, sin solo espacios.&lt;br&gt;Monto: &amp;gt; 0 y múltiplo de 30000.&lt;br&gt;PeriodoID: obligatorio, no vacío.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="165" width="330" x="1610" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="dres" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;FacturaResponse&lt;/b&gt;&lt;hr&gt;+ FacturaID: Guid&lt;br&gt;+ IdentificacionEstudiante: string&lt;br&gt;+ MatriculaID: Guid&lt;br&gt;+ PeriodoID: Guid&lt;br&gt;+ Estado: string&lt;br&gt;+ FechaEmision: DateTime&lt;br&gt;+ FechaAnulacion: DateTime?&lt;br&gt;+ Subtotal: decimal&lt;br&gt;+ PorcentajeImpuesto: decimal&lt;br&gt;+ Impuesto: decimal&lt;br&gt;+ Total: decimal&lt;br&gt;+ Detalles: List&amp;lt;DetalleFacturaResponse&amp;gt;" vertex="1">
+          <mxGeometry height="205" width="330" x="1610" y="535" as="geometry" />
+        </mxCell>
+        <mxCell id="ddet" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;DetalleFacturaResponse&lt;/b&gt;&lt;hr&gt;+ DetalleFacturaID: int&lt;br&gt;+ Descripcion: string&lt;br&gt;+ CursoCode: string&lt;br&gt;+ Monto: decimal" vertex="1">
+          <mxGeometry height="105" width="330" x="1610" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="dmat" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=11;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;MatriculaFacturacionResponse&lt;/b&gt;&lt;hr&gt;+ MatriculaID: Guid&lt;br&gt;+ PeriodoID: Guid&lt;br&gt;+ IdentificacionEstudiante: string&lt;br&gt;+ CursoCode: string&lt;br&gt;+ GrupoCode: string" vertex="1">
+          <mxGeometry height="120" width="330" x="1610" y="945" as="geometry" />
+        </mxCell>
+        <mxCell id="n1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#7F8C8D;fontSize=11;align=left;spacing=6;" value="&lt;b&gt;Program.cs&lt;/b&gt;&lt;br&gt;Singleton: IDBConnectionFactory&lt;br&gt;Scoped: Service, Repository, AuthValidator&lt;br&gt;HttpClient tipado: Auth, Bitácora, Matrículas, Periodos&lt;br&gt;FluentValidation · CORS ClientApps" vertex="1">
+          <mxGeometry height="100" width="330" x="1610" y="1115" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" edge="1" parent="1" source="dval" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#7F8C8D;" target="dreq">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" edge="1" parent="1" source="dres" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeWidth=2;strokeColor=#404040;" target="ddet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="1" vertex="1">
+          <mxGeometry height="16" width="30" x="1782" y="742" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;" value="0..*" vertex="1">
+          <mxGeometry height="16" width="40" x="1782" y="768" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

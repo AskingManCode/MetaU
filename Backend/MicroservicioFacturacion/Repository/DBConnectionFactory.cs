@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 
 namespace MicroservicioFacturacion.Repository
 {
-    public class DBConnectionFactory: IDBConnectionFactory
+    public class DBConnectionFactory : IDBConnectionFactory
     {
         private readonly IConfiguration _configuration;
 

@@ -1,81 +1,168 @@
-using Microsoft.EntityFrameworkCore;
+using Dapper;
 using MicroservicioMatriculas.Entities;
 
 namespace MicroservicioMatriculas.Repository
 {
     public class MatriculaRepository : IMatriculaRepository
     {
-        private readonly MatriculaDbContext _db;
+        private readonly IDbConnectionFactory _conexiones;
 
-        public MatriculaRepository(MatriculaDbContext db)
+        public MatriculaRepository(IDbConnectionFactory conexiones) => _conexiones = conexiones;
+
+        public async Task<Estudiante?> BuscarEstudiantePorIdentificacion(string identificacion)
         {
-            _db = db;
+            const string sql = """
+                SELECT EstudianteID, TipoIdentificacionCode, Identificacion, NombreCompleto, Email, Estado
+                FROM Estudiantes WHERE Identificacion=@identificacion AND Estado=1
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            return await conexion.QuerySingleOrDefaultAsync<Estudiante>(sql, new { identificacion });
         }
 
-        public Task<Estudiante?> BuscarEstudiantePorIdentificacion(string identificacion) =>
-            _db.Estudiantes.AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Identificacion == identificacion && e.Estado);
+        public async Task<int> ContarMatriculadosEnGrupo(string grupoCode)
+        {
+            using var conexion = _conexiones.CrearConexion();
+            return await conexion.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM MatriculasXCursos WHERE GrupoCode=@grupoCode AND Estado=1",
+                new { grupoCode });
+        }
 
-        public Task<int> ContarMatriculadosEnGrupo(string grupoCode) =>
-            _db.MatriculasXCursos.CountAsync(c => c.GrupoCode == grupoCode && c.Estado);
+        public async Task<Matricula?> BuscarMatricula(Guid estudianteId, string carreraCode, Guid periodoId)
+        {
+            const string sql = """
+                SELECT MatriculaID, EstudianteID, CarreraCode, PeriodoID, Estado FROM Matriculas
+                WHERE EstudianteID=@estudianteId AND CarreraCode=@carreraCode AND PeriodoID=@periodoId
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            return await conexion.QuerySingleOrDefaultAsync<Matricula>(sql, new { estudianteId, carreraCode, periodoId });
+        }
 
-        public Task<Matricula?> BuscarMatricula(Guid estudianteId, string carreraCode, Guid periodoId) =>
-            _db.Matriculas.FirstOrDefaultAsync(m =>
-                m.EstudianteID == estudianteId && m.CarreraCode == carreraCode && m.PeriodoID == periodoId);
+        public async Task<MatriculaXCurso?> BuscarCursoEnMatricula(Guid matriculaId, string cursoCode)
+        {
+            const string sql = """
+                SELECT MatriculaXCurso AS MatriculaXCursoID, MatriculaID, CursoCode, GrupoCode, Estado
+                FROM MatriculasXCursos WHERE MatriculaID=@matriculaId AND CursoCode=@cursoCode
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            return await conexion.QuerySingleOrDefaultAsync<MatriculaXCurso>(sql, new { matriculaId, cursoCode });
+        }
 
-        public Task<MatriculaXCurso?> BuscarCursoEnMatricula(Guid matriculaId, string cursoCode) =>
-            _db.MatriculasXCursos.FirstOrDefaultAsync(c =>
-                c.MatriculaID == matriculaId && c.CursoCode == cursoCode);
-
-        public Task<MatriculaXCurso?> BuscarCursoPorId(int matriculaXCursoId) =>
-            _db.MatriculasXCursos
-                .Include(c => c.Matricula)
-                    .ThenInclude(m => m.Estudiante)
-                .FirstOrDefaultAsync(c => c.MatriculaXCursoID == matriculaXCursoId && c.Estado);
+        public async Task<MatriculaXCurso?> BuscarCursoPorId(int matriculaXCursoId)
+        {
+            const string sql = """
+                SELECT mc.MatriculaXCurso AS MatriculaXCursoID, mc.MatriculaID, mc.CursoCode, mc.GrupoCode, mc.Estado,
+                       m.MatriculaID AS MatriculaSeparador, m.MatriculaID, m.EstudianteID, m.CarreraCode, m.PeriodoID, m.Estado,
+                       e.EstudianteID AS EstudianteSeparador, e.EstudianteID, e.TipoIdentificacionCode,
+                       e.Identificacion, e.NombreCompleto, e.Email, e.Estado
+                FROM MatriculasXCursos mc
+                INNER JOIN Matriculas m ON m.MatriculaID=mc.MatriculaID
+                INNER JOIN Estudiantes e ON e.EstudianteID=m.EstudianteID
+                WHERE mc.MatriculaXCurso=@matriculaXCursoId AND mc.Estado=1
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            var filas = await conexion.QueryAsync<MatriculaXCurso, Matricula, Estudiante, MatriculaXCurso>(
+                sql, (detalle, matricula, estudiante) =>
+                {
+                    matricula.Estudiante = estudiante;
+                    detalle.Matricula = matricula;
+                    return detalle;
+                }, new { matriculaXCursoId }, splitOn: "MatriculaSeparador,EstudianteSeparador");
+            return filas.SingleOrDefault();
+        }
 
         public async Task CrearMatriculaAsync(Matricula matricula)
         {
-            _db.Matriculas.Add(matricula);
-            await _db.SaveChangesAsync();
+            const string insertarMatricula = """
+                INSERT INTO Matriculas (EstudianteID, CarreraCode, PeriodoID, Estado)
+                OUTPUT INSERTED.MatriculaID VALUES (@EstudianteID, @CarreraCode, @PeriodoID, @Estado)
+                """;
+            const string insertarCurso = """
+                INSERT INTO MatriculasXCursos (MatriculaID, CursoCode, GrupoCode, Estado)
+                OUTPUT INSERTED.MatriculaXCurso VALUES (@MatriculaID, @CursoCode, @GrupoCode, @Estado)
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            conexion.Open();
+            using var transaccion = conexion.BeginTransaction();
+            try
+            {
+                matricula.MatriculaID = await conexion.QuerySingleAsync<Guid>(insertarMatricula, matricula, transaccion);
+                foreach (var curso in matricula.Cursos)
+                {
+                    curso.MatriculaID = matricula.MatriculaID;
+                    curso.MatriculaXCursoID = await conexion.QuerySingleAsync<int>(insertarCurso, curso, transaccion);
+                }
+                transaccion.Commit();
+            }
+            catch
+            {
+                transaccion.Rollback();
+                throw;
+            }
         }
 
         public async Task AgregarCursoAsync(MatriculaXCurso curso)
         {
-            _db.MatriculasXCursos.Add(curso);
-            await _db.SaveChangesAsync();
+            const string sql = """
+                INSERT INTO MatriculasXCursos (MatriculaID, CursoCode, GrupoCode, Estado)
+                OUTPUT INSERTED.MatriculaXCurso VALUES (@MatriculaID, @CursoCode, @GrupoCode, @Estado)
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            curso.MatriculaXCursoID = await conexion.QuerySingleAsync<int>(sql, curso);
         }
 
-        public Task ActualizarCursoAsync(MatriculaXCurso curso) =>
-            _db.SaveChangesAsync();
+        public async Task ActualizarCursoAsync(MatriculaXCurso curso)
+        {
+            const string sql = """
+                UPDATE MatriculasXCursos SET GrupoCode=@GrupoCode, Estado=@Estado
+                WHERE MatriculaXCurso=@MatriculaXCursoID
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            await conexion.ExecuteAsync(sql, curso);
+        }
 
         public async Task EliminarCursoAsync(MatriculaXCurso curso)
         {
+            using var conexion = _conexiones.CrearConexion();
+            await conexion.ExecuteAsync(
+                "UPDATE MatriculasXCursos SET Estado=0 WHERE MatriculaXCurso=@MatriculaXCursoID", curso);
             curso.Estado = false;
-            await _db.SaveChangesAsync();
         }
 
-        public Task<List<Estudiante>> ListarEstudiantesMatriculados(string cursoCode, string grupoCode) =>
-            _db.MatriculasXCursos.AsNoTracking()
-                .Where(c => c.CursoCode == cursoCode
-                         && c.GrupoCode == grupoCode
-                         && c.Estado
-                         && c.Matricula.Estado
-                         && c.Matricula.Estudiante.Estado)
-                .Select(c => c.Matricula.Estudiante)
-                .ToListAsync();
+        public async Task<List<Estudiante>> ListarEstudiantesMatriculados(string cursoCode, string grupoCode)
+        {
+            const string sql = """
+                SELECT e.EstudianteID, e.TipoIdentificacionCode, e.Identificacion, e.NombreCompleto, e.Email, e.Estado
+                FROM MatriculasXCursos mc
+                INNER JOIN Matriculas m ON m.MatriculaID=mc.MatriculaID
+                INNER JOIN Estudiantes e ON e.EstudianteID=m.EstudianteID
+                WHERE mc.CursoCode=@cursoCode AND mc.GrupoCode=@grupoCode
+                  AND mc.Estado=1 AND m.Estado=1 AND e.Estado=1
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            return (await conexion.QueryAsync<Estudiante>(sql, new { cursoCode, grupoCode })).ToList();
+        }
 
-        public Task<List<MatriculaXCurso>> ListarCursosPorEstudiante(string identificacion) =>
-    _db.MatriculasXCursos
-        .AsNoTracking()
-        .Include(x => x.Matricula)
-            .ThenInclude(x => x.Estudiante)
-        .Where(x =>
-            x.Estado &&
-            x.Matricula.Estado &&
-            x.Matricula.Estudiante.Estado &&
-            x.Matricula.Estudiante.Identificacion == identificacion)
-        .ToListAsync();
+        public async Task<List<MatriculaXCurso>> ListarCursosPorEstudiante(string identificacion)
+        {
+            const string sql = """
+                SELECT mc.MatriculaXCurso AS MatriculaXCursoID, mc.MatriculaID, mc.CursoCode, mc.GrupoCode, mc.Estado,
+                       m.MatriculaID AS MatriculaSeparador, m.MatriculaID, m.EstudianteID, m.CarreraCode, m.PeriodoID, m.Estado,
+                       e.EstudianteID AS EstudianteSeparador, e.EstudianteID, e.TipoIdentificacionCode,
+                       e.Identificacion, e.NombreCompleto, e.Email, e.Estado
+                FROM MatriculasXCursos mc
+                INNER JOIN Matriculas m ON m.MatriculaID=mc.MatriculaID
+                INNER JOIN Estudiantes e ON e.EstudianteID=m.EstudianteID
+                WHERE mc.Estado=1 AND m.Estado=1 AND e.Estado=1 AND e.Identificacion=@identificacion
+                """;
+            using var conexion = _conexiones.CrearConexion();
+            var filas = await conexion.QueryAsync<MatriculaXCurso, Matricula, Estudiante, MatriculaXCurso>(
+                sql, (detalle, matricula, estudiante) =>
+                {
+                    matricula.Estudiante = estudiante;
+                    detalle.Matricula = matricula;
+                    return detalle;
+                }, new { identificacion }, splitOn: "MatriculaSeparador,EstudianteSeparador");
+            return filas.ToList();
+        }
     }
-
-
 }

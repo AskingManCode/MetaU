@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MicroservicioExpedientesEstudiantes;
 using MicroservicioExpedientesEstudiantes.Repository;
 using MicroservicioExpedientesEstudiantes.Services;
@@ -7,9 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<ExpedienteDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
 builder.Services.AddScoped<IExpedienteService, ExpedienteService>();
 

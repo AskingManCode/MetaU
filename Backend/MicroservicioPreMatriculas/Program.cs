@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MicroservicioPreMatriculas;
 using MicroservicioPreMatriculas.Repository;
 using MicroservicioPreMatriculas.Services;
@@ -7,9 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<PrematriculaDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IPrematriculaRepository, PrematriculaRepository>();
 builder.Services.AddScoped<IPrematriculaService, PrematriculaService>();
 

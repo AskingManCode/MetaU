@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MicroservicioNotas;
 using MicroservicioNotas.Repository;
 using MicroservicioNotas.Services;
@@ -7,9 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<NotaDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<INotaRepository, NotaRepository>();
 builder.Services.AddScoped<INotaService, NotaService>();
 

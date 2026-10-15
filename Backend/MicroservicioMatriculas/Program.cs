@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MicroservicioMatriculas;
 using MicroservicioMatriculas.Repository;
 using MicroservicioMatriculas.Services;
@@ -7,9 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<MatriculaDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IMatriculaRepository, MatriculaRepository>();
 builder.Services.AddScoped<IMatriculaService, MatriculaService>();
 

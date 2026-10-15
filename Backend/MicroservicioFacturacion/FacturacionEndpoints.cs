@@ -44,16 +44,14 @@ namespace MicroservicioFacturacion
             }
             catch (SqlException ex)
             {
-                // Errores de negocio que vienen de los SPs (RAISERROR)
+                // Errores de negocio que vienen de los SPs 
                 return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (Exception ex)
             {
                 return Results.Json(new
                 {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                    mensaje = "Error interno del servidor"
                 }, statusCode: 500);
             }
         }

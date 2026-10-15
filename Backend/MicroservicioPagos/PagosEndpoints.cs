@@ -58,11 +58,9 @@ namespace MicroservicioPagos
             }
             catch (Exception ex)
             {
-                return Results.Json(new
-                {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                return Results.Json(new 
+                { 
+                    mensaje = "Error interno del servidor" 
                 }, statusCode: 500);
             }
         }

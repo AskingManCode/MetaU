@@ -1,3 +1,4 @@
+using FluentValidation;
 using MicroservicioFacturacion.Entities;
 using MicroservicioFacturacion.Repository;
 using MicroservicioFacturacion.Services.Clients;
@@ -8,115 +9,117 @@ namespace MicroservicioFacturacion.Services
     {
         private readonly IFacturacionRepository _repository;
         private readonly IMatriculaServiceClient _matriculaClient;
+        private readonly IPeriodoServiceClient _periodoClient;
+        private readonly IAuthServiceValidator _authValidator;
+        private readonly IBitacoraServiceClient _bitacoraClient;
+        private readonly IValidator<FacturacionRequest> _validator;
 
-        public FacturacionService(IFacturacionRepository repository, IMatriculaServiceClient matriculaClient)
+        private const decimal MontoPorCurso = 30000m;
+        private const string DescripcionDetalle = "Servicios estudiantiles";
+
+        public FacturacionService(
+            IFacturacionRepository repository,
+            IMatriculaServiceClient matriculaClient,
+            IPeriodoServiceClient periodoClient,
+            IAuthServiceValidator authValidator,
+            IBitacoraServiceClient bitacoraClient,
+            IValidator<FacturacionRequest> validator)
         {
             _repository = repository;
             _matriculaClient = matriculaClient;
+            _periodoClient = periodoClient;
+            _authValidator = authValidator;
+            _bitacoraClient = bitacoraClient;
+            _validator = validator;
         }
 
-        public async Task<FacturaResponse> CrearAsync(
-            FacturacionRequest request, Guid usuarioId, string token)
+        public async Task<FacturaResponse> CrearAsync(FacturacionRequest request, HttpRequest httpRequest)
         {
-            var matriculas = await _matriculaClient.ObtenerPorEstudianteAsync(request.EstudianteIdentificacion.Trim(), usuarioId, token);
+            var (usuario, token, error) = await _authValidator.ValidarAsync(httpRequest);
+            
+            if (error is not null)
+                throw new UnauthorizedAccessException();
 
-            var elegibles = matriculas
-                .Where(matricula => request.PeriodoID is null || matricula.PeriodoID == request.PeriodoID)
-                .DistinctBy(matricula => matricula.MatriculaID)
-                .ToList();
-
-            if (elegibles.Count == 0)
-                throw new KeyNotFoundException("No existe una matrícula para el estudiante y periodo indicados.");
-
-            if (elegibles.Count > 1)
-                throw new InvalidOperationException("El estudiante tiene varias matrículas; indique el PeriodoID para elegir una.");
-
-            var matricula = elegibles[0];
-            var facturaId = await _repository.CrearAsync(
-                request.ÈstudianteIdentificacion.Trim(),
-                matricula.MatriculaID,
-                matricula.PeriodoID,
-                request.Monto);
-            var factura = await _repository.ObtenerPorIdAsync(facturaId)
-                ?? throw new InvalidOperationException("No se pudo recuperar la factura recién creada.");
-
-            return CrearRespuesta(factura);
-        }
-
-        public async Task<FacturaResponse> AnularAsync(Guid facturaId)
-        {
-            if (!await _repository.AnularAsync(facturaId))
+            var validationResult = await _validator.ValidateAsync(request);
+            
+            if (!validationResult.IsValid)
             {
-                var facturaExistente = await _repository.ObtenerPorIdAsync(facturaId);
-
-                if (facturaExistente is null)
-                    throw new KeyNotFoundException("No existe una factura con el identificador indicado.");
-
-                throw new InvalidOperationException("La factura ya está anulada.");
+                var mensaje = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+                throw new ArgumentException(mensaje);
             }
 
-            var factura = await _repository.ObtenerPorIdAsync(facturaId)
-                ?? throw new InvalidOperationException("No se pudo recuperar la factura anulada.");
-
-            return CrearRespuesta(factura);
-        }
-
-        public async Task<FacturaResponse?> ObtenerPorIdAsync(Guid facturaId)
-        {
-            var factura = await _repository.ObtenerPorIdAsync(facturaId);
-            return factura is null ? null : CrearRespuesta(factura);
-        }
-
-        public async Task<IEnumerable<FacturaResponse>> ObtenerPorPeriodoAsync(Guid periodoId)
-        {
-            var facturas = await _repository.ObtenerPorPeriodoAsync(periodoId);
-            return facturas
-                .GroupBy(factura => factura.FacturaID)
-                .Select(grupo => CrearRespuesta(
-                    grupo.First(),
-                    grupo.Where(factura => factura.DetalleFacturaID.HasValue)));
-        }
-
-        private static FacturaResponse CrearRespuesta(
-            Factura factura,
-            IEnumerable<Factura>? filas = null)
-        {
-            var detalles = filas is null
-                ? factura.DetalleFacturaID.HasValue
-                    ? new List<DetalleFacturaResponse>
-                    {
-                        new()
-                        {
-                            DetalleFacturaID = factura.DetalleFacturaID.Value,
-                            Descripcion = factura.Descripcion!,
-                            CursoCode = factura.CursoCode,
-                            Monto = factura.MontoDetalle!.Value
-                        }
-                    }
-                    : []
-                : filas.Select(fila => new DetalleFacturaResponse
-                {
-                    DetalleFacturaID = fila.DetalleFacturaID!.Value,
-                    Descripcion = fila.Descripcion!,
-                    CursoCode = fila.CursoCode,
-                    Monto = fila.MontoDetalle!.Value
-                }).ToList();
-
-            return new FacturaResponse
+            try
             {
-                FacturaID = factura.FacturaID,
-                EstudianteID = factura.EstudianteID,
-                MatriculaID = factura.MatriculaID,
-                PeriodoID = factura.PeriodoID,
-                Estado = factura.Estado,
-                FechaEmision = factura.FechaEmision,
-                FechaAnulacion = factura.FechaAnulacion,
-                Subtotal = factura.Subtotal,
-                PorcentajeImpuesto = factura.PorcentajeImpuesto,
-                Impuesto = factura.Impuesto,
-                Total = factura.Total,
-                Detalles = detalles
-            };
+                var periodoValido = await _periodoClient.ObtenerPorIdAsync(request.PeriodoID, usuario, token);
+
+                if (!periodoValido)
+                    throw new KeyNotFoundException("El periodo indicado no existe o no está activo.");
+                
+                var matriculas = await _matriculaClient.ObtenerPorEstudianteAsync(
+                    request.EstudianteIdentificacion.Trim(), usuario, token);
+
+                var cursosDelPeriodo = matriculas
+                    .Where(m => m.PeriodoID == request.PeriodoID)
+                    .ToList();
+
+                if (cursosDelPeriodo.Count == 0)
+                    throw new KeyNotFoundException("No se encontró una matrícula activa para el estudiante en el periodo indicado.");
+
+                var montoEsperado = cursosDelPeriodo.Count * MontoPorCurso;
+
+                if (request.Monto != montoEsperado)
+                    throw new ArgumentException($"El monto debe ser {montoEsperado} colones para los {cursosDelPeriodo.Count} cursos matriculados.");
+
+                var matricula = cursosDelPeriodo.First();
+            
+                var facturaId = await _repository.CrearAsync(
+                    matricula.EstudianteID,
+                    matricula.MatriculaID,
+                    request.PeriodoID,
+                    request.Monto);
+                
+                foreach (var curso in cursosDelPeriodo)
+                {
+                    await _repository.AgregarDetalleAsync(facturaId, curso.CursoCode, DescripcionDetalle, MontoPorCurso);
+                }
+
+                var factura = await _repository.ObtenerPorIdAsync(facturaId)
+                    ?? throw new InvalidOperationException("No se pudo recuperar la factura recién creada.");
+                
+                try
+                {
+                    await _bitacoraClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Se creó la factura {factura.FacturaID}: {System.Text.Json.JsonSerializer.Serialize(factura)}",
+                        token);
+                }
+                catch { }
+
+                return factura;
+            }
+            catch (Exception ex) when (ex is not UnauthorizedAccessException)
+            {
+                try
+                {
+                    await _bitacoraClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Error al crear factura para {request.EstudianteIdentificacion}: {ex.Message}",
+                        token);
+                }
+                catch { }
+
+                throw;
+            }
         }
+
+        // Los demás métodos los implementaremos después
+        public Task<FacturaResponse> AnularAsync(Guid facturaId, HttpRequest httpRequest)
+            => throw new NotImplementedException();
+
+        public Task<FacturaResponse?> ObtenerPorIdAsync(Guid facturaId, HttpRequest httpRequest)
+            => throw new NotImplementedException();
+
+        public Task<IEnumerable<FacturaResponse>> ObtenerPorPeriodoAsync(Guid periodoId, HttpRequest httpRequest)
+            => throw new NotImplementedException();
     }
 }

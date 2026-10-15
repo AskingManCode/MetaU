@@ -1,8 +1,5 @@
-using FluentValidation;
 using MicroservicioFacturacion.Entities;
 using MicroservicioFacturacion.Services;
-using MicroservicioFacturacion.Services.Clients;
-using Microsoft.Data.SqlClient;
 
 namespace MicroservicioFacturacion
 {
@@ -13,109 +10,39 @@ namespace MicroservicioFacturacion
             var group = app.MapGroup("/api/factura");
 
             group.MapPost("/", Crear);
-            group.MapPatch("/{FacturaID:guid}", Anular);
-            group.MapGet("/{FacturaID:guid}", ObtenerPorID);
-            group.MapGet("/periodo/{PeriodoID:guid}", ObtenerPorPeriodo);
+            group.MapPatch("/{FacturaID}", Anular);
+            group.MapGet("/{FacturaID}", ObtenerPorID);
+            group.MapGet("/periodo/{PeriodoID}", ObtenerPorPeriodo);
         }
 
         private static async Task<IResult> Crear(
             FacturacionRequest request,
             HttpRequest httpRequest,
-            IFacturacionService service,
-            IValidator<FacturacionRequest> validator,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IFacturacionService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-
-            if (error is not null)
-                return error;
-
-            var validationResult = await validator.ValidateAsync(request);
-
-            if (!validationResult.IsValid)
-            {
-                var errores = validationResult.Errors
-                    .Select(validation => new
-                    {
-                        campo = validation.PropertyName,
-                        mensaje = validation.ErrorMessage
-                    });
-
-                return Results.BadRequest(new { errores });
-            }
-
             try
             {
-                var factura = await service.CrearAsync(request, usuario, token);
-
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario,
-                        $"Se creó la factura {factura.FacturaID}: {System.Text.Json.JsonSerializer.Serialize(factura)}",
-                        token);
-                }
-                catch
-                {
-                }
-
+                var factura = await service.CrearAsync(request, httpRequest);
                 return Results.Created($"/api/factura/{factura.FacturaID}", factura);
             }
-            catch (SqlException exception)
+            catch (UnauthorizedAccessException)
             {
-                if (exception.Number == 50000)
-                {
-                    try
-                    {
-                        await bitacoraServiceClient.RegistrarBitacoraAsync(
-                            usuario, $"Error al crear factura: {exception.Message}", token);
-                    }
-                    catch { }
-
-                    return Results.BadRequest(new { mensaje = exception.Message });
-                }
-
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, "Error técnico al crear factura.", token);
-                }
-                catch { }
-
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                return Results.Unauthorized();
             }
-            catch (KeyNotFoundException exception)
+            catch (ArgumentException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"No se encontró la matrícula para crear la factura: {exception.Message}", token);
-                }
-                catch { }
-
-                return Results.NotFound(new { mensaje = exception.Message });
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
-            catch (InvalidOperationException exception)
+            catch (KeyNotFoundException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Conflicto al crear factura: {exception.Message}", token);
-                }
-                catch { }
-
-                return Results.Conflict(new { mensaje = exception.Message });
+                return Results.NotFound(new { mensaje = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.Conflict(new { mensaje = ex.Message });
             }
             catch (Exception)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, "Error técnico al crear factura.", token);
-                }
-                catch { }
-
                 return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
@@ -123,127 +50,51 @@ namespace MicroservicioFacturacion
         private static async Task<IResult> Anular(
             Guid FacturaID,
             HttpRequest httpRequest,
-            IFacturacionService service,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IFacturacionService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-
-            if (error is not null)
-                return error;
-
             try
             {
-                var factura = await service.AnularAsync(FacturaID);
-
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Se anuló la factura {FacturaID}.", token);
-                }
-                catch { }
-
+                var factura = await service.AnularAsync(FacturaID, httpRequest);
                 return Results.Ok(factura);
             }
-            catch (KeyNotFoundException exception)
+            catch (UnauthorizedAccessException)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Intento de anular factura inexistente {FacturaID}.", token);
-                }
-                catch { }
-
-                // return Results.NotFound(new { mensaje = exception.Message });
-
-                return Results.Problem(
-                    statusCode: 500,
-                    detail: exception.ToString());
+                return Results.Unauthorized();
             }
-            catch (InvalidOperationException exception)
+            catch (KeyNotFoundException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error al anular factura {FacturaID}: {exception.Message}", token);
-                }
-                catch { }
-
-                // return Results.Conflict(new { mensaje = exception.Message });
-
-                return Results.Problem(
-                    statusCode: 500,
-                    detail: exception.ToString());
+                return Results.NotFound(new { mensaje = ex.Message });
             }
-            catch (SqlException ex)
+            catch (InvalidOperationException ex)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error técnico al anular factura {FacturaID}.", token);
-                }
-                catch { }
-
-                // return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
-
-                return Results.Problem(
-                    statusCode: 500,
-                    detail: ex.ToString());
+                return Results.Conflict(new { mensaje = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error técnico al anular factura {FacturaID}.", token);
-                }
-                catch { }
-
-                // return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
-
-                return Results.Problem(
-                    statusCode: 500,
-                    detail: ex.ToString());
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
 
         private static async Task<IResult> ObtenerPorID(
             Guid FacturaID,
             HttpRequest httpRequest,
-            IFacturacionService service,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IFacturacionService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-
-            if (error is not null)
-                return error;
-
             try
             {
-                var factura = await service.ObtenerPorIdAsync(FacturaID);
+                var factura = await service.ObtenerPorIdAsync(FacturaID, httpRequest);
 
                 if (factura is null)
                     return Results.NotFound(new { mensaje = $"No se encontró la factura '{FacturaID}'." });
 
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Consulta de factura {FacturaID}.", token);
-                }
-                catch { }
-
                 return Results.Ok(factura);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Results.Unauthorized();
             }
             catch (Exception)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error técnico al obtener factura {FacturaID}.", token);
-                }
-                catch { }
-
                 return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
@@ -251,37 +102,19 @@ namespace MicroservicioFacturacion
         private static async Task<IResult> ObtenerPorPeriodo(
             Guid PeriodoID,
             HttpRequest httpRequest,
-            IFacturacionService service,
-            IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraServiceClient)
+            IFacturacionService service)
         {
-            var (usuario, token, error) = await authValidator.ValidarAsync(httpRequest);
-
-            if (error is not null)
-                return error;
-
             try
             {
-                var facturas = await service.ObtenerPorPeriodoAsync(PeriodoID);
-
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Consulta de facturación del periodo {PeriodoID}.", token);
-                }
-                catch { }
-
+                var facturas = await service.ObtenerPorPeriodoAsync(PeriodoID, httpRequest);
                 return Results.Ok(facturas);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Results.Unauthorized();
             }
             catch (Exception)
             {
-                try
-                {
-                    await bitacoraServiceClient.RegistrarBitacoraAsync(
-                        usuario, $"Error técnico al consultar facturación del periodo {PeriodoID}.", token);
-                }
-                catch { }
-
                 return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }

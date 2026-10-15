@@ -1,7 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 
-namespace MicroservicioLogin.Database
+namespace MicroservicioLogin.Repository
 {
     public class SqlConnectionFactory : IDbConnectionFactory
     {

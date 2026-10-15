@@ -1,4 +1,4 @@
-﻿namespace MicroservicioCursos.Services
+namespace MicroservicioCursos.Services
 {
     public interface IAuthServiceClient
     {

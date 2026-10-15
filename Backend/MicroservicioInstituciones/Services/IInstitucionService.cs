@@ -4,10 +4,10 @@ namespace MicroservicioInstituciones.Services
 {
     public interface IInstitucionService
     {
-        Task<Institucion?> ObtenerPorIdAsync(string institucionCode);
-        Task<IEnumerable<Institucion>> ObtenerTodosAsync();
-        Task CrearAsync(Institucion institucion);
-        Task<bool> ActualizarAsync(string institucionCode, string nombre);
-        Task<bool> EliminarAsync(string institucionCode);
+        Task<Institucion> ObtenerPorIdAsync(string institucionCode, string? authorization, string? usuarioId);
+        Task<IEnumerable<Institucion>> ObtenerTodosAsync(string? authorization, string? usuarioId);
+        Task<Institucion> CrearAsync(Institucion institucion, string? authorization, string? usuarioId);
+        Task<Institucion> ActualizarAsync(string institucionCode, InstitucionUpdateRequest request, string? authorization, string? usuarioId);
+        Task EliminarAsync(string institucionCode, string? authorization, string? usuarioId);
     }
 }

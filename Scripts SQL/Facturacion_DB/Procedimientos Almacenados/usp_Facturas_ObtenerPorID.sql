@@ -21,7 +21,7 @@ BEGIN
 
     SELECT 
         f.FacturaID,
-        f.EstudianteID,
+        f.IdentificacionEstudiante,
         f.MatriculaID,
         f.PeriodoID,
         e.Nombre AS Estado,

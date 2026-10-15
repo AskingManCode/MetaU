@@ -1,9 +1,9 @@
 using FluentValidation;
 using MicroservicioFacturacion;
-using MicroservicioFacturacion.Entities;
 using MicroservicioFacturacion.Repository;
 using MicroservicioFacturacion.Services;
 using MicroservicioFacturacion.Services.Clients;
+using MicroservicioFacturacion.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS (Permite que cualquier origen consuma el API)
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ClientApps", policy =>
@@ -43,6 +43,7 @@ builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
 
 builder.Services.AddScoped<IAuthServiceValidator, AuthServiceValidator>();
 
+// Bitácora Service Client
 builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(client =>
 {
     var url = builder.Configuration["MicroservicioBitacoras:BaseUrl"];
@@ -53,6 +54,7 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(cl
     client.BaseAddress = new Uri(url);
 });
 
+// Matrículas Service Client
 builder.Services.AddHttpClient<IMatriculaServiceClient, MatriculaServiceClient>(client =>
 {
     var url = builder.Configuration["MicroservicioMatriculas:BaseUrl"];
@@ -63,9 +65,20 @@ builder.Services.AddHttpClient<IMatriculaServiceClient, MatriculaServiceClient>(
     client.BaseAddress = new Uri(url);
 });
 
+// Periodos Service Client
+builder.Services.AddHttpClient<IPeriodoServiceClient, PeriodoServiceClient>(client =>
+{
+    var url = builder.Configuration["MicroservicioPeriodos:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(url))
+        throw new InvalidOperationException("No se configuró 'MicroservicioPeriodos:BaseUrl'");
+
+    client.BaseAddress = new Uri(url);
+});
+
 var app = builder.Build();
 
-// Swagger solo en ambiente de desarrollo
+// Swagger solo en desarrollo
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

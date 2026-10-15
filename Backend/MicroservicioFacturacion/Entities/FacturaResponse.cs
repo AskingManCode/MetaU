@@ -3,7 +3,7 @@
     public class FacturaResponse
     {
         public Guid FacturaID { get; set; }
-        public Guid EstudianteID { get; set; }
+        public string IdentificacionEstudiante { get; set; } = null!;
         public Guid MatriculaID { get; set; }
         public Guid PeriodoID { get; set; }
         public string Estado { get; set; } = null!;

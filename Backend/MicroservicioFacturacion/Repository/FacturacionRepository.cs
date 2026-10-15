@@ -13,36 +13,57 @@ namespace MicroservicioFacturacion.Repository
             _connectionFactory = connectionFactory;
         }
 
-        public async Task<Guid> CrearAsync(Guid estudianteId, Guid matriculaId, Guid periodoId, decimal monto)
+        public async Task<Guid> CrearConDetallesAsync(
+            string identificacionEstudiante,
+            Guid matriculaId,
+            Guid periodoId,
+            decimal monto,
+            IEnumerable<(string CursoCode, string Descripcion, decimal Monto)> detalles)
         {
             using var connection = _connectionFactory.CreateConnection();
+            connection.Open();
 
-            return await connection.QuerySingleAsync<Guid>(
-                "dbo.usp_Facturas_Crear",
-                new
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // Crear encabezado (el SP ya no maneja su propia transacción)
+                var facturaId = await connection.QuerySingleAsync<Guid>(
+                    "dbo.usp_Facturas_Crear",
+                    new
+                    {
+                        IdentificacionEstudiante = identificacionEstudiante,
+                        MatriculaID = matriculaId,
+                        PeriodoID = periodoId,
+                        Monto = monto
+                    },
+                    transaction,
+                    commandType: CommandType.StoredProcedure);
+
+                // Agregar detalles
+                foreach (var detalle in detalles)
                 {
-                    EstudianteID = estudianteId,
-                    MatriculaID = matriculaId,
-                    PeriodoID = periodoId,
-                    Monto = monto
-                },
-                commandType: CommandType.StoredProcedure);
-        }
+                    await connection.ExecuteAsync(
+                        "dbo.usp_Facturas_AgregarDetalle",
+                        new
+                        {
+                            FacturaID = facturaId,
+                            CursoCode = detalle.CursoCode,
+                            Descripcion = detalle.Descripcion,
+                            Monto = detalle.Monto
+                        },
+                        transaction,
+                        commandType: CommandType.StoredProcedure);
+                }
 
-        public async Task AgregarDetalleAsync(Guid facturaId, string cursoCode, string descripcion, decimal monto)
-        {
-            using var connection = _connectionFactory.CreateConnection();
-
-            await connection.ExecuteAsync(
-                "dbo.usp_Facturas_AgregarDetalle",
-                new
-                {
-                    FacturaID = facturaId,
-                    CursoCode = cursoCode,
-                    Descripcion = descripcion,
-                    Monto = monto
-                },
-                commandType: CommandType.StoredProcedure);
+                transaction.Commit();
+                return facturaId;
+            }
+            catch
+            {
+                try { transaction.Rollback(); } catch { /* ya estaba rolled back */ }
+                throw;
+            }
         }
 
         public async Task<bool> AnularAsync(Guid facturaId)
@@ -51,9 +72,7 @@ namespace MicroservicioFacturacion.Repository
 
             var rowsAffected = await connection.ExecuteAsync(
                 "dbo.usp_Facturas_Anular",
-                new { 
-                    FacturaID = facturaId 
-                },
+                new { FacturaID = facturaId },
                 commandType: CommandType.StoredProcedure);
 
             return rowsAffected > 0;
@@ -65,9 +84,7 @@ namespace MicroservicioFacturacion.Repository
 
             var rows = (await connection.QueryAsync(
                 "dbo.usp_Facturas_ObtenerPorID",
-                new { 
-                    FacturaID = facturaId 
-                },
+                new { FacturaID = facturaId },
                 commandType: CommandType.StoredProcedure)).ToList();
 
             if (!rows.Any())
@@ -88,7 +105,6 @@ namespace MicroservicioFacturacion.Repository
             if (!rows.Any())
                 return Enumerable.Empty<FacturaResponse>();
 
-            // Agrupar por FacturaID
             var facturas = rows
                 .GroupBy(r => (Guid)r.FacturaID)
                 .Select(grupo => MapearFactura(grupo.ToList()))
@@ -97,7 +113,6 @@ namespace MicroservicioFacturacion.Repository
             return facturas;
         }
 
-        // Método privado para mapear filas planas -> FacturaResponse
         private static FacturaResponse MapearFactura(List<dynamic> rows)
         {
             var primera = rows.First();
@@ -105,7 +120,7 @@ namespace MicroservicioFacturacion.Repository
             var factura = new FacturaResponse
             {
                 FacturaID = primera.FacturaID,
-                EstudianteID = primera.EstudianteID,
+                IdentificacionEstudiante = primera.IdentificacionEstudiante,
                 MatriculaID = primera.MatriculaID,
                 PeriodoID = primera.PeriodoID,
                 Estado = primera.Estado,

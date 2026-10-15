@@ -4,8 +4,9 @@ namespace MicroservicioFacturacion.Repository
 {
     public interface IFacturacionRepository
     {
-        Task<Guid> CrearAsync(Guid estudianteId, Guid matriculaId, Guid periodoId, decimal monto);
-        Task AgregarDetalleAsync(Guid facturaId, string cursoCode, string descripcion, decimal monto);
+        Task<Guid> CrearConDetallesAsync(string identificacionEstudiante, Guid matriculaId, Guid periodoId, decimal monto,
+            IEnumerable<(string CursoCode, string Descripcion, decimal Monto)> detalles);
+
         Task<bool> AnularAsync(Guid facturaId);
         Task<FacturaResponse?> ObtenerPorIdAsync(Guid facturaId);
         Task<IEnumerable<FacturaResponse>> ObtenerPorPeriodoAsync(Guid periodoId);

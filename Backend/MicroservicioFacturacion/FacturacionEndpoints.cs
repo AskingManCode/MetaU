@@ -1,5 +1,6 @@
 using MicroservicioFacturacion.Entities;
 using MicroservicioFacturacion.Services;
+using Microsoft.Data.SqlClient;
 
 namespace MicroservicioFacturacion
 {
@@ -25,9 +26,9 @@ namespace MicroservicioFacturacion
                 var factura = await service.CrearAsync(request, httpRequest);
                 return Results.Created($"/api/factura/{factura.FacturaID}", factura);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
-                return Results.Unauthorized();
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
             catch (ArgumentException ex)
             {
@@ -41,9 +42,19 @@ namespace MicroservicioFacturacion
             {
                 return Results.Conflict(new { mensaje = ex.Message });
             }
-            catch (Exception)
+            catch (SqlException ex)
             {
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                // Errores de negocio que vienen de los SPs (RAISERROR)
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return Results.Json(new
+                {
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
 
@@ -57,9 +68,9 @@ namespace MicroservicioFacturacion
                 var factura = await service.AnularAsync(FacturaID, httpRequest);
                 return Results.Ok(factura);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
-                return Results.Unauthorized();
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
             catch (KeyNotFoundException ex)
             {
@@ -69,9 +80,18 @@ namespace MicroservicioFacturacion
             {
                 return Results.Conflict(new { mensaje = ex.Message });
             }
-            catch (Exception)
+            catch (SqlException ex)
             {
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return Results.Json(new
+                {
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
 
@@ -89,13 +109,18 @@ namespace MicroservicioFacturacion
 
                 return Results.Ok(factura);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
-                return Results.Unauthorized();
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                return Results.Json(new
+                {
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
 
@@ -109,13 +134,18 @@ namespace MicroservicioFacturacion
                 var facturas = await service.ObtenerPorPeriodoAsync(PeriodoID, httpRequest);
                 return Results.Ok(facturas);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
-                return Results.Unauthorized();
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
+                return Results.Json(new
+                {
+                    mensaje = "Error interno del servidor",
+                    detalle = ex.Message,
+                    tipo = ex.GetType().Name
+                }, statusCode: 500);
             }
         }
     }

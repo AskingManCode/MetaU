@@ -1,24 +1,27 @@
-using FluentValidation;
+﻿using FluentValidation;
+using MicroservicioFacturacion.Entities;
 
-namespace MicroservicioFacturacion.Entities
+namespace MicroservicioFacturacion.Validators
 {
     public class FacturacionRequestValidator : AbstractValidator<FacturacionRequest>
     {
-        private const decimal MontoCurso = 30000m;
+        private const decimal MontoMinimo = 30000m;
 
         public FacturacionRequestValidator()
         {
-            RuleFor(x => x.IdentificacionEstudiante)
+            RuleFor(x => x.EstudianteIdentificacion)
                 .NotEmpty().WithMessage("La identificación del estudiante es obligatoria.")
-                .MaximumLength(50).WithMessage("La identificación no puede superar los 50 caracteres.");
+                .MaximumLength(30).WithMessage("La identificación no puede superar los 30 caracteres.")
+                .Must(id => !string.IsNullOrWhiteSpace(id)).WithMessage("La identificación no puede contener solo espacios.");
 
             RuleFor(x => x.Monto)
                 .GreaterThan(0).WithMessage("El monto debe ser mayor que cero.")
-                .Must(m => m == MontoCurso).WithMessage($"El monto debe ser {MontoCurso} colones.");
+                .Must(monto => monto % MontoMinimo == 0)
+                    .WithMessage($"El monto debe ser un múltiplo de {MontoMinimo} colones.");
 
             RuleFor(x => x.PeriodoID)
-                .Must(periodoId => periodoId is null || periodoId != Guid.Empty)
-                .WithMessage("El periodo no puede ser vacío.");
+                .NotEmpty().WithMessage("El identificador del periodo es obligatorio.")
+                .Must(id => id != Guid.Empty).WithMessage("El identificador del periodo no puede ser vacío.");
         }
     }
 }

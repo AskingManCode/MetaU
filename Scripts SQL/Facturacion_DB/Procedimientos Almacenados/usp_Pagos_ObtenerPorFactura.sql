@@ -28,7 +28,8 @@ BEGIN
     SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
            estado.Nombre AS Estado
     FROM dbo.Pagos AS pago
-    INNER JOIN dbo.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
+    INNER JOIN dbo.EstadosPagos AS estado 
+        ON estado.EstadoPagoCode = pago.EstadoPagoCode
     WHERE pago.FacturaID = @FacturaID
     ORDER BY pago.FechaPago, pago.PagoID;
 END

@@ -1,9 +1,9 @@
-namespace MicroservicioFacturacion.Entities
+namespace MicroservicioPagos.Entities
 {
-    public class Factura
+    public class FacturaResponse
     {
         public Guid FacturaID { get; set; }
-        public Guid EstudianteID { get; set; }
+        public string IdentificacionEstudiante { get; set; } = null!;
         public Guid MatriculaID { get; set; }
         public Guid PeriodoID { get; set; }
         public string Estado { get; set; } = null!;
@@ -13,9 +13,6 @@ namespace MicroservicioFacturacion.Entities
         public decimal PorcentajeImpuesto { get; set; }
         public decimal Impuesto { get; set; }
         public decimal Total { get; set; }
-        public int? DetalleFacturaID { get; set; }
-        public string? Descripcion { get; set; }
-        public string? CursoCode { get; set; }
-        public decimal? MontoDetalle { get; set; }
+        public List<DetalleFacturaResponse> Detalles { get; set; } = [];
     }
 }

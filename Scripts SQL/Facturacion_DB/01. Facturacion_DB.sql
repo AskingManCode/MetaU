@@ -54,7 +54,7 @@ GO
 IF OBJECT_ID('dbo.Facturas', 'U') IS NULL
     CREATE TABLE Facturas (
         FacturaID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
-        EstudianteID UNIQUEIDENTIFIER NOT NULL, -- REF: Matriculas_DB.Estudiantes
+        IdentificacionEstudiante VARCHAR(30) NOT NULL,
         MatriculaID UNIQUEIDENTIFIER NOT NULL, -- REF: Matriculas_DB.Matriculas
         PeriodoID UNIQUEIDENTIFIER NOT NULL, -- REF: Oferta_Academica_DB.Periodos
         EstadoFacturaCode VARCHAR(15) NOT NULL,

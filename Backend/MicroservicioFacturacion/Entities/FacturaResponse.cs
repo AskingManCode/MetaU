@@ -1,4 +1,4 @@
-namespace MicroservicioFacturacion.Entities
+﻿namespace MicroservicioFacturacion.Entities
 {
     public class FacturaResponse
     {
@@ -14,13 +14,5 @@ namespace MicroservicioFacturacion.Entities
         public decimal Impuesto { get; set; }
         public decimal Total { get; set; }
         public List<DetalleFacturaResponse> Detalles { get; set; } = [];
-    }
-
-    public class DetalleFacturaResponse
-    {
-        public int DetalleFacturaID { get; set; }
-        public string Descripcion { get; set; } = null!;
-        public string? CursoCode { get; set; }
-        public decimal Monto { get; set; }
     }
 }

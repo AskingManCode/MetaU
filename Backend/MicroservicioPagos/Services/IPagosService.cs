@@ -1,4 +1,4 @@
-using MicroservicioPagos.Entities.DTOs;
+using MicroservicioPagos.Entities;
 
 namespace MicroservicioPagos.Services
 {

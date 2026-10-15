@@ -18,7 +18,7 @@ namespace MicroservicioFacturacion.Services
         public async Task<FacturaResponse> CrearAsync(
             FacturacionRequest request, Guid usuarioId, string token)
         {
-            var matriculas = await _matriculaClient.ObtenerPorEstudianteAsync(request.IdentificacionEstudiante.Trim(), usuarioId, token);
+            var matriculas = await _matriculaClient.ObtenerPorEstudianteAsync(request.EstudianteIdentificacion.Trim(), usuarioId, token);
 
             var elegibles = matriculas
                 .Where(matricula => request.PeriodoID is null || matricula.PeriodoID == request.PeriodoID)
@@ -33,7 +33,7 @@ namespace MicroservicioFacturacion.Services
 
             var matricula = elegibles[0];
             var facturaId = await _repository.CrearAsync(
-                request.IdentificacionEstudiante.Trim(),
+                request.ÈstudianteIdentificacion.Trim(),
                 matricula.MatriculaID,
                 matricula.PeriodoID,
                 request.Monto);

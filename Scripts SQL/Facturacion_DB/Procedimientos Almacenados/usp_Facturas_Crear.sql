@@ -1,6 +1,6 @@
 /* ============================================================
    STORED PROCEDURE: usp_Facturas_Crear
-   Descripción: Crea una factura pendiente y su detalle.
+   Descripción: Crea el encabezado de una factura pendiente
    Base de datos: Facturacion_DB
    ============================================================ */
 
@@ -8,29 +8,23 @@ USE Facturacion_DB;
 GO
 
 CREATE OR ALTER PROCEDURE dbo.usp_Facturas_Crear
-    @IdentificacionEstudiante VARCHAR(30),
+    @EstudianteID UNIQUEIDENTIFIER,
     @MatriculaID UNIQUEIDENTIFIER,
     @PeriodoID UNIQUEIDENTIFIER,
-    @Monto DECIMAL(12,2)
+    @Monto DECIMAL(12,2) 
 AS
 BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    DECLARE @EstudianteID UNIQUEIDENTIFIER;
     DECLARE @FacturaID UNIQUEIDENTIFIER;
     DECLARE @Impuesto DECIMAL(12,2);
+    DECLARE @Total DECIMAL(12,2);
 
     BEGIN TRY
-        IF @IdentificacionEstudiante IS NULL OR LEN(TRIM(@IdentificacionEstudiante)) = 0
+        IF @EstudianteID IS NULL
         BEGIN
-            RAISERROR('La identificación del estudiante es obligatoria.', 16, 1);
-            RETURN;
-        END
-
-        IF @Monto IS NULL OR @Monto <> 30000
-        BEGIN
-            RAISERROR('El monto debe ser 30000 colones.', 16, 1);
+            RAISERROR('El identificador del estudiante es obligatorio.', 16, 1);
             RETURN;
         END
 
@@ -46,38 +40,25 @@ BEGIN
             RETURN;
         END
 
-        IF NOT EXISTS (
-            SELECT 1
-            FROM dbo.EstadosFacturas
-            WHERE EstadoFacturaCode = 'PEND'
-              AND Estado = 1
-        )
+        IF @Monto IS NULL OR @Monto <= 0
         BEGIN
-            RAISERROR('No existe un estado activo para crear facturas pendientes.', 16, 1);
+            RAISERROR('El monto debe ser mayor que cero.', 16, 1);
             RETURN;
         END
 
-        BEGIN TRANSACTION;
-
-        SELECT @EstudianteID = estudiante.EstudianteID
-        FROM Matriculas_DB.dbo.Matriculas AS matricula
-        INNER JOIN Matriculas_DB.dbo.Estudiantes AS estudiante
-            ON estudiante.EstudianteID = matricula.EstudianteID
-        WHERE matricula.MatriculaID = @MatriculaID
-          AND matricula.PeriodoID = @PeriodoID
-          AND matricula.Estado = 1
-          AND estudiante.Identificacion = TRIM(@IdentificacionEstudiante)
-          AND estudiante.Estado = 1;
-
-        IF @EstudianteID IS NULL
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM dbo.EstadosFacturas 
+            WHERE EstadoFacturaCode = 'PEND' AND Estado = 1
+        )
         BEGIN
-            RAISERROR('La matrícula no corresponde a un estudiante activo con esa identificación.', 16, 1);
+            RAISERROR('No existe un estado activo ''PEND'' para crear facturas.', 16, 1);
             RETURN;
         END
 
         IF EXISTS (
-            SELECT 1
-            FROM dbo.Facturas WITH (UPDLOCK, HOLDLOCK)
+            SELECT 1 
+            FROM dbo.Facturas
             WHERE MatriculaID = @MatriculaID
         )
         BEGIN
@@ -85,32 +66,49 @@ BEGIN
             RETURN;
         END
 
-        SET @Impuesto = ROUND(@Monto * 2 / 100, 2);
+        SET @Impuesto = ROUND(@Monto * 2.00 / 100, 2);
+        SET @Total = @Monto + @Impuesto;
+
+        BEGIN TRANSACTION;
 
         DECLARE @FacturaCreada TABLE (FacturaID UNIQUEIDENTIFIER);
 
         INSERT INTO dbo.Facturas
-            (EstudianteID, MatriculaID, PeriodoID, EstadoFacturaCode,
-             Subtotal, PorcentajeImpuesto, Impuesto, Total)
+        (
+            EstudianteID,
+            MatriculaID,
+            PeriodoID,
+            EstadoFacturaCode,
+            Subtotal,
+            PorcentajeImpuesto,
+            Impuesto,
+            Total
+        )
         OUTPUT INSERTED.FacturaID INTO @FacturaCreada
         VALUES
-            (@EstudianteID, @MatriculaID, @PeriodoID, 'PEND',
-             @Monto, 2, @Impuesto, @Monto + @Impuesto);
+        (
+            @EstudianteID,
+            @MatriculaID,
+            @PeriodoID,
+            'PEND',
+            @Monto,
+            2.00,
+            @Impuesto,
+            @Total
+        );
 
         SELECT @FacturaID = FacturaID FROM @FacturaCreada;
-
-        INSERT INTO dbo.DetallesFacturas (FacturaID, Descripcion, Monto)
-        VALUES (@FacturaID, N'Servicios estudiantiles', @Monto);
 
         COMMIT TRANSACTION;
 
         SELECT @FacturaID AS FacturaID;
+
     END TRY
     BEGIN CATCH
         IF XACT_STATE() <> 0
             ROLLBACK TRANSACTION;
 
-        DECLARE
+        DECLARE 
             @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE(),
             @ErrorSeverity INT = ERROR_SEVERITY(),
             @ErrorState INT = ERROR_STATE();

@@ -1,6 +1,6 @@
 /* ============================================================
    STORED PROCEDURE: usp_Facturas_ObtenerPorID
-   Descripción: Obtiene el encabezado y detalle de una factura.
+   Descripción: Obtiene encabezado + detalle(s) de una factura
    Base de datos: Facturacion_DB
    ============================================================ */
 
@@ -19,13 +19,26 @@ BEGIN
         RETURN;
     END
 
-    SELECT f.FacturaID, f.EstudianteID, f.MatriculaID, f.PeriodoID,
-           e.Nombre AS Estado, f.FechaEmision, f.FechaAnulacion,
-           f.Subtotal, f.PorcentajeImpuesto, f.Impuesto, f.Total,
-           d.DetalleFacturaID, d.Descripcion, d.CursoCode, d.Monto AS MontoDetalle
+    SELECT 
+        f.FacturaID,
+        f.EstudianteID,
+        f.MatriculaID,
+        f.PeriodoID,
+        e.Nombre AS Estado,
+        f.FechaEmision,
+        f.FechaAnulacion,
+        f.Subtotal,
+        f.PorcentajeImpuesto,
+        f.Impuesto,
+        f.Total,
+        d.DetalleFacturaID,
+        d.Descripcion,
+        d.CursoCode,
+        d.Monto AS MontoDetalle
     FROM dbo.Facturas AS f
     INNER JOIN dbo.EstadosFacturas AS e ON e.EstadoFacturaCode = f.EstadoFacturaCode
     LEFT JOIN dbo.DetallesFacturas AS d ON d.FacturaID = f.FacturaID
-    WHERE f.FacturaID = @FacturaID;
+    WHERE f.FacturaID = @FacturaID
+    ORDER BY d.DetalleFacturaID;
 END
 GO

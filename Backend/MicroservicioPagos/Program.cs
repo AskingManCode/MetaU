@@ -1,6 +1,6 @@
 using FluentValidation;
 using MicroservicioPagos;
-using MicroservicioPagos.Entities.DTOs;
+using MicroservicioPagos.Entities;
 using MicroservicioPagos.Repository;
 using MicroservicioPagos.Services;
 using MicroservicioPagos.Services.Clients;

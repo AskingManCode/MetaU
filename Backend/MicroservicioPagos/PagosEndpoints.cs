@@ -1,5 +1,5 @@
 using FluentValidation;
-using MicroservicioPagos.Entities.DTOs;
+using MicroservicioPagos.Entities;
 using MicroservicioPagos.Services;
 using MicroservicioPagos.Services.Clients;
 using Microsoft.Data.SqlClient;
@@ -13,9 +13,9 @@ namespace MicroservicioPagos
             var group = app.MapGroup("/pago");
 
             group.MapPost("", Crear);
-            group.MapPatch("/{PagoID:guid}", Reversar);
-            group.MapGet("/{PagoID:guid}", ObtenerPorID);
-            group.MapGet("/periodo/{PeriodoID:guid}", ObtenerPorPeriodo);
+            group.MapPatch("/{PagoID}", Reversar);
+            group.MapGet("/{PagoID}", ObtenerPorID);
+            group.MapGet("/periodo/{PeriodoID}", ObtenerPorPeriodo);
         }
 
         private static async Task<IResult> Crear(

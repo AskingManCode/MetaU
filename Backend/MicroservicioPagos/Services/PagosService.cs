@@ -1,5 +1,4 @@
 using MicroservicioPagos.Entities;
-using MicroservicioPagos.Entities.DTOs;
 using MicroservicioPagos.Repository;
 
 namespace MicroservicioPagos.Services

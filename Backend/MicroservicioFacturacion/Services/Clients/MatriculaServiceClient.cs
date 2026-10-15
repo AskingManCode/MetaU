@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using MicroservicioFacturacion.Entities.DTOs;
+using MicroservicioFacturacion.Entities;
 
 namespace MicroservicioFacturacion.Services.Clients
 {

@@ -1,6 +1,6 @@
 /* ============================================================
    STORED PROCEDURE: usp_Facturas_ObtenerPorPeriodo
-   Descripción: Lista encabezados y detalles de las facturas de un periodo.
+   Descripción: Lista las facturas (encabezado + detalle) de un periodo
    Base de datos: Facturacion_DB
    ============================================================ */
 
@@ -19,10 +19,22 @@ BEGIN
         RETURN;
     END
 
-    SELECT f.FacturaID, f.EstudianteID, f.MatriculaID, f.PeriodoID,
-           e.Nombre AS Estado, f.FechaEmision, f.FechaAnulacion,
-           f.Subtotal, f.PorcentajeImpuesto, f.Impuesto, f.Total,
-           d.DetalleFacturaID, d.Descripcion, d.CursoCode, d.Monto AS MontoDetalle
+    SELECT 
+        f.FacturaID,
+        f.EstudianteID,
+        f.MatriculaID,
+        f.PeriodoID,
+        e.Nombre AS Estado,
+        f.FechaEmision,
+        f.FechaAnulacion,
+        f.Subtotal,
+        f.PorcentajeImpuesto,
+        f.Impuesto,
+        f.Total,
+        d.DetalleFacturaID,
+        d.Descripcion,
+        d.CursoCode,
+        d.Monto AS MontoDetalle
     FROM dbo.Facturas AS f
     INNER JOIN dbo.EstadosFacturas AS e ON e.EstadoFacturaCode = f.EstadoFacturaCode
     LEFT JOIN dbo.DetallesFacturas AS d ON d.FacturaID = f.FacturaID

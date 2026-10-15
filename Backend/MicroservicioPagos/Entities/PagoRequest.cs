@@ -1,4 +1,4 @@
-namespace MicroservicioPagos.Entities.DTOs
+namespace MicroservicioPagos.Entities
 {
     public class PagoRequest
     {

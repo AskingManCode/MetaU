@@ -1,12 +1,12 @@
 /* ============================================================
-   DATOS INICIALES - Tabla Parametros
-   Base de datos: Configuraciones_DB
+   DATOS INICIALES - Tabla MetaU_DB_User.Parametros
+   Base de datos: tiusr20pl_Configuraciones_DB;
    ============================================================ */
 
-USE Configuraciones_DB;
+USE tiusr20pl_Configuraciones_DB;
 GO
 
-INSERT INTO dbo.Parametros (ParametroCode, Valor)
+INSERT INTO MetaU_DB_User.Parametros (ParametroCode, Valor)
 VALUES
     ('DOMEST', 'cuc.cr'),
     ('DOMPROF', 'cuc.ac.cr'),
@@ -17,6 +17,6 @@ VALUES
     ('IMPPCT', '2'),
     ('CUPOMAX', '30'),
     ('DETFAC', 'Servicios estudiantiles'),
-    ('PAGSIZE', '10'),
+    ('PAGSIZE', '15'),
     ('SYSNAME', 'MetaU');
 GO

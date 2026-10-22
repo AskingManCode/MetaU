@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Parametros_ObtenerPorID
+   STORED PROCEDURE: MetaU_DB_User.usp_Parametros_ObtenerPorID
    Descripción: Consulta un parámetro existente en la tabla Parametros
-   Base de datos: Configuraciones_DB
+   Base de datos: tiusr20pl_Configuraciones_DB
    ============================================================ */
 
-USE Configuraciones_DB;
+USE tiusr20pl_Configuraciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Parametros_ObtenerPorID
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Parametros_ObtenerPorID
     @ParametroCode VARCHAR(10)
 AS
 BEGIN
@@ -17,7 +17,7 @@ BEGIN
         ParametroCode,
         Valor,
         Estado
-    FROM dbo.Parametros
+    FROM MetaU_DB_User.Parametros
     WHERE ParametroCode = UPPER(@ParametroCode)
 END
 GO

@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Parametros_Crear
+   STORED PROCEDURE: MetaU_DB_User.usp_Parametros_Crear
    Descripción: Inserta un nuevo parámetro en la tabla Parametros
    Base de datos: Configuraciones_DB
    ============================================================ */
 
-USE Configuraciones_DB;
+USE tiusr20pl_Configuraciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Parametros_Crear
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Parametros_Crear
     @ParametroCode VARCHAR(10),
     @Valor VARCHAR(500)
 AS
@@ -30,13 +30,13 @@ BEGIN
         END
 
         -- Verificar si ya existe
-        IF EXISTS (SELECT 1 FROM dbo.Parametros WHERE ParametroCode = UPPER(@ParametroCode))
+        IF EXISTS (SELECT 1 FROM MetaU_DB_User.Parametros WHERE ParametroCode = UPPER(@ParametroCode))
         BEGIN
             RAISERROR('Ya existe un parámetro con el código ''%s''.', 16, 1, @ParametroCode);
             RETURN;
         END
 
-        INSERT INTO dbo.Parametros (ParametroCode, Valor)
+        INSERT INTO MetaU_DB_User.Parametros (ParametroCode, Valor)
         OUTPUT 
             INSERTED.ParametroCode,
             INSERTED.Valor,

@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Parametros_ObtenerTodos
+   STORED PROCEDURE: MetaU_DB_User.usp_Parametros_ObtenerTodos
    Descripción: Consulta todos los parámetros de la tabla Parametros
-   Base de datos: Configuraciones_DB
+   Base de datos: tiusr20pl_Configuraciones_DB
    ============================================================ */
 
-USE Configuraciones_DB;
+USE tiusr20pl_Configuraciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Parametros_ObtenerTodos
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Parametros_ObtenerTodos
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -16,7 +16,7 @@ BEGIN
         ParametroCode,
         Valor,
         Estado
-    FROM dbo.Parametros
+    FROM MetaU_DB_User.Parametros
     ORDER BY ParametroCode;
 END
 GO

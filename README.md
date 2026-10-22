@@ -6,9 +6,13 @@ El sistema se está construyendo con microservicios para separar las partes. Tod
 
 ## Estado del proyecto
 
-La **Fase 0 - Análisis, documentación y diseño base** ya está finalizada. Ahora estamos en la **Fase 1 - Infraestructura transversal y seguridad**.
+La **Fase 0 - Análisis, documentación y diseño base** ya está finalizada.
 
-En la Fase 1 se van a desarrollar los servicios que necesitan los demás módulos:
+La **Fase 1 - Infraestructura transversal y seguridad** se encuentra en etapa de **despliegue**. Los servicios base (Bitácoras, Login, Usuarios, Roles, Parametrización y Módulos) están siendo estabilizados, desplegados y validados.
+
+En paralelo se está iniciando la **planeación del Frontend** (sitio web y aplicación móvil).
+
+### Servicios de la Fase 1
 
 | HU | Servicio | Alcance |
 | --- | --- | --- |
@@ -19,11 +23,11 @@ En la Fase 1 se van a desarrollar los servicios que necesitan los demás módulo
 | USR3 | Parametrización | Configuración de parámetros del sistema. |
 | USR4 | Módulos | Administración de los módulos disponibles. |
 
-También se harán pruebas técnicas individuales para cada HU. Para cerrar esta fase, los servicios deben quedar estables y desplegados, y se debe comprobar el registro en bitácoras y la validación de tokens. Después de eso se continuará con los módulos de negocio.
+Para cerrar esta fase, los servicios deben quedar estables y desplegados, y se debe comprobar el registro en bitácoras y la validación de tokens. Después se continuará con los módulos de negocio.
 
 ## Qué incluye el sistema
 
-Además de los servicios de la fase actual, el proyecto contempla:
+Además de los servicios de infraestructura y seguridad, el proyecto contempla:
 
 - Oferta académica, como instituciones, carreras, cursos, grupos y periodos.
 - Matrícula y expedientes de estudiantes, incluyendo prematrícula.
@@ -32,11 +36,11 @@ Además de los servicios de la fase actual, el proyecto contempla:
 
 ## Tecnologías
 
-- **Backend:** .NET 10 y ASP.NET Core Web API.
+- **Backend:** .NET 10 y ASP.NET Core Web API (Minimal APIs).
 - **Base de datos:** SQL Server.
-- **Hosting previsto:** Plesk.
+- **Hosting:** Plesk (en proceso de despliegue).
 - **Control de versiones:** Git y GitHub.
-- **Frontend:** se planean un sitio web y una aplicación móvil; las tecnologías todavía están por definirse.
+- **Frontend:** En fase de planeación (sitio web y aplicación móvil). Tecnologías por definir.
 
 [Ver el diagrama de arquitectura](<Documentacion/Diagramas Generales/Diagrama de Arquitectura de MetaU.png>)
 
@@ -61,7 +65,7 @@ La configuración y los detalles de cada microservicio se deben revisar antes de
 
 - [`Backend/`](Backend/): código de los microservicios y la solución .NET.
 - [`Documentacion/`](Documentacion/): análisis, diagramas y documentos del proyecto. Consulta su [README](Documentacion/README.md) para encontrar los archivos.
-- [`Frontend/`](Frontend/): documentación inicial del sitio web y la aplicación móvil.
+- [`Frontend/`](Frontend/): documentación inicial y planeación del sitio web y la aplicación móvil.
 - [`Pruebas Tecnicas/`](Pruebas%20Tecnicas/): evidencia de pruebas técnicas.
 - [`Scripts SQL/`](Scripts%20SQL/): scripts de base de datos. Consulta su [README](Scripts%20SQL/README.md) antes de usarlos.
 

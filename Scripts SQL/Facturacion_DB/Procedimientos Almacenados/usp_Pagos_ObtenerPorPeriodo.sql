@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Pagos_ObtenerPorPeriodo
+   STORED PROCEDURE: MetaU_DB_User.usp_Pagos_ObtenerPorPeriodo
    Descripción: Lista los pagos de las facturas de un periodo.
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Pagos_ObtenerPorPeriodo
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Pagos_ObtenerPorPeriodo
     @PeriodoID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -21,9 +21,9 @@ BEGIN
 
     SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
            estado.Nombre AS Estado
-    FROM dbo.Pagos AS pago
-    INNER JOIN dbo.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
-    INNER JOIN dbo.Facturas AS factura ON factura.FacturaID = pago.FacturaID
+    FROM MetaU_DB_User.Pagos AS pago
+    INNER JOIN MetaU_DB_User.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
+    INNER JOIN MetaU_DB_User.Facturas AS factura ON factura.FacturaID = pago.FacturaID
     WHERE factura.PeriodoID = @PeriodoID
     ORDER BY pago.FechaPago, pago.PagoID;
 END

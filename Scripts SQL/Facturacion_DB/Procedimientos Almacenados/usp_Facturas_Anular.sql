@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Facturas_Anular
+   STORED PROCEDURE: MetaU_DB_User.usp_Facturas_Anular
    Descripción: Anula una factura existente (cambia estado a ANU)
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Facturas_Anular
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Facturas_Anular
     @FacturaID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -22,7 +22,7 @@ BEGIN
         END
 
         -- Verificar que la factura exista
-        IF NOT EXISTS (SELECT 1 FROM dbo.Facturas WHERE FacturaID = @FacturaID)
+        IF NOT EXISTS (SELECT 1 FROM MetaU_DB_User.Facturas WHERE FacturaID = @FacturaID)
         BEGIN
             -- No existe
             RETURN;
@@ -31,7 +31,7 @@ BEGIN
         -- Verificar que no esté ya anulada
         IF EXISTS (
             SELECT 1 
-            FROM dbo.Facturas 
+            FROM MetaU_DB_User.Facturas 
             WHERE FacturaID = @FacturaID 
               AND EstadoFacturaCode = 'ANU'
         )
@@ -43,7 +43,7 @@ BEGIN
         -- Verificar que exista el estado ANU activo
         IF NOT EXISTS (
             SELECT 1 
-            FROM dbo.EstadosFacturas 
+            FROM MetaU_DB_User.EstadosFacturas 
             WHERE EstadoFacturaCode = 'ANU' AND Estado = 1
         )
         BEGIN
@@ -51,7 +51,7 @@ BEGIN
             RETURN;
         END
 
-        UPDATE dbo.Facturas
+        UPDATE MetaU_DB_User.Facturas
         SET 
             EstadoFacturaCode = 'ANU',
             FechaAnulacion = SYSDATETIME()

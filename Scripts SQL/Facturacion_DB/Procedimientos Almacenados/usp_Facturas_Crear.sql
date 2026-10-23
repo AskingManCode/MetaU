@@ -1,14 +1,14 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Facturas_Crear
+   STORED PROCEDURE: MetaU_DB_User.usp_Facturas_Crear
    Descripción: Crea el encabezado de una factura pendiente
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    NOTA: La transacción la controla el repositorio (C#)
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Facturas_Crear
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Facturas_Crear
     @IdentificacionEstudiante VARCHAR(30),
     @MatriculaID UNIQUEIDENTIFIER,
     @PeriodoID UNIQUEIDENTIFIER,
@@ -19,8 +19,8 @@ BEGIN
     SET XACT_ABORT ON;
 
     DECLARE @FacturaID UNIQUEIDENTIFIER;
-    DECLARE @Impuesto  DECIMAL(12,2);
-    DECLARE @Total     DECIMAL(12,2);
+    DECLARE @Impuesto DECIMAL(12,2);
+    DECLARE @Total DECIMAL(12,2);
 
     IF @IdentificacionEstudiante IS NULL OR LEN(TRIM(@IdentificacionEstudiante)) = 0
     BEGIN
@@ -47,7 +47,7 @@ BEGIN
     END
 
     IF NOT EXISTS (
-        SELECT 1 FROM dbo.EstadosFacturas 
+        SELECT 1 FROM MetaU_DB_User.EstadosFacturas 
         WHERE EstadoFacturaCode = 'PEND' AND Estado = 1
     )
     BEGIN
@@ -56,7 +56,7 @@ BEGIN
     END
 
     IF EXISTS (
-        SELECT 1 FROM dbo.Facturas WITH (UPDLOCK, HOLDLOCK)
+        SELECT 1 FROM MetaU_DB_User.Facturas WITH (UPDLOCK, HOLDLOCK)
         WHERE MatriculaID = @MatriculaID
     )
     BEGIN
@@ -65,11 +65,11 @@ BEGIN
     END
 
     SET @Impuesto = ROUND(@Monto * 2.00 / 100, 2);
-    SET @Total    = @Monto + @Impuesto;
+    SET @Total = @Monto + @Impuesto;
 
     DECLARE @FacturaCreada TABLE (FacturaID UNIQUEIDENTIFIER);
 
-    INSERT INTO dbo.Facturas
+    INSERT INTO MetaU_DB_User.Facturas
     (
         IdentificacionEstudiante,
         MatriculaID,

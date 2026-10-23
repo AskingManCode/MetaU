@@ -1,17 +1,17 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Facturas_AgregarDetalle
+   STORED PROCEDURE: MetaU_DB_User.usp_Facturas_AgregarDetalle
    Descripción: Agrega un detalle a una factura existente
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Facturas_AgregarDetalle
-    @FacturaID      UNIQUEIDENTIFIER,
-    @CursoCode      VARCHAR(15),
-    @Descripcion    VARCHAR(150),
-    @Monto          DECIMAL(12,2)
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Facturas_AgregarDetalle
+    @FacturaID UNIQUEIDENTIFIER,
+    @CursoCode VARCHAR(15),
+    @Descripcion VARCHAR(150),
+    @Monto DECIMAL(12,2)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -41,13 +41,13 @@ BEGIN
         RETURN;
     END
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.Facturas WHERE FacturaID = @FacturaID)
+    IF NOT EXISTS (SELECT 1 FROM MetaU_DB_User.Facturas WHERE FacturaID = @FacturaID)
     BEGIN
         RAISERROR('No existe una factura con el identificador indicado.', 16, 1);
         RETURN;
     END
 
-    INSERT INTO dbo.DetallesFacturas
+    INSERT INTO MetaU_DB_User.DetallesFacturas
     (
         FacturaID,
         CursoCode,
@@ -69,7 +69,7 @@ BEGIN
         CursoCode,
         Descripcion,
         Monto
-    FROM dbo.DetallesFacturas
+    FROM MetaU_DB_User.DetallesFacturas
     WHERE DetalleFacturaID = SCOPE_IDENTITY();
 END
 GO

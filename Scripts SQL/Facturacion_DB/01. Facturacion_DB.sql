@@ -1,15 +1,15 @@
 /* ============================================================
-   BASE DE DATOS: Facturacion_DB
+   BASE DE DATOS: tiusr20pl_Facturacion_DB;
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Facturacion_DB') IS NULL
+IF DB_ID('tiusr20pl_Facturacion_DB') IS NULL
 BEGIN
-    CREATE DATABASE Facturacion_DB;
+    CREATE DATABASE tiusr20pl_Facturacion_DB;
 END
 GO
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
 /* NOTA: las columnas marcadas como REF en el diagrama apuntan a tablas de otras
@@ -17,12 +17,17 @@ GO
    que se documentan con un comentario en línea (-- REF: Base.Tabla) y su
    integridad debe validarse desde la capa de aplicación. */
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
+
 
 /* ============================================================
    CATÁLOGOS DE FACTURACIÓN
    ============================================================ */
-IF OBJECT_ID('dbo.EstadosFacturas', 'U') IS NULL
-    CREATE TABLE EstadosFacturas (
+IF OBJECT_ID('MetaU_DB_User.EstadosFacturas', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.EstadosFacturas (
         EstadoFacturaCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL, --- Pendiente, Pagada, Anulada
         Estado BIT NOT NULL DEFAULT 1,
@@ -51,8 +56,8 @@ GO
 /* ============================================================
    FACTURAS Y DETALLES
    ============================================================ */
-IF OBJECT_ID('dbo.Facturas', 'U') IS NULL
-    CREATE TABLE Facturas (
+IF OBJECT_ID('MetaU_DB_User.Facturas', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Facturas (
         FacturaID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         IdentificacionEstudiante VARCHAR(30) NOT NULL,
         MatriculaID UNIQUEIDENTIFIER NOT NULL, -- REF: Matriculas_DB.Matriculas
@@ -70,7 +75,7 @@ IF OBJECT_ID('dbo.Facturas', 'U') IS NULL
 
         CONSTRAINT FK_Facturas_EstadoFactura
             FOREIGN KEY (EstadoFacturaCode)
-            REFERENCES EstadosFacturas(EstadoFacturaCode),
+            REFERENCES MetaU_DB_User.EstadosFacturas(EstadoFacturaCode),
 
         CONSTRAINT CH_Facturas_Subtotal
             CHECK (Subtotal >= 0),
@@ -99,24 +104,24 @@ IF NOT EXISTS (
     SELECT 1
     FROM sys.indexes
     WHERE name = 'UX_Facturas_MatriculaID'
-      AND object_id = OBJECT_ID('dbo.Facturas')
+      AND object_id = OBJECT_ID('MetaU_DB_User.Facturas')
 )
     CREATE UNIQUE INDEX UX_Facturas_MatriculaID
-        ON dbo.Facturas (MatriculaID);
+        ON MetaU_DB_User.Facturas (MatriculaID);
 GO
 
 IF NOT EXISTS (
     SELECT 1
     FROM sys.indexes
     WHERE name = 'IX_Facturas_PeriodoID_FechaEmision'
-      AND object_id = OBJECT_ID('dbo.Facturas')
+      AND object_id = OBJECT_ID('MetaU_DB_User.Facturas')
 )
     CREATE INDEX IX_Facturas_PeriodoID_FechaEmision
-        ON dbo.Facturas (PeriodoID, FechaEmision);
+        ON MetaU_DB_User.Facturas (PeriodoID, FechaEmision);
 GO
 
-IF OBJECT_ID('dbo.DetallesFacturas', 'U') IS NULL
-    CREATE TABLE DetallesFacturas (
+IF OBJECT_ID('MetaU_DB_User.DetallesFacturas', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.DetallesFacturas (
         DetalleFacturaID INT IDENTITY(1,1) NOT NULL,
         FacturaID UNIQUEIDENTIFIER NOT NULL,
         Descripcion VARCHAR(150) NOT NULL,
@@ -128,7 +133,7 @@ IF OBJECT_ID('dbo.DetallesFacturas', 'U') IS NULL
 
         CONSTRAINT FK_DetallesFacturas_Factura
             FOREIGN KEY (FacturaID)
-            REFERENCES Facturas(FacturaID),
+            REFERENCES MetaU_DB_User.Facturas(FacturaID),
 
         CONSTRAINT CH_DetallesFacturas_Descripcion_NoVacio
             CHECK (LEN(TRIM(Descripcion)) > 0
@@ -152,8 +157,8 @@ GO
 /* ============================================================
    CATÁLOGOS DE PAGOS
    ============================================================ */
-IF OBJECT_ID('dbo.EstadosPagos', 'U') IS NULL
-    CREATE TABLE EstadosPagos (
+IF OBJECT_ID('MetaU_DB_User.EstadosPagos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.EstadosPagos (
         EstadoPagoCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL, --- Activo, Reversado
         Estado BIT NOT NULL DEFAULT 1,
@@ -182,8 +187,8 @@ GO
 /* ============================================================
    PAGOS
    ============================================================ */
-IF OBJECT_ID('dbo.Pagos', 'U') IS NULL
-    CREATE TABLE Pagos (
+IF OBJECT_ID('MetaU_DB_User.Pagos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Pagos (
         PagoID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         FacturaID UNIQUEIDENTIFIER NOT NULL,
         Monto DECIMAL(12,2) NOT NULL,
@@ -196,11 +201,11 @@ IF OBJECT_ID('dbo.Pagos', 'U') IS NULL
 
         CONSTRAINT FK_Pagos_Factura
             FOREIGN KEY (FacturaID)
-            REFERENCES Facturas(FacturaID),
+            REFERENCES MetaU_DB_User.Facturas(FacturaID),
 
         CONSTRAINT FK_Pagos_EstadoPago
             FOREIGN KEY (EstadoPagoCode)
-            REFERENCES EstadosPagos(EstadoPagoCode),
+            REFERENCES MetaU_DB_User.EstadosPagos(EstadoPagoCode),
 
         CONSTRAINT CH_Pagos_Monto
             CHECK (Monto > 0),

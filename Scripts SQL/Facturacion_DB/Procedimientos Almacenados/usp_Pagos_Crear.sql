@@ -1,14 +1,14 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Pagos_Crear
+   STORED PROCEDURE: MetaU_DB_User.usp_Pagos_Crear
    Descripción: Registra el pago del saldo total pendiente de una factura
                 y marca la factura como PAGADA.
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Pagos_Crear
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Pagos_Crear
     @FacturaID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -27,7 +27,7 @@ BEGIN
 
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.EstadosPagos
+            FROM MetaU_DB_User.EstadosPagos
             WHERE EstadoPagoCode = 'ACT'
               AND Estado = 1
         )
@@ -35,7 +35,7 @@ BEGIN
 
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.EstadosFacturas
+            FROM MetaU_DB_User.EstadosFacturas
             WHERE EstadoFacturaCode = 'PAG'
               AND Estado = 1
         )
@@ -46,7 +46,7 @@ BEGIN
         SELECT
             @TotalFactura = factura.Total,
             @EstadoFactura = factura.EstadoFacturaCode
-        FROM dbo.Facturas AS factura WITH (UPDLOCK, HOLDLOCK)
+        FROM MetaU_DB_User.Facturas AS factura WITH (UPDLOCK, HOLDLOCK)
         WHERE factura.FacturaID = @FacturaID;
 
         IF @TotalFactura IS NULL
@@ -62,7 +62,7 @@ BEGIN
             THROW 50007, 'La factura no está pendiente de pago.', 1;
 
         SELECT @MontoPagado = ISNULL(SUM(Monto), 0)
-        FROM dbo.Pagos WITH (UPDLOCK, HOLDLOCK)
+        FROM MetaU_DB_User.Pagos WITH (UPDLOCK, HOLDLOCK)
         WHERE FacturaID = @FacturaID
           AND EstadoPagoCode = 'ACT';
 
@@ -73,14 +73,14 @@ BEGIN
 
         DECLARE @PagoCreado TABLE (PagoID UNIQUEIDENTIFIER);
 
-        INSERT INTO dbo.Pagos (FacturaID, Monto, EstadoPagoCode)
+        INSERT INTO MetaU_DB_User.Pagos (FacturaID, Monto, EstadoPagoCode)
         OUTPUT INSERTED.PagoID INTO @PagoCreado
         VALUES (@FacturaID, @MontoPago, 'ACT');
 
         SELECT @PagoID = PagoID FROM @PagoCreado;
 
         -- Marcar la factura como pagada
-        UPDATE dbo.Facturas
+        UPDATE MetaU_DB_User.Facturas
         SET EstadoFacturaCode = 'PAG'
         WHERE FacturaID = @FacturaID
           AND EstadoFacturaCode = 'PEND';

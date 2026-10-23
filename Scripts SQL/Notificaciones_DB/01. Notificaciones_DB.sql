@@ -1,15 +1,15 @@
 /* ============================================================
-   BASE DE DATOS: Notificaciones_DB
+   BASE DE DATOS: tiusr20pl_Notificaciones_DB
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Notificaciones_DB') IS NULL
+IF DB_ID('tiusr20pl_Notificaciones_DB') IS NULL
 BEGIN
-    CREATE DATABASE Notificaciones_DB;
+    CREATE DATABASE tiusr20pl_Notificaciones_DB;
 END
 GO
 
-USE Notificaciones_DB;
+USE tiusr20pl_Notificaciones_DB;
 GO
 
 /* NOTA: las columnas marcadas como REF en el diagrama apuntan a tablas de otras
@@ -17,12 +17,17 @@ GO
    que se documentan con un comentario en línea (-- REF: Base.Tabla) y su
    integridad debe validarse desde la capa de aplicación. */
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
+
 
 /* ============================================================
    CATÁLOGOS DE NOTIFICACIONES
    ============================================================ */
-IF OBJECT_ID('dbo.EstadosNotificaciones', 'U') IS NULL
-    CREATE TABLE EstadosNotificaciones (
+IF OBJECT_ID('MetaU_DB_User.EstadosNotificaciones', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.EstadosNotificaciones (
         EstadoNotificacionCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
@@ -45,8 +50,8 @@ IF OBJECT_ID('dbo.EstadosNotificaciones', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.Plantillas', 'U') IS NULL
-    CREATE TABLE Plantillas (
+IF OBJECT_ID('MetaU_DB_User.Plantillas', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Plantillas (
         PlantillaNotificacionCode VARCHAR(50) NOT NULL,
         Nombre VARCHAR(100) NOT NULL,
         AsuntoTemplate VARCHAR(200) NOT NULL,
@@ -85,8 +90,8 @@ GO
 /* ============================================================
    NOTIFICACIONES
    ============================================================ */
-IF OBJECT_ID('dbo.Notificaciones', 'U') IS NULL
-    CREATE TABLE Notificaciones (
+IF OBJECT_ID('MetaU_DB_User.Notificaciones', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Notificaciones (
         NotificacionID BIGINT IDENTITY(1,1) NOT NULL,
         UsuarioID UNIQUEIDENTIFIER NOT NULL, -- REF: Usuarios_DB.Usuarios
         EmailDestino VARCHAR(150) NOT NULL,
@@ -104,11 +109,11 @@ IF OBJECT_ID('dbo.Notificaciones', 'U') IS NULL
 
         CONSTRAINT FK_Notificaciones_Plantilla
             FOREIGN KEY (PlantillaNotificacionCode) 
-            REFERENCES Plantillas(PlantillaNotificacionCode),
+            REFERENCES MetaU_DB_User.Plantillas(PlantillaNotificacionCode),
 
         CONSTRAINT FK_Notificaciones_EstadoNotificacion
             FOREIGN KEY (EstadoNotificacion) 
-            REFERENCES EstadosNotificaciones(EstadoNotificacionCode),
+            REFERENCES MetaU_DB_User.EstadosNotificaciones(EstadoNotificacionCode),
 
         CONSTRAINT CH_Notificaciones_EmailDestino_Formato
             CHECK (LEN(TRIM(EmailDestino)) >= 7

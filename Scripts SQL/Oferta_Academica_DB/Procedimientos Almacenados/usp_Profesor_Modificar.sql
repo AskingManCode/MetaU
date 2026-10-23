@@ -1,15 +1,13 @@
-USE [Oferta_Academica_DB]
+/* ============================================================
+   STORED PROCEDURE: MetaU_DB_User.usp_Profesor_Modificar
+   Descripción: Actualiza un profesor y reemplaza sus teléfonos
+   Base de datos: tiusr20pl_Oferta_Academica_DB
+   ============================================================ */
+
+USE tiusr20pl_Oferta_Academica_DB;
 GO
 
-/****** Objeto: StoredProcedure [dbo].[usp_Profesor_Modificar] Fecha de script: 04/10/2026 20:43:11 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE   PROCEDURE [dbo].[usp_Profesor_Modificar]
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Profesor_Modificar
     @ProfesorID UNIQUEIDENTIFIER,
     @UsuarioID UNIQUEIDENTIFIER,
     @TipoIdentificacionCode VARCHAR(15),
@@ -18,10 +16,10 @@ CREATE   PROCEDURE [dbo].[usp_Profesor_Modificar]
     @NombreCompleto VARCHAR(175),
     @FechaNacimiento DATE,
     @Estado BIT,
-    @Telefonos dbo.TelefonoProfesorType READONLY
+    @Telefonos MetaU_DB_User.TelefonoProfesorType READONLY
 AS
 BEGIN
-    UPDATE dbo.Profesores
+    UPDATE MetaU_DB_User.Profesores
     SET UsuarioID = @UsuarioID,
         TipoIdentificacionCode = @TipoIdentificacionCode,
         Identificacion = @Identificacion,
@@ -31,12 +29,11 @@ BEGIN
         Estado = @Estado
     WHERE ProfesorID = @ProfesorID
 
-    DELETE FROM dbo.TelefonosXProfesores
+    DELETE FROM MetaU_DB_User.TelefonosXProfesores
     WHERE ProfesorID = @ProfesorID
 
-    INSERT INTO dbo.TelefonosXProfesores (ProfesorID, Telefono, Estado)
+    INSERT INTO MetaU_DB_User.TelefonosXProfesores (ProfesorID, Telefono, Estado)
     SELECT @ProfesorID, Telefono, 1
     FROM @Telefonos
 END
 GO
-

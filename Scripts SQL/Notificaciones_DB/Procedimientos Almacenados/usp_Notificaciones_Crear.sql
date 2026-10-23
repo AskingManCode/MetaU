@@ -1,14 +1,14 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Notificaciones_ActualizarEstado
+   STORED PROCEDURE: MetaU_DB_User.usp_Notificaciones_ActualizarEstado
    Descripción: Actualiza el estado de una notificación existente
                 (ENVIADO / ERROR) e incrementa el contador de intentos
-   Base de datos: Notificaciones_DB
+   Base de datos: tiusr20pl_Notificaciones_DB
    ============================================================ */
 
-USE Notificaciones_DB;
+USE tiusr20pl_Notificaciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Notificaciones_ActualizarEstado
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Notificaciones_ActualizarEstado
     @NotificacionID BIGINT,
     @EstadoNotificacion VARCHAR(15),
     @MensajeError VARCHAR(500) = NULL,
@@ -35,7 +35,7 @@ BEGIN
         -- Verificar existencia
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.Notificaciones
+            FROM MetaU_DB_User.Notificaciones
             WHERE NotificacionID = @NotificacionID
         )
         BEGIN
@@ -45,7 +45,7 @@ BEGIN
         -- Verificar que exista el estado
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.EstadosNotificaciones
+            FROM MetaU_DB_User.EstadosNotificaciones
             WHERE EstadoNotificacionCode = @EstadoNotificacion
               AND Estado = 1
         )
@@ -54,7 +54,7 @@ BEGIN
             RETURN;
         END
 
-        UPDATE dbo.Notificaciones
+        UPDATE MetaU_DB_User.Notificaciones
         SET
             EstadoNotificacion = UPPER(@EstadoNotificacion),
             MensajeError = @MensajeError,

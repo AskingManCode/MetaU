@@ -1,30 +1,33 @@
 /* ============================================================
-   BASE DE DATOS: Oferta_Academica_DB
+   BASE DE DATOS: tiusr20pl_Oferta_Academica_DB
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Oferta_Academica_DB') IS NULL
+IF DB_ID('tiusr20pl_Oferta_Academica_DB') IS NULL
 BEGIN
-    CREATE DATABASE Oferta_Academica_DB;
+    CREATE DATABASE tiusr20pl_Oferta_Academica_DB;
 END
 GO
 
-
-USE Oferta_Academica_DB;
+USE tiusr20pl_Oferta_Academica_DB;
 GO
-
 
 /* NOTA: las columnas marcadas como REF en el diagrama apuntan a tablas de otras
    bases de datos. SQL Server no permite FOREIGN KEY entre bases de datos, por lo
    que se documentan con un comentario en línea (-- REF: Base.Tabla) y su
    integridad debe validarse desde la capa de aplicación. */
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
+
 
 /* ============================================================
    CATÁLOGOS
    ============================================================ */
-IF OBJECT_ID('dbo.Instituciones', 'U') IS NULL
-    CREATE TABLE Instituciones (
+IF OBJECT_ID('MetaU_DB_User.Instituciones', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Instituciones (
         InstitucionCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(150) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
@@ -50,9 +53,8 @@ IF OBJECT_ID('dbo.Instituciones', 'U') IS NULL
     );
 GO
 
-
-IF OBJECT_ID('dbo.Periodos', 'U') IS NULL
-    CREATE TABLE Periodos (
+IF OBJECT_ID('MetaU_DB_User.Periodos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Periodos (
         PeriodoID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         NumeroPeriodo INT NOT NULL,
         FechaInicio DATE NOT NULL,
@@ -81,8 +83,8 @@ GO
 /* ============================================================
    PROFESORES
    ============================================================ */
-IF OBJECT_ID('dbo.Profesores', 'U') IS NULL
-    CREATE TABLE Profesores (
+IF OBJECT_ID('MetaU_DB_User.Profesores', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Profesores (
         ProfesorID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         UsuarioID UNIQUEIDENTIFIER NULL, -- REF: Usuarios_DB.Usuarios
         TipoIdentificacionCode VARCHAR(15) NOT NULL,
@@ -134,9 +136,8 @@ IF OBJECT_ID('dbo.Profesores', 'U') IS NULL
     );
 GO
 
-
-IF OBJECT_ID('dbo.TelefonosXProfesores', 'U') IS NULL
-    CREATE TABLE TelefonosXProfesores (
+IF OBJECT_ID('MetaU_DB_User.TelefonosXProfesores', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.TelefonosXProfesores (
         TelefonoXProfesor INT IDENTITY(1,1) NOT NULL,
         ProfesorID UNIQUEIDENTIFIER NOT NULL,
         Telefono VARCHAR(25) NOT NULL,
@@ -146,7 +147,7 @@ IF OBJECT_ID('dbo.TelefonosXProfesores', 'U') IS NULL
             PRIMARY KEY CLUSTERED (TelefonoXProfesor),
 
         CONSTRAINT FK_TelefonosXProfesores_Profesor
-            FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID),
+            FOREIGN KEY (ProfesorID) REFERENCES MetaU_DB_User.Profesores(ProfesorID),
 
         CONSTRAINT UQ_TelefonosXProfesores_ProfesorID_Telefono
             UNIQUE (ProfesorID, Telefono),
@@ -164,8 +165,8 @@ GO
 /* ============================================================
    CARRERAS Y CURSOS
    ============================================================ */
-IF OBJECT_ID('dbo.Carreras', 'U') IS NULL
-    CREATE TABLE Carreras (
+IF OBJECT_ID('MetaU_DB_User.Carreras', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Carreras (
         CarreraCode VARCHAR(15) NOT NULL,
         InstitucionCode VARCHAR(15) NOT NULL,
         DirectorID UNIQUEIDENTIFIER NOT NULL,
@@ -176,10 +177,10 @@ IF OBJECT_ID('dbo.Carreras', 'U') IS NULL
             PRIMARY KEY CLUSTERED (CarreraCode),
 
         CONSTRAINT FK_Carreras_Institucion
-            FOREIGN KEY (InstitucionCode) REFERENCES Instituciones(InstitucionCode),
+            FOREIGN KEY (InstitucionCode) REFERENCES MetaU_DB_User.Instituciones(InstitucionCode),
 
         CONSTRAINT FK_Carreras_Director
-            FOREIGN KEY (DirectorID) REFERENCES Profesores(ProfesorID),
+            FOREIGN KEY (DirectorID) REFERENCES MetaU_DB_User.Profesores(ProfesorID),
 
         CONSTRAINT UQ_Carreras_Institucion_Nombre
             UNIQUE (InstitucionCode, Nombre),
@@ -199,9 +200,8 @@ IF OBJECT_ID('dbo.Carreras', 'U') IS NULL
     );
 GO
 
-
-IF OBJECT_ID('dbo.Cursos', 'U') IS NULL
-    CREATE TABLE Cursos (
+IF OBJECT_ID('MetaU_DB_User.Cursos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Cursos (
         CursoCode VARCHAR(15) NOT NULL,
         CarreraCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(150) NOT NULL,
@@ -212,7 +212,7 @@ IF OBJECT_ID('dbo.Cursos', 'U') IS NULL
             PRIMARY KEY CLUSTERED (CursoCode),
 
         CONSTRAINT FK_Cursos_Carrera
-            FOREIGN KEY (CarreraCode) REFERENCES Carreras(CarreraCode),
+            FOREIGN KEY (CarreraCode) REFERENCES MetaU_DB_User.Carreras(CarreraCode),
 
         CONSTRAINT UQ_Cursos_Carrera_Nombre
             UNIQUE (CarreraCode, Nombre),
@@ -239,8 +239,8 @@ GO
 /* ============================================================
    GRUPOS
    ============================================================ */
-IF OBJECT_ID('dbo.Grupos', 'U') IS NULL
-    CREATE TABLE Grupos (
+IF OBJECT_ID('MetaU_DB_User.Grupos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Grupos (
         GrupoCode VARCHAR(15) NOT NULL,
         CursoCode VARCHAR(15) NOT NULL,
         PeriodoID UNIQUEIDENTIFIER NOT NULL,
@@ -254,13 +254,13 @@ IF OBJECT_ID('dbo.Grupos', 'U') IS NULL
             PRIMARY KEY CLUSTERED (GrupoCode),
 
         CONSTRAINT FK_Grupos_Curso
-            FOREIGN KEY (CursoCode) REFERENCES Cursos(CursoCode),
+            FOREIGN KEY (CursoCode) REFERENCES MetaU_DB_User.Cursos(CursoCode),
 
         CONSTRAINT FK_Grupos_Periodo
-            FOREIGN KEY (PeriodoID) REFERENCES Periodos(PeriodoID),
+            FOREIGN KEY (PeriodoID) REFERENCES MetaU_DB_User.Periodos(PeriodoID),
 
         CONSTRAINT FK_Grupos_Profesor
-            FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID),
+            FOREIGN KEY (ProfesorID) REFERENCES MetaU_DB_User.Profesores(ProfesorID),
 
         CONSTRAINT UQ_Grupos_Curso_Periodo_NumeroGrupo
             UNIQUE (CursoCode, PeriodoID, NumeroGrupo),
@@ -280,5 +280,13 @@ IF OBJECT_ID('dbo.Grupos', 'U') IS NULL
 
         CONSTRAINT CH_Grupos_Cupo
             CHECK (Cupo > 0)
+    );
+GO
+
+-- Tipo de tabla para teléfonos
+IF TYPE_ID('MetaU_DB_User.TelefonoProfesorType') IS NULL
+    CREATE TYPE MetaU_DB_User.TelefonoProfesorType AS TABLE
+    (
+        Telefono VARCHAR(30) NOT NULL
     );
 GO

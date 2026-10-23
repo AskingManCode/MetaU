@@ -12,6 +12,10 @@ GO
 USE tiusr20pl_Configuraciones_DB;
 GO
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
 
 /* ============================================================
    1. PARÁMETROS DEL SISTEMA

@@ -1,15 +1,15 @@
 /* ============================================================
-   BASE DE DATOS: Notas_Academicas_DB
+   BASE DE DATOS: tiusr20pl_Notas_Academicas_DB
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Notas_Academicas_DB') IS NULL
+IF DB_ID('tiusr20pl_Notas_Academicas_DB') IS NULL
 BEGIN
-    CREATE DATABASE Notas_Academicas_DB;
+    CREATE DATABASE tiusr20pl_Notas_Academicas_DB;
 END
 GO
 
-USE Notas_Academicas_DB;
+USE tiusr20pl_Notas_Academicas_DB;
 GO
 
 /* NOTA: las columnas marcadas como REF en el diagrama apuntan a tablas de otras
@@ -17,12 +17,17 @@ GO
    que se documentan con un comentario en línea (-- REF: Base.Tabla) y su
    integridad debe validarse desde la capa de aplicación. */
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
+
 
 /* ============================================================
    RUBROS DE EVALUACIÓN
    ============================================================ */
-IF OBJECT_ID('dbo.Rubros', 'U') IS NULL
-    CREATE TABLE Rubros (
+IF OBJECT_ID('MetaU_DB_User.Rubros', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Rubros (
         RubroID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         GrupoCode VARCHAR(15) NOT NULL, -- REF: Oferta_Academica_DB.Grupos
         NombreRubro VARCHAR(100) NOT NULL,
@@ -55,8 +60,8 @@ GO
 /* ============================================================
    NOTAS DE ESTUDIANTES
    ============================================================ */
-IF OBJECT_ID('dbo.NotasXEstudiante', 'U') IS NULL
-    CREATE TABLE NotasXEstudiante (
+IF OBJECT_ID('MetaU_DB_User.NotasXEstudiante', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.NotasXEstudiante (
         NotaXEstudianteID INT IDENTITY(1,1) NOT NULL,
         RubroID UNIQUEIDENTIFIER NOT NULL,
         EstudianteID UNIQUEIDENTIFIER NOT NULL, -- REF: Matriculas_DB.Estudiantes
@@ -67,7 +72,7 @@ IF OBJECT_ID('dbo.NotasXEstudiante', 'U') IS NULL
             PRIMARY KEY CLUSTERED (NotaXEstudianteID),
 
         CONSTRAINT FK_NotasXEstudiante_Rubro
-            FOREIGN KEY (RubroID) REFERENCES Rubros(RubroID),
+            FOREIGN KEY (RubroID) REFERENCES MetaU_DB_User.Rubros(RubroID),
 
         CONSTRAINT UQ_NotasXEstudiante_Rubro_Estudiante
             UNIQUE (RubroID, EstudianteID),
@@ -80,8 +85,8 @@ IF OBJECT_ID('dbo.NotasXEstudiante', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.NotasFinales', 'U') IS NULL
-    CREATE TABLE NotasFinales (
+IF OBJECT_ID('MetaU_DB_User.NotasFinales', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.NotasFinales (
         NotasFinalesID INT IDENTITY(1,1) NOT NULL,
         CursoCode VARCHAR(15) NOT NULL, -- REF: Oferta_Academica_DB.Cursos
         PeriodoID UNIQUEIDENTIFIER NOT NULL, -- REF: Oferta_Academica_DB.Periodos

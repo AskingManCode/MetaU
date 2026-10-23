@@ -1,77 +1,110 @@
-# MetaU - Nuevo Avatar
+# MetaU
 
-MetaU es un proyecto para apoyar la administración de una institución educativa. La idea es reunir en un solo sistema cosas como usuarios, matrícula, notas, pagos y notificaciones, que actualmente se hacen usando Avatar.
+Sistema de gestión académica basado en microservicios.
 
-El sistema se está construyendo con microservicios para separar las partes. Todavía estamos desarrollando el proyecto, así que algunas funciones y decisiones pueden cambiar.
+MetaU centraliza la administración de una institución educativa: usuarios, oferta académica, matrícula, notas, facturación, pagos y notificaciones. El objetivo es reemplazar procesos que actualmente se realizan con el sistema Avatar mediante una arquitectura de microservicios desacoplados.
 
-## Estado del proyecto
+## Estado actual
 
-La **Fase 0 - Análisis, documentación y diseño base** ya está finalizada.
+**Fase 7 — Despliegue en Plesk**
 
-La **Fase 1 - Infraestructura transversal y seguridad** se encuentra en etapa de **despliegue**. Los servicios base (Bitácoras, Login, Usuarios, Roles, Parametrización y Módulos) están siendo estabilizados, desplegados y validados.
+El backend se encuentra en proceso de publicación individual de cada microservicio en Plesk. Esta fase incluye:
 
-En paralelo se está iniciando la **planeación del Frontend** (sitio web y aplicación móvil).
+- Configuración de variables de entorno y conexiones a base de datos.
+- Publicación de los servicios REST.
+- Verificación de endpoints públicos y validación de tokens JWT.
+- Preparación del Pull Request final hacia la rama `main` con código estable.
 
-### Servicios de la Fase 1
+En paralelo se está realizando la **planeación del frontend** (aplicación web y móvil).
 
-| HU | Servicio | Alcance |
-| --- | --- | --- |
-| GEN1 | Bitácoras | Guardar las acciones que se hacen en el sistema. |
-| USR5 | Login | Inicio de sesión, JWT, refresh tokens y validación de token. |
-| USR1 | Usuarios | Administración de usuarios. |
-| USR2 | Roles | Administración de roles y permisos. |
-| USR3 | Parametrización | Configuración de parámetros del sistema. |
-| USR4 | Módulos | Administración de los módulos disponibles. |
+### Fases completadas
 
-Para cerrar esta fase, los servicios deben quedar estables y desplegados, y se debe comprobar el registro en bitácoras y la validación de tokens. Después se continuará con los módulos de negocio.
+| Fase | Nombre | Alcance principal |
+|------|--------|-------------------|
+| 0 | Análisis y diseño base | Documentación, diagramas y definición de alcance |
+| 1 | Infraestructura transversal y seguridad | Bitácoras, Login/JWT, Usuarios, Roles, Parámetros, Módulos |
+| 2 | Oferta académica | Instituciones, Carreras, Cursos, Grupos, Periodos, Profesores |
+| 3 | Matrícula | Expedientes, Direcciones, Pre-matrícula, Matrícula, Notas |
+| 4 | Consultas académicas | Historial académico, Listado de estudiantes |
+| 5 | Pagos y notificaciones | Facturación, Pagos, Notificaciones por correo |
+| 6 | Pruebas integradas | Pruebas técnicas, integración entre servicios y documentación final |
 
-## Qué incluye el sistema
+## Arquitectura
 
-Además de los servicios de infraestructura y seguridad, el proyecto contempla:
+El sistema sigue un enfoque de microservicios independientes construidos con **.NET 10** y **ASP.NET Core Minimal APIs**. Cada servicio tiene su propia base de datos en SQL Server y se comunica mediante HTTP.
 
-- Oferta académica, como instituciones, carreras, cursos, grupos y periodos.
-- Matrícula y expedientes de estudiantes, incluyendo prematrícula.
-- Notas e historial académico.
-- Facturación, pagos y notificaciones.
+Los servicios de infraestructura (Login y Bitácoras) son consumidos por el resto de los microservicios para autenticación y auditoría.
 
 ## Tecnologías
 
-- **Backend:** .NET 10 y ASP.NET Core Web API (Minimal APIs).
-- **Base de datos:** SQL Server.
-- **Hosting:** Plesk (en proceso de despliegue).
-- **Control de versiones:** Git y GitHub.
-- **Frontend:** En fase de planeación (sitio web y aplicación móvil). Tecnologías por definir.
-
-[Ver el diagrama de arquitectura](<Documentacion/Diagramas Generales/Diagrama de Arquitectura de MetaU.png>)
-
-## Cómo empezar
-
-Para compilar el backend se necesita tener instalado el **SDK de .NET 10**. Desde la carpeta raíz del repositorio se puede ejecutar:
-
-```bash
-dotnet restore Backend/Microservicios.slnx
-dotnet build Backend/Microservicios.slnx
-```
-
-Para ejecutar un servicio individual, por ejemplo Login:
-
-```bash
-dotnet run --project Backend/MicroservicioLogin/MicroservicioLogin.csproj
-```
-
-La configuración y los detalles de cada microservicio se deben revisar antes de ejecutarlo. En el [README del Backend](Backend/README.md) está la lista de servicios y su descripción.
+| Capa | Tecnología |
+|------|------------|
+| Backend | .NET 10, ASP.NET Core (Minimal APIs) |
+| Base de datos | SQL Server |
+| Autenticación | JWT + Refresh Tokens |
+| Hosting | Plesk |
+| Control de versiones | Git / GitHub |
+| Frontend | En planeación (web + móvil) |
 
 ## Estructura del repositorio
 
-- [`Backend/`](Backend/): código de los microservicios y la solución .NET.
-- [`Documentacion/`](Documentacion/): análisis, diagramas y documentos del proyecto. Consulta su [README](Documentacion/README.md) para encontrar los archivos.
-- [`Frontend/`](Frontend/): documentación inicial y planeación del sitio web y la aplicación móvil.
-- [`Pruebas Tecnicas/`](Pruebas%20Tecnicas/): evidencia de pruebas técnicas.
-- [`Scripts SQL/`](Scripts%20SQL/): scripts de base de datos. Consulta su [README](Scripts%20SQL/README.md) antes de usarlos.
+```
+MetaU/
+├── Backend/              # Microservicios .NET
+├── Documentacion/        # Análisis, diseño y diagramas
+├── Frontend/             # Planeación de aplicaciones web y móvil
+├── Pruebas Tecnicas/     # Evidencia de pruebas por sprint
+└── Scripts SQL/          # Scripts de creación de bases de datos
+```
 
-## Trabajo con Git
+## Microservicios
 
-El equipo trabaja a partir de `develop`; los cambios se integran mediante Pull Requests y no se hacen cambios directos en las ramas principales. Las ramas de trabajo deben seguir el formato acordado por el equipo y los PR deben indicar cómo probar los cambios. Las reglas completas están en el [manual de flujo de trabajo con Git](<Documentacion/2. Manual_Flujo_Trabajo_Git (Acordado por el equipo).pdf>).
+| Servicio | Descripción |
+|----------|-------------|
+| Login | Autenticación, JWT y refresh tokens |
+| Usuarios | Gestión de identidades |
+| Roles | Roles y permisos |
+| Parámetros | Configuración global del sistema |
+| Módulos | Módulos funcionales |
+| Bitácoras | Auditoría de acciones |
+| Instituciones | Instituciones educativas |
+| Carreras | Carreras por institución |
+| Cursos | Cursos por carrera |
+| Grupos | Grupos, horarios y cupos |
+| Periodos | Periodos académicos |
+| Profesores | Expedientes de profesores |
+| Expedientes | Datos de estudiantes |
+| Direcciones | Catálogo geográfico (CR) |
+| Pre-matrícula | Proceso de prematrícula |
+| Matrícula | Matrícula formal |
+| Notas | Registro y desglose de notas |
+| Historial Académico | Consulta de historial |
+| Lista Estudiantes | Listados por periodo |
+| Facturación | Generación de facturas |
+| Pagos | Registro de pagos |
+| Notificaciones | Envío de correos |
+
+## Cómo ejecutar localmente
+
+Requisito: **SDK de .NET 10**.
+
+```bash
+# Restaurar y compilar toda la solución
+dotnet restore Backend/Microservicios.slnx
+dotnet build Backend/Microservicios.slnx
+
+# Ejecutar un microservicio (ejemplo: Login)
+dotnet run --project Backend/MicroservicioLogin/MicroservicioLogin.csproj
+```
+
+Cada microservicio requiere configuración de cadena de conexión y variables de entorno (JWT, SMTP, etc.) antes de ejecutarse. Consulta el README de cada servicio o el [README del Backend](Backend/README.md) para más detalles.
+
+## Flujo de trabajo
+
+El equipo trabaja sobre la rama `develop`. Los cambios se integran mediante Pull Requests.  
+Las reglas de ramas, commits y revisión están documentadas en:
+
+- [Manual Flujo Trabajo Git (Acordado por el equipo)](Documentacion/0.%20Manual_Flujo_Trabajo_Git_(Acordado_por_el_equipo).pdf)
 
 ## Equipo
 
@@ -80,3 +113,14 @@ El equipo trabaja a partir de `develop`; los cambios se integran mediante Pull R
 - Sebastián Obando Ramírez
 - Julián Solano Obando
 - Anthony Emmanuel Gamboa Elizondo
+
+## Documentación y recursos
+
+| Recurso | Ubicación |
+|---------|-----------|
+| Análisis, diseño y diagramas | [Documentacion/](Documentacion/) (ver [Documentacion/README.md](Documentacion/README.md)) |
+| Diagramas de arquitectura, casos de uso, clases y bases de datos | [Documentacion/Diagramas Generales](Documentacion/Diagramas%20Generales/) |
+| Evidencia de pruebas técnicas | [Pruebas Tecnicas/](Pruebas%20Tecnicas/) |
+| Scripts SQL y diagramas entidad-relación | [Scripts SQL/](Scripts%20SQL/) (ver [Scripts SQL/README.md](Scripts%20SQL/README.md)) |
+| Detalle de cada microservicio (endpoints, configuración) | `Backend/Microservicio*/README.md` y [Backend/README.md](Backend/README.md) |
+| Planeación del frontend | [Frontend/README.md](Frontend/README.md) |

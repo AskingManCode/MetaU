@@ -1,23 +1,28 @@
 /* ============================================================
-   BASE DE DATOS: Usuarios_DB
+   BASE DE DATOS: tiusr20pl_Usuarios_DB
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Usuarios_DB') IS NULL
+IF DB_ID('tiusr20pl_Usuarios_DB') IS NULL
 BEGIN
-    CREATE DATABASE Usuarios_DB;
+    CREATE DATABASE tiusr20pl_Usuarios_DB;
 END
 GO
 
-USE Usuarios_DB;
+USE tiusr20pl_Usuarios_DB;
+GO
+
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
 GO
 
 
 /* ============================================================
    CATÁLOGOS DE SEGURIDAD
    ============================================================ */
-IF OBJECT_ID('dbo.TiposIdentificacion', 'U') IS NULL
-    CREATE TABLE TiposIdentificacion (
+IF OBJECT_ID('MetaU_DB_User.TiposIdentificacion', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.TiposIdentificacion (
         TipoIdentificacionCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
@@ -40,8 +45,8 @@ IF OBJECT_ID('dbo.TiposIdentificacion', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.Roles', 'U') IS NULL
-    CREATE TABLE Roles (
+IF OBJECT_ID('MetaU_DB_User.Roles', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Roles (
         RolCode VARCHAR(15) NOT NULL,
         NombreRol VARCHAR(75) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
@@ -67,8 +72,8 @@ IF OBJECT_ID('dbo.Roles', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.Modulos', 'U') IS NULL
-    CREATE TABLE Modulos (
+IF OBJECT_ID('MetaU_DB_User.Modulos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Modulos (
         ModuloCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
@@ -98,8 +103,8 @@ GO
 /* ============================================================
    USUARIOS
    ============================================================ */
-IF OBJECT_ID('dbo.Usuarios', 'U') IS NULL
-    CREATE TABLE Usuarios (
+IF OBJECT_ID('MetaU_DB_User.Usuarios', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Usuarios (
         UsuarioID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         RolCode VARCHAR(15) NOT NULL,
         TipoIdentificacionCode VARCHAR(15) NOT NULL,
@@ -113,10 +118,10 @@ IF OBJECT_ID('dbo.Usuarios', 'U') IS NULL
             PRIMARY KEY CLUSTERED (UsuarioID),
 
         CONSTRAINT FK_Usuarios_Rol
-            FOREIGN KEY (RolCode) REFERENCES Roles(RolCode),
+            FOREIGN KEY (RolCode) REFERENCES MetaU_DB_User.Roles(RolCode),
 
         CONSTRAINT FK_Usuarios_TipoIdentificacion
-            FOREIGN KEY (TipoIdentificacionCode) REFERENCES TiposIdentificacion(TipoIdentificacionCode),
+            FOREIGN KEY (TipoIdentificacionCode) REFERENCES MetaU_DB_User.TiposIdentificacion(TipoIdentificacionCode),
 
         CONSTRAINT UQ_Usuarios_Identificacion
             UNIQUE (Identificacion),
@@ -164,8 +169,8 @@ GO
 /* ============================================================
    PERMISOS POR ROL
    ============================================================ */
-IF OBJECT_ID('dbo.RolesXModulos', 'U') IS NULL
-    CREATE TABLE RolesXModulos (
+IF OBJECT_ID('MetaU_DB_User.RolesXModulos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.RolesXModulos (
         RolModuloID INT IDENTITY(1,1) NOT NULL,
         RolCode VARCHAR(15) NOT NULL,
         ModuloCode VARCHAR(15) NOT NULL,
@@ -175,10 +180,10 @@ IF OBJECT_ID('dbo.RolesXModulos', 'U') IS NULL
             PRIMARY KEY CLUSTERED (RolModuloID),
 
         CONSTRAINT FK_RolesXModulos_Rol
-            FOREIGN KEY (RolCode) REFERENCES Roles(RolCode),
+            FOREIGN KEY (RolCode) REFERENCES MetaU_DB_User.Roles(RolCode),
 
         CONSTRAINT FK_RolesXModulos_Modulo
-            FOREIGN KEY (ModuloCode) REFERENCES Modulos(ModuloCode),
+            FOREIGN KEY (ModuloCode) REFERENCES MetaU_DB_User.Modulos(ModuloCode),
 
         CONSTRAINT UQ_RolesXModulos_Rol_Modulo
             UNIQUE (RolCode, ModuloCode)
@@ -189,8 +194,8 @@ GO
 /* ============================================================
    SESIONES
    ============================================================ */
-IF OBJECT_ID('dbo.RefreshToken', 'U') IS NULL
-    CREATE TABLE RefreshToken (
+IF OBJECT_ID('MetaU_DB_User.RefreshToken', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.RefreshToken (
         RefreshTokenID INT IDENTITY(1,1) NOT NULL,
         UsuarioID UNIQUEIDENTIFIER NOT NULL,
         TokenHash VARCHAR(500) NOT NULL,
@@ -202,7 +207,7 @@ IF OBJECT_ID('dbo.RefreshToken', 'U') IS NULL
             PRIMARY KEY CLUSTERED (RefreshTokenID),
 
         CONSTRAINT FK_RefreshToken_Usuario
-            FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID),
+            FOREIGN KEY (UsuarioID) REFERENCES MetaU_DB_User.Usuarios(UsuarioID),
 
         CONSTRAINT UQ_RefreshToken_TokenHash
             UNIQUE (TokenHash),

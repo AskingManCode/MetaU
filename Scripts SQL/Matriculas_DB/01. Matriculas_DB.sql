@@ -1,15 +1,15 @@
 /* ============================================================
-   BASE DE DATOS: Matriculas_DB
+   BASE DE DATOS: tiusr20pl_Matriculas_DB
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Matriculas_DB') IS NULL
+IF DB_ID('tiusr20pl_Matriculas_DB') IS NULL
 BEGIN
-    CREATE DATABASE Matriculas_DB;
+    CREATE DATABASE tiusr20pl_Matriculas_DB;
 END
 GO
 
-USE Matriculas_DB;
+USE tiusr20pl_Matriculas_DB;
 GO
 
 /* NOTA: las columnas marcadas como REF en el diagrama apuntan a tablas de otras
@@ -27,11 +27,17 @@ GO
     MAT2: “El grupo pertenece al curso” y “hay cupo disponible”.
 */
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
+
+
 /* ============================================================
    CATÁLOGOS DE IDENTIFICACIÓN
    ============================================================ */
-IF OBJECT_ID('dbo.TiposIdentificacion', 'U') IS NULL
-    CREATE TABLE TiposIdentificacion (
+IF OBJECT_ID('MetaU_DB_User.TiposIdentificacion', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.TiposIdentificacion (
         TipoIdentificacionCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL, --- Residente, Nacional, Pasaporte
         Estado BIT NOT NULL DEFAULT 1,
@@ -58,8 +64,8 @@ GO
 /* ============================================================
    ESTUDIANTES
    ============================================================ */
-IF OBJECT_ID('dbo.Estudiantes', 'U') IS NULL
-    CREATE TABLE Estudiantes (
+IF OBJECT_ID('MetaU_DB_User.Estudiantes', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Estudiantes (
         EstudianteID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         UsuarioID UNIQUEIDENTIFIER NULL, -- REF: Usuarios_DB.Usuarios
         TipoIdentificacionCode VARCHAR(15) NOT NULL,
@@ -77,7 +83,7 @@ IF OBJECT_ID('dbo.Estudiantes', 'U') IS NULL
             PRIMARY KEY CLUSTERED (EstudianteID),
 
         CONSTRAINT FK_Estudiantes_TipoIdentificacion
-            FOREIGN KEY (TipoIdentificacionCode) REFERENCES TiposIdentificacion(TipoIdentificacionCode),
+            FOREIGN KEY (TipoIdentificacionCode) REFERENCES MetaU_DB_User.TiposIdentificacion(TipoIdentificacionCode),
         
 
         CONSTRAINT UQ_Estudiantes_Identificacion
@@ -125,8 +131,8 @@ IF OBJECT_ID('dbo.Estudiantes', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.TelefonosXEstudiantes', 'U') IS NULL
-    CREATE TABLE TelefonosXEstudiantes (
+IF OBJECT_ID('MetaU_DB_User.TelefonosXEstudiantes', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.TelefonosXEstudiantes (
         TelefonoXEstudiante INT IDENTITY(1,1) NOT NULL,
         EstudianteID UNIQUEIDENTIFIER NOT NULL,
         Telefono VARCHAR(25) NOT NULL,
@@ -136,7 +142,7 @@ IF OBJECT_ID('dbo.TelefonosXEstudiantes', 'U') IS NULL
             PRIMARY KEY CLUSTERED (TelefonoXEstudiante),
 
         CONSTRAINT FK_TelefonosXEstudiantes_Estudiante
-            FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
+            FOREIGN KEY (EstudianteID) REFERENCES MetaU_DB_User.Estudiantes(EstudianteID),
 
         CONSTRAINT UQ_TelefonosXEstudiantes_EstudianteID_Telefono
             UNIQUE (EstudianteID, Telefono),
@@ -154,8 +160,8 @@ GO
 /* ============================================================
    PREMATRÍCULAS
    ============================================================ */
-IF OBJECT_ID('dbo.PreMatriculas', 'U') IS NULL
-    CREATE TABLE PreMatriculas (
+IF OBJECT_ID('MetaU_DB_User.PreMatriculas', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.PreMatriculas (
         PreMatriculaID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         EstudianteID UNIQUEIDENTIFIER NOT NULL,
         CarreraCode VARCHAR(15) NOT NULL, -- REF: Oferta_Academica_DB.Carreras
@@ -167,7 +173,7 @@ IF OBJECT_ID('dbo.PreMatriculas', 'U') IS NULL
             PRIMARY KEY CLUSTERED (PreMatriculaID),
 
         CONSTRAINT FK_PreMatriculas_Estudiante
-            FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
+            FOREIGN KEY (EstudianteID) REFERENCES MetaU_DB_User.Estudiantes(EstudianteID),
 
         CONSTRAINT UQ_PreMatriculas_Estudiante_Carrera_Periodo
             UNIQUE (EstudianteID, CarreraCode, PeriodoID),
@@ -185,8 +191,8 @@ IF OBJECT_ID('dbo.PreMatriculas', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.PreMatriculasXCursos', 'U') IS NULL
-    CREATE TABLE PreMatriculasXCursos (
+IF OBJECT_ID('MetaU_DB_User.PreMatriculasXCursos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.PreMatriculasXCursos (
         PreMatriculaXCurso INT IDENTITY(1,1) NOT NULL,
         PreMatriculaID UNIQUEIDENTIFIER NOT NULL,
         CursoCode VARCHAR(15) NOT NULL, -- REF: Oferta_Academica_DB.Cursos
@@ -196,7 +202,7 @@ IF OBJECT_ID('dbo.PreMatriculasXCursos', 'U') IS NULL
             PRIMARY KEY CLUSTERED (PreMatriculaXCurso),
 
         CONSTRAINT FK_PreMatriculasXCursos_PreMatricula
-            FOREIGN KEY (PreMatriculaID) REFERENCES PreMatriculas(PreMatriculaID),
+            FOREIGN KEY (PreMatriculaID) REFERENCES MetaU_DB_User.PreMatriculas(PreMatriculaID),
 
         CONSTRAINT UQ_PreMatriculasXCursos_PreMatricula_Curso
             UNIQUE (PreMatriculaID, CursoCode),
@@ -211,8 +217,8 @@ GO
 /* ============================================================
    MATRÍCULAS
    ============================================================ */
-IF OBJECT_ID('dbo.Matriculas', 'U') IS NULL
-    CREATE TABLE Matriculas (
+IF OBJECT_ID('MetaU_DB_User.Matriculas', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Matriculas (
         MatriculaID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         EstudianteID UNIQUEIDENTIFIER NOT NULL,
         CarreraCode VARCHAR(15) NOT NULL, -- REF: Oferta_Academica_DB.Carreras
@@ -223,7 +229,7 @@ IF OBJECT_ID('dbo.Matriculas', 'U') IS NULL
             PRIMARY KEY CLUSTERED (MatriculaID),
 
         CONSTRAINT FK_Matriculas_Estudiante
-            FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
+            FOREIGN KEY (EstudianteID) REFERENCES MetaU_DB_User.Estudiantes(EstudianteID),
 
         CONSTRAINT UQ_Matriculas_Estudiante_Carrera_Periodo
             UNIQUE (EstudianteID, CarreraCode, PeriodoID),
@@ -234,8 +240,8 @@ IF OBJECT_ID('dbo.Matriculas', 'U') IS NULL
     );
 GO
 
-IF OBJECT_ID('dbo.MatriculasXCursos', 'U') IS NULL
-    CREATE TABLE MatriculasXCursos (
+IF OBJECT_ID('MetaU_DB_User.MatriculasXCursos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.MatriculasXCursos (
         MatriculaXCurso INT IDENTITY(1,1) NOT NULL,
         MatriculaID UNIQUEIDENTIFIER NOT NULL,
         CursoCode VARCHAR(15) NOT NULL, -- REF: Oferta_Academica_DB.Cursos
@@ -246,7 +252,7 @@ IF OBJECT_ID('dbo.MatriculasXCursos', 'U') IS NULL
             PRIMARY KEY CLUSTERED (MatriculaXCurso),
 
         CONSTRAINT FK_MatriculasXCursos_Matricula
-            FOREIGN KEY (MatriculaID) REFERENCES Matriculas(MatriculaID),
+            FOREIGN KEY (MatriculaID) REFERENCES MetaU_DB_User.Matriculas(MatriculaID),
 
         CONSTRAINT UQ_MatriculasXCursos_Matricula_Curso
             UNIQUE (MatriculaID, CursoCode),

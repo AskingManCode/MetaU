@@ -1,23 +1,27 @@
 /* ============================================================
-   BASE DE DATOS: Configuraciones_DB
+   BASE DE DATOS: tiusr20pl_Configuraciones_DB;
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Configuraciones_DB') IS NULL
+IF DB_ID('tiusr20pl_Configuraciones_DB') IS NULL
 BEGIN
-    CREATE DATABASE Configuraciones_DB;
+    CREATE DATABASE tiusr20pl_Configuraciones_DB;
 END
 GO
 
-USE Configuraciones_DB;
+USE tiusr20pl_Configuraciones_DB;
 GO
 
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
+GO
 
 /* ============================================================
    1. PARÁMETROS DEL SISTEMA
    ============================================================ */
-IF OBJECT_ID('dbo.Parametros', 'U') IS NULL
-    CREATE TABLE Parametros (
+IF OBJECT_ID('MetaU_DB_User.Parametros', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Parametros (
         ParametroCode VARCHAR(10) NOT NULL,
         Valor VARCHAR(500) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,

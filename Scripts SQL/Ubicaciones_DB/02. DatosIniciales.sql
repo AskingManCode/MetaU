@@ -1,15 +1,15 @@
 /* ============================================================
    DATOS INICIALES - Tabla Provincias, Cantones, Distritos
-   Base de datos: Ubicaciones_DB
+   Base de datos: tiusr20pl_Ubicaciones_DB
    ============================================================ */
 
-USE Ubicaciones_DB;
+USE tiusr20pl_Ubicaciones_DB;
 GO
 
 /* ------------------------------------------------------------
    PROVINCIAS
    ------------------------------------------------------------ */
-INSERT INTO Provincias (Nombre)
+INSERT INTO MetaU_DB_User.Provincias (Nombre)
 VALUES 
 ('San José'),
 ('Alajuela'),
@@ -108,25 +108,18 @@ WITH CantonCTE AS (
         (81, 7, '06', 'Guácimo')
     ) AS v(id, codigoProvincia, codigo, canton)
 )
-INSERT INTO Cantones (ProvinciaID, Nombre)
+INSERT INTO MetaU_DB_User.Cantones (ProvinciaID, Nombre)
 SELECT p.ProvinciaID, c.canton
 FROM CantonCTE c
-JOIN Provincias p 
+JOIN MetaU_DB_User.Provincias p 
         ON p.Nombre = CASE c.codigoProvincia
-        WHEN 1 
-        THEN 'San José'
-        WHEN 2 
-        THEN 'Alajuela'
-        WHEN 3 
-        THEN 'Cartago'
-        WHEN 4 
-        THEN 'Heredia'
-        WHEN 5 
-        THEN 'Guanacaste'
-        WHEN 6 
-        THEN 'Puntarenas'
-        WHEN 7 
-        THEN 'Limón'
+        WHEN 1 THEN 'San José'
+        WHEN 2 THEN 'Alajuela'
+        WHEN 3 THEN 'Cartago'
+        WHEN 4 THEN 'Heredia'
+        WHEN 5 THEN 'Guanacaste'
+        WHEN 6 THEN 'Puntarenas'
+        WHEN 7 THEN 'Limón'
 END;
 GO
 
@@ -708,11 +701,11 @@ DistritoCTE AS (
         (475, 7, 81, '05', 'DUACARÍ')
     ) AS v(id, codigoProvincia, codigoCanton, codigo, distrito)
 )
-INSERT INTO Distritos (ProvinciaID, CantonID, Nombre)
+INSERT INTO MetaU_DB_User.Distritos (ProvinciaID, CantonID, Nombre)
 SELECT p.ProvinciaID, c.CantonID, d.distrito
 FROM DistritoCTE d
     JOIN CantonCTE cc ON cc.id = d.codigoCanton
     JOIN ProvinciaCTE cp ON cp.id = cc.codigoProvincia
-    JOIN Provincias p ON p.Nombre = cp.provincia
-    JOIN Cantones c ON c.ProvinciaID = p.ProvinciaID AND c.Nombre = cc.canton;
+    JOIN MetaU_DB_User.Provincias p ON p.Nombre = cp.provincia
+    JOIN MetaU_DB_User.Cantones c ON c.ProvinciaID = p.ProvinciaID AND c.Nombre = cc.canton;
 GO

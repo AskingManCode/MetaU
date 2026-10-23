@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Pagos_Reversar
+   STORED PROCEDURE: MetaU_DB_User.usp_Pagos_Reversar
    Descripción: Reversa un pago y actualiza el estado de su factura.
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Pagos_Reversar
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Pagos_Reversar
     @PagoID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -26,7 +26,7 @@ BEGIN
 
         SELECT
             @FacturaID = FacturaID
-        FROM dbo.Pagos
+        FROM MetaU_DB_User.Pagos
         WHERE PagoID = @PagoID;
 
         IF @FacturaID IS NULL
@@ -35,11 +35,11 @@ BEGIN
         BEGIN TRANSACTION;
 
         SELECT @FacturaID = FacturaID
-        FROM dbo.Facturas WITH (UPDLOCK, HOLDLOCK)
+        FROM MetaU_DB_User.Facturas WITH (UPDLOCK, HOLDLOCK)
         WHERE FacturaID = @FacturaID;
 
         SELECT @EstadoPago = EstadoPagoCode
-        FROM dbo.Pagos WITH (UPDLOCK, HOLDLOCK)
+        FROM MetaU_DB_User.Pagos WITH (UPDLOCK, HOLDLOCK)
         WHERE PagoID = @PagoID
           AND FacturaID = @FacturaID;
 
@@ -49,13 +49,13 @@ BEGIN
             RETURN;
         END
 
-        UPDATE dbo.Pagos
+        UPDATE MetaU_DB_User.Pagos
         SET EstadoPagoCode = 'REV',
             FechaReversion = SYSDATETIME()
         WHERE PagoID = @PagoID
           AND EstadoPagoCode = 'ACT';
 
-        UPDATE dbo.Facturas
+        UPDATE MetaU_DB_User.Facturas
         SET EstadoFacturaCode = 'PEND'
         WHERE FacturaID = @FacturaID
           AND EstadoFacturaCode <> 'ANU';
@@ -64,8 +64,8 @@ BEGIN
 
         SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
                estado.Nombre AS Estado
-        FROM dbo.Pagos AS pago
-        INNER JOIN dbo.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
+        FROM MetaU_DB_User.Pagos AS pago
+        INNER JOIN MetaU_DB_User.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
         WHERE pago.PagoID = @PagoID;
     END TRY
     BEGIN CATCH

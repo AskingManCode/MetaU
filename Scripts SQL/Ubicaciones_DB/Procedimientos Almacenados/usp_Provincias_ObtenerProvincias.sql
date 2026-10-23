@@ -1,13 +1,13 @@
 /* ============================================================
    STORE PROCEDURE: usp_Provincias_ObtenerProvincias
    Descripción: Lista todas las provincias activas
-   Base de Datos: Ubicaciones_DB
+   Base de Datos: tiusr20pl_Ubicaciones_DB
    ============================================================ */
 
-USE Ubicaciones_DB;
+USE tiusr20pl_Ubicaciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Provincias_ObtenerProvincias
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Provincias_ObtenerProvincias
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -16,7 +16,7 @@ BEGIN
         ProvinciaID,
         Nombre,
         Estado
-    FROM dbo.Provincias
+    FROM MetaU_DB_User.Provincias
     WHERE Estado = 1
     ORDER BY Nombre;
 END

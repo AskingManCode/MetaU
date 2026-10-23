@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Pagos_ObtenerPorID
+   STORED PROCEDURE: MetaU_DB_User.usp_Pagos_ObtenerPorID
    Descripción: Obtiene un pago por su identificador.
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Pagos_ObtenerPorID
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Pagos_ObtenerPorID
     @PagoID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -21,8 +21,8 @@ BEGIN
 
     SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
            estado.Nombre AS Estado
-    FROM dbo.Pagos AS pago
-    INNER JOIN dbo.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
+    FROM MetaU_DB_User.Pagos AS pago
+    INNER JOIN MetaU_DB_User.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode
     WHERE pago.PagoID = @PagoID;
 END
 GO

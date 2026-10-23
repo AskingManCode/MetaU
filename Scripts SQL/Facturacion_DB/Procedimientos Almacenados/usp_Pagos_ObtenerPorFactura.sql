@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Pagos_ObtenerPorFactura
+   STORED PROCEDURE: MetaU_DB_User.usp_Pagos_ObtenerPorFactura
    Descripción: Lista los pagos asociados a una factura.
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Pagos_ObtenerPorFactura
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Pagos_ObtenerPorFactura
     @FacturaID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -19,7 +19,7 @@ BEGIN
         RETURN;
     END
 
-    IF NOT EXISTS (SELECT 1 FROM dbo.Facturas WHERE FacturaID = @FacturaID)
+    IF NOT EXISTS (SELECT 1 FROM MetaU_DB_User.Facturas WHERE FacturaID = @FacturaID)
     BEGIN
         RAISERROR('No existe la factura indicada.', 16, 1);
         RETURN;
@@ -27,8 +27,8 @@ BEGIN
 
     SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
            estado.Nombre AS Estado
-    FROM dbo.Pagos AS pago
-    INNER JOIN dbo.EstadosPagos AS estado 
+    FROM MetaU_DB_User.Pagos AS pago
+    INNER JOIN MetaU_DB_User.EstadosPagos AS estado 
         ON estado.EstadoPagoCode = pago.EstadoPagoCode
     WHERE pago.FacturaID = @FacturaID
     ORDER BY pago.FechaPago, pago.PagoID;

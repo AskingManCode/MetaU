@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Notificaciones_Crear
+   STORED PROCEDURE: MetaU_DB_User.usp_Notificaciones_Crear
    Descripción: Inserta una nueva notificación con estado PENDIENTE
-   Base de datos: Notificaciones_DB
+   Base de datos: tiusr20pl_Notificaciones_DB
    ============================================================ */
 
-USE Notificaciones_DB;
+USE tiusr20pl_Notificaciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Notificaciones_Crear
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Notificaciones_Crear
     @UsuarioID UNIQUEIDENTIFIER,
     @EmailDestino VARCHAR(150),
     @PlantillaNotificacionCode VARCHAR(50) = 'CUSTOM',
@@ -47,7 +47,7 @@ BEGIN
         -- Verificar que exista la plantilla
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.Plantillas
+            FROM MetaU_DB_User.Plantillas
             WHERE PlantillaNotificacionCode = @PlantillaNotificacionCode
               AND Estado = 1
         )
@@ -59,7 +59,7 @@ BEGIN
         -- Verificar que exista el estado
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.EstadosNotificaciones
+            FROM MetaU_DB_User.EstadosNotificaciones
             WHERE EstadoNotificacionCode = @EstadoNotificacion
               AND Estado = 1
         )
@@ -68,7 +68,7 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO dbo.Notificaciones (
+        INSERT INTO MetaU_DB_User.Notificaciones (
             UsuarioID,
             EmailDestino,
             PlantillaNotificacionCode,

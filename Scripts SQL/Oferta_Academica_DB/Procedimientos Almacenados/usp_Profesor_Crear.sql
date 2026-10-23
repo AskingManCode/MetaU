@@ -1,15 +1,13 @@
-USE [Oferta_Academica_DB]
+/* ============================================================
+   STORED PROCEDURE: MetaU_DB_User.usp_Profesor_Crear
+   Descripción: Crea un profesor y sus teléfonos asociados
+   Base de datos: tiusr20pl_Oferta_Academica_DB
+   ============================================================ */
+
+USE tiusr20pl_Oferta_Academica_DB;
 GO
 
-/****** Objeto: StoredProcedure [dbo].[usp_Profesor_Crear] Fecha de script: 04/10/2026 20:42:39 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE OR ALTER PROCEDURE [dbo].[usp_Profesor_Crear]
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Profesor_Crear
     @UsuarioID UNIQUEIDENTIFIER,
     @TipoIdentificacionCode VARCHAR(15),
     @Identificacion VARCHAR(30),
@@ -17,13 +15,13 @@ CREATE OR ALTER PROCEDURE [dbo].[usp_Profesor_Crear]
     @NombreCompleto VARCHAR(175),
     @FechaNacimiento DATE,
     @Estado BIT,
-    @Telefonos dbo.TelefonoProfesorType READONLY
+    @Telefonos MetaU_DB_User.TelefonoProfesorType READONLY
 AS
 BEGIN
     DECLARE @ProfesorCreado TABLE (ProfesorID UNIQUEIDENTIFIER)
     DECLARE @ProfesorID UNIQUEIDENTIFIER
 
-    INSERT INTO dbo.Profesores
+    INSERT INTO MetaU_DB_User.Profesores
     (
         UsuarioID,
         TipoIdentificacionCode,
@@ -48,7 +46,7 @@ BEGIN
     SELECT @ProfesorID = ProfesorID
     FROM @ProfesorCreado
 
-    INSERT INTO dbo.TelefonosXProfesores (ProfesorID, Telefono, Estado)
+    INSERT INTO MetaU_DB_User.TelefonosXProfesores (ProfesorID, Telefono, Estado)
     SELECT @ProfesorID, Telefono, 1
     FROM @Telefonos
 
@@ -62,9 +60,8 @@ BEGIN
         p.FechaNacimiento,
         p.Estado,
         t.Telefono
-    FROM dbo.Profesores p
-    LEFT JOIN dbo.TelefonosXProfesores t ON p.ProfesorID = t.ProfesorID
+    FROM MetaU_DB_User.Profesores p
+    LEFT JOIN MetaU_DB_User.TelefonosXProfesores t ON p.ProfesorID = t.ProfesorID
     WHERE p.ProfesorID = @ProfesorID
 END
 GO
-

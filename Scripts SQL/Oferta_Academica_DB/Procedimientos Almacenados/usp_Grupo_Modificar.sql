@@ -1,15 +1,13 @@
-USE [Oferta_Academica_DB]
+/* ============================================================
+   STORED PROCEDURE: MetaU_DB_User.usp_Grupo_Modificar
+   Descripción: Actualiza los datos de un grupo existente
+   Base de datos: tiusr20pl_Oferta_Academica_DB
+   ============================================================ */
+
+USE tiusr20pl_Oferta_Academica_DB;
 GO
 
-/****** Objeto: StoredProcedure [dbo].[usp_Grupo_Modificar] Fecha de script: 04/10/2026 20:40:53 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-CREATE   PROCEDURE [dbo].[usp_Grupo_Modificar]
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Grupo_Modificar
     @GrupoCode VARCHAR(15),
     @NumeroGrupo TINYINT,
     @CursoCode VARCHAR(15),
@@ -20,7 +18,7 @@ CREATE   PROCEDURE [dbo].[usp_Grupo_Modificar]
     @Estado BIT
 AS
 BEGIN
-    UPDATE dbo.Grupos
+    UPDATE MetaU_DB_User.Grupos
     SET NumeroGrupo = @NumeroGrupo,
         CursoCode = @CursoCode,
         ProfesorID = @ProfesorID,
@@ -31,4 +29,3 @@ BEGIN
     WHERE GrupoCode = @GrupoCode
 END
 GO
-

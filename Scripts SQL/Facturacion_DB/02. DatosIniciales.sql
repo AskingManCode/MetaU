@@ -1,15 +1,15 @@
 /* ============================================================
    DATOS INICIALES - Tabla EstadosFacturas, EstadosPagos
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
 /* ------------------------------------------------------------
    ESTADOSFACTURAS
    ------------------------------------------------------------ */
-MERGE dbo.EstadosFacturas AS destino
+MERGE MetaU_DB_User.EstadosFacturas AS destino
 USING (VALUES
     ('PEND', 'Pendiente de Cobro'),
     ('PAG', 'Pagada'),
@@ -25,7 +25,7 @@ GO
 /* ------------------------------------------------------------
    ESTADOSPAGOS
    ------------------------------------------------------------ */
-MERGE dbo.EstadosPagos AS destino
+MERGE MetaU_DB_User.EstadosPagos AS destino
 USING (VALUES
     ('ACT', 'Activo'),
     ('REV', 'Reversado')

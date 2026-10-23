@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Parametros_Eliminar
+   STORED PROCEDURE: MetaU_DB_User.usp_Parametros_Eliminar
    Descripción: Elimina un parámetro (lógica o física)
-   Base de datos: Configuraciones_DB
+   Base de datos: tiusr20pl_Configuraciones_DB
    ============================================================ */
 
-USE Configuraciones_DB;
+USE tiusr20pl_Configuraciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Parametros_Eliminar
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Parametros_Eliminar
     @ParametroCode VARCHAR(10),
     @EliminacionFisica BIT = 0 -- 0 = lógica, 1 = física
 AS
@@ -23,7 +23,7 @@ BEGIN
         END
 
         -- Verificar existencia
-        IF NOT EXISTS (SELECT 1 FROM dbo.Parametros WHERE ParametroCode = UPPER(@ParametroCode))
+        IF NOT EXISTS (SELECT 1 FROM MetaU_DB_User.Parametros WHERE ParametroCode = UPPER(@ParametroCode))
         BEGIN
             RETURN;   -- No existe  
         END
@@ -31,7 +31,7 @@ BEGIN
         IF @EliminacionFisica = 1
         BEGIN
             -- Eliminación física
-            DELETE FROM dbo.Parametros
+            DELETE FROM MetaU_DB_User.Parametros
             OUTPUT 
                 DELETED.ParametroCode,
                 DELETED.Valor,
@@ -41,7 +41,7 @@ BEGIN
         ELSE
         BEGIN
             -- Eliminación lógica
-            UPDATE dbo.Parametros
+            UPDATE MetaU_DB_User.Parametros
             SET Estado = 0
             OUTPUT 
                 INSERTED.ParametroCode,

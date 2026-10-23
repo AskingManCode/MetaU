@@ -1,13 +1,13 @@
 /* ============================================================
-   STORED PROCEDURE: usp_Facturas_ObtenerPorID
+   STORED PROCEDURE: MetaU_DB_User.usp_Facturas_ObtenerPorID
    Descripción: Obtiene encabezado + detalle(s) de una factura
-   Base de datos: Facturacion_DB
+   Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
-USE Facturacion_DB;
+USE tiusr20pl_Facturacion_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Facturas_ObtenerPorID
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Facturas_ObtenerPorID
     @FacturaID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -35,9 +35,9 @@ BEGIN
         d.Descripcion,
         d.CursoCode,
         d.Monto AS MontoDetalle
-    FROM dbo.Facturas AS f
-    INNER JOIN dbo.EstadosFacturas AS e ON e.EstadoFacturaCode = f.EstadoFacturaCode
-    LEFT JOIN dbo.DetallesFacturas AS d ON d.FacturaID = f.FacturaID
+    FROM MetaU_DB_User.Facturas AS f
+    INNER JOIN MetaU_DB_User.EstadosFacturas AS e ON e.EstadoFacturaCode = f.EstadoFacturaCode
+    LEFT JOIN MetaU_DB_User.DetallesFacturas AS d ON d.FacturaID = f.FacturaID
     WHERE f.FacturaID = @FacturaID
     ORDER BY d.DetalleFacturaID;
 END

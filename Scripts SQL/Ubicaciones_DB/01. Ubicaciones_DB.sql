@@ -1,23 +1,28 @@
 /* ============================================================
-   BASE DE DATOS: Ubicaciones_DB
+   BASE DE DATOS: tiusr20pl_Ubicaciones_DB
    Script de creación de estructura de tablas y relaciones
    ============================================================ */
 
-IF DB_ID('Ubicaciones_DB') IS NULL
+IF DB_ID('tiusr20pl_Ubicaciones_DB') IS NULL
 BEGIN
-    CREATE DATABASE Ubicaciones_DB;
+    CREATE DATABASE tiusr20pl_Ubicaciones_DB;
 END
 GO
 
-USE Ubicaciones_DB;
+USE tiusr20pl_Ubicaciones_DB;
+GO
+
+-- Crear schema si no existe
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'MetaU_DB_User')
+    EXEC('CREATE SCHEMA MetaU_DB_User');
 GO
 
 
 /* ============================================================
    PROVINCIAS
    ============================================================ */
-IF OBJECT_ID('dbo.Provincias', 'U') IS NULL
-    CREATE TABLE Provincias (
+IF OBJECT_ID('MetaU_DB_User.Provincias', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Provincias (
         ProvinciaID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         Nombre VARCHAR(50) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
@@ -40,8 +45,8 @@ GO
 /* ============================================================
    CANTONES
    ============================================================ */
-IF OBJECT_ID('dbo.Cantones', 'U') IS NULL
-    CREATE TABLE Cantones (
+IF OBJECT_ID('MetaU_DB_User.Cantones', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Cantones (
         CantonID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         ProvinciaID UNIQUEIDENTIFIER NOT NULL,
         Nombre VARCHAR(50) NOT NULL,
@@ -51,7 +56,7 @@ IF OBJECT_ID('dbo.Cantones', 'U') IS NULL
             PRIMARY KEY CLUSTERED (CantonID),
 
         CONSTRAINT FK_Cantones_Provincia
-            FOREIGN KEY (ProvinciaID) REFERENCES Provincias(ProvinciaID),
+            FOREIGN KEY (ProvinciaID) REFERENCES MetaU_DB_User.Provincias(ProvinciaID),
 
         CONSTRAINT UQ_Cantones_Provincia_Nombre
             UNIQUE (ProvinciaID, Nombre),
@@ -71,8 +76,8 @@ GO
 /* ============================================================
    DISTRITOS
    ============================================================ */
-IF OBJECT_ID('dbo.Distritos', 'U') IS NULL
-    CREATE TABLE Distritos (
+IF OBJECT_ID('MetaU_DB_User.Distritos', 'U') IS NULL
+    CREATE TABLE MetaU_DB_User.Distritos (
         DistritoID UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
         CantonID UNIQUEIDENTIFIER NOT NULL,
         ProvinciaID UNIQUEIDENTIFIER NOT NULL,
@@ -83,10 +88,10 @@ IF OBJECT_ID('dbo.Distritos', 'U') IS NULL
             PRIMARY KEY CLUSTERED (DistritoID),
 
         CONSTRAINT FK_Distritos_Provincia
-            FOREIGN KEY (ProvinciaID) REFERENCES Provincias(ProvinciaID),
+            FOREIGN KEY (ProvinciaID) REFERENCES MetaU_DB_User.Provincias(ProvinciaID),
 
         CONSTRAINT FK_Distritos_ProvinciaCanton
-            FOREIGN KEY (ProvinciaID, CantonID) REFERENCES Cantones(ProvinciaID, CantonID),
+            FOREIGN KEY (ProvinciaID, CantonID) REFERENCES MetaU_DB_User.Cantones(ProvinciaID, CantonID),
 
         CONSTRAINT UQ_Distritos_Canton_Nombre
             UNIQUE (CantonID, Nombre),

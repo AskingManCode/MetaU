@@ -1,13 +1,13 @@
 /* ============================================================
-   STORE PROCEDURE: usp_Cantones_ObtenerCantones
+   STORE PROCEDURE: MetaU_DB_User.usp_Cantones_ObtenerCantones
    Descripción: Lista los cantones activos de una provincia
-   Base de Datos: Ubicaciones_DB
+   Base de Datos: tiusr20pl_Ubicaciones_DB
    ============================================================ */
 
-USE Ubicaciones_DB;
+USE tiusr20pl_Ubicaciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE dbo.usp_Cantones_ObtenerCantones
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Cantones_ObtenerCantones
     @ProvinciaID UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -20,7 +20,7 @@ BEGIN
     END
 
     -- Validar que la provincia exista y esté activa
-    IF NOT EXISTS (SELECT 1 FROM dbo.Provincias WHERE ProvinciaID = @ProvinciaID AND Estado = 1)
+    IF NOT EXISTS (SELECT 1 FROM MetaU_DB_User.Provincias WHERE ProvinciaID = @ProvinciaID AND Estado = 1)
     BEGIN
         RAISERROR('No se encontró la provincia especificada.', 16, 1);
         RETURN;
@@ -31,7 +31,7 @@ BEGIN
         ProvinciaID,
         Nombre,
         Estado
-    FROM dbo.Cantones
+    FROM MetaU_DB_User.Cantones
     WHERE ProvinciaID = @ProvinciaID
       AND Estado = 1
     ORDER BY Nombre;

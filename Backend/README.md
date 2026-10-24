@@ -1,374 +1,111 @@
-# Backend – MetaU (Nuevo Avatar)
+# Backend – MetaU
 
-Este directorio contiene todos los microservicios del backend de **MetaU**, construidos con **.NET 10** y **ASP.NET Core (Minimal APIs)**.
+Microservicios del sistema MetaU construidos con **.NET 10** y **ASP.NET Core (Minimal APIs)**.
 
-Cada microservicio es independiente y puede desplegarse por separado.
-
-> **Nota:**  
-> - La documentación de endpoints y diagramas se agrega gradualmente; consulta la sección de cada microservicio.
-> - La URL base de cada microservicio se agregará más adelante.
-
----
+Cada microservicio es independiente, tiene su propia base de datos remota en SQL Server y puede desplegarse por separado en el servidor Plesk.
 
 ## Tecnologías
 
-- **.NET 10** + ASP.NET Core (Minimal APIs)
-- **JWT** (autenticación y autorización)
-- **SQL Server**
-- **Entity Framework Core** y **Dapper** (según el microservicio)
-- **Hosting**: Plesk
+- .NET 10 + ASP.NET Core (Minimal APIs)
+- Autenticación y autorización con JWT + Refresh Tokens
+- SQL Server en Plesk
+- Entity Framework Core y Dapper (según el servicio)
+- Hosting: Plesk
+
+## Solución
+
+El archivo de solución es `Microservicios.slnx`.
+
+```bash
+# Restaurar y compilar todos los microservicios
+dotnet restore Microservicios.slnx
+dotnet build Microservicios.slnx
+```
+
+## Microservicios
+
+| Carpeta | Endpoint base | Descripción |
+|---------|---------------|-------------|
+| [MicroservicioLogin/](MicroservicioLogin/) | `/login` | Autenticación, generación y validación de JWT, refresh tokens |
+| [MicroservicioUsuarios/](MicroservicioUsuarios/) | `/usuario` | Administración de usuarios del sistema |
+| [MicroservicioRoles/](MicroservicioRoles/) | `/rol` | Roles y permisos |
+| [MicroservicioParametros/](MicroservicioParametros/) | `/api/parametro` | Parámetros de configuración global |
+| [MicroservicioModulos/](MicroservicioModulos/) | `/modulo` | Módulos funcionales del sistema |
+| [MicroservicioBitacoras/](MicroservicioBitacoras/) | `/bitacora` | Registro centralizado de acciones (auditoría) |
+| [MicroservicioInstituciones/](MicroservicioInstituciones/) | `/institucion` | Instituciones educativas |
+| [MicroservicioCarreras/](MicroservicioCarreras/) | `/carrera` | Carreras por institución |
+| [MicroservicioCursos/](MicroservicioCursos/) | `/curso` | Cursos por carrera |
+| [MicroservicioGrupos/](MicroservicioGrupos/) | `/grupo` | Grupos, horarios, cupos y periodos |
+| [MicroservicioPeriodos/](MicroservicioPeriodos/) | `/periodo` | Periodos académicos |
+| [MicroservicioProfesores/](MicroservicioProfesores/) | `/profesor` | Expedientes de profesores |
+| [MicroservicioExpedientesEstudiantes/](MicroservicioExpedientesEstudiantes/) | `/expediente` | Datos personales, direcciones y teléfonos de estudiantes |
+| [MicroservicioDirecciones/](MicroservicioDirecciones/) | `/api` | Catálogo geográfico de Costa Rica (provincias, cantones, distritos) |
+| [MicroservicioPreMatriculas/](MicroservicioPreMatriculas/) | `/prematricula` | Proceso de prematrícula |
+| [MicroservicioMatriculas/](MicroservicioMatriculas/) | `/matricula` | Matrícula formal |
+| [MicroservicioNotas/](MicroservicioNotas/) | `/notas` | Desglose de rubros y registro de notas |
+| [MicroservicioHistorialAcademico/](MicroservicioHistorialAcademico/) | `/historialacademico` | Consulta de historial y promedios |
+| [MicroservicioListaEstudiantes/](MicroservicioListaEstudiantes/) | `/listadoestudiantes` | Listados de estudiantes |
+| [MicroservicioFacturacion/](MicroservicioFacturacion/) | `/factura` | Generación y administración de facturas |
+| [MicroservicioPagos/](MicroservicioPagos/) | `/pago` | Registro de pagos sobre facturas |
+| [MicroservicioNotificaciones/](MicroservicioNotificaciones/) | `/api/notificar` | Envío de notificaciones por correo (SMTP) |
+
+## Configuración
+
+Cada microservicio se configura mediante:
+
+- `appsettings.json` / `appsettings.Development.json`
+- Variables de entorno (recomendado en producción)
+
+Variables comunes que suelen requerirse:
+
+- Cadenas de conexión a SQL Server (`ConnectionStrings__*`)
+- Configuración JWT (`Jwt__ClaveSecreta`, `Jwt__Issuer`, `Jwt__Audience`)
+- URLs de otros servicios (Login, Bitácoras, etc)
+- Configuración SMTP (en Notificaciones)
+
+## Ejecución local
+
+Ejemplo con el microservicio de Login:
+
+```bash
+dotnet run --project MicroservicioLogin/MicroservicioLogin.csproj
+```
+
+Se recomienda revisar el `README.md` de cada carpeta `Microservicio*` para endpoints específicos, ejemplos de requests y detalles de configuración.
+
+## Estructura típica de un microservicio
+
+```
+MicroservicioNombre/
+├── Entities/           # Modelos de dominio y DTOs
+├── Repository/         # Acceso a datos
+├── Services/           # Lógica de negocio y clientes HTTP
+├── *Endpoints.cs       # Definición de endpoints (Minimal APIs)
+├── Program.cs
+├── appsettings.json
+└── README.md           # Documentación específica del servicio
+```
+
+## Documentación relacionada
+
+| Recurso | Ubicación |
+|---------|-----------|
+| Documentación general del proyecto | [../README.md](../README.md) |
+| Análisis, diseño y diagramas | [../Documentacion/](../Documentacion/) (ver [README](../Documentacion/README.md)) |
+| Diagramas de clases por microservicio | [../Documentacion/Diagramas Generales/Clases/Microservicios/](../Documentacion/Diagramas%20Generales/Clases/Microservicios/) |
+| Scripts SQL de las bases de datos | [../Scripts SQL/](../Scripts%20SQL/) (ver [README](../Scripts%20SQL/README.md)) |
+| Evidencia de pruebas técnicas | [../Pruebas Tecnicas/](../Pruebas%20Tecnicas/) (ver [README](../Pruebas%20Tecnicas/README.md)) |
+
+## Despliegue
+
+Los microservicios se despliegan de forma individual en el servidor Plesk.  
+Cada uno requiere:
+
+- Configuración de variables de entorno
+- Cadena de conexión a su base de datos
+- Publicación del servicio REST
+- Verificación de endpoints y validación de tokens JWT
 
 ---
 
-## Lista de Microservicios
-
-### MicroservicioUsuarios
-**Responsable:** *Brandon Guido Navarro*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/usuario`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra la identidad de los usuarios del sistema (creación, modificación, eliminación y consulta).
-
-**Diagrama de clases:**  
-[DiagramaClases_Login.drawio](../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Login.drawio)
-
----
-
-### MicroservicioRoles
-**Responsable:** *Brandon Guido Navarro*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/rol`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Gestiona los roles que se pueden asignar a los usuarios del sistema.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioParametros
-**Responsable:** *Sebastián Jiménez Arrieta* 
-
-**URL base:** *https://localhost:PORT/api/parametro* (Este servicio tendrá un deploy en el futuro) 
-
-**Endpoint base:** `/api/parametro` 
-
-**Endpoints:** 
-- `GET /api/parametro/` — lista los parámetros.
-- `GET /api/parametro/{ParametroCode}` — consulta un parámetro por código.
-- `POST /api/parametro/` — crea un parámetro.
-- `PATCH /api/parametro/{ParametroCode}` — actualiza su valor.
-- `DELETE /api/parametro/{ParametroCode}?eliminacionFisica=false` — desactiva el parámetro; con `true` lo elimina físicamente.
-
-Administra los parámetros de configuración global del sistema.
-
-**Guía de uso:** 
-[MicroservicioParametros/README.md](MicroservicioParametros/README.md) — autenticación, formato de datos, ejemplos, respuestas y configuración.
-
----
-
-### MicroservicioModulos
-**Responsable:** *Brandon Guido Navarro*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/modulo`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra los módulos funcionales del sistema.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioLogin
-**Responsable:** *Julián Solano Obando*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/login`  
-**Endpoints:**  
-- `POST /login` — autentica mediante los headers `NombreUsuario` y `Contrasena`.
-- `POST /refresh` — rota el refresh token recibido en el header `RefreshToken`; si la cuenta está inactiva, revoca ese token y responde `401`.
-- `POST /validate` — valida el JWT recibido como `Authorization: Bearer <token>`.
-
-Maneja la autenticación de usuarios, generación y validación de tokens JWT, y renovación de sesiones.
-
-Configurar mediante variables de entorno `ConnectionStrings__LoginDb`, `Jwt__ClaveSecreta` (mínimo 32 bytes), `Jwt__Issuer` y `Jwt__Audience`. No guardar secretos JWT ni credenciales de base de datos en el repositorio.
-
-**Diagrama de clases:**  
-[DiagramaClases_Login.drawio](../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Login.drawio)
-
----
-
-### MicroservicioInstituciones
-**Responsable:** *Julián Solano Obando*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/institucion`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra las instituciones educativas registradas en el sistema.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioCarreras
-**Responsable:** *Julián Solano Obando*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/carrera`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Gestiona las carreras ofrecidas por las instituciones.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioCursos
-**Responsable:** *Julián Solano Obando*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/curso`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra los cursos pertenecientes a las carreras.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioGrupos
-**Responsable:** *Sebastián Obando Ramírez*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/grupo`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Gestiona los grupos de cursos, incluyendo profesor, horario, cupo y periodo.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioPeriodos
-**Responsable:** *Sebastián Obando Ramírez*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/periodo`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra los periodos académicos del sistema.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioProfesores
-**Responsable:** *Sebastián Obando Ramírez*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/profesor`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra los expedientes de los profesores.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioPreMatriculas
-**Responsable:** *Anthony Gamboa Elizondo*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/prematricula`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Gestiona el proceso de prematrícula de estudiantes.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioMatriculas
-**Responsable:** *Anthony Gamboa Elizondo*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/matricula`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Administra el proceso de matrícula formal de estudiantes.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioExpedientesEstudiantes
-**Responsable:** *Anthony Gamboa Elizondo*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/expediente`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Gestiona el expediente completo de los estudiantes (datos personales, dirección y teléfonos).
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioDirecciones
-**Responsable:** *Sebastián Jiménez Arrieta*  
-
-**URL base:** `http://localhost:PORT` (Este servicio tendrá un deploy en el futuro)
-
-**Endpoint base:** `/api`
-
-**Endpoints:**  
-- `GET /api/provincias` — lista las provincias activas.
-- `GET /api/cantones/{ProvinciaID}` — lista los cantones activos de una provincia.
-- `GET /api/distritos/{ProvinciaID}/{CantonID}` — lista los distritos activos del cantón indicado.
-
-Provee la información geográfica de Costa Rica (provincias, cantones y distritos).
-
-**Guía de uso:** [MicroservicioDirecciones/README.md](MicroservicioDirecciones/README.md) — autenticación, ejemplos, respuestas y configuración.
-
----
-
-### MicroservicioNotas
-**Responsable:** *Anthony Gamboa Elizondo*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/notas`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Gestiona el desglose de rubros de evaluación y el registro de notas de los estudiantes.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioHistorialAcademico
-**Responsable:** *Sebastián Obando Ramírez*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/historialacademico`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Consulta el historial académico de un estudiante (cursos y promedios obtenidos).
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioListaEstudiantes
-**Responsable:** *Brandon Guido Navarro*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/listadoestudiantes`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Genera listados de estudiantes matriculados en un periodo específico.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioFacturacion
-**Responsable:** *Sebastián Jiménez Arrieta*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/factura`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Genera y administra las facturas a partir de la matrícula de los estudiantes.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioPagos
-**Responsable:** *Sebastián Jiménez Arrieta*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/pago`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Registra y gestiona los pagos realizados sobre las facturas.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-### MicroservicioNotificaciones
-**Responsable:** *Sebastián Jiménez Arrieta*  
-**URL base local:** `http://localhost:5186` o `https://localhost:7234`
-
-**Endpoint base:** `/api/notificar`
-**Endpoints:**  
-- `POST /api/notificar/` — registra y envía un correo de notificación.
-
-Envía notificaciones por correo electrónico mediante SMTP y registra los intentos en `Notificaciones_DB`.
-
-**Guía de uso:** [MicroservicioNotificaciones/README.md](MicroservicioNotificaciones/README.md) — autenticación, validaciones, ejemplos, respuestas, configuración SMTP y persistencia.
-
----
-
-### MicroservicioBitacoras
-**Responsable:** *Sebastián Obando Ramírez*  
-**URL base:** *(pendiente de definir)*  
-**Endpoint base:** `/bitacora`  
-**Endpoints:**  
-*(pendiente de definir)*  
-
-Registra de forma centralizada todas las acciones realizadas en el sistema para auditoría.
-
-**Diagrama de clases:**  
-*(pendiente de agregar)*
-
----
-
-## Estructura de carpetas
-
-```text
-Backend/
-|-- MicroservicioUsuarios/
-|-- MicroservicioRoles/
-|-- MicroservicioParametros/
-|-- MicroservicioModulos/
-|-- MicroservicioLogin/
-|-- MicroservicioInstituciones/
-|-- MicroservicioCarreras/
-|-- MicroservicioCursos/
-|-- MicroservicioGrupos/
-|-- MicroservicioPeriodos/
-|-- MicroservicioProfesores/
-|-- MicroservicioPreMatriculas/
-|-- MicroservicioMatriculas/
-|-- MicroservicioExpedientesEstudiantes/
-|-- MicroservicioDirecciones/
-|-- MicroservicioNotas/
-|-- MicroservicioHistorialAcademico/
-|-- MicroservicioListaEstudiantes/
-|-- MicroservicioFacturacion/
-|-- MicroservicioPagos/
-|-- MicroservicioNotificaciones/
-|-- MicroservicioBitacoras/
-|-- README.md # Este archivo
+Para detalles de endpoints, ejemplos de uso y configuración específica, consulta el `README.md` dentro de cada carpeta `Microservicio*`.

@@ -15,7 +15,7 @@ namespace MicroservicioLogin.Repository
         public async Task GuardarAsync(RefreshToken refreshToken)
         {
             const string sql = @"
-                INSERT INTO RefreshToken (UsuarioID, TokenHash, Revocado, FechaCreacion, FechaExpiracion)
+                INSERT INTO MetaU_DB_User.RefreshToken (UsuarioID, TokenHash, Revocado, FechaCreacion, FechaExpiracion)
                 VALUES (@UsuarioID, @TokenHash, @Revocado, @FechaCreacion, @FechaExpiracion)";
 
             using var conexion = _conexiones.CrearConexion();
@@ -26,7 +26,7 @@ namespace MicroservicioLogin.Repository
         {
             const string sql = @"
                 SELECT RefreshTokenID, UsuarioID, TokenHash, Revocado, FechaCreacion, FechaExpiracion
-                FROM RefreshToken
+                FROM MetaU_DB_User.RefreshToken
                 WHERE TokenHash = @TokenHash
                   AND Revocado = 0
                   AND FechaExpiracion > SYSDATETIME()";
@@ -38,7 +38,7 @@ namespace MicroservicioLogin.Repository
         public async Task RevocarAsync(int refreshTokenId)
         {
             const string sql = @"
-                UPDATE RefreshToken
+                UPDATE MetaU_DB_User.RefreshToken
                 SET Revocado = 1
                 WHERE RefreshTokenID = @RefreshTokenId";
 

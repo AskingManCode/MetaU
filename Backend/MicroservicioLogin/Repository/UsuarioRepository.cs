@@ -16,7 +16,7 @@ namespace MicroservicioLogin.Repository
         {
             const string sql = @"
                 SELECT UsuarioID, RolCode, Email, ContrasenaHash, Estado
-                FROM Usuarios
+                FROM MetaU_DB_User.Usuarios
                 WHERE Email = @Email";
 
             using var conexion = _conexiones.CrearConexion();
@@ -27,7 +27,7 @@ namespace MicroservicioLogin.Repository
         {
             const string sql = @"
                 SELECT UsuarioID, RolCode, Email, ContrasenaHash, Estado
-                FROM Usuarios
+                FROM MetaU_DB_User.Usuarios
                 WHERE UsuarioID = @UsuarioId";
 
             using var conexion = _conexiones.CrearConexion();

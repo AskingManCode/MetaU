@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿
+using Microsoft.Data.SqlClient;
 using MicroservicioProfesores.Entities;
 using System.Data;
 
@@ -16,20 +17,16 @@ namespace MicroservicioProfesores.Repository
         public async Task<Profesor> CrearAsync(Profesor profesor)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Profesor_Crear", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Profesor_Crear]", connection);
             command.CommandType = CommandType.StoredProcedure;
-
             AgregarParametros(command, profesor, false);
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
             Profesor? creado = null;
-
             while (await reader.ReadAsync())
             {
                 creado ??= MapearProfesor(reader);
-
                 if (!reader.IsDBNull(8))
                     creado.Telefonos.Add(reader.GetString(8));
             }
@@ -40,11 +37,9 @@ namespace MicroservicioProfesores.Repository
         public async Task ModificarAsync(Profesor profesor)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Profesor_Modificar", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Profesor_Modificar]", connection);
             command.CommandType = CommandType.StoredProcedure;
-
             AgregarParametros(command, profesor, true);
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -52,10 +47,9 @@ namespace MicroservicioProfesores.Repository
         public async Task EliminarAsync(Guid profesorID)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Profesor_Eliminar", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Profesor_Eliminar]", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add("@ProfesorID", SqlDbType.UniqueIdentifier).Value = profesorID;
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -63,24 +57,20 @@ namespace MicroservicioProfesores.Repository
         public async Task<IEnumerable<Profesor>> ObtenerTodosAsync()
         {
             var profesores = new Dictionary<Guid, Profesor>();
-
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Profesor_ObtenerTodos", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Profesor_ObtenerTodos]", connection);
             command.CommandType = CommandType.StoredProcedure;
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
             {
                 var profesorID = reader.GetGuid(0);
-
                 if (!profesores.TryGetValue(profesorID, out var profesor))
                 {
                     profesor = MapearProfesor(reader);
                     profesores.Add(profesorID, profesor);
                 }
-
                 if (!reader.IsDBNull(8))
                     profesor.Telefonos.Add(reader.GetString(8));
             }
@@ -91,23 +81,19 @@ namespace MicroservicioProfesores.Repository
         public async Task<Profesor?> ObtenerPorIdAsync(Guid profesorID)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Profesor_ObtenerPorId", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Profesor_ObtenerPorId]", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add("@ProfesorID", SqlDbType.UniqueIdentifier).Value = profesorID;
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
             Profesor? profesor = null;
-
             while (await reader.ReadAsync())
             {
                 profesor ??= MapearProfesor(reader);
-
                 if (!reader.IsDBNull(8))
                     profesor.Telefonos.Add(reader.GetString(8));
             }
-
             return profesor;
         }
 
@@ -125,7 +111,7 @@ namespace MicroservicioProfesores.Repository
             command.Parameters.Add("@Estado", SqlDbType.Bit).Value = profesor.Estado;
 
             var telefonos = command.Parameters.Add("@Telefonos", SqlDbType.Structured);
-            telefonos.TypeName = "dbo.TelefonoProfesorType";
+            telefonos.TypeName = "[MetaU_DB_User].[TelefonoProfesorType]";
             telefonos.Value = CrearTablaTelefonos(profesor.Telefonos);
         }
 
@@ -133,10 +119,8 @@ namespace MicroservicioProfesores.Repository
         {
             var tabla = new DataTable();
             tabla.Columns.Add("Telefono", typeof(string));
-
             foreach (var telefono in telefonos)
                 tabla.Rows.Add(telefono);
-
             return tabla;
         }
 

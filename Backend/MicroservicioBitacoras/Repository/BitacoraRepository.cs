@@ -16,10 +16,7 @@ namespace MicroservicioBitacoras.Repository
 
         public async Task RegistrarAsync(Guid usuario, string descripcion)
         {
-            const string query = """
-                INSERT INTO dbo.Bitacora (Usuario, Descripcion)
-                VALUES (@Usuario, @Descripcion)
-                """;
+            const string query = "INSERT INTO [MetaU_DB_User].[Bitacora] (Usuario, Descripcion) VALUES (@Usuario, @Descripcion)";
 
             await using var connection = new SqlConnection(_connectionString);
             await using var command = new SqlCommand(query, connection);
@@ -33,10 +30,7 @@ namespace MicroservicioBitacoras.Repository
 
         public async Task<IEnumerable<Bitacora>> ObtenerTodosAsync()
         {
-            const string query = """
-                SELECT IdBitacora, FechaBitacora, Usuario, Descripcion
-                FROM dbo.Bitacora
-                """;
+            const string query = "SELECT IdBitacora, FechaBitacora, Usuario, Descripcion FROM [MetaU_DB_User].[Bitacora]";
 
             var bitacoras = new List<Bitacora>();
 

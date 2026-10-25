@@ -48,7 +48,7 @@ Cada carpeta incluye un diagrama ER en `Diagrama Entidad Relacion/`. Estos diagr
 |---------|-----------|
 | Documentación general del proyecto | [../README.md](../README.md) |
 | Detalle de microservicios | [../Backend/README.md](../Backend/README.md) |
-| Diagramas de análisis y diseño | [../Documentacion/](../Documentacion/) |
+| Diagramas de análisis y diseño | [../Documentacion/README.md](../Documentacion/README.md) |
 | Diagramas de bases de datos (generales) | [../Documentacion/Diagramas Generales/Bases de Datos/](../Documentacion/Diagramas%20Generales/Bases%20de%20Datos/) |
 
 ---

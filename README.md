@@ -120,7 +120,7 @@ Las reglas de ramas, commits y revisión están documentadas en:
 |---------|-----------|
 | Análisis, diseño y diagramas | [Documentacion/](Documentacion/) (ver [Documentacion/README.md](Documentacion/README.md)) |
 | Diagramas de arquitectura, casos de uso, clases y bases de datos | [Documentacion/Diagramas Generales](Documentacion/Diagramas%20Generales/) |
-| Evidencia de pruebas técnicas | [Pruebas Tecnicas/](Pruebas%20Tecnicas/) |
+| Evidencia de pruebas técnicas | [Pruebas Tecnicas/](Pruebas%20Tecnicas/) (ver [Pruebas Tecnicas/README.md](Pruebas%20Tecnicas/README.md)) |
 | Scripts SQL y diagramas entidad-relación | [Scripts SQL/](Scripts%20SQL/) (ver [Scripts SQL/README.md](Scripts%20SQL/README.md)) |
 | Detalle de cada microservicio (endpoints, configuración) | `Backend/Microservicio*/README.md` y [Backend/README.md](Backend/README.md) |
 | Planeación del frontend | [Frontend/README.md](Frontend/README.md) |

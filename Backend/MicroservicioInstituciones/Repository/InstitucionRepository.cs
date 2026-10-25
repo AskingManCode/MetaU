@@ -17,7 +17,7 @@ namespace MicroservicioInstituciones.Repository
         {
             const string sql = @"
                 SELECT InstitucionCode, Nombre, Estado
-                FROM Instituciones
+                FROM MetaU_DB_User.Instituciones
                 WHERE InstitucionCode = @InstitucionCode AND Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -28,7 +28,7 @@ namespace MicroservicioInstituciones.Repository
         {
             const string sql = @"
                 SELECT InstitucionCode, Nombre, Estado
-                FROM Instituciones
+                FROM MetaU_DB_User.Instituciones
                 WHERE Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -39,7 +39,7 @@ namespace MicroservicioInstituciones.Repository
         // aunque este soft-deleted no se puede reusar el mismo codigo.
         public async Task<bool> ExisteAsync(string institucionCode)
         {
-            const string sql = "SELECT COUNT(1) FROM Instituciones WHERE InstitucionCode = @InstitucionCode";
+            const string sql = "SELECT COUNT(1) FROM MetaU_DB_User.Instituciones WHERE InstitucionCode = @InstitucionCode";
 
             using var conexion = _conexiones.CrearConexion();
             var cantidad = await conexion.ExecuteScalarAsync<int>(sql, new { InstitucionCode = institucionCode });
@@ -49,7 +49,7 @@ namespace MicroservicioInstituciones.Repository
         public async Task CrearAsync(Institucion institucion)
         {
             const string sql = @"
-                INSERT INTO Instituciones (InstitucionCode, Nombre)
+                INSERT INTO MetaU_DB_User.Instituciones (InstitucionCode, Nombre)
                 VALUES (@InstitucionCode, @Nombre)";
 
             using var conexion = _conexiones.CrearConexion();
@@ -59,7 +59,7 @@ namespace MicroservicioInstituciones.Repository
         public async Task<bool> ActualizarAsync(string institucionCode, string nombre)
         {
             const string sql = @"
-                UPDATE Instituciones
+                UPDATE MetaU_DB_User.Instituciones
                 SET Nombre = @Nombre
                 WHERE InstitucionCode = @InstitucionCode AND Estado = 1";
 
@@ -72,7 +72,7 @@ namespace MicroservicioInstituciones.Repository
         public async Task<bool> EliminarAsync(string institucionCode)
         {
             const string sql = @"
-                UPDATE Instituciones
+                UPDATE MetaU_DB_User.Instituciones
                 SET Estado = 0
                 WHERE InstitucionCode = @InstitucionCode AND Estado = 1";
 

@@ -87,5 +87,25 @@ namespace MicroservicioRoles.Services
 
             return existente;
         }
+
+        public async Task<IEnumerable<RolModulo>> ObtenerPermisosAsync(string id)
+        {
+            await ObtenerPorIdAsync(id);
+            return await _rolRepository.ObtenerPermisosAsync(id);
+        }
+
+        public async Task<(RolModulo Anterior, RolModulo Actual)> ActualizarPermisoAsync(string id, string moduloId, bool estado)
+        {
+            var permisos = await ObtenerPermisosAsync(id);
+            var anterior = permisos.FirstOrDefault(p => p.IdModulo == moduloId)
+                ?? throw new KeyNotFoundException($"No existe un módulo con ID '{moduloId}'");
+
+            var filas = await _rolRepository.ActualizarPermisoAsync(id, moduloId, estado);
+            if (filas <= 0)
+                throw new ApplicationException("No se pudo actualizar el permiso");
+
+            var actual = new RolModulo { IdModulo = anterior.IdModulo, Nombre = anterior.Nombre, Estado = estado };
+            return (anterior, actual);
+        }
     }
 }

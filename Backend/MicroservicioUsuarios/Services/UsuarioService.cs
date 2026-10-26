@@ -30,15 +30,16 @@ namespace MicroservicioUsuarios.Services
 
         public Task<IEnumerable<Usuario>> ListarAsync() => _repository.ListarAsync();
 
-        public Task<IEnumerable<Usuario>> FiltrarAsync(string? identificacion, string? nombre, string? tipo)
-            => _repository.FiltrarAsync(identificacion, nombre, tipo);
+        public Task<IEnumerable<Usuario>> FiltrarAsync(string? identificacion, string? nombre, string? tipo, string? dominio = null, string? rol = null)
+    => _repository.FiltrarAsync(identificacion, nombre, tipo, dominio?.Trim().TrimStart('@'), rol);
 
-        public Task<IEnumerable<Usuario>> ConsultarAsync(string? identificacion, string? nombre, string? tipo)
+        public Task<IEnumerable<Usuario>> ConsultarAsync(string? identificacion, string? nombre, string? tipo, string? dominio = null, string? rol = null)
         {
-            var hayFiltro = identificacion is not null || nombre is not null || tipo is not null;
+            var hayFiltro = identificacion is not null || nombre is not null || tipo is not null
+                            || dominio is not null || rol is not null;
 
             return hayFiltro
-                ? FiltrarAsync(identificacion, nombre, tipo)
+                ? FiltrarAsync(identificacion, nombre, tipo, dominio, rol)
                 : ListarAsync();
         }
 

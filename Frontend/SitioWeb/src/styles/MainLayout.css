@@ -1,0 +1,154 @@
+/* ---------- Sidebar ---------- */
+.sidebar {
+    width: 72px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #1e3a8a;
+    color: #fff;
+    overflow: hidden;
+    transition: width 0.25s ease;
+}
+
+.sidebar.open {
+    width: 260px;
+}
+
+.sidebar-header {
+    height: 72px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-logo {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 12px 8px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar-footer {
+    height: 52px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ---------- Items del menú ---------- */
+.menu-item {
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.menu-item:hover,
+.menu-item.is-active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.menu-item.is-active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.menu-icon {
+    width: 24px;
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+    text-align: center;
+}
+
+.menu-chevron {
+    font-size: 0.8rem;
+    transition: transform 0.2s;
+}
+
+.menu-chevron.rotated {
+    transform: rotate(90deg);
+}
+
+/* ---------- Submenú ---------- */
+.submenu {
+    margin: 0 0 8px 27px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.submenu-item {
+    display: block;
+    margin-bottom: 2px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.submenu-item:hover,
+.submenu-item.is-active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.submenu-item.is-active {
+    font-weight: 600;
+}
+
+/* ---------- Contenido ---------- */
+.content {
+    min-width: 0;
+}
+
+.topbar {
+    height: 72px;
+}
+
+.user-name {
+    font-size: 0.9rem;
+}
+
+.user-role {
+    font-size: 0.8rem;
+}
+
+.app-footer {
+    min-height: 52px;
+}

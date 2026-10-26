@@ -1,102 +1,259 @@
 import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Container, Nav, Navbar, Button, Offcanvas } from 'react-bootstrap';
+import { Outlet, useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { Container, Navbar, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import logo from '../assets/logo.jpg';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import '../styles/MainLayout.css';
+import logo from '../assets/logo.png';
 
-export default function MainLayout(){
+const MENU = [
     
+    { label: 'Inicio', icon: 'bi-house-door', to: '/', end: true },
+    {
+        label: 'Oferta Académica',
+        icon: 'bi-building',
+        children: [
+            { label: 'Instituciones', to: '/instituciones' },
+            { label: 'Carreras', to: '/carreras' },
+            { label: 'Cursos', to: '/cursos' },
+            { label: 'Grupos', to: '/grupos' },
+            { label: 'Periodos', to: '/periodos' },
+        ],
+    },
+    {
+        label: 'Personas',
+        icon: 'bi-people',
+        children: [
+            { label: 'Profesores', to: '/profesores' },
+            { label: 'Expedientes', to: '/expedientes' },
+        ],
+    },
+    {
+        label: 'Matrícula',
+        icon: 'bi-card-checklist',
+        children: [
+            { label: 'Pre-matrícula', to: '/prematricula' },
+            { label: 'Matrícula', to: '/matricula' },
+        ],
+    },
+    {
+        label: 'Evaluación',
+        icon: 'bi-journal-check',
+        children: [
+            { label: 'Notas', to: '/notas' },
+            { label: 'Historial', to: '/historial' },
+            { label: 'Listados', to: '/listados' },
+        ],
+    },
+    {
+        label: 'Finanzas',
+        icon: 'bi-cash-coin',
+        children: [
+            { label: 'Facturas', to: '/facturas' },
+            { label: 'Pagos', to: '/pagos' },
+        ],
+    },
+    {
+        label: 'Comunicación',
+        icon: 'bi-bell',
+        children: [{ label: 'Notificaciones', to: '/notificaciones' }],
+    },
+    {
+        label: 'Sistema',
+        icon: 'bi-gear',
+        children: [
+            { label: 'Usuarios', to: '/usuarios' },
+            { label: 'Roles', to: '/roles' },
+            { label: 'Módulos', to: '/modulos' },
+            { label: 'Parámetros', to: '/parametros' },
+            { label: 'Bitácoras', to: '/bitacoras' },
+        ],
+    },
+];
+
+const menuClass = (isActive) => `menu-item ${isActive ? 'is-active' : ''}`;
+
+function SidebarLink({ item, collapsed }) {
+    return (
+        <NavLink
+            to={item.to}
+            end={item.end}
+            title={collapsed ? item.label : undefined}
+            className={({ isActive }) => menuClass(isActive)}
+        >
+            <i className={`bi ${item.icon} menu-icon`} />
+            {!collapsed && <span>{item.label}</span>}
+        </NavLink>
+    );
+}
+
+function SubmenuLink({ item }) {
+    return (
+        <NavLink
+            to={item.to}
+            className={({ isActive }) => `submenu-item ${isActive ? 'is-active' : ''}`}
+        >
+            {item.label}
+        </NavLink>
+    );
+}
+
+function SidebarSection({ item, collapsed, open, onToggle }) {
+    const { pathname } = useLocation();
+    const hasActiveChild = item.children.some((l) => pathname.startsWith(l.to));
+
+    return (
+        <div>
+            <button
+                type="button"
+                onClick={onToggle}
+                aria-expanded={open}
+                title={collapsed ? item.label : undefined}
+                className={menuClass(hasActiveChild)}
+            >
+                <i className={`bi ${item.icon} menu-icon`} />
+                {!collapsed && (
+                    <>
+                        <span className="flex-grow-1 text-start">{item.label}</span>
+                        <i className={`bi bi-chevron-right menu-chevron ${open ? 'rotated' : ''}`} />
+                    </>
+                )}
+            </button>
+
+            {!collapsed && open && (
+                <div className="submenu">
+                    {item.children.map((child) => (
+                        <SubmenuLink key={child.to} item={child} />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function MainLayout() {
+
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [openSection, setOpenSection] = useState(null);
     const navigate = useNavigate();
 
-    // Datos temporales (luego deben venir del contexto / login)
+    // Dato temporal (luego debe venir del contexto / login)
     const usuario = { nombre: 'Usuario Administrador', rol: 'Administrador' };
+    const usuario2 = { nombre: 'Usuario Profesor', rol: 'Profesor' }
+
+    const toggleSection = (label) => {
+        setSidebarOpen(true); // si está colapsado, se expande para mostrar el submenú
+        setOpenSection((prev) => (prev === label && sidebarOpen ? null : label));
+    };
 
     const handleLogout = () => {
-        // Esto más adelante limpiará el token
+        // Más adelante deberá limpiar el token
         navigate('/login');
-    }
+    };
 
-    return(
-
+    return (
         <div className="d-flex w-100" style={{ minHeight: '100vh' }}>
 
-            {/** SIDEBAR */}
-            <div className="text-white d-flex flex-column" 
-                style={{
-                    width: sidebarOpen ? '250px' : '83px',
-                    transition: 'width 0.25s ease',
-                    flexShrink: 0,
-                    backgroundColor: '#1e3a8a',
-                }}>
-                
-                {/** Logo + Título */}
-                <div className="p-3 border-bottom border-white border-opacity-25 d-flex align-items-center gap-2" >
-                    <img 
-                        src={logo} 
-                        alt="Logo Meta U" 
-                        style={{ width: 48, height: 48, objectFit: 'contain' }}
-                        className="bg-white rounded-circle p-1"
-                    />
-                    {sidebarOpen && <span className="fw-bold fs-3">Meta U</span>}
+            {/* SIDEBAR */}
+            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+                <div className="sidebar-header">
+                    <img src={logo} alt="Logo Meta U" className="sidebar-logo" />
+                    {sidebarOpen && <span className="sidebar-title">Meta U</span>}
                 </div>
 
-                {/** Menú */}
-                <Nav className="flex-column flex-grow-1 p-2">
-                    <Nav.Link href='/inicio' className="text-white">
-                        {sidebarOpen ? 'Inicio' : 'I'} 
-                    </Nav.Link>
-                    <Nav.Link href='/usuarios' className='text-white'>
-                        {sidebarOpen ? 'Usuarios' : 'U'}
-                    </Nav.Link>
-                    {/** Más ítems que se irán agregando */}
-                </Nav>
-                
-                {/** Botón para abrir/cerrar sidebar */}
-                <div className="border-top border-white border-opacity-25 d-flex justify-content-center align-items-center" style={{ minHeight: '62px' }}>
-
-                    <Button variant="light" size="sm" className="rounded-circle d-flex align-items-center justify-content-center"
-                     style={{ width: 42, height: 42 }} onClick={ () => setSidebarOpen(!sidebarOpen) }>
-                        { sidebarOpen ? (
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-                            </svg>
+                <nav className="sidebar-nav">
+                    {MENU.map((item) =>
+                        item.children ? (
+                            <SidebarSection
+                                key={item.label}
+                                item={item}
+                                collapsed={!sidebarOpen}
+                                open={openSection === item.label}
+                                onToggle={() => toggleSection(item.label)}
+                            />
                         ) : (
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        )}
+                            <SidebarLink key={item.label} item={item} collapsed={!sidebarOpen} />
+                        )
+                    )}
+                </nav>
+
+                <div className="sidebar-footer">
+                    <Button
+                        variant="light"
+                        size="sm"
+                        className="rounded-circle d-flex align-items-center justify-content-center"
+                        style={{ width: 36, height: 36 }}
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        aria-label={sidebarOpen ? 'Contraer menú' : 'Expandir menú'}
+                    >
+                        <i className={`bi ${sidebarOpen ? 'bi-chevron-left' : 'bi-chevron-right'}`} />
                     </Button>
-
                 </div>
+            </aside>
 
-            </div>
-            
-            {/** CONTENIDO */}
-            <div className="flex-grow-1 d-flex flex-column">
-                
-                {/** TOPBAR */}
-                <Navbar bg="white" className='border-bottom shadow-sm px-3' style={{ minHeight: '82px' }}>
-                    <Container fluid>
-                        <Navbar.Brand className="me-auto"></Navbar.Brand>
-                        <div className="d-flex align-items-center gap-3">
-                            <span className="text-secondary small">
-                                {usuario.nombre} ({usuario.rol})
-                            </span>
-                            <Button variant="outline-danger" size="sm" onClick={handleLogout}>
-                                Salir
-                            </Button>
+            {/* CONTENIDO */}
+            <div className="content flex-grow-1 d-flex flex-column">
+
+                {/* TOPBAR */}
+                <Navbar bg="white" className="topbar border-bottom shadow-sm px-3">
+                    <Container fluid className="justify-content-end gap-3">
+                        <Button
+                            variant="light"
+                            className="rounded-circle border-0 p-0 d-flex align-items-center justify-content-center"
+                            style={{ width: 44, height: 44 }}
+                            aria-label="Perfil de usuario"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="48"
+                                height="48"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="text-secondary"
+                            >
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                <path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+                            </svg>
+                        </Button>
+                        
+                        <div className="d-flex flex-column lh-sm">
+                            <span className="user-name fw-semibold text-dark">{usuario.nombre}</span>
+                            <span className="user-role text-muted">{usuario.rol}</span>
                         </div>
+
+                        <Button
+                            variant="outline-secondary"
+                            size="sm"
+                            className="d-flex align-items-center gap-2"
+                            onClick={handleLogout}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                <path d="M9 12h12l-3 -3" />
+                                <path d="M18 15l3 -3" />
+                            </svg>
+                        </Button>
                     </Container>
                 </Navbar>
 
-                {/** ÁREA DE CONTENIDO */}
-                <main className='p-4 bg-light flex-grow-1'>
-                    <Outlet /> {/** Aquí se renderizan las páginas */}
+                {/* ÁREA DE CONTENIDO */}
+                <main className="p-4 bg-light flex-grow-1">
+                    <Outlet />
                 </main>
 
+                {/* FOOTER */}
+                <footer className="app-footer bg-white border-top text-muted small py-2 px-4 d-flex align-items-center justify-content-between">
+                    <span>© {new Date().getFullYear()} Meta U</span>
+                    <span className="d-none d-md-inline">v0.1.0</span>
+                </footer>
             </div>
-
         </div>
     );
 }

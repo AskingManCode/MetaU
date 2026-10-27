@@ -1,30 +1,40 @@
 import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import Notification from '../../../components/Notification';
+import { useState } from 'react';
 
 function Usuarios() {
 
-  const handleNuevoUsuario = () => {
-    // Aquí más adelante abriremos el formulario o navegaremos a otra pantalla
-    alert('Aquí se abrirá la pantalla de Nuevo Usuario');
-    // Ejemplo futuro: navigate('/usuarios/nuevo');
-  };
+    const [notification, setNotification] = useState(null);
 
-  return (
-    <div>
-        
-      <MaintenanceHeader
-        title="Mantenimiento de Usuarios"
-        buttonLabel="Nuevo Usuario"
-        onButtonClick={handleNuevoUsuario}
-      />
+    const handleNuevoUsuario = () => {
+        // Aquí más adelante abriremos el formulario o navegaremos a otra pantalla
+        setNotification({ type: 'info', message: 'Aquí se abrirá la pantalla de Nuevo Usuario' });
+        // Ejemplo futuro: navigate('/usuarios/nuevo');
+    };
 
-      {/* Aquí después irá la tabla / listado */}
-      <div className="card border-0 shadow-sm">
-        <div className="card-body">
-          <p className="text-muted mb-0">Aquí irá el listado de usuarios</p>
+    return (
+        <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+            
+            <MaintenanceHeader
+                title="Mantenimiento de Usuarios"
+                buttonLabel="Nuevo Usuario"
+                onButtonClick={handleNuevoUsuario}
+            />
+
+            {/* Aquí después irá la tabla / listado */}
+            <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                    <p className="text-muted mb-0">Aquí irá el listado de usuarios</p>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default Usuarios;

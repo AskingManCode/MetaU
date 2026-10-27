@@ -3,7 +3,10 @@ import PageHeader from '../../components/PageHeader';
 function Dashboard() {
   return (
     <div>
-      <PageHeader title="Dashboard" />
+      <PageHeader title="Dashboard" /> 
+      {/** Es opcional dejar el PageHeader, lo dejé
+       *  por estándar pero puede ser más elaborado, no hay 
+       * reglas de como hacerlo en requerimientos */}
 
       <div className="card border-0 shadow-sm">
         <div className="card-body">

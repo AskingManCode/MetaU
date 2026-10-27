@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
+import Perfil from "./pages/MiPerfil/Index.jsx";
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
 import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
@@ -28,6 +29,10 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<MainLayout />}>
+
+                    {/** Mi Perfil */}
+                    <Route path="perfil" element={<Perfil />} />
+
                     {/** Dashboard */}
                     <Route index element={<Dashboard />} />
                     

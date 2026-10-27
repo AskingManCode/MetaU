@@ -207,6 +207,7 @@ export default function MainLayout() {
                             className="rounded-circle border-0 p-0 d-flex align-items-center justify-content-center"
                             style={{ width: 44, height: 44 }}
                             aria-label="Perfil de usuario"
+                            onClick={() => navigate('/perfil')}
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

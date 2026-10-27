@@ -10,5 +10,7 @@ namespace MicroservicioModulos.Entities
         [Required(AllowEmptyStrings = false, ErrorMessage = "El nombre del modulo es requerido")]
         [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El nombre del modulo solo puede tener letras")]
         public string Nombre { get; set; } = null!;
+
+        public bool? Estado { get; set; }
     }
 }

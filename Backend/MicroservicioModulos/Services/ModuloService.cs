@@ -81,6 +81,10 @@ namespace MicroservicioModulos.Services
         {
             var existente = await ObtenerPorIdAsync(id);
 
+            if (await _moduloRepository.TieneRolAsignadosAsync(id))
+                throw new InvalidOperationException(
+                    "No se puede eliminar este modulo porque tiene asignado a uno o mas roles");
+
             var filas = await _moduloRepository.EliminarAsync(id);
             if (filas <= 0)
                 throw new ApplicationException("No se pudo eliminar el modulo");

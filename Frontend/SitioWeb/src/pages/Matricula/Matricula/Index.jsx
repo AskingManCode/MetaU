@@ -1,14 +1,25 @@
 import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import Notification from '../../../components/Notification';
+import { useState } from 'react';
 
 function Matricula() {
 
+    const [notification, setNotification] = useState(null);
+
     const handleNuevaMatricula = () => {
-        alert('Aquí se abrirá la pantalla de Nueva Matrícula');
+        setNotification({ type: 'info', message: 'Aquí se abrirá la pantalla de Nueva Matrícula' });
         // Ejemplo futuro: navigate('/matricula/nuevo');
     };
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <MaintenanceHeader
                 title="Mantenimiento de Matrícula"
                 buttonLabel="Nueva Matrícula"

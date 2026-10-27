@@ -1,14 +1,25 @@
 import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import Notification from '../../../components/Notification';
+import { useState } from 'react';
 
 function Modulos() {
 
+    const [notification, setNotification] = useState(null);
+
     const handleNuevoModulo = () => {
-        alert('Aquí se abrirá la pantalla de Nuevo Módulo');
+        setNotification({ type: 'info', message: 'Aquí se abrirá la pantalla de Nuevo Módulo' });
         // Ejemplo futuro: navigate('/modulos/nuevo');
     };
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <MaintenanceHeader
                 title="Mantenimiento de Módulos"
                 buttonLabel="Nuevo Módulo"

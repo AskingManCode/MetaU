@@ -1,14 +1,25 @@
 import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import Notification from '../../../components/Notification';
+import { useState } from 'react';
 
 function Facturas() {
 
+    const [notification, setNotification] = useState(null);
+
     const handleNuevaFactura = () => {
-        alert('Aquí se abrirá la pantalla de Nueva Factura');
+        setNotification({ type: 'info', message: 'Aquí se abrirá la pantalla de Nueva Factura' });
         // Ejemplo futuro: navigate('/facturas/nuevo');
     };
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <MaintenanceHeader
                 title="Mantenimiento de Facturas"
                 buttonLabel="Nueva Factura"

@@ -1,14 +1,25 @@
 import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import Notification from '../../../components/Notification';
+import { useState } from 'react';
 
 function Notas() {
 
+    const [notification, setNotification] = useState(null);
+
     const handleNuevaNota = () => {
-        alert('Aquí se abrirá la pantalla de Nueva Nota');
+        setNotification({ type: 'info', message: 'Aquí se abrirá la pantalla de Nueva Nota' });
         // Ejemplo futuro: navigate('/notas/nuevo');
     };
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <MaintenanceHeader
                 title="Mantenimiento de Notas"
                 buttonLabel="Nueva Nota"

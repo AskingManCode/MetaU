@@ -32,7 +32,7 @@ const MENU = [
         label: 'Matrícula',
         icon: 'bi-card-checklist',
         children: [
-            { label: 'Pre-matrícula', to: '/prematricula' },
+            { label: 'Prematrícula', to: '/prematricula' },
             { label: 'Matrícula', to: '/matricula' },
         ],
     },

@@ -1,14 +1,25 @@
 import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import Notification from '../../../components/Notification';
+import { useState } from 'react';
 
 function Pagos() {
 
+    const [notification, setNotification] = useState(null);
+
     const handleNuevoPago = () => {
-        alert('Aquí se abrirá la pantalla de Nuevo Pago');
+        setNotification({ type: 'info', message: 'Aquí se abrirá la pantalla de Nuevo Pago' });
         // Ejemplo futuro: navigate('/pagos/nuevo');
     };
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <MaintenanceHeader
                 title="Mantenimiento de Pagos"
                 buttonLabel="Nuevo Pago"

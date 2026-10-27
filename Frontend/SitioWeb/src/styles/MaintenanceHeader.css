@@ -14,6 +14,10 @@
   margin-bottom: 1rem;
 }
 
+.maintenance-header-title.mb-0 {
+  margin-bottom: 0 !important;
+}
+
 .maintenance-header-btn {
   background-color: #1e3a8a;
   border-color: #1e3a8a;

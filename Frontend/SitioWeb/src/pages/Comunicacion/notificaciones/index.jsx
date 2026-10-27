@@ -1,19 +1,9 @@
-import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import PageHeader from '../../../components/PageHeader';
 
 function Notificaciones() {
-
-    const handleNuevaNotificacion = () => {
-        alert('Aquí se abrirá la pantalla de Nueva Notificación');
-        // Ejemplo futuro: navigate('/notificaciones/nuevo');
-    };
-
     return (
         <div>
-            <MaintenanceHeader
-                title="Mantenimiento de Notificaciones"
-                buttonLabel="Nueva Notificación"
-                onButtonClick={handleNuevaNotificacion}
-            />
+            <PageHeader title="Notificaciones" />
 
             <div className="card border-0 shadow-sm">
                 <div className="card-body">

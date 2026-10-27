@@ -1,19 +1,10 @@
-import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import PageHeader from '../../../components/PageHeader';
 
 function Historial() {
 
-    const handleNuevoHistorial = () => {
-        alert('Aquí se abrirá la pantalla de Nuevo Historial');
-        // Ejemplo futuro: navigate('/historial/nuevo');
-    };
-
     return (
         <div>
-            <MaintenanceHeader
-                title="Mantenimiento de Historial"
-                buttonLabel="Nuevo Historial"
-                onButtonClick={handleNuevoHistorial}
-            />
+            <PageHeader title="Historial Académico" />
 
             <div className="card border-0 shadow-sm">
                 <div className="card-body">

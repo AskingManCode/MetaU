@@ -1,13 +1,10 @@
-import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import PageHeader from '../../../components/PageHeader';
 
 function Bitacoras() {
+
     return (
         <div>
-            <MaintenanceHeader
-                title="Bitácoras"
-                buttonLabel="Nueva Bitácora"
-                onButtonClick={() => alert('Las bitácoras normalmente son de solo lectura, ESTO ES UN PLACEHOLDER')}
-            />
+            <PageHeader title="Bitácoras" />
 
             <div className="card border-0 shadow-sm">
                 <div className="card-body">

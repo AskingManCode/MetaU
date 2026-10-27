@@ -1,4 +1,4 @@
-import MaintenanceHeader from '../../../components/MaintenanceHeader';
+import PageHeader from '../../../components/PageHeader';
 
 function Listados() {
 
@@ -9,11 +9,7 @@ function Listados() {
 
     return (
         <div>
-            <MaintenanceHeader
-                title="Mantenimiento de Listados"
-                buttonLabel="Nuevo Listado"
-                onButtonClick={handleNuevoListado}
-            />
+            <PageHeader title="Listados ??? idk" />
 
             <div className="card border-0 shadow-sm">
                 <div className="card-body">

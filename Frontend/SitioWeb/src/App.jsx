@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
+//import Login from "./pages/Login/Index.jsx";
 import Perfil from "./pages/MiPerfil/Index.jsx";
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
@@ -28,6 +29,9 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/** Login */}
+                {/**<Route path="/login" element={<Login />} /> */}
+
                 <Route path="/" element={<MainLayout />}>
 
                     {/** Mi Perfil */}

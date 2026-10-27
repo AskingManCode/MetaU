@@ -1,8 +1,10 @@
-import api from './api';
+import { createApi } from './api';
+
+const api = createApi(import.meta.env.VITE_URL_BITACORAS);
 
 const bitacoraService = {
     getAll: () => api.get('/bitacora'),
-    getById: (id) => api.get(`/bitacora/${id}`),
+    create: (data) => api.post('/bitacora', data),
 };
 
 export default bitacoraService;

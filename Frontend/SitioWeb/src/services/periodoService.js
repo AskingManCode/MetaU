@@ -1,11 +1,13 @@
-import api from './api';
+import { createApi } from './api';
+
+const api = createApi(import.meta.env.VITE_URL_PERIODOS);
 
 const periodoService = {
     getAll: () => api.get('/periodo'),
-    getById: (id) => api.get(`/periodo/${id}`),
+    getById: (periodoId) => api.get(`/periodo/${periodoId}`),
     create: (data) => api.post('/periodo', data),
-    update: (id, data) => api.put(`/periodo/${id}`, data),
-    delete: (id) => api.delete(`/periodo/${id}`),
+    update: (periodoId, data) => api.put(`/periodo/${periodoId}`, data),
+    delete: (periodoId) => api.delete(`/periodo/${periodoId}`),
 };
 
 export default periodoService;

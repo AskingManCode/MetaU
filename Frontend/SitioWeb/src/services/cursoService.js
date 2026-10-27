@@ -1,11 +1,14 @@
-import api from './api';
+import { createApi } from './api';
+
+const api = createApi(import.meta.env.VITE_URL_CURSOS);
 
 const cursoService = {
     getAll: () => api.get('/curso'),
-    getById: (id) => api.get(`/curso/${id}`),
+    getById: (cursoCode) => api.get(`/curso/${cursoCode}`),
+    getByCarrera: (carreraCode) => api.get(`/curso/carrera/${carreraCode}`),
     create: (data) => api.post('/curso', data),
-    update: (id, data) => api.put(`/curso/${id}`, data),
-    delete: (id) => api.delete(`/curso/${id}`),
+    update: (cursoCode, data) => api.put(`/curso/${cursoCode}`, data),
+    delete: (cursoCode) => api.delete(`/curso/${cursoCode}`),
 };
 
 export default cursoService;

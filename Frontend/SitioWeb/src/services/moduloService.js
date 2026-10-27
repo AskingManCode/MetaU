@@ -1,4 +1,6 @@
-import api from './api';
+import { createApi } from './api';
+
+const api = createApi(import.meta.env.VITE_URL_MODULOS);
 
 const moduloService = {
     getAll: () => api.get('/modulo'),

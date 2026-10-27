@@ -1,21 +1,25 @@
 import axios from 'axios';
 
-/** Este archivo, me parece que debe editarse luego, porque las rutas no deberían estar en código */
+export const createApi = (baseURL) => {
+    if (!baseURL) throw new Error('Falta configurar la URL de un microservicio');
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+    const api = axios.create({
+        baseURL,
+        headers: { 'Content-Type': 'application/json' },
+    });
 
-// Esto se ejecuta ANTES de cada petición
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+    api.interceptors.request.use((config) => {
+        const token = localStorage.getItem('token');
+        const usuarioId = localStorage.getItem('usuarioId');
 
-export default api;
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+
+        if (usuarioId) {
+            config.headers['X-Usuario-Id'] = usuarioId;
+            config.headers['UsuarioGUID'] = usuarioId;
+        }
+        return config;
+    });
+
+    return api;
+};

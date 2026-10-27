@@ -1,135 +1,13 @@
 import { useState } from 'react';
-import { Outlet, useNavigate, useLocation, NavLink } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation} from 'react-router-dom';
 import { Container, Navbar, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/MainLayout.css';
 import logo from '../assets/logo.png';
-
-const MENU = [
-    
-    { label: 'Dashboard', icon: 'bi-house-door', to: '/', end: true },
-    {
-        label: 'Oferta Académica',
-        icon: 'bi-building',
-        children: [
-            { label: 'Instituciones', to: '/instituciones' },
-            { label: 'Carreras', to: '/carreras' },
-            { label: 'Cursos', to: '/cursos' },
-            { label: 'Grupos', to: '/grupos' },
-            { label: 'Periodos', to: '/periodos' },
-        ],
-    },
-    {
-        label: 'Personas',
-        icon: 'bi-people',
-        children: [
-            { label: 'Profesores', to: '/profesores' },
-            { label: 'Expedientes', to: '/expedientes' },
-        ],
-    },
-    {
-        label: 'Matrícula',
-        icon: 'bi-card-checklist',
-        children: [
-            { label: 'Prematrícula', to: '/prematricula' },
-            { label: 'Matrícula', to: '/matricula' },
-        ],
-    },
-    {
-        label: 'Evaluación',
-        icon: 'bi-journal-check',
-        children: [
-            { label: 'Notas', to: '/notas' },
-            { label: 'Historial', to: '/historial' },
-            { label: 'Listados', to: '/listados' },
-        ],
-    },
-    {
-        label: 'Finanzas',
-        icon: 'bi-cash-coin',
-        children: [
-            { label: 'Facturas', to: '/facturas' },
-            { label: 'Pagos', to: '/pagos' },
-        ],
-    },
-    {
-        label: 'Comunicación',
-        icon: 'bi-bell',
-        children: [{ label: 'Notificaciones', to: '/notificaciones' }],
-    },
-    {
-        label: 'Sistema',
-        icon: 'bi-gear',
-        children: [
-            { label: 'Usuarios', to: '/usuarios' },
-            { label: 'Roles', to: '/roles' },
-            { label: 'Módulos', to: '/modulos' },
-            { label: 'Parámetros', to: '/parametros' },
-            { label: 'Bitácoras', to: '/bitacoras' },
-        ],
-    },
-];
-
-const menuClass = (isActive) => `menu-item ${isActive ? 'is-active' : ''}`;
-
-function SidebarLink({ item, collapsed }) {
-    return (
-        <NavLink
-            to={item.to}
-            end={item.end}
-            title={collapsed ? item.label : undefined}
-            className={({ isActive }) => menuClass(isActive)}
-        >
-            <i className={`bi ${item.icon} menu-icon`} />
-            {!collapsed && <span>{item.label}</span>}
-        </NavLink>
-    );
-}
-
-function SubmenuLink({ item }) {
-    return (
-        <NavLink
-            to={item.to}
-            className={({ isActive }) => `submenu-item ${isActive ? 'is-active' : ''}`}
-        >
-            {item.label}
-        </NavLink>
-    );
-}
-
-function SidebarSection({ item, collapsed, open, onToggle }) {
-    const { pathname } = useLocation();
-    const hasActiveChild = item.children.some((l) => pathname.startsWith(l.to));
-
-    return (
-        <div>
-            <button
-                type="button"
-                onClick={onToggle}
-                aria-expanded={open}
-                title={collapsed ? item.label : undefined}
-                className={menuClass(hasActiveChild)}
-            >
-                <i className={`bi ${item.icon} menu-icon`} />
-                {!collapsed && (
-                    <>
-                        <span className="flex-grow-1 text-start">{item.label}</span>
-                        <i className={`bi bi-chevron-right menu-chevron ${open ? 'rotated' : ''}`} />
-                    </>
-                )}
-            </button>
-
-            {!collapsed && open && (
-                <div className="submenu">
-                    {item.children.map((child) => (
-                        <SubmenuLink key={child.to} item={child} />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
+import MENU from '../utils/menu';
+import SidebarLink from '../components/sidebar/SidebarLink';
+import SidebarSection from '../components/sidebar/SidebarSection';
 
 export default function MainLayout() {
 

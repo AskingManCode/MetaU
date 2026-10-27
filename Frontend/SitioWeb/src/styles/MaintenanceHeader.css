@@ -1,0 +1,33 @@
+.maintenance-header {
+  background-color: #fff;
+  border-left: 4px solid #1e3a8a;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.maintenance-header-title {
+  color: #1e3a8a;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.maintenance-btn {
+  background-color: #1e3a8a;
+  border-color: #1e3a8a;
+  border-radius: 6px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.maintenance-btn:hover {
+  background-color: #1a3270;
+  border-color: #1a3270;
+  transform: translateY(-1px);
+}

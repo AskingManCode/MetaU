@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import MainLayout from "./layouts/MainLayout"
+import Usuarios from "./pages/Sistema/Usuarios/Index";
 
 function App() {
 
@@ -8,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<div><h2>Dashboard</h2><p>Contenido de Prueba</p></div>} />
-          <Route path="usuarios" element={<div><h2>Usuarios</h2><p>Aquí irá el listado</p></div>}/>
+          <Route path="usuarios" element={<Usuarios />}/>
         </Route>
       </Routes>
     </BrowserRouter>

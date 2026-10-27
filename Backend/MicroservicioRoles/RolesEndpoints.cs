@@ -165,6 +165,57 @@ namespace MicroservicioRoles
             })
             .WithName("DeleteRol")
             .WithOpenApi();
+
+            // GET modulos por rol
+            group.MapGet("/{id}/modulos", async (
+                HttpRequest request,
+                string id,
+                [FromServices] IRolService rolService,
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
+            {
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
+
+                return await EjecutarAsync(async () =>
+                {
+                    var permisos = await rolService.ObtenerPermisosAsync(id);
+                    await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta permisos del rol " + id, ObtenerToken(request));
+                    return Results.Ok(permisos);
+                });
+            })
+            .WithName("GetPermisosRol")
+            .WithOpenApi();
+
+            // PUT activar o descativar modulo para rol
+            group.MapPut("/{id}/modulos/{moduloId}", async (
+                HttpRequest request,
+                string id,
+                string moduloId,
+                [FromBody] RolModulo permiso,
+                [FromServices] IRolService rolService,
+                [FromServices] IAuthServiceClient authService,
+                [FromServices] IBitacoraServiceClient bitacoraService) =>
+            {
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
+
+                if (!ObtenerUsuarioId(request, out var usuarioId))
+                    return Results.BadRequest(new { message = "El usuario es requerido" });
+
+                return await EjecutarAsync(async () =>
+                {
+                    var (anterior, actual) = await rolService.ActualizarPermisoAsync(id, moduloId, permiso.Estado);
+                    var detalle = JsonSerializer.Serialize(new { rol = id, anterior, actual });
+                    await bitacoraService.RegistrarAsync(usuarioId, detalle, ObtenerToken(request));
+                    return Results.Ok(actual);
+                });
+            })
+            .WithName("UpdatePermisoRol")
+            .WithOpenApi();
         }
     }
 }

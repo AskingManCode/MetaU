@@ -21,7 +21,7 @@ namespace MicroservicioNotificaciones.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<Notificacion>(
-                "dbo.usp_Notificaciones_Crear",
+                "MetaU_DB_User.usp_Notificaciones_Crear",
                 new
                 {
                     UsuarioID = usuarioId,
@@ -43,7 +43,7 @@ namespace MicroservicioNotificaciones.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleOrDefaultAsync<Notificacion>(
-                "dbo.usp_Notificaciones_ActualizarEstado",
+                "MetaU_DB_User.usp_Notificaciones_ActualizarEstado",
                 new
                 {
                     NotificacionID = notificacionId,

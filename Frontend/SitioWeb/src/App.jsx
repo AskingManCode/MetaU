@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
+import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
 import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
@@ -27,7 +28,8 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<MainLayout />}>
-                    <Route index element={<div><h2>Dashboard</h2><p>Contenido de Prueba</p></div>} /> {/** Contruir Dashboard a parte y mandarlo a llamar*/}
+                    {/** Dashboard */}
+                    <Route index element={<Dashboard />} />
                     
                     {/** Oferta Académica */}
                     <Route path="instituciones" element={<Instituciones />} />

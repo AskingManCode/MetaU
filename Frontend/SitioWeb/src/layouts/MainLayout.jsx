@@ -8,7 +8,7 @@ import logo from '../assets/logo.png';
 
 const MENU = [
     
-    { label: 'Inicio', icon: 'bi-house-door', to: '/', end: true },
+    { label: 'Dashboard', icon: 'bi-house-door', to: '/', end: true },
     {
         label: 'Oferta Académica',
         icon: 'bi-building',
@@ -158,7 +158,12 @@ export default function MainLayout() {
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <img src={logo} alt="Logo Meta U" className="sidebar-logo" />
-                    {sidebarOpen && <span className="sidebar-title">Meta U</span>}
+                    {sidebarOpen && (
+                        <div className="d-flex flex-column">
+                            <span className="sidebar-title">Meta U</span>
+                            <span className="sidebar-subtitle">Administrativo</span>
+                        </div>
+                    )}
                 </div>
 
                 <nav className="sidebar-nav">

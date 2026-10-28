@@ -7,7 +7,9 @@ import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
 import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
 import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
-import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
+import Grupos from './pages/OfertaAcademica/grupos/Index.jsx'
+import CrearGrupo from './pages/OfertaAcademica/grupos/Create.jsx'
+import EditarGrupo from './pages/OfertaAcademica/grupos/Edit.jsx'
 import Periodos from './pages/OfertaAcademica/periodos/Index.jsx';
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
@@ -45,6 +47,8 @@ function App() {
                     <Route path="carreras" element={<Carreras />} />
                     <Route path="cursos" element={<Cursos />} />
                     <Route path="grupos" element={<Grupos />} />
+                    <Route path="grupos/nuevo" element={<CrearGrupo />} />
+                    <Route path="grupos/editar/:grupoCode" element={<EditarGrupo />} />     
                     <Route path="periodos" element={<Periodos />} />
 
                     {/* Personas */}

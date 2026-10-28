@@ -48,6 +48,7 @@ namespace MicroservicioModulos
             // GET Obtener Todos
             group.MapGet("/", async (
                 HttpRequest request,
+                int? pagina,
                 [FromServices] IModuloService moduloService,
                 [FromServices] IAuthServiceClient authService,
                 [FromServices] IBitacoraServiceClient bitacoraService) =>
@@ -60,6 +61,13 @@ namespace MicroservicioModulos
 
                 return await EjecutarAsync(async () =>
                 {
+                    if (pagina.HasValue)
+                    {
+                        var resultado = await moduloService.ObtenerPaginadoAsync(pagina.Value, usuarioId, ObtenerToken(request));
+                        await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta modulos", ObtenerToken(request));
+                        return Results.Ok(resultado);
+                    }
+
                     var modulos = await moduloService.ObtenerTodosAsync();
                     await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta modulos", ObtenerToken(request));
                     return Results.Ok(modulos);

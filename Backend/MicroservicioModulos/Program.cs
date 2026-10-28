@@ -2,6 +2,7 @@ using MicroservicioModulos;
 using MicroservicioModulos.Repository;
 using MicroservicioModulos.Services;
 using MicroservicioModulos.Services.Clients;
+using MicroservicioRoles.Services.Clients;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,13 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>()
     .ConfigureHttpClient(client =>
     {
         var url = builder.Configuration["Servicios:BitacoraUrl"];
+        if (!string.IsNullOrWhiteSpace(url)) client.BaseAddress = new Uri(url);
+    });
+
+builder.Services.AddHttpClient<IParametroServiceClient, ParametroServiceClient>()
+    .ConfigureHttpClient(client =>
+    {
+        var url = builder.Configuration["Servicios:ParametroUrl"];
         if (!string.IsNullOrWhiteSpace(url)) client.BaseAddress = new Uri(url);
     });
 

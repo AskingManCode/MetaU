@@ -1,6 +1,8 @@
-﻿using System.Text.RegularExpressions;
-using MicroservicioModulos.Entities;
+﻿using MicroservicioModulos.Entities;
 using MicroservicioModulos.Repository;
+using MicroservicioModulos.Services.Clients;
+using MicroservicioRoles.Services.Clients;
+using System.Text.RegularExpressions;
 
 namespace MicroservicioModulos.Services
 {
@@ -9,11 +11,16 @@ namespace MicroservicioModulos.Services
         private static readonly Regex IdRegex = new(@"^[A-Z]{1,15}$");
         private static readonly Regex NombreRegex = new(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$");
 
-        private readonly ModuloRepository _moduloRepository;
+        private const string Items_Pagina = "ITEMSPAG";
+        private const int TamanoPaginaDefecto = 15;
 
-        public ModuloService(ModuloRepository moduloRepository)
+        private readonly ModuloRepository _moduloRepository;
+        private readonly IParametroServiceClient _parametroServiceClient;
+
+        public ModuloService(ModuloRepository moduloRepository, IParametroServiceClient parametroServiceClient)
         {
             _moduloRepository = moduloRepository;
+            _parametroServiceClient = parametroServiceClient;
         }
 
         public async Task<IEnumerable<Modulos>> ObtenerTodosAsync()
@@ -96,6 +103,34 @@ namespace MicroservicioModulos.Services
                 throw new ApplicationException("No se pudo eliminar el modulo");
 
             return existente;
+        }
+
+        public async Task<PaginaResultado<Modulos>> ObtenerPaginadoAsync(int pagina, Guid usuarioId, string token)
+        {
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            int tamano;
+            try
+            {
+                var valor = await _parametroServiceClient.ObtenerValorAsync(Items_Pagina, usuarioId, token);
+                tamano = int.TryParse(valor, out var n) && n > 0 ? n : TamanoPaginaDefecto;
+            }
+            catch (HttpRequestException)
+            {
+                tamano = TamanoPaginaDefecto;
+            }
+
+            var todos = (await _moduloRepository.ObtenerTodosAsync()).ToList();
+
+            return new PaginaResultado<Modulos>
+            {
+                Pagina = pagina,
+                TamanoPagina = tamano,
+                TotalRegistros = todos.Count,
+                TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+                Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+            };
         }
     }
 }

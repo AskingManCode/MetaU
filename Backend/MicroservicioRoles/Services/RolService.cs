@@ -94,18 +94,29 @@ namespace MicroservicioRoles.Services
             return await _rolRepository.ObtenerPermisosAsync(id);
         }
 
-        public async Task<(RolModulo Anterior, RolModulo Actual)> ActualizarPermisoAsync(string id, string moduloId, bool estado)
+        public async Task<(IEnumerable<RolModulo> Anteriores, IEnumerable<RolModulo> Actuales)> ActualizarPermisosAsync(string id, List<RolModulo> cambios)
         {
-            var permisos = await ObtenerPermisosAsync(id);
-            var anterior = permisos.FirstOrDefault(p => p.IdModulo == moduloId)
-                ?? throw new KeyNotFoundException($"No existe un módulo con ID '{moduloId}'");
+            if (cambios is null || cambios.Count == 0)
+                throw new ArgumentException("Debe indicar al menos un modulo");
 
-            var filas = await _rolRepository.ActualizarPermisoAsync(id, moduloId, estado);
-            if (filas <= 0)
-                throw new ApplicationException("No se pudo actualizar el permiso");
+            if (cambios.GroupBy(c => c.IdModulo).Any(g => g.Count() > 1))
+                throw new ArgumentException("Hay modulos repetidos en la solicitud");
 
-            var actual = new RolModulo { IdModulo = anterior.IdModulo, Nombre = anterior.Nombre, Estado = estado };
-            return (anterior, actual);
+            var permisos = (await ObtenerPermisosAsync(id)).ToList();
+            var anteriores = new List<RolModulo>();
+            var actuales = new List<RolModulo>();
+
+            foreach (var cambio in cambios)
+            {
+                var anterior = permisos.FirstOrDefault(p => p.IdModulo == cambio.IdModulo)
+                    ?? throw new KeyNotFoundException($"No existe un modulo con ID '{cambio.IdModulo}'");
+
+                anteriores.Add(anterior);
+                actuales.Add(new RolModulo { IdModulo = anterior.IdModulo, Nombre = anterior.Nombre, Estado = cambio.Estado });
+            }
+
+            await _rolRepository.ActualizarPermisosAsync(id, actuales);
+            return (anteriores, actuales);
         }
     }
 }

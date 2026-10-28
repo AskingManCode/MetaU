@@ -58,15 +58,37 @@ namespace MicroservicioRoles.Repository
             return await connection.QueryAsync<RolModulo>(sql, new { rolId });
         }
 
-        public async Task<int> ActualizarPermisoAsync(string rolId, string moduloId, bool estado)
+        public async Task<int> ActualizarPermisosAsync(string rolId, IEnumerable<RolModulo> permisos)
         {
             using var connection = _dbConnectionFactory.CrearConexion();
-            var sql = @"MERGE [MetaU_DB_User].[RolesXModulos] AS destino
-                USING (SELECT @rolId AS RolCode, @moduloId AS ModuloCode) AS origen
-                   ON destino.RolCode = origen.RolCode AND destino.ModuloCode = origen.ModuloCode
-                WHEN MATCHED THEN UPDATE SET Estado = @estado
-                WHEN NOT MATCHED THEN INSERT (RolCode, ModuloCode, Estado) VALUES (@rolId, @moduloId, @estado);";
-            return await connection.ExecuteAsync(sql, new { rolId, moduloId, estado });
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                var sql = @"MERGE [MetaU_DB_User].[RolesXModulos] AS destino
+                    USING (SELECT @rolId AS RolCode, @moduloId AS ModuloCode) AS origen
+                       ON destino.RolCode = origen.RolCode AND destino.ModuloCode = origen.ModuloCode
+                    WHEN MATCHED THEN UPDATE SET Estado = @estado
+                    WHEN NOT MATCHED THEN INSERT (RolCode, ModuloCode, Estado) VALUES (@rolId, @moduloId, @estado);";
+
+                var filas = 0;
+                foreach (var permiso in permisos)
+                {
+                    filas += await connection.ExecuteAsync(
+                        sql,
+                        new { rolId, moduloId = permiso.IdModulo, estado = permiso.Estado },
+                        transaction);
+                }
+
+                transaction.Commit();
+                return filas;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
     }
 }

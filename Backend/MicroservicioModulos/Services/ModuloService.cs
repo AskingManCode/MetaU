@@ -41,6 +41,9 @@ namespace MicroservicioModulos.Services
             if (!NombreRegex.IsMatch(modulo.Nombre))
                 throw new ArgumentException("El nombre del modulo solo puede tener letras y espacios");
 
+            if (modulo.Orden is < 0)
+                throw new ArgumentException("El orden del modulo no puede ser negativo");
+
             var existente = await _moduloRepository.ObtenerPorIdAsync(modulo.IdModulo);
             if (existente is not null)
                 throw new InvalidOperationException($"Ya existe un modulo con el ID '{modulo.IdModulo}'");
@@ -65,6 +68,9 @@ namespace MicroservicioModulos.Services
 
             if (!NombreRegex.IsMatch(modulo.Nombre))
                 throw new ArgumentException("El nombre del modulo solo puede tener letras y espacios");
+
+            if (modulo.Orden is < 0)
+                throw new ArgumentException("El orden del modulo no puede ser negativo");
 
             var anterior = await ObtenerPorIdAsync(id);
 

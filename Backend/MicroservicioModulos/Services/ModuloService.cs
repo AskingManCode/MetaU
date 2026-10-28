@@ -11,7 +11,7 @@ namespace MicroservicioModulos.Services
         private static readonly Regex IdRegex = new(@"^[A-Z]{1,15}$");
         private static readonly Regex NombreRegex = new(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$");
 
-        private const string Items_Pagina = "ITEMSPAG";
+        private const string Items_Pagina = "PAGSIZE";
         private const int TamanoPaginaDefecto = 15;
 
         private readonly ModuloRepository _moduloRepository;

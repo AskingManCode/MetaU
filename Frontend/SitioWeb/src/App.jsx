@@ -10,6 +10,8 @@ import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
 import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
 import Periodos from './pages/OfertaAcademica/periodos/Index.jsx';
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
+import CrearProfesor from './pages/Personas/Profesores/Create.jsx'
+import EditarProfesor from './pages/Personas/Profesores/Edit.jsx'
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
 import Matricula from "./pages/Matricula/Matricula/Index.jsx";
@@ -49,6 +51,8 @@ function App() {
 
                     {/* Personas */}
                     <Route path="profesores" element={<Profesores />} />
+                    <Route path="profesores/nuevo" element={<CrearProfesor />} />
+                    <Route path="profesores/editar/:profesorId" element={<EditarProfesor />} />
                     <Route path="expedientes" element={<Expedientes />} />
 
                     {/* Matrícula */}

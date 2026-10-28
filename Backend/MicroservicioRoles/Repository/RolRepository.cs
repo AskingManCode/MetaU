@@ -58,6 +58,17 @@ namespace MicroservicioRoles.Repository
             return await connection.QueryAsync<RolModulo>(sql, new { rolId });
         }
 
+        public async Task<bool> ExisteNombreAsync(string nombre, string? excluirId = null)
+        {
+            using var connection = _dbConnectionFactory.CrearConexion();
+            var sql = @"SELECT CAST(CASE WHEN EXISTS (
+                    SELECT 1 FROM [MetaU_DB_User].[Roles]
+                    WHERE NombreRol = @nombre
+                      AND (@excluirId IS NULL OR RolCode <> @excluirId)
+                ) THEN 1 ELSE 0 END AS BIT)";
+            return await connection.ExecuteScalarAsync<bool>(sql, new { nombre, excluirId });
+        }
+
         public async Task<int> ActualizarPermisosAsync(string rolId, IEnumerable<RolModulo> permisos)
         {
             using var connection = _dbConnectionFactory.CrearConexion();

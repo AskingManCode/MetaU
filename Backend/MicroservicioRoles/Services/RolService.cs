@@ -45,6 +45,9 @@ namespace MicroservicioRoles.Services
             if (existente is not null)
                 throw new InvalidOperationException($"Ya existe un rol con el ID '{rol.IdRol}'");
 
+            if (await _rolRepository.ExisteNombreAsync(rol.Nombre))
+                throw new InvalidOperationException($"Ya existe un rol con el nombre '{rol.Nombre}'");
+
             var filas = await _rolRepository.CrearAsync(rol);
             if (filas <= 0)
                 throw new ApplicationException("No se pudo crear el rol");
@@ -67,6 +70,9 @@ namespace MicroservicioRoles.Services
                 throw new ArgumentException("El nombre del rol solo puede tener letras y espacios");
 
             var anterior = await ObtenerPorIdAsync(id);
+
+            if (await _rolRepository.ExisteNombreAsync(rol.Nombre))
+                throw new InvalidOperationException($"Ya existe un rol con el nombre '{rol.Nombre}'");
 
             var filas = await _rolRepository.ActualizarAsync(rol);
             if (filas <= 0)

@@ -45,6 +45,7 @@ namespace MicroservicioUsuarios
             group.MapGet("/", async (
                 HttpRequest request,
                 string? identificacion, string? nombre, string? tipo, string? dominio, string? rol,
+                string? ordenarPor, string? direccion, int? pagina,
                 [FromServices] IUsuarioService service,
                 [FromServices] IAuthServiceClient authService,
                 [FromServices] IBitacoraServiceClient bitacoraService) =>
@@ -57,7 +58,16 @@ namespace MicroservicioUsuarios
 
                 return await EjecutarAsync(async () =>
                 {
-                    var usuarios = await service.ConsultarAsync(identificacion, nombre, tipo, dominio, rol);
+                    if (pagina.HasValue)
+                    {
+                        var resultado = await service.ConsultarPaginadoAsync(
+                            pagina.Value, identificacion, nombre, tipo, dominio, rol, ordenarPor, direccion,
+                            usuarioId, ObtenerToken(request));
+                        await bitacoraService.RegistrarAsycn(usuarioId, "El usuario consulta usuarios", ObtenerToken(request));
+                        return Results.Ok(resultado);
+                    }
+
+                    var usuarios = await service.ConsultarAsync(identificacion, nombre, tipo, dominio, rol, ordenarPor, direccion);
                     await bitacoraService.RegistrarAsycn(usuarioId, "El usuario consulta usuarios", ObtenerToken(request));
                     return Results.Ok(usuarios);
                 });
@@ -107,7 +117,7 @@ namespace MicroservicioUsuarios
                 return await EjecutarAsync(async () =>
                 {
                     var creado = await service.CrearAsync(dto, usuarioId, ObtenerToken(request));
-                    await bitacoraService.RegistrarAsycn(usuarioId, JsonSerializer.Serialize(new { dto.Email, dto.Nombre }), ObtenerToken(request));
+                    await bitacoraService.RegistrarAsycn(usuarioId, JsonSerializer.Serialize(creado), ObtenerToken(request));
                     return Results.Created($"/usuario/{dto.Email}", creado);
                 });
             })

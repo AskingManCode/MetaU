@@ -10,5 +10,6 @@
         public string Email { get; set; } = null!;
         public string ContrasenaHash { get; set; } = null!;
         public bool Estado { get; set; } = true;
+        public DateTime FechaModificacion { get; set; }
     }
 }

@@ -9,6 +9,10 @@ namespace MicroservicioUsuarios.Repository
     {
         private readonly string _connectionString;
 
+        private const string SqlBase = @"SELECT UsuarioID AS UsuarioId, RolCode, TipoIdentificacionCode, Identificacion,
+                                                NombreCompleto, Email, ContrasenaHash, Estado, FechaModificacion
+                                         FROM [MetaU_DB_User].[Usuarios]";
+
         public UsuarioRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("UsuariosDB")
@@ -20,18 +24,13 @@ namespace MicroservicioUsuarios.Repository
         public async Task<IEnumerable<Usuario>> ListarAsync()
         {
             using var connection = CrearConexion();
-            const string sql = @"SELECT UsuarioID AS UsuarioId, RolCode, TipoIdentificacionCode, Identificacion,
-                                        NombreCompleto, Email, ContrasenaHash, Estado
-                                 FROM [MetaU_DB_User].[Usuarios]";
-            return await connection.QueryAsync<Usuario>(sql);
+            return await connection.QueryAsync<Usuario>(SqlBase);
         }
 
         public async Task<IEnumerable<Usuario>> FiltrarAsync(string? identificacion, string? nombre, string? tipo, string? dominio = null, string? rol = null)
         {
             using var connection = CrearConexion();
-            const string sql = @"SELECT UsuarioID AS UsuarioId, RolCode, TipoIdentificacionCode, Identificacion,
-                                NombreCompleto, Email, ContrasenaHash, Estado
-                         FROM [MetaU_DB_User].[Usuarios]
+            const string sql = SqlBase + @"
                          WHERE (@identificacion IS NULL OR Identificacion = @identificacion)
                            AND (@nombre IS NULL OR NombreCompleto LIKE '%' + @nombre + '%')
                            AND (@tipo IS NULL OR TipoIdentificacionCode = @tipo)
@@ -43,9 +42,7 @@ namespace MicroservicioUsuarios.Repository
         public async Task<Usuario?> ObtenerPorEmailAsync(string email)
         {
             using var connection = CrearConexion();
-            const string sql = @"SELECT UsuarioID AS UsuarioId, RolCode, TipoIdentificacionCode, Identificacion,
-                                        NombreCompleto, Email, ContrasenaHash, Estado
-                                 FROM [MetaU_DB_User].[Usuarios] WHERE Email = @email";
+            const string sql = SqlBase + " WHERE Email = @email";
             return await connection.QueryFirstOrDefaultAsync<Usuario>(sql, new { email });
         }
 
@@ -65,7 +62,8 @@ namespace MicroservicioUsuarios.Repository
             const string sql = @"UPDATE [MetaU_DB_User].[Usuarios]
                                  SET RolCode = @RolCode, TipoIdentificacionCode = @TipoIdentificacionCode,
                                      Identificacion = @Identificacion, NombreCompleto = @NombreCompleto,
-                                     ContrasenaHash = @ContrasenaHash, Estado = @Estado
+                                     ContrasenaHash = @ContrasenaHash, Estado = @Estado,
+                                     FechaModificacion = SYSDATETIME()
                                  WHERE Email = @Email";
             return await connection.ExecuteAsync(sql, usuario);
         }
@@ -73,8 +71,29 @@ namespace MicroservicioUsuarios.Repository
         public async Task<int> EliminarAsync(string email)
         {
             using var connection = CrearConexion();
-            const string sql = "DELETE FROM [MetaU_DB_User].[Usuarios] WHERE Email = @email";
-            return await connection.ExecuteAsync(sql, new { email });
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                await connection.ExecuteAsync(
+                    @"DELETE rt FROM [MetaU_DB_User].[RefreshToken] rt
+                      INNER JOIN [MetaU_DB_User].[Usuarios] u ON u.UsuarioID = rt.UsuarioID
+                      WHERE u.Email = @email",
+                    new { email }, transaction);
+
+                var filas = await connection.ExecuteAsync(
+                    "DELETE FROM [MetaU_DB_User].[Usuarios] WHERE Email = @email",
+                    new { email }, transaction);
+
+                transaction.Commit();
+                return filas;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
     }
 }

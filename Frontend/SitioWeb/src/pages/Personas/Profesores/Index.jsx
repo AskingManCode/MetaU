@@ -21,23 +21,48 @@ const columnas = [
 function Profesores() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { profesores, loading, errorCarga, eliminarProfesor } = useProfesores()
 
-    const [notification, setNotification] = useState(
-        location.state?.mensaje ? { type: 'success', message: location.state.mensaje } : null
-    )
     const [identificacion, setIdentificacion] = useState('')
     const [nombre, setNombre] = useState('')
     const [correo, setCorreo] = useState('')
+    const [ordenTabla, setOrdenTabla] = useState({ key: null, direction: 'asc' })
     const [eliminando, setEliminando] = useState(false)
 
+    const [notification, setNotification] = useState(
+        location.state?.mensaje
+            ? { type: 'success', message: location.state.mensaje }
+            : null
+    )
+
+    const tieneFiltros = Boolean(
+        identificacion.trim() ||
+        nombre.trim() ||
+        correo.trim()
+    )
+
+    const listaCompleta = tieneFiltros || Boolean(ordenTabla.key)
+
+    const {
+        profesores,
+        pagina,
+        setPagina,
+        totalRegistros,
+        totalPaginas,
+        loading,
+        errorCarga,
+        eliminarProfesor
+    } = useProfesores({ listaCompleta })
+
     useEffect(() => {
-        if (location.state?.mensaje)
+        if (location.state?.mensaje) {
             navigate(location.pathname, { replace: true, state: null })
+        }
     }, [location.pathname, location.state, navigate])
 
     useEffect(() => {
-        if (errorCarga) setNotification({ type: 'error', message: errorCarga })
+        if (errorCarga) {
+            setNotification({ type: 'error', message: errorCarga })
+        }
     }, [errorCarga])
 
     const filtrados = useMemo(() => profesores.filter(p =>
@@ -45,6 +70,26 @@ function Profesores() {
         textoBusqueda(p.nombreCompleto).includes(textoBusqueda(nombre)) &&
         textoBusqueda(p.email).includes(textoBusqueda(correo))
     ), [profesores, identificacion, nombre, correo])
+
+    const cambiarFiltro = (campo, valor) => {
+        if (campo === 'identificacion') setIdentificacion(valor)
+        if (campo === 'nombre') setNombre(valor)
+        if (campo === 'correo') setCorreo(valor)
+
+        setPagina(1)
+    }
+
+    const limpiarFiltros = () => {
+        setIdentificacion('')
+        setNombre('')
+        setCorreo('')
+        setPagina(1)
+    }
+
+    const cambiarOrden = nuevoOrden => {
+        setOrdenTabla(nuevoOrden)
+        setPagina(1)
+    }
 
     const confirmarEliminacion = profesor => {
         setNotification({
@@ -59,7 +104,11 @@ function Profesores() {
 
                 try {
                     await eliminarProfesor(profesor.profesorID)
-                    setNotification({ type: 'success', message: 'Profesor eliminado correctamente' })
+
+                    setNotification({
+                        type: 'success',
+                        message: 'Profesor eliminado correctamente'
+                    })
                 } catch (error) {
                     setNotification({
                         type: 'error',
@@ -72,41 +121,44 @@ function Profesores() {
         })
     }
 
-    const limpiarFiltros = () => {
-        setIdentificacion('')
-        setNombre('')
-        setCorreo('')
-    }
-
     const filtros = (
         <div className="row g-2">
             <div className="col-md-3">
-                <Form.Label className="small mb-1">Identificacion</Form.Label>
+                <Form.Label className="small mb-1">
+                    Identificacion
+                </Form.Label>
+
                 <Form.Control
                     size="sm"
                     placeholder="Buscar identificacion"
                     value={identificacion}
-                    onChange={e => setIdentificacion(e.target.value)}
+                    onChange={e => cambiarFiltro('identificacion', e.target.value)}
                 />
             </div>
 
             <div className="col-md-3">
-                <Form.Label className="small mb-1">Nombre</Form.Label>
+                <Form.Label className="small mb-1">
+                    Nombre
+                </Form.Label>
+
                 <Form.Control
                     size="sm"
                     placeholder="Buscar nombre"
                     value={nombre}
-                    onChange={e => setNombre(e.target.value)}
+                    onChange={e => cambiarFiltro('nombre', e.target.value)}
                 />
             </div>
 
             <div className="col-md-3">
-                <Form.Label className="small mb-1">Correo electronico</Form.Label>
+                <Form.Label className="small mb-1">
+                    Correo electronico
+                </Form.Label>
+
                 <Form.Control
                     size="sm"
                     placeholder="Buscar correo"
                     value={correo}
-                    onChange={e => setCorreo(e.target.value)}
+                    onChange={e => cambiarFiltro('correo', e.target.value)}
                 />
             </div>
 
@@ -161,7 +213,17 @@ function Profesores() {
                 loading={loading}
                 filters={filtros}
                 pageSize={15}
-                emptyMessage={errorCarga ? 'No se pudieron cargar los profesores' : 'No hay profesores para mostrar'}
+                serverPagination={!listaCompleta}
+                currentPage={pagina}
+                totalPages={totalPaginas}
+                totalRecords={totalRegistros}
+                onPageChange={setPagina}
+                onSortChange={cambiarOrden}
+                emptyMessage={
+                    errorCarga
+                        ? 'No se pudieron cargar los profesores'
+                        : 'No hay profesores para mostrar'
+                }
             />
         </div>
     )

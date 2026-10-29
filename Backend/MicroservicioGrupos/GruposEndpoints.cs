@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿
+using System.Text.Json;
 using MicroservicioGrupos.Entities;
 using MicroservicioGrupos.Services;
 using Microsoft.Data.SqlClient;
@@ -109,7 +110,7 @@ namespace MicroservicioGrupos
             }
         }
 
-        private static async Task<IResult> ObtenerTodosAsync(HttpRequest request, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
+        private static async Task<IResult> ObtenerTodosAsync(HttpRequest request, int? pagina, IGrupoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(request, auth);
 
@@ -118,10 +119,24 @@ namespace MicroservicioGrupos
 
             try
             {
+                if (pagina.HasValue)
+                {
+                    var resultado = await service.ObtenerPaginadoAsync(pagina.Value, acceso.Usuario, acceso.Token);
+
+                    await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta grupos", acceso.Token);
+
+                    return Results.Ok(resultado);
+                }
+
                 var grupos = await service.ObtenerTodosAsync();
+
                 await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta grupos", acceso.Token);
 
                 return Results.Ok(grupos);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (Exception ex)
             {

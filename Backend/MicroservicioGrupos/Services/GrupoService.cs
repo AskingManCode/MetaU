@@ -1,15 +1,23 @@
-﻿using MicroservicioGrupos.Entities;
+﻿
+using MicroservicioGrupos.Entities;
 using MicroservicioGrupos.Repository;
 
 namespace MicroservicioGrupos.Services
 {
     public class GrupoService : IGrupoService
     {
-        private readonly IGrupoRepository _repository;
+        private const string ParametroPaginacion = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
-        public GrupoService(IGrupoRepository repository)
+        private readonly IGrupoRepository _repository;
+        private readonly IParametroServiceClient _parametros;
+        private readonly ILogger<GrupoService> _logger;
+
+        public GrupoService(IGrupoRepository repository, IParametroServiceClient parametros, ILogger<GrupoService> logger)
         {
             _repository = repository;
+            _parametros = parametros;
+            _logger = logger;
         }
 
         public async Task CrearAsync(Grupo grupo)
@@ -44,6 +52,51 @@ namespace MicroservicioGrupos.Services
         public Task<IEnumerable<Grupo>> ObtenerTodosAsync()
         {
             return _repository.ObtenerTodosAsync();
+        }
+
+        public async Task<PaginaResultado<Grupo>> ObtenerPaginadoAsync(int pagina, Guid usuario, string token)
+        {
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            var tamano = TamanoPaginaDefecto;
+
+            try
+            {
+                var valor = await _parametros.ObtenerValorAsync(ParametroPaginacion, usuario, token);
+
+                if (int.TryParse(valor, out var configurado) && configurado > 0)
+                    tamano = Math.Min(configurado, TamanoPaginaDefecto);
+
+                _logger.LogInformation("Paginacion de grupos: PAGSIZE={Valor}, tamano aplicado={Tamano}", valor ?? "No disponible", tamano);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogWarning(ex, "No se pudo consultar PAGSIZE. Se utilizara el valor por defecto");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(ex, "Tiempo de espera agotado al consultar PAGSIZE. Se utilizara el valor por defecto");
+            }
+
+            var grupos = (await _repository.ObtenerTodosAsync())
+                .OrderBy(g => g.GrupoCode, StringComparer.Ordinal)
+                .ToList();
+
+            var inicio = ((long)pagina - 1) * tamano;
+
+            var datos = inicio >= grupos.Count
+                ? new List<Grupo>()
+                : grupos.Skip((int)inicio).Take(tamano).ToList();
+
+            return new PaginaResultado<Grupo>
+            {
+                Pagina = pagina,
+                TamanoPagina = tamano,
+                TotalRegistros = grupos.Count,
+                TotalPaginas = (int)Math.Ceiling(grupos.Count / (double)tamano),
+                Datos = datos
+            };
         }
 
         public async Task<Grupo> ObtenerPorIdAsync(string grupoCode)

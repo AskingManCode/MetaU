@@ -1,4 +1,6 @@
-﻿namespace MicroservicioUsuarios.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace MicroservicioUsuarios.Entities
 {
     public class Usuario
     {
@@ -8,6 +10,8 @@
         public string Identificacion { get; set; } = null!;
         public string NombreCompleto { get; set; } = null!;
         public string Email { get; set; } = null!;
+
+        [JsonIgnore]
         public string ContrasenaHash { get; set; } = null!;
         public bool Estado { get; set; } = true;
         public DateTime FechaModificacion { get; set; }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿
+using Microsoft.Data.SqlClient;
 using System.Text.Json;
 using MicroservicioPeriodos.Entities;
 using MicroservicioPeriodos.Services;
@@ -121,7 +122,7 @@ namespace MicroservicioPeriodos
             }
         }
 
-        private static async Task<IResult> ObtenerTodos(HttpContext httpContext, IPeriodoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacoraService)
+        private static async Task<IResult> ObtenerTodos(HttpContext httpContext, int? pagina, IPeriodoService service, IAuthServiceClient auth, IBitacoraServiceClient bitacoraService)
         {
             var acceso = await ValidarAccesoAsync(httpContext.Request, auth);
 
@@ -130,10 +131,23 @@ namespace MicroservicioPeriodos
 
             try
             {
+                if (pagina.HasValue)
+                {
+                    var resultado = await service.ObtenerPaginadoAsync(pagina.Value, acceso.Usuario, acceso.Token);
+
+                    await bitacoraService.RegistrarAsync(acceso.Usuario, "El usuario consulta periodos", acceso.Token);
+
+                    return Results.Ok(resultado);
+                }
+
                 var periodos = await service.ObtenerTodosAsync();
                 await bitacoraService.RegistrarAsync(acceso.Usuario, "El usuario consulta periodos", acceso.Token);
 
                 return Results.Ok(periodos);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (Exception ex)
             {

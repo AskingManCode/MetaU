@@ -48,12 +48,21 @@ namespace MicroservicioModulos.Services
             if (!NombreRegex.IsMatch(modulo.Nombre))
                 throw new ArgumentException("El nombre del modulo solo puede tener letras y espacios");
 
-            if (modulo.Orden is < 0)
-                throw new ArgumentException("El orden del modulo no puede ser negativo");
+            if (modulo.Estado is null)
+                throw new ArgumentException("El estado del modulo es obligatorio");
+
+            if (modulo.Orden is null)
+                throw new ArgumentException("El orden del modulo es obligatorio");
+
+            if (modulo.Orden < 1)
+                throw new ArgumentException("El orden del modulo debe ser mayor o igual a 1");
 
             var existente = await _moduloRepository.ObtenerPorIdAsync(modulo.IdModulo);
             if (existente is not null)
                 throw new InvalidOperationException($"Ya existe un modulo con el ID '{modulo.IdModulo}'");
+
+            if (await _moduloRepository.ExisteOrdenAsync(modulo.Orden.Value))
+                throw new InvalidOperationException($"Ya existe un modulo con el orden {modulo.Orden}");
 
             var filas = await _moduloRepository.CrearAsync(modulo);
             if (filas <= 0)
@@ -76,10 +85,19 @@ namespace MicroservicioModulos.Services
             if (!NombreRegex.IsMatch(modulo.Nombre))
                 throw new ArgumentException("El nombre del modulo solo puede tener letras y espacios");
 
-            if (modulo.Orden is < 0)
-                throw new ArgumentException("El orden del modulo no puede ser negativo");
+            if (modulo.Estado is null)
+                throw new ArgumentException("El estado del modulo es obligatorio");
+
+            if (modulo.Orden is null)
+                throw new ArgumentException("El orden del modulo es obligatorio");
+
+            if (modulo.Orden < 1)
+                throw new ArgumentException("El orden del modulo debe ser mayor o igual a 1");
 
             var anterior = await ObtenerPorIdAsync(id);
+
+            if (await _moduloRepository.ExisteOrdenAsync(modulo.Orden.Value, id))
+                throw new InvalidOperationException($"Ya existe un modulo con el orden {modulo.Orden}");
 
             var filas = await _moduloRepository.ActualizarAsync(modulo);
             if (filas <= 0)

@@ -62,5 +62,16 @@ namespace MicroservicioModulos.Repository
                         ) THEN 1 ELSE 0 END AS BIT)";
             return await connection.ExecuteScalarAsync<bool>(sql, new { id });
         }
+
+        public async Task<bool> ExisteOrdenAsync(int orden, string? excluirId = null)
+        {
+            using var connection = _dbconnectionFactory.CrearConexion();
+            var sql = @"SELECT CAST(CASE WHEN EXISTS (
+                    SELECT 1 FROM [MetaU_DB_User].[Modulos]
+                    WHERE Orden = @orden
+                      AND (@excluirId IS NULL OR ModuloCode <> @excluirId)
+                ) THEN 1 ELSE 0 END AS BIT)";
+            return await connection.ExecuteScalarAsync<bool>(sql, new { orden, excluirId });
+        }
     }
 }

@@ -15,28 +15,35 @@ namespace MicroservicioModulos.Repository
         public async Task<IEnumerable<Modulos>> ObtenerTodosAsync()
         {
             using var connection = _dbconnectionFactory.CrearConexion();
-            var sql = "SELECT ModuloCode AS IdModulo, Nombre, Estado FROM [MetaU_DB_User].[Modulos]";
+            var sql = @"SELECT ModuloCode AS IdModulo, Nombre, Estado, Orden
+                        FROM [MetaU_DB_User].[Modulos]
+                        ORDER BY Orden, Nombre";
             return await connection.QueryAsync<Modulos>(sql);
         }
 
         public async Task<Modulos?> ObtenerPorIdAsync(string id)
         {
             using var connection = _dbconnectionFactory.CrearConexion();
-            var sql = "SELECT ModuloCode AS IdModulo, Nombre, Estado FROM [MetaU_DB_User].[Modulos] WHERE ModuloCode = @id";
+            var sql = "SELECT ModuloCode AS IdModulo, Nombre, Estado, Orden FROM [MetaU_DB_User].[Modulos] WHERE ModuloCode = @id";
             return await connection.QueryFirstOrDefaultAsync<Modulos>(sql, new { id });
         }
 
         public async Task<int> CrearAsync(Modulos modulos)
         {
             using var connection = _dbconnectionFactory.CrearConexion();
-            var sql = "INSERT INTO [MetaU_DB_User].[Modulos] (ModuloCode, Nombre, Estado) VALUES (@IdModulo, @Nombre, ISNULL(@Estado, 1))";
+            var sql = @"INSERT INTO [MetaU_DB_User].[Modulos] (ModuloCode, Nombre, Estado, Orden)
+                        VALUES (@IdModulo, @Nombre, ISNULL(@Estado, 1), ISNULL(@Orden, 0))";
             return await connection.ExecuteAsync(sql, modulos);
         }
 
         public async Task<int> ActualizarAsync(Modulos modulos)
         {
             using var connection = _dbconnectionFactory.CrearConexion();
-            var sql = "UPDATE [MetaU_DB_User].[Modulos] SET Nombre = @Nombre, Estado = ISNULL(@Estado, Estado) WHERE ModuloCode = @IdModulo";
+            var sql = @"UPDATE [MetaU_DB_User].[Modulos]
+                        SET Nombre = @Nombre,
+                            Estado = ISNULL(@Estado, Estado),
+                            Orden = ISNULL(@Orden, Orden)
+                        WHERE ModuloCode = @IdModulo";
             return await connection.ExecuteAsync(sql, modulos);
         }
 
@@ -51,8 +58,8 @@ namespace MicroservicioModulos.Repository
         {
             using var connection = _dbconnectionFactory.CrearConexion();
             var sql = @"SELECT CAST(CASE WHEN EXISTS (
-                    SELECT 1 FROM [MetaU_DB_User].[RolesXModulos] WHERE ModuloCode = @id
-                ) THEN 1 ELSE 0 END AS BIT)";
+                            SELECT 1 FROM [MetaU_DB_User].[RolesXModulos] WHERE ModuloCode = @id
+                        ) THEN 1 ELSE 0 END AS BIT)";
             return await connection.ExecuteScalarAsync<bool>(sql, new { id });
         }
     }

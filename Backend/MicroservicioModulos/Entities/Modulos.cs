@@ -12,5 +12,7 @@ namespace MicroservicioModulos.Entities
         public string Nombre { get; set; } = null!;
 
         public bool? Estado { get; set; }
+
+        public int? Orden { get; set; }
     }
 }

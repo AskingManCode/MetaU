@@ -15,6 +15,8 @@ namespace MicroservicioUsuarios.Services
 
         private const string Dominio_Estudiante = "DOMEST";
         private const string Dominio_Profes = "DOMPROF";
+        private const string Items_Pagina = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         public UsuarioService(
             IUsuarioRepository repository,
@@ -30,16 +32,39 @@ namespace MicroservicioUsuarios.Services
 
         public Task<IEnumerable<Usuario>> ListarAsync() => _repository.ListarAsync();
 
-        public Task<IEnumerable<Usuario>> FiltrarAsync(string? identificacion, string? nombre, string? tipo)
-            => _repository.FiltrarAsync(identificacion, nombre, tipo);
+        public Task<IEnumerable<Usuario>> FiltrarAsync(string? identificacion, string? nombre, string? tipo, string? dominio = null, string? rol = null)
+    => _repository.FiltrarAsync(identificacion, nombre, tipo, dominio?.Trim().TrimStart('@'), rol);
 
-        public Task<IEnumerable<Usuario>> ConsultarAsync(string? identificacion, string? nombre, string? tipo)
+        public async Task<IEnumerable<Usuario>> ConsultarAsync(
+             string? identificacion, string? nombre, string? tipo, string? dominio = null, string? rol = null,
+             string? ordenarPor = null, string? direccion = null)
         {
-            var hayFiltro = identificacion is not null || nombre is not null || tipo is not null;
+            var hayFiltro = identificacion is not null || nombre is not null || tipo is not null
+                            || dominio is not null || rol is not null;
 
-            return hayFiltro
-                ? FiltrarAsync(identificacion, nombre, tipo)
-                : ListarAsync();
+            var usuarios = hayFiltro
+                ? await FiltrarAsync(identificacion, nombre, tipo, dominio, rol)
+                : await ListarAsync();
+
+            return Ordenar(usuarios, ordenarPor, direccion);
+        }
+
+        private static IEnumerable<Usuario> Ordenar(IEnumerable<Usuario> usuarios, string? ordenarPor, string? direccion)
+        {
+            var descendente = string.Equals(direccion, "desc", StringComparison.OrdinalIgnoreCase);
+
+            Func<Usuario, string> clave = (ordenarPor ?? string.Empty).ToLowerInvariant() switch
+            {
+                "tipo" => u => u.TipoIdentificacionCode,
+                "identificacion" => u => u.Identificacion,
+                "nombre" => u => u.NombreCompleto,
+                "rol" => u => u.RolCode,
+                _ => u => u.Email
+            };
+
+            return descendente
+                ? usuarios.OrderByDescending(clave, StringComparer.OrdinalIgnoreCase)
+                : usuarios.OrderBy(clave, StringComparer.OrdinalIgnoreCase);
         }
 
         public Task<Usuario?> ObtenerAsync(string email) => _repository.ObtenerPorEmailAsync(email);
@@ -83,7 +108,7 @@ namespace MicroservicioUsuarios.Services
             if (dominioEmail == dominioEstudiante && nombreRol != "estudiante")
                 return (false, $"Los emails del dominio {dominioEstudiante} deben tener rol Estudiante");
 
-            if (dominioEmail == dominioDocente && nombreRol != "profesor" && nombreRol != "administrador")
+            if (dominioEmail == dominioDocente && nombreRol != "profesor" && nombreRol != "administrador" && nombreRol != "administrativo")
                 return (false, $"Los emails del dominio {dominioDocente} deben tener rol Profesor o Administrador");
 
             return (true, null);
@@ -167,6 +192,36 @@ namespace MicroservicioUsuarios.Services
                 throw new ApplicationException("No se pudo eliminar el usuario");
 
             return existente;
+        }
+
+        public async Task<PaginaResultado<Usuario>> ConsultarPaginadoAsync(
+    int pagina, string? identificacion, string? nombre, string? tipo, string? dominio, string? rol,
+    string? ordenarPor, string? direccion, Guid usuarioId, string token)
+        {
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            int tamano;
+            try
+            {
+                var valor = await _parametroServiceClient.ObtenerValorAsync(Items_Pagina, usuarioId, token);
+                tamano = int.TryParse(valor, out var n) && n > 0 ? n : TamanoPaginaDefecto;
+            }
+            catch (HttpRequestException)
+            {
+                tamano = TamanoPaginaDefecto;
+            }
+
+            var todos = (await ConsultarAsync(identificacion, nombre, tipo, dominio, rol, ordenarPor, direccion)).ToList();
+
+            return new PaginaResultado<Usuario>
+            {
+                Pagina = pagina,
+                TamanoPagina = tamano,
+                TotalRegistros = todos.Count,
+                TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+                Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+            };
         }
     }
 }

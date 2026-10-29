@@ -24,12 +24,24 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(cl
     client.BaseAddress = new Uri(bitacorasUrl);
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ClientApps", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
 app.UseHttpsRedirection();
+app.UseCors("ClientApps");
 app.MapInstitucionesEndpoints();
 
 app.Run();

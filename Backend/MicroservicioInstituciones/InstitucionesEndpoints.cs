@@ -70,16 +70,23 @@ namespace MicroservicioInstituciones
         private static async Task<IResult> ObtenerTodosAsync(
             [FromHeader(Name = "Authorization")] string? authorization,
             [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            int? pagina,
             IInstitucionService service)
         {
             try
             {
+                if (pagina.HasValue)
+                {
+                    var resultado = await service.ObtenerPaginadoAsync(pagina.Value, authorization, usuarioId);
+                    return Results.Ok(resultado);
+                }
+
                 var instituciones = await service.ObtenerTodosAsync(authorization, usuarioId);
                 return Results.Ok(instituciones);
             }
             catch (Exception ex)
             {
-                return RespuestaError(ex);
+                return RespuestaError(ex, argumentoEsBadRequest: true);
             }
         }
 

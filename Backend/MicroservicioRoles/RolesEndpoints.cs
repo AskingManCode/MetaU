@@ -48,6 +48,7 @@ namespace MicroservicioRoles
             // GET Obtener Todos
             group.MapGet("/", async (
                 HttpRequest request,
+                int? pagina,
                 [FromServices] IRolService rolService,
                 [FromServices] IAuthServiceClient authService,
                 [FromServices] IBitacoraServiceClient bitacoraService) =>
@@ -60,6 +61,13 @@ namespace MicroservicioRoles
 
                 return await EjecutarAsync(async () =>
                 {
+                    if (pagina.HasValue)
+                    {
+                        var resultado = await rolService.ObtenerPaginadoAsync(pagina.Value, usuarioId, ObtenerToken(request));
+                        await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta roles", ObtenerToken(request));
+                        return Results.Ok(resultado);
+                    }
+
                     var roles = await rolService.ObtenerTodosAsync();
                     await bitacoraService.RegistrarAsync(usuarioId, "El usuario consulta roles", ObtenerToken(request));
                     return Results.Ok(roles);
@@ -191,11 +199,10 @@ namespace MicroservicioRoles
             .WithOpenApi();
 
             // PUT activar o descativar modulo para rol
-            group.MapPut("/{id}/modulos/{moduloId}", async (
+            group.MapPut("/{id}/modulos", async (
                 HttpRequest request,
                 string id,
-                string moduloId,
-                [FromBody] RolModulo permiso,
+                [FromBody] List<RolModulo> permisos,
                 [FromServices] IRolService rolService,
                 [FromServices] IAuthServiceClient authService,
                 [FromServices] IBitacoraServiceClient bitacoraService) =>
@@ -208,13 +215,13 @@ namespace MicroservicioRoles
 
                 return await EjecutarAsync(async () =>
                 {
-                    var (anterior, actual) = await rolService.ActualizarPermisoAsync(id, moduloId, permiso.Estado);
-                    var detalle = JsonSerializer.Serialize(new { rol = id, anterior, actual });
+                    var (anteriores, actuales) = await rolService.ActualizarPermisosAsync(id, permisos);
+                    var detalle = JsonSerializer.Serialize(new { rol = id, anteriores, actuales });
                     await bitacoraService.RegistrarAsync(usuarioId, detalle, ObtenerToken(request));
-                    return Results.Ok(actual);
+                    return Results.Ok(actuales);
                 });
             })
-            .WithName("UpdatePermisoRol")
+            .WithName("UpdatePermisosRol")
             .WithOpenApi();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using MicroservicioRoles.Entities;
 using MicroservicioRoles.Repository;
+using MicroservicioRoles.Services.Clients;
 
 namespace MicroservicioRoles.Services
 {
@@ -9,11 +10,16 @@ namespace MicroservicioRoles.Services
         private static readonly Regex IdRegex = new(@"^[A-Z]{1,15}$");
         private static readonly Regex NombreRegex = new(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$");
 
-        private readonly RolRepository _rolRepository;
+        private const string Items_Pagina = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
-        public RolService(RolRepository rolRepository)
+        private readonly RolRepository _rolRepository;
+        private readonly IParametroServiceClient _parametroServiceClient;
+
+        public RolService(RolRepository rolRepository, IParametroServiceClient parametroServiceClient)
         {
             _rolRepository = rolRepository;
+            _parametroServiceClient = parametroServiceClient;
         }
 
         public async Task<IEnumerable<Rol>> ObtenerTodosAsync()
@@ -45,6 +51,9 @@ namespace MicroservicioRoles.Services
             if (existente is not null)
                 throw new InvalidOperationException($"Ya existe un rol con el ID '{rol.IdRol}'");
 
+            if (await _rolRepository.ExisteNombreAsync(rol.Nombre))
+                throw new InvalidOperationException($"Ya existe un rol con el nombre '{rol.Nombre}'");
+
             var filas = await _rolRepository.CrearAsync(rol);
             if (filas <= 0)
                 throw new ApplicationException("No se pudo crear el rol");
@@ -67,6 +76,9 @@ namespace MicroservicioRoles.Services
                 throw new ArgumentException("El nombre del rol solo puede tener letras y espacios");
 
             var anterior = await ObtenerPorIdAsync(id);
+
+            if (await _rolRepository.ExisteNombreAsync(rol.Nombre))
+                throw new InvalidOperationException($"Ya existe un rol con el nombre '{rol.Nombre}'");
 
             var filas = await _rolRepository.ActualizarAsync(rol);
             if (filas <= 0)
@@ -94,18 +106,57 @@ namespace MicroservicioRoles.Services
             return await _rolRepository.ObtenerPermisosAsync(id);
         }
 
-        public async Task<(RolModulo Anterior, RolModulo Actual)> ActualizarPermisoAsync(string id, string moduloId, bool estado)
+        public async Task<(IEnumerable<RolModulo> Anteriores, IEnumerable<RolModulo> Actuales)> ActualizarPermisosAsync(string id, List<RolModulo> cambios)
         {
-            var permisos = await ObtenerPermisosAsync(id);
-            var anterior = permisos.FirstOrDefault(p => p.IdModulo == moduloId)
-                ?? throw new KeyNotFoundException($"No existe un módulo con ID '{moduloId}'");
+            if (cambios is null || cambios.Count == 0)
+                throw new ArgumentException("Debe indicar al menos un modulo");
 
-            var filas = await _rolRepository.ActualizarPermisoAsync(id, moduloId, estado);
-            if (filas <= 0)
-                throw new ApplicationException("No se pudo actualizar el permiso");
+            if (cambios.GroupBy(c => c.IdModulo).Any(g => g.Count() > 1))
+                throw new ArgumentException("Hay modulos repetidos en la solicitud");
 
-            var actual = new RolModulo { IdModulo = anterior.IdModulo, Nombre = anterior.Nombre, Estado = estado };
-            return (anterior, actual);
+            var permisos = (await ObtenerPermisosAsync(id)).ToList();
+            var anteriores = new List<RolModulo>();
+            var actuales = new List<RolModulo>();
+
+            foreach (var cambio in cambios)
+            {
+                var anterior = permisos.FirstOrDefault(p => p.IdModulo == cambio.IdModulo)
+                    ?? throw new KeyNotFoundException($"No existe un modulo con ID '{cambio.IdModulo}'");
+
+                anteriores.Add(anterior);
+                actuales.Add(new RolModulo { IdModulo = anterior.IdModulo, Nombre = anterior.Nombre, Estado = cambio.Estado });
+            }
+
+            await _rolRepository.ActualizarPermisosAsync(id, actuales);
+            return (anteriores, actuales);
+        }
+
+        public async Task<PaginaResultado<Rol>> ObtenerPaginadoAsync(int pagina, Guid usuarioId, string token)
+        {
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            int tamano;
+            try
+            {
+                var valor = await _parametroServiceClient.ObtenerValorAsync(Items_Pagina, usuarioId, token);
+                tamano = int.TryParse(valor, out var n) && n > 0 ? n : TamanoPaginaDefecto;
+            }
+            catch (HttpRequestException)
+            {
+                tamano = TamanoPaginaDefecto;
+            }
+
+            var todos = (await _rolRepository.ObtenerTodosAsync()).ToList();
+
+            return new PaginaResultado<Rol>
+            {
+                Pagina = pagina,
+                TamanoPagina = tamano,
+                TotalRegistros = todos.Count,
+                TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+                Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+            };
         }
     }
 }

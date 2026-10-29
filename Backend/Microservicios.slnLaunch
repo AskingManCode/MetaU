@@ -3,7 +3,7 @@
     "Name": "Nuevo perfil",
     "Projects": [
       {
-        "Path": "MicroservicioRoles\\MicroservicioRoles.csproj",
+        "Path": "MicroservicioModulos\\MicroservicioModulos.csproj",
         "Action": "Start"
       }
     ]

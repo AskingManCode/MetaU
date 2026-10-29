@@ -12,45 +12,112 @@ import { mensajeErrorGrupo, textoGrupo } from '../../../utils/grupoUtils'
 function Grupos() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { grupos, loading, errorCarga, eliminarGrupo } = useGrupos()
-    const { cursos, profesores, periodos } = useCatalogosGrupo()
 
     const [notification, setNotification] = useState(
-        location.state?.mensaje ? { type: 'success', message: location.state.mensaje } : null
+        location.state?.mensaje
+            ? { type: 'success', message: location.state.mensaje }
+            : null
     )
+
     const [codigo, setCodigo] = useState('')
     const [curso, setCurso] = useState('')
     const [numero, setNumero] = useState('')
     const [periodo, setPeriodo] = useState('')
+    const [ordenTabla, setOrdenTabla] = useState({
+        key: null,
+        direction: 'asc'
+    })
     const [grupoEliminar, setGrupoEliminar] = useState(null)
     const [eliminando, setEliminando] = useState(false)
 
+    const tieneFiltros = Boolean(
+        codigo.trim() ||
+        curso.trim() ||
+        numero.trim() ||
+        periodo
+    )
+
+    const listaCompleta = tieneFiltros || Boolean(ordenTabla.key)
+
+    const {
+        grupos,
+        pagina,
+        setPagina,
+        totalRegistros,
+        totalPaginas,
+        loading,
+        errorCarga,
+        eliminarGrupo
+    } = useGrupos({ listaCompleta })
+
+    const {
+        cursos,
+        profesores,
+        periodos,
+        error: errorCatalogos
+    } = useCatalogosGrupo()
+
     useEffect(() => {
-        if (location.state?.mensaje)
-            navigate(location.pathname, { replace: true, state: null })
+        if (location.state?.mensaje) {
+            navigate(location.pathname, {
+                replace: true,
+                state: null
+            })
+        }
     }, [location.pathname, location.state, navigate])
 
     useEffect(() => {
-        if (errorCarga) setNotification({ type: 'error', message: errorCarga })
+        if (errorCarga) {
+            setNotification({
+                type: 'error',
+                message: errorCarga
+            })
+        }
     }, [errorCarga])
 
-    const nombresCursos = useMemo(() => new Map(cursos.map(c => [
-        c.cursoCode, c.nombre ? `${c.cursoCode} - ${c.nombre}` : c.cursoCode
-    ])), [cursos])
+    useEffect(() => {
+        if (errorCatalogos) {
+            setNotification({
+                type: 'error',
+                message: errorCatalogos
+            })
+        }
+    }, [errorCatalogos])
 
-    const nombresProfesores = useMemo(() => new Map(profesores.map(p => [
-        p.profesorID, p.nombreCompleto || p.profesorID
-    ])), [profesores])
+    const nombresCursos = useMemo(() => new Map(
+        cursos.map(c => [
+            c.cursoCode,
+            c.nombre ? `${c.cursoCode} - ${c.nombre}` : c.cursoCode
+        ])
+    ), [cursos])
 
-    const nombresPeriodos = useMemo(() => new Map(periodos.map(p => [
-        p.periodoID, p.anio && p.numeroPeriodo
-            ? `${p.anio} - Periodo ${p.numeroPeriodo}`
-            : p.periodoID
-    ])), [periodos])
+    const nombresProfesores = useMemo(() => new Map(
+        profesores.map(p => [
+            p.profesorID,
+            p.nombreCompleto || p.profesorID
+        ])
+    ), [profesores])
+
+    const nombresPeriodos = useMemo(() => new Map(
+        periodos.map(p => [
+            p.periodoID,
+            p.anio && p.numeroPeriodo
+                ? `${p.anio} - Periodo ${p.numeroPeriodo}`
+                : p.periodoID
+        ])
+    ), [periodos])
 
     const columnas = useMemo(() => [
-        { key: 'grupoCode', label: 'Codigo', sortable: true },
-        { key: 'numeroGrupo', label: 'Numero', sortable: true },
+        {
+            key: 'grupoCode',
+            label: 'Codigo',
+            sortable: true
+        },
+        {
+            key: 'numeroGrupo',
+            label: 'Numero',
+            sortable: true
+        },
         {
             key: 'cursoCode',
             label: 'Curso',
@@ -63,29 +130,57 @@ function Grupos() {
             sortable: true,
             accessor: g => nombresProfesores.get(g.profesorID) || g.profesorID
         },
-        { key: 'horario', label: 'Horario', sortable: true },
-        { key: 'cupo', label: 'Cupo', sortable: true },
+        {
+            key: 'horario',
+            label: 'Horario',
+            sortable: true
+        },
+        {
+            key: 'cupo',
+            label: 'Cupo',
+            sortable: true
+        },
         {
             key: 'periodoID',
             label: 'Periodo',
             sortable: true,
             accessor: g => nombresPeriodos.get(g.periodoID) || g.periodoID
         },
-        { key: 'estado', label: 'Estado', sortable: true, render: g => g.estado ? 'Activo' : 'Inactivo' }
+        {
+            key: 'estado',
+            label: 'Estado',
+            sortable: true,
+            render: g => g.estado ? 'Activo' : 'Inactivo'
+        }
     ], [nombresCursos, nombresProfesores, nombresPeriodos])
 
     const filtrados = useMemo(() => grupos.filter(g =>
         textoGrupo(g.grupoCode).includes(textoGrupo(codigo)) &&
         textoGrupo(g.cursoCode).includes(textoGrupo(curso)) &&
-        String(g.numeroGrupo).includes(numero.trim()) &&
+        String(g.numeroGrupo ?? '').includes(numero.trim()) &&
         (!periodo || g.periodoID === periodo)
     ), [grupos, codigo, curso, numero, periodo])
+
+    const cambiarFiltro = (campo, valor) => {
+        if (campo === 'codigo') setCodigo(valor)
+        if (campo === 'curso') setCurso(valor)
+        if (campo === 'numero') setNumero(valor)
+        if (campo === 'periodo') setPeriodo(valor)
+
+        setPagina(1)
+    }
 
     const limpiarFiltros = () => {
         setCodigo('')
         setCurso('')
         setNumero('')
         setPeriodo('')
+        setPagina(1)
+    }
+
+    const cambiarOrden = nuevoOrden => {
+        setOrdenTabla(nuevoOrden)
+        setPagina(1)
     }
 
     const confirmarEliminacion = async () => {
@@ -95,13 +190,20 @@ function Grupos() {
 
         try {
             await eliminarGrupo(grupoEliminar.grupoCode)
+
             setGrupoEliminar(null)
-            setNotification({ type: 'success', message: 'Grupo eliminado correctamente' })
+            setNotification({
+                type: 'success',
+                message: 'Grupo eliminado correctamente'
+            })
         } catch (error) {
             setGrupoEliminar(null)
             setNotification({
                 type: 'error',
-                message: mensajeErrorGrupo(error, 'No se pudo eliminar el grupo')
+                message: mensajeErrorGrupo(
+                    error,
+                    'No se pudo eliminar el grupo'
+                )
             })
         } finally {
             setEliminando(false)
@@ -111,27 +213,36 @@ function Grupos() {
     const filtros = (
         <div className="row g-2">
             <div className="col-md-3">
-                <Form.Label className="small mb-1">Codigo</Form.Label>
+                <Form.Label className="small mb-1">
+                    Codigo
+                </Form.Label>
+
                 <Form.Control
                     size="sm"
                     placeholder="Buscar codigo"
                     value={codigo}
-                    onChange={e => setCodigo(e.target.value)}
+                    onChange={e => cambiarFiltro('codigo', e.target.value)}
                 />
             </div>
 
             <div className="col-md-3">
-                <Form.Label className="small mb-1">Curso</Form.Label>
+                <Form.Label className="small mb-1">
+                    Curso
+                </Form.Label>
+
                 <Form.Control
                     size="sm"
                     placeholder="Buscar curso"
                     value={curso}
-                    onChange={e => setCurso(e.target.value)}
+                    onChange={e => cambiarFiltro('curso', e.target.value)}
                 />
             </div>
 
             <div className="col-md-2">
-                <Form.Label className="small mb-1">Numero de grupo</Form.Label>
+                <Form.Label className="small mb-1">
+                    Numero de grupo
+                </Form.Label>
+
                 <Form.Control
                     size="sm"
                     type="number"
@@ -139,14 +250,22 @@ function Grupos() {
                     max="255"
                     placeholder="Numero"
                     value={numero}
-                    onChange={e => setNumero(e.target.value)}
+                    onChange={e => cambiarFiltro('numero', e.target.value)}
                 />
             </div>
 
             <div className="col-md-2">
-                <Form.Label className="small mb-1">Periodo</Form.Label>
-                <Form.Select size="sm" value={periodo} onChange={e => setPeriodo(e.target.value)}>
+                <Form.Label className="small mb-1">
+                    Periodo
+                </Form.Label>
+
+                <Form.Select
+                    size="sm"
+                    value={periodo}
+                    onChange={e => cambiarFiltro('periodo', e.target.value)}
+                >
                     <option value="">Todos</option>
+
                     {periodos.map(p => (
                         <option key={p.periodoID} value={p.periodoID}>
                             {p.anio} - Periodo {p.numeroPeriodo}
@@ -171,7 +290,9 @@ function Grupos() {
     const acciones = [
         {
             type: 'editar',
-            onClick: g => navigate(`/grupos/editar/${encodeURIComponent(g.grupoCode)}`)
+            onClick: g => navigate(
+                `/grupos/editar/${encodeURIComponent(g.grupoCode)}`
+            )
         },
         {
             type: 'eliminar',
@@ -204,7 +325,17 @@ function Grupos() {
                 loading={loading}
                 filters={filtros}
                 pageSize={15}
-                emptyMessage={errorCarga ? 'No se pudieron cargar los grupos' : 'No hay grupos para mostrar'}
+                serverPagination={!listaCompleta}
+                currentPage={pagina}
+                totalPages={totalPaginas}
+                totalRecords={totalRegistros}
+                onPageChange={setPagina}
+                onSortChange={cambiarOrden}
+                emptyMessage={
+                    errorCarga
+                        ? 'No se pudieron cargar los grupos'
+                        : 'No hay grupos para mostrar'
+                }
             />
 
             <Modal
@@ -214,11 +345,14 @@ function Grupos() {
                 backdrop={eliminando ? 'static' : true}
             >
                 <Modal.Header closeButton={!eliminando}>
-                    <Modal.Title className="fs-5">Confirmar eliminacion</Modal.Title>
+                    <Modal.Title className="fs-5">
+                        Confirmar eliminacion
+                    </Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
-                    Realmente desea eliminar el grupo <strong>{grupoEliminar?.grupoCode}</strong>?
+                    Realmente desea eliminar el grupo{' '}
+                    <strong>{grupoEliminar?.grupoCode}</strong>?
                 </Modal.Body>
 
                 <Modal.Footer>

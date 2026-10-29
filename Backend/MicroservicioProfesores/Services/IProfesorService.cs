@@ -1,4 +1,5 @@
-﻿using MicroservicioProfesores.Entities;
+﻿
+using MicroservicioProfesores.Entities;
 
 namespace MicroservicioProfesores.Services
 {
@@ -8,6 +9,7 @@ namespace MicroservicioProfesores.Services
         Task ModificarAsync(Profesor profesor, Guid usuario, string token);
         Task EliminarAsync(Guid profesorID);
         Task<IEnumerable<Profesor>> ObtenerTodosAsync();
+        Task<PaginaResultado<Profesor>> ObtenerPaginadoAsync(int pagina, Guid usuario, string token);
         Task<Profesor> ObtenerPorIdAsync(Guid profesorID);
     }
 }

@@ -7,39 +7,109 @@ import MaintenanceHeader from '../../../components/MaintenanceHeader'
 import Notification from '../../../components/Notification'
 import usePeriodos, { obtenerEstado } from '../../../hooks/usePeriodos'
 
-// COLUMNAS DE LA TABLA
 const columnas = [
     { key: 'anio', label: 'Anio', sortable: true },
     { key: 'numeroPeriodo', label: 'Periodo', sortable: true },
-    { key: 'fechaInicio', label: 'Fecha inicio', sortable: true, render: p => p.fechaInicio?.slice(0, 10) },
-    { key: 'fechaFin', label: 'Fecha fin', sortable: true, render: p => p.fechaFin?.slice(0, 10) },
-    { key: 'estado', label: 'Estado', sortable: true, accessor: obtenerEstado }
+    {
+        key: 'fechaInicio',
+        label: 'Fecha inicio',
+        sortable: true,
+        render: p => p.fechaInicio?.slice(0, 10)
+    },
+    {
+        key: 'fechaFin',
+        label: 'Fecha fin',
+        sortable: true,
+        render: p => p.fechaFin?.slice(0, 10)
+    },
+    {
+        key: 'estado',
+        label: 'Estado',
+        sortable: true,
+        accessor: obtenerEstado
+    }
 ]
 
 export default function Periodos() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { periodos, notification, setNotification, loading, eliminando, errorCarga, eliminar } = usePeriodos(location.state?.mensaje)
+
     const [busqueda, setBusqueda] = useState('')
     const [filtroEstado, setFiltroEstado] = useState('Todos')
+    const [ordenTabla, setOrdenTabla] = useState({
+        key: null,
+        direction: 'asc'
+    })
+
+    const tieneFiltros = Boolean(
+        busqueda.trim() ||
+        filtroEstado !== 'Todos'
+    )
+
+    const listaCompleta = tieneFiltros || Boolean(ordenTabla.key)
+
+    const {
+        periodos,
+        notification,
+        setNotification,
+        pagina,
+        setPagina,
+        totalRegistros,
+        totalPaginas,
+        loading,
+        eliminando,
+        errorCarga,
+        eliminar
+    } = usePeriodos(location.state?.mensaje, { listaCompleta })
 
     useEffect(() => {
-        if (location.state?.mensaje) navigate(location.pathname, { replace: true, state: null })
+        if (location.state?.mensaje) {
+            navigate(location.pathname, {
+                replace: true,
+                state: null
+            })
+        }
     }, [location.state, location.pathname, navigate])
 
-    // FILTROS DE PERIODOS
     const filtrados = useMemo(() => {
         return periodos.filter(p => {
-            const coincideBusqueda = `${p.anio} ${p.numeroPeriodo}`.toLowerCase().includes(busqueda.toLowerCase())
-            const coincideEstado = filtroEstado === 'Todos' || obtenerEstado(p) === filtroEstado
+            const coincideBusqueda = `${p.anio} ${p.numeroPeriodo}`
+                .toLowerCase()
+                .includes(busqueda.toLowerCase().trim())
+
+            const coincideEstado =
+                filtroEstado === 'Todos' ||
+                obtenerEstado(p) === filtroEstado
+
             return coincideBusqueda && coincideEstado
-        }).sort((a, b) => b.anio - a.anio || b.numeroPeriodo - a.numeroPeriodo)
+        })
     }, [periodos, busqueda, filtroEstado])
 
-    // ACCIONES DE LA TABLA
+    const cambiarBusqueda = valor => {
+        setBusqueda(valor)
+        setPagina(1)
+    }
+
+    const cambiarEstado = valor => {
+        setFiltroEstado(valor)
+        setPagina(1)
+    }
+
+    const cambiarOrden = nuevoOrden => {
+        setOrdenTabla(nuevoOrden)
+        setPagina(1)
+    }
+
     const acciones = [
-        { type: 'editar', onClick: p => navigate(`/periodos/editar/${p.periodoID}`) },
-        { type: 'eliminar', onClick: eliminar, disabled: eliminando }
+        {
+            type: 'editar',
+            onClick: p => navigate(`/periodos/editar/${p.periodoID}`)
+        },
+        {
+            type: 'eliminar',
+            onClick: eliminar,
+            disabled: eliminando
+        }
     ]
 
     const filtros = (
@@ -49,12 +119,16 @@ export default function Periodos() {
                     size="sm"
                     placeholder="Buscar por anio o numero de periodo"
                     value={busqueda}
-                    onChange={e => setBusqueda(e.target.value)}
+                    onChange={e => cambiarBusqueda(e.target.value)}
                 />
             </div>
 
             <div className="col-md-4">
-                <Form.Select size="sm" value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}>
+                <Form.Select
+                    size="sm"
+                    value={filtroEstado}
+                    onChange={e => cambiarEstado(e.target.value)}
+                >
                     <option value="Todos">Todos los estados</option>
                     <option value="Futuro">Futuros</option>
                     <option value="Activo">Activos</option>
@@ -90,7 +164,17 @@ export default function Periodos() {
                 loading={loading}
                 pageSize={15}
                 filters={filtros}
-                emptyMessage={errorCarga ? 'No se pudieron cargar los periodos' : 'No hay periodos registrados'}
+                serverPagination={!listaCompleta}
+                currentPage={pagina}
+                totalPages={totalPaginas}
+                totalRecords={totalRegistros}
+                onPageChange={setPagina}
+                onSortChange={cambiarOrden}
+                emptyMessage={
+                    errorCarga
+                        ? 'No se pudieron cargar los periodos'
+                        : 'No hay periodos registrados'
+                }
             />
         </div>
     )

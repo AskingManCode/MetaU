@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿
+using Microsoft.Data.SqlClient;
 using MicroservicioGrupos.Entities;
 using System.Data;
 
@@ -16,10 +17,9 @@ namespace MicroservicioGrupos.Repository
         public async Task CrearAsync(Grupo grupo)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Grupo_Crear", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Grupo_Crear]", connection);
             command.CommandType = CommandType.StoredProcedure;
             AgregarParametros(command, grupo);
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -27,10 +27,9 @@ namespace MicroservicioGrupos.Repository
         public async Task ModificarAsync(Grupo grupo)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Grupo_Modificar", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Grupo_Modificar]", connection);
             command.CommandType = CommandType.StoredProcedure;
             AgregarParametros(command, grupo);
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -38,10 +37,9 @@ namespace MicroservicioGrupos.Repository
         public async Task EliminarAsync(string grupoCode)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Grupo_Eliminar", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Grupo_Eliminar]", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add("@GrupoCode", SqlDbType.VarChar, 15).Value = grupoCode;
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -50,9 +48,8 @@ namespace MicroservicioGrupos.Repository
         {
             var grupos = new List<Grupo>();
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Grupo_ObtenerTodos", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Grupo_ObtenerTodos]", connection);
             command.CommandType = CommandType.StoredProcedure;
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
@@ -65,13 +62,11 @@ namespace MicroservicioGrupos.Repository
         public async Task<Grupo?> ObtenerPorIdAsync(string grupoCode)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Grupo_ObtenerPorId", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Grupo_ObtenerPorId]", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add("@GrupoCode", SqlDbType.VarChar, 15).Value = grupoCode;
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
-
             return await reader.ReadAsync() ? MapearGrupo(reader) : null;
         }
 

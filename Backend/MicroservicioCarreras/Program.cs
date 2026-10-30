@@ -24,6 +24,13 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(cl
     client.BaseAddress = new Uri(bitacorasUrl);
 });
 
+builder.Services.AddHttpClient<IParametroServiceClient, ParametroServiceClient>(client =>
+{
+    var parametroUrl = builder.Configuration["Servicios:ParametroUrl"]
+        ?? throw new InvalidOperationException("No se encontro la URL del servicio de parametros");
+    client.BaseAddress = new Uri(parametroUrl);
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ClientApps", policy =>

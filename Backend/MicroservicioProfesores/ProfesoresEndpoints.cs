@@ -1,4 +1,5 @@
-﻿using MicroservicioProfesores.Entities;
+﻿
+using MicroservicioProfesores.Entities;
 using MicroservicioProfesores.Services;
 using System.Text.Json;
 
@@ -45,9 +46,12 @@ namespace MicroservicioProfesores
             {
                 return Results.BadRequest(new { mensaje = ex.Message });
             }
-            catch
+            catch(Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+
                 await RegistrarErrorAsync(bitacora, acceso.Usuario, acceso.Token);
+
                 return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
@@ -124,7 +128,7 @@ namespace MicroservicioProfesores
             }
         }
 
-        private static async Task<IResult> ObtenerTodos(HttpRequest httpRequest, IProfesorService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
+        private static async Task<IResult> ObtenerTodos(HttpRequest httpRequest, int? pagina, IProfesorService service, IAuthServiceClient auth, IBitacoraServiceClient bitacora)
         {
             var acceso = await ValidarAccesoAsync(httpRequest, auth);
 
@@ -133,10 +137,23 @@ namespace MicroservicioProfesores
 
             try
             {
+                if (pagina.HasValue)
+                {
+                    var resultado = await service.ObtenerPaginadoAsync(pagina.Value, acceso.Usuario, acceso.Token);
+
+                    await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta profesores", acceso.Token);
+
+                    return Results.Ok(resultado);
+                }
+
                 var profesores = await service.ObtenerTodosAsync();
                 await bitacora.RegistrarAsync(acceso.Usuario, "El usuario consulta profesores", acceso.Token);
 
                 return Results.Ok(profesores);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch
             {

@@ -26,14 +26,23 @@ namespace MicroservicioMatriculas
                     return Results.NoContent();
                 }));
 
-            grupo.MapGet("/", (string? cursoCode, string? grupoCode, string? identificacion, HttpRequest http, IMatriculaService servicio) =>
-    Ejecutar(http, async contexto =>
-    {
-        if (!string.IsNullOrWhiteSpace(identificacion))
-            return Results.Ok(await servicio.ObtenerMatriculasPorEstudiante(identificacion, contexto));
-
-        return Results.Ok(await servicio.ObtenerEstudiantesMatriculados(cursoCode ?? string.Empty, grupoCode ?? string.Empty, contexto));
-    }));
+            grupo.MapGet("/", (string? cursoCode, string? grupoCode, string? identificacion, int? pagina,
+                HttpRequest http, IMatriculaService servicio) =>
+                Ejecutar(http, async contexto =>
+                {
+                    if (!string.IsNullOrWhiteSpace(identificacion))
+                    {
+                        if (pagina.HasValue)
+                            return Results.Ok(await servicio.ObtenerMatriculasPorEstudiantePaginado(
+                                identificacion, pagina.Value, contexto));
+                        return Results.Ok(await servicio.ObtenerMatriculasPorEstudiante(identificacion, contexto));
+                    }
+                    if (pagina.HasValue)
+                        return Results.Ok(await servicio.ObtenerEstudiantesMatriculadosPaginado(
+                            cursoCode ?? string.Empty, grupoCode ?? string.Empty, pagina.Value, contexto));
+                    return Results.Ok(await servicio.ObtenerEstudiantesMatriculados(
+                        cursoCode ?? string.Empty, grupoCode ?? string.Empty, contexto));
+                }));
         }
 
         private static async Task<IResult> Ejecutar(HttpRequest http, Func<ContextoUsuario, Task<IResult>> accion)

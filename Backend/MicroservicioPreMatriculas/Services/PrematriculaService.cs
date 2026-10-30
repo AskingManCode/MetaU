@@ -11,17 +11,25 @@ namespace MicroservicioPreMatriculas.Services
         private readonly IBitacoraClient _bitacora;
         private readonly ICursoClient _cursos;
         private readonly IPeriodoClient _periodos;
+        private readonly IParametroClient _parametros;
+        private readonly ILogger<PrematriculaService> _logger;
+        private const string ParametroPaginacion = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         public PrematriculaService(
             IPrematriculaRepository repositorio,
             IBitacoraClient bitacora,
             ICursoClient cursos,
-            IPeriodoClient periodos)
+            IPeriodoClient periodos,
+            IParametroClient parametros,
+            ILogger<PrematriculaService> logger)
         {
             _repositorio = repositorio;
             _bitacora = bitacora;
             _cursos = cursos;
             _periodos = periodos;
+            _parametros = parametros;
+            _logger = logger;
         }
 
         public async Task<PrematriculaResponse> Prematricular(PrematriculaRequest request, ContextoUsuario contexto)
@@ -135,7 +143,59 @@ namespace MicroservicioPreMatriculas.Services
             return prematriculas.Select(Mapear).ToList();
         }
 
-        public async Task<PrematriculaResponse> ObtenerPorId(Guid id, ContextoUsuario contexto)
+public async Task<PaginaResultado<PrematriculaResponse>> ObtenerPaginado(
+    int pagina, ContextoUsuario contexto)
+{
+    if (pagina < 1)
+        throw new ValidacionException("La página debe ser mayor o igual a 1.");
+
+    var prematriculas = (await ObtenerTodas(contexto))
+        .OrderBy(p => p.PeriodoID)
+        .ThenBy(p => p.Identificacion, StringComparer.Ordinal)
+        .ThenBy(p => p.Id)
+        .ToList();
+
+    var tamano = await ObtenerTamanoPagina(contexto);
+    var inicio = ((long)pagina - 1) * tamano;
+    var datos = inicio >= prematriculas.Count
+        ? new List<PrematriculaResponse>()
+        : prematriculas.Skip((int)inicio).Take(tamano).ToList();
+
+    return new PaginaResultado<PrematriculaResponse>
+    {
+        Pagina = pagina,
+        TamanoPagina = tamano,
+        TotalRegistros = prematriculas.Count,
+        TotalPaginas = (int)Math.Ceiling(prematriculas.Count / (double)tamano),
+        Datos = datos
+    };
+}
+
+private async Task<int> ObtenerTamanoPagina(ContextoUsuario contexto)
+{
+    var tamano = TamanoPaginaDefecto;
+    try
+    {
+        var valor = await _parametros.ObtenerValorAsync(ParametroPaginacion, contexto);
+        if (int.TryParse(valor, out var configurado) && configurado > 0)
+            tamano = Math.Min(configurado, TamanoPaginaDefecto);
+
+        _logger.LogInformation("Paginación de prematrículas: PAGSIZE={Valor}, tamaño aplicado={Tamano}",
+            valor ?? "No disponible", tamano);
+    }
+    catch (HttpRequestException ex)
+    {
+        _logger.LogWarning(ex, "No se pudo consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+    catch (TaskCanceledException ex)
+    {
+        _logger.LogWarning(ex, "Tiempo de espera agotado al consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+
+    return tamano;
+}
+
+public async Task<PrematriculaResponse> ObtenerPorId(Guid id, ContextoUsuario contexto)
         {
             var prematricula = await _repositorio.BuscarPorId(id)
                 ?? throw new NoEncontradoException("No existe una prematrícula con ese identificador.");

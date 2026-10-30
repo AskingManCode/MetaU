@@ -15,7 +15,7 @@ namespace MicroservicioPreMatriculas.Services
 
         public async Task<PeriodoInfo?> ObtenerPorId(Guid periodoId, ContextoUsuario contexto)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"/periodo/{periodoId}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"periodo/{periodoId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
             request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 

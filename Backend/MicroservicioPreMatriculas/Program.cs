@@ -6,6 +6,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendReact", policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IPrematriculaRepository, PrematriculaRepository>();
 builder.Services.AddScoped<IPrematriculaService, PrematriculaService>();
@@ -26,6 +40,10 @@ builder.Services.AddHttpClient<IPeriodoClient, PeriodoClient>(c =>
     c.BaseAddress = new Uri(builder.Configuration["Servicios:PeriodoUrl"]
         ?? throw new InvalidOperationException("Falta Servicios:PeriodoUrl en appsettings.")));
 
+builder.Services.AddHttpClient<IParametroClient, ParametroClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["Servicios:ParametroUrl"]
+        ?? throw new InvalidOperationException("Falta Servicios:ParametroUrl en appsettings.")));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -34,6 +52,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("FrontendReact");
 
 PreMatriculasEndpoints.MapearEndpoints(app);
 

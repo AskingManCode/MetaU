@@ -27,9 +27,14 @@ namespace MicroservicioExpedientesEstudiantes
                     return Results.NoContent();
                 }));
 
-            grupo.MapGet("/", (HttpRequest http, IExpedienteService servicio) =>
+            grupo.MapGet("/", (int? pagina, HttpRequest http, IExpedienteService servicio) =>
                 Ejecutar(http, async contexto =>
-                    Results.Ok(await servicio.ObtenerTodos(contexto))));
+                {
+                    if (pagina.HasValue)
+                        return Results.Ok(await servicio.ObtenerTodosPaginado(pagina.Value, contexto));
+
+                    return Results.Ok(await servicio.ObtenerTodos(contexto));
+                }));
 
             grupo.MapGet("/{identificacion}", (string identificacion, HttpRequest http, IExpedienteService servicio) =>
                 Ejecutar(http, async contexto =>

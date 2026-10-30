@@ -16,7 +16,7 @@ namespace MicroservicioCursos.Repository
         public async Task CrearAsync(Curso curso)
         {
             const string sql = @"
-                INSERT INTO Cursos (CursoCode, CarreraCode, Nombre, Nivel)
+                INSERT INTO MetaU_DB_User.Cursos (CursoCode, CarreraCode, Nombre, Nivel)
                 VALUES (@CursoCode, @CarreraCode, @Nombre, @Nivel)";
 
             using var conexion = _conexiones.CrearConexion();
@@ -33,7 +33,7 @@ namespace MicroservicioCursos.Repository
         public async Task ModificarAsync(Curso curso)
         {
             const string sql = @"
-                UPDATE Cursos
+                UPDATE MetaU_DB_User.Cursos
                 SET Nombre = @Nombre, Nivel = @Nivel
                 WHERE CursoCode = @CursoCode AND Estado = 1";
 
@@ -44,7 +44,7 @@ namespace MicroservicioCursos.Repository
         public async Task EliminarAsync(string cursoCode)
         {
             const string sql = @"
-                UPDATE Cursos
+                UPDATE MetaU_DB_User.Cursos
                 SET Estado = 0
                 WHERE CursoCode = @CursoCode AND Estado = 1";
 
@@ -56,7 +56,7 @@ namespace MicroservicioCursos.Repository
         {
             const string sql = @"
                 SELECT CursoCode, CarreraCode, Nombre, Nivel, Estado
-                FROM Cursos
+                FROM MetaU_DB_User.Cursos
                 WHERE Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -67,7 +67,7 @@ namespace MicroservicioCursos.Repository
         {
             const string sql = @"
                 SELECT CursoCode, CarreraCode, Nombre, Nivel, Estado
-                FROM Cursos
+                FROM MetaU_DB_User.Cursos
                 WHERE CursoCode = @CursoCode AND Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -78,7 +78,7 @@ namespace MicroservicioCursos.Repository
         {
             const string sql = @"
                 SELECT CursoCode, CarreraCode, Nombre, Nivel, Estado
-                FROM Cursos
+                FROM MetaU_DB_User.Cursos
                 WHERE CarreraCode = @CarreraCode AND Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();

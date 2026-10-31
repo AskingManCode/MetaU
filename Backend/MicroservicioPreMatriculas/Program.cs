@@ -36,6 +36,10 @@ builder.Services.AddHttpClient<ICursoClient, CursoClient>(c =>
     c.BaseAddress = new Uri(builder.Configuration["Servicios:CursoUrl"]
         ?? throw new InvalidOperationException("Falta Servicios:CursoUrl en appsettings.")));
 
+builder.Services.AddHttpClient<ICarreraClient, CarreraClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["Servicios:CarreraUrl"]
+        ?? throw new InvalidOperationException("Falta Servicios:CarreraUrl en appsettings.")));
+
 builder.Services.AddHttpClient<IPeriodoClient, PeriodoClient>(c =>
     c.BaseAddress = new Uri(builder.Configuration["Servicios:PeriodoUrl"]
         ?? throw new InvalidOperationException("Falta Servicios:PeriodoUrl en appsettings.")));

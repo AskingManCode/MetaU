@@ -10,6 +10,7 @@ namespace MicroservicioPreMatriculas.Services
         private readonly IPrematriculaRepository _repositorio;
         private readonly IBitacoraClient _bitacora;
         private readonly ICursoClient _cursos;
+        private readonly ICarreraClient _carreras;
         private readonly IPeriodoClient _periodos;
         private readonly IParametroClient _parametros;
         private readonly ILogger<PrematriculaService> _logger;
@@ -20,6 +21,7 @@ namespace MicroservicioPreMatriculas.Services
             IPrematriculaRepository repositorio,
             IBitacoraClient bitacora,
             ICursoClient cursos,
+            ICarreraClient carreras,
             IPeriodoClient periodos,
             IParametroClient parametros,
             ILogger<PrematriculaService> logger)
@@ -27,6 +29,7 @@ namespace MicroservicioPreMatriculas.Services
             _repositorio = repositorio;
             _bitacora = bitacora;
             _cursos = cursos;
+            _carreras = carreras;
             _periodos = periodos;
             _parametros = parametros;
             _logger = logger;
@@ -39,6 +42,7 @@ namespace MicroservicioPreMatriculas.Services
             var estudiante = await _repositorio.BuscarEstudiantePorIdentificacion(request.Identificacion.Trim())
                 ?? throw new NoEncontradoException("No existe un estudiante con esa identificación.");
 
+            await ValidarCarrera(request.CarreraCode, contexto);
             var cursos = await ValidarPeriodoYCursos(request, contexto);
             var carreraCode = request.CarreraCode.Trim();
             var observaciones = NormalizarObservaciones(request.Observaciones);
@@ -96,6 +100,7 @@ namespace MicroservicioPreMatriculas.Services
             var estudiante = await _repositorio.BuscarEstudiantePorIdentificacion(request.Identificacion.Trim())
                 ?? throw new NoEncontradoException("No existe un estudiante con esa identificación.");
 
+            await ValidarCarrera(request.CarreraCode, contexto);
             var cursos = await ValidarPeriodoYCursos(request, contexto);
             var carreraCode = request.CarreraCode.Trim();
 
@@ -255,6 +260,13 @@ public async Task<PrematriculaResponse> ObtenerPorId(Guid id, ContextoUsuario co
             }
 
             return codigos;
+        }
+
+        private async Task ValidarCarrera(string carreraCode, ContextoUsuario contexto)
+        {
+            var carrera = await _carreras.ObtenerPorCodigo(carreraCode.Trim(), contexto);
+            if (carrera is null || !carrera.Estado)
+                throw new NoEncontradoException($"No existe la carrera {carreraCode.Trim()}.");
         }
 
         private static void AplicarCursos(Prematricula prematricula, List<string> codigos)

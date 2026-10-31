@@ -23,6 +23,9 @@ namespace MicroservicioExpedientesEstudiantes.Services
         private static readonly Regex EspaciosRepetidos =
             new(@"\s{2,}", RegexOptions.Compiled);
 
+        private static readonly Regex TelefonoValido =
+            new(@"^\d{8}$", RegexOptions.Compiled);
+
         public ExpedienteService(
             IExpedienteRepository repository,
             IParametroClient parametroClient,
@@ -180,6 +183,12 @@ public async Task<PaginaResultado<Estudiante>> ObtenerTodosPaginado(
 
             if (request.Telefonos.Count == 0 || request.Telefonos.Any(EsVacioOEnBlanco))
                 throw new ValidacionException("Debe indicarse al menos un teléfono y ninguno puede estar vacío.");
+
+            if (request.Telefonos.Any(telefono => !TelefonoValido.IsMatch(telefono)))
+                throw new ValidacionException("Cada teléfono debe contener exactamente 8 dígitos.");
+
+            if (request.FechaNacimiento > DateOnly.FromDateTime(DateTime.Today))
+                throw new ValidacionException("La fecha de nacimiento no puede estar en el futuro.");
 
             if (!SoloLetrasYEspacios.IsMatch(request.NombreCompleto))
                 throw new ValidacionException("El nombre completo solo puede contener letras y espacios.");

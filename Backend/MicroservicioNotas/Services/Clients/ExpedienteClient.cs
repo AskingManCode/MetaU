@@ -17,7 +17,7 @@ namespace MicroservicioNotas.Services
 
         public async Task<Guid?> ObtenerEstudianteID(string identificacion, ContextoUsuario contexto)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"/expediente/{Uri.EscapeDataString(identificacion)}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"expediente/{Uri.EscapeDataString(identificacion)}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
             request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 

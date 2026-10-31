@@ -303,19 +303,19 @@ Existe una restricción única para la combinación `grupoCode + nombreRubro` y 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=TU_SERVIDOR;Database=Notas_Academicas_DB;..."
+    "NotasAcademicas": "Server=tiusr20pl.cuc-carrera-ti.ac.cr;Database=tiusr20pl_Notas_Academicas_DB;TrustServerCertificate=True;"
   },
   "Servicios": {
-    "LoginUrl": "https://localhost:7244",
-    "BitacoraUrl": "https://localhost:7116",
-    "GrupoUrl": "https://localhost:7157",
-    "ExpedienteUrl": "https://localhost:7113",
-    "ParametroUrl": "https://localhost:7051"
+    "LoginUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioLogin_MetaU/",
+    "BitacoraUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioBitacoras_MetaU/",
+    "GrupoUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioGrupos_MetaU/",
+    "ExpedienteUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioExpedientesEstudiantes_MetaU/",
+    "ParametroUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioParametros_MetaU/"
   }
 }
 ```
 
-Las URLs deben corresponder al ambiente de ejecución. No se deben versionar credenciales reales.
+Las URLs deben corresponder al ambiente de ejecución. La cadena versionada no contiene usuario ni contraseña; esos valores se configuran solo en Plesk. Al actualizar un despliegue existente, no se debe reemplazar su `appsettings.json` con el archivo versionado.
 
 ## Evidencias de pruebas técnicas solicitadas
 

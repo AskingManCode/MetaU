@@ -20,6 +20,9 @@ import Facturas from "./pages/Finanzas/Facturas/Index.jsx";
 import Pagos from "./pages/Finanzas/Pagos/Index.jsx";
 import Notificaciones from "./pages/Comunicacion/Notificaciones/Index.jsx";
 import Roles from "./pages/Sistema/Roles/Index.jsx";
+import CrearRol from "./pages/Sistema/Roles/Create.jsx";
+import EditarRol from "./pages/Sistema/Roles/Edit.jsx";
+import PermisosRol from "./pages/Sistema/Roles/Permisos.jsx";
 import Modulos from "./pages/Sistema/Modulos/Index.jsx";
 import Parametros from "./pages/Sistema/Parametros/Index.jsx";
 import Bitacoras from "./pages/Sistema/Bitacoras/Index.jsx";
@@ -70,6 +73,9 @@ function App() {
                     {/* Sistema */}
                     <Route path="usuarios" element={<Usuarios />} />
                     <Route path="roles" element={<Roles />} />
+                    <Route path="roles/nuevo" element={<CrearRol />} />
+                    <Route path="roles/editar/:rolId" element={<EditarRol />} />
+                    <Route path="roles/permisos/:rolId" element={<PermisosRol />} />
                     <Route path="modulos" element={<Modulos />} />
                     <Route path="parametros" element={<Parametros />} />
                     <Route path="bitacoras" element={<Bitacoras />} />

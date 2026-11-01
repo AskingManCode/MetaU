@@ -9,7 +9,7 @@ Microservicio REST encargado de administrar la prematrícula de estudiantes en c
 - Entity Framework Core 10
 - SQL Server
 - OpenAPI
-- `HttpClient` para integrar Login, Bitácoras, Cursos y Períodos
+- `HttpClient` para integrar Login, Bitácoras, Carreras, Cursos y Períodos
 
 ## Dirección local y endpoint base
 
@@ -194,10 +194,11 @@ Respuesta exitosa: `200 OK`. Devuelve únicamente una prematrícula activa. Un G
 |---|---|---|
 | Login, HU USR5 | `POST /validate` | Validar el Bearer token. |
 | Cursos | `GET /curso/{cursoCode}` | Confirmar que el curso existe y es de primer nivel. |
+| Carreras | `GET /carrera/{carreraCode}` | Confirmar que la carrera existe y está activa. |
 | Períodos | `GET /periodo/{periodoID}` | Confirmar que el período existe y es futuro. |
 | Bitácoras, HU GEN1 | `POST /bitacora` | Registrar operaciones y errores técnicos. |
 
-El token y `X-Usuario-Id` recibidos se propagan a Cursos, Períodos y Bitácoras.
+El token y `X-Usuario-Id` recibidos se propagan a Carreras, Cursos, Períodos y Bitácoras.
 
 ## Bitácoras
 

@@ -5,7 +5,9 @@ import Perfil from "./pages/MiPerfil/Index.jsx";
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
 import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
-import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
+import Carreras from "./pages/OfertaAcademica/carreras/Index.jsx";
+import CrearCarrera from "./pages/OfertaAcademica/carreras/Create.jsx";
+import EditarCarrera from "./pages/OfertaAcademica/carreras/Edit.jsx";
 import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
 import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
 import Periodos from "./pages/OfertaAcademica/Periodos/Index.jsx";
@@ -43,6 +45,8 @@ function App() {
                     {/** Oferta Académica */}
                     <Route path="instituciones" element={<Instituciones />} />
                     <Route path="carreras" element={<Carreras />} />
+                    <Route path="carreras/nuevo" element={<CrearCarrera />} />
+                    <Route path="carreras/editar/:carreraCode" element={<EditarCarrera />} />
                     <Route path="cursos" element={<Cursos />} />
                     <Route path="grupos" element={<Grupos />} />
                     <Route path="periodos" element={<Periodos />} />

@@ -12,9 +12,9 @@ namespace MicroservicioNotas.Repository
 
         public async Task ReemplazarDesglose(string grupoCode, List<Rubro> rubros)
         {
-            const string eliminar = "DELETE FROM Rubros WHERE GrupoCode=@grupoCode";
+            const string eliminar = "DELETE FROM [MetaU_DB_User].[Rubros] WHERE GrupoCode=@grupoCode";
             const string insertar = """
-                INSERT INTO Rubros (GrupoCode, NombreRubro, Porcentaje, Bloqueado, Estado)
+                INSERT INTO [MetaU_DB_User].[Rubros] (GrupoCode, NombreRubro, Porcentaje, Bloqueado, Estado)
                 OUTPUT INSERTED.RubroID
                 VALUES (@GrupoCode, @NombreRubro, @Porcentaje, @Bloqueado, @Estado)
                 """;
@@ -39,7 +39,7 @@ namespace MicroservicioNotas.Repository
         {
             const string sql = """
                 SELECT RubroID, GrupoCode, NombreRubro, Porcentaje, Bloqueado, Estado
-                FROM Rubros WHERE GrupoCode=@grupoCode
+                FROM [MetaU_DB_User].[Rubros] WHERE GrupoCode=@grupoCode
                 """;
             using var conexion = _conexiones.CrearConexion();
             return (await conexion.QueryAsync<Rubro>(sql, new { grupoCode })).ToList();
@@ -49,7 +49,7 @@ namespace MicroservicioNotas.Repository
         {
             const string sql = """
                 SELECT RubroID, GrupoCode, NombreRubro, Porcentaje, Bloqueado, Estado
-                FROM Rubros WHERE RubroID=@rubroId
+                FROM [MetaU_DB_User].[Rubros] WHERE RubroID=@rubroId
                 """;
             using var conexion = _conexiones.CrearConexion();
             return await conexion.QuerySingleOrDefaultAsync<Rubro>(sql, new { rubroId });
@@ -58,8 +58,8 @@ namespace MicroservicioNotas.Repository
         public async Task<bool> ExistenNotasEnGrupo(string grupoCode)
         {
             const string sql = """
-                SELECT COUNT(*) FROM NotasXEstudiante n
-                INNER JOIN Rubros r ON r.RubroID=n.RubroID
+                SELECT COUNT(*) FROM [MetaU_DB_User].[NotasXEstudiante] n
+                INNER JOIN [MetaU_DB_User].[Rubros] r ON r.RubroID=n.RubroID
                 WHERE r.GrupoCode=@grupoCode
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -69,7 +69,7 @@ namespace MicroservicioNotas.Repository
         public async Task<NotaRubro> InsertarNota(NotaRubro nota)
         {
             const string sql = """
-                INSERT INTO NotasXEstudiante (RubroID, EstudianteID, Nota)
+                INSERT INTO [MetaU_DB_User].[NotasXEstudiante] (RubroID, EstudianteID, Nota)
                 OUTPUT INSERTED.NotaXEstudianteID, INSERTED.FechaRegistro
                 VALUES (@RubroID, @EstudianteID, @Nota)
                 """;
@@ -83,7 +83,7 @@ namespace MicroservicioNotas.Repository
         public async Task<NotaRubro?> ActualizarNota(NotaRubro nota)
         {
             const string actualizar = """
-                UPDATE NotasXEstudiante SET Nota=@Nota
+                UPDATE [MetaU_DB_User].[NotasXEstudiante] SET Nota=@Nota
                 WHERE RubroID=@RubroID AND EstudianteID=@EstudianteID
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -102,7 +102,7 @@ namespace MicroservicioNotas.Repository
         {
             const string sql = """
                 SELECT n.NotaXEstudianteID, n.RubroID, n.EstudianteID, n.Nota, n.FechaRegistro
-                FROM NotasXEstudiante n INNER JOIN Rubros r ON r.RubroID=n.RubroID
+                FROM [MetaU_DB_User].[NotasXEstudiante] n INNER JOIN [MetaU_DB_User].[Rubros] r ON r.RubroID=n.RubroID
                 WHERE n.EstudianteID=@estudianteId AND r.GrupoCode=@grupoCode
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -115,7 +115,7 @@ namespace MicroservicioNotas.Repository
         {
             const string sql = """
                 SELECT NotaXEstudianteID, RubroID, EstudianteID, Nota, FechaRegistro
-                FROM NotasXEstudiante WHERE RubroID=@rubroId AND EstudianteID=@estudianteId
+                FROM [MetaU_DB_User].[NotasXEstudiante] WHERE RubroID=@rubroId AND EstudianteID=@estudianteId
                 """;
             var fila = await conexion.QuerySingleOrDefaultAsync<NotaRow>(sql, new { rubroId, estudianteId });
             return fila is null ? null : Mapear(fila);

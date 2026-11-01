@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-//import Login from "./pages/Login/Index.jsx";
+import Login from "./pages/Login/Index.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
 import Perfil from "./pages/MiPerfil/Index.jsx";
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
@@ -28,11 +30,11 @@ function App() {
 
     return (
         <BrowserRouter>
-            <Routes>
-                {/** Login */}
-                {/**<Route path="/login" element={<Login />} /> */}
+            <AuthProvider>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
 
-                <Route path="/" element={<MainLayout />}>
+                    <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
 
                     {/** Mi Perfil */}
                     <Route path="perfil" element={<Perfil />} />
@@ -74,8 +76,9 @@ function App() {
                     <Route path="parametros" element={<Parametros />} />
                     <Route path="bitacoras" element={<Bitacoras />} />
 
-                </Route>
-            </Routes>
+                    </Route>
+                </Routes>
+            </AuthProvider>
         </BrowserRouter>
     );
 }

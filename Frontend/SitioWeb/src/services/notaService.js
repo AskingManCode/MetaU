@@ -1,13 +1,30 @@
-import { createApi } from './api';
 
-const api = createApi(import.meta.env.VITE_URL_NOTAS);
+import { createApi } from './api'
 
-const notaService = {
-    getDesglose: (grupoCode) => api.get('/obtenerdesglose', { params: { grupoCode } }),
-    getNotas: (identificacion, grupoCode) => api.get('/obtenernotas', { params: { identificacion, grupoCode } }),
-    cargarDesglose: (data) => api.post('/cargardesglose', data),
-    asignarNotaRubro: (data) => api.post('/asignarnotarubro', data),
-    actualizarNotaRubro: (data) => api.put('/asignarnotarubro', data),
-};
+const api = createApi(import.meta.env.VITE_URL_NOTAS)
 
-export default notaService;
+const notasService = {
+    obtenerDesglose: grupoCode =>
+        api.get('/obtenerdesglose', {
+            params: { grupoCode }
+        }),
+
+    cargarDesglose: datos =>
+        api.post('/cargardesglose', datos),
+
+    obtenerNotas: (identificacion, grupoCode) =>
+        api.get('/obtenernotas', {
+            params: {
+                identificacion,
+                grupoCode
+            }
+        }),
+
+    asignarNota: datos =>
+        api.post('/asignarnotarubro', datos),
+
+    modificarNota: datos =>
+        api.put('/asignarnotarubro', datos)
+}
+
+export default notasService

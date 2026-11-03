@@ -294,6 +294,9 @@ private async Task<int> ObtenerTamanoPagina(ContextoUsuario contexto)
             if (!string.Equals(grupo.CursoCode, curso.CursoCode, StringComparison.OrdinalIgnoreCase))
                 throw new ValidacionException("El grupo no pertenece al curso indicado.");
 
+            if (grupo.PeriodoID != request.PeriodoID)
+                throw new ValidacionException("El grupo no pertenece al periodo indicado.");
+
             var periodo = await _periodos.ObtenerPorId(request.PeriodoID, contexto)
                 ?? throw new NoEncontradoException("No existe el periodo indicado.");
 

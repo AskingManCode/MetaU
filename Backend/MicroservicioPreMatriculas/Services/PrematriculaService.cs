@@ -253,6 +253,9 @@ public async Task<PrematriculaResponse> ObtenerPorId(Guid id, ContextoUsuario co
                 var curso = await _cursos.ObtenerPorCodigo(codigo, contexto)
                     ?? throw new NoEncontradoException($"No existe el curso {codigo}.");
 
+                if (!string.Equals(curso.CarreraCode, request.CarreraCode.Trim(), StringComparison.OrdinalIgnoreCase))
+                    throw new ValidacionException($"El curso {curso.CursoCode} no pertenece a la carrera indicada.");
+
                 if (curso.Nivel != 1)
                     throw new ValidacionException($"El curso {curso.CursoCode} no es de primer nivel.");
 

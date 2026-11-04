@@ -1,78 +1,68 @@
-﻿# MicroservicioProfesores
+# Microservicio de Profesores
 
-Administra la información de los profesores de MetaU mediante operaciones REST para crear, modificar, eliminar y consultar profesores.
+Microservicio encargado de la administración de los profesores de MetaU.
 
-**URL base del servicio:** pendiente de definir para cada ambiente; en ejecución local, `https://localhost:PORT`.
+## Historia de usuario
 
-**Ruta principal:** `/profesor`
+Administración de profesores.
 
-## Antes de consumir la API
+Permite crear, modificar, eliminar y consultar profesores, validando la autenticación e integrando la consulta de parámetros y el registro de acciones mediante bitácoras.
+
+## Tecnologías
+
+- .NET 10
+- ASP.NET Core Minimal APIs
+- SQL Server (`Microsoft.Data.SqlClient`)
+- Autenticación mediante JWT (MicroservicioLogin)
+- Registro de acciones en Bitácoras
+- Consulta de parámetros para dominio de correo y paginación
+
+## Endpoint base
+
+`/profesor`
+
+**URL base en producción:**  
+Pendiente de confirmar.
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5062`
+- HTTPS: `https://localhost:7133`
+
+## Autenticación
 
 Todas las operaciones requieren los siguientes headers:
 
 | Header | Valor | Descripción |
-| --- | --- | --- |
-| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin. |
-| `X-Usuario-Id` | `<UUID>` | GUID del usuario autenticado que ejecuta la operación y se utiliza para el registro de bitácora. |
+|--------|-------|-------------|
+| `Authorization` | `Bearer token-de-ejemplo` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación |
 
-El servicio valida el token consultando MicroservicioLogin. Si el token no se envía o no es válido, responde `401 Unauthorized`.
-
-Los cuerpos y respuestas utilizan formato JSON.
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `X-Usuario-Id` o no es un GUID válido distinto de vacío → `400 Bad Request`.
 
 ## Endpoints
 
-| Método | Ruta | Uso |
-| --- | --- | --- |
-| `POST` | `/profesor` | Crear un profesor. |
-| `PUT` | `/profesor/{profesorID}` | Modificar un profesor existente. |
-| `DELETE` | `/profesor/{profesorID}` | Eliminar un profesor. |
-| `GET` | `/profesor` | Obtener todos los profesores. |
-| `GET` | `/profesor/{profesorID}` | Obtener un profesor por su identificador. |
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/profesor` | Crear un profesor | 201 Created |
+| PUT | `/profesor/{profesorID}` | Modificar un profesor | 200 OK |
+| DELETE | `/profesor/{profesorID}` | Eliminar un profesor | 200 OK |
+| GET | `/profesor` | Obtener todos los profesores | 200 OK |
+| GET | `/profesor?pagina={n}` | Obtener profesores paginados | 200 OK |
+| GET | `/profesor/{profesorID}` | Obtener un profesor por ID | 200 OK |
 
-`profesorID` corresponde a un GUID.
+`profesorID` debe ser un GUID válido. La ruta solo acepta GUID; un identificador con otro formato no coincide con la ruta y responde `404 Not Found`.
 
-## Datos del profesor
-
-El servicio maneja la siguiente información:
-
-| Campo | Descripción |
-| --- | --- |
-| `profesorID` | Identificador único del profesor generado como GUID. |
-| `usuarioID` | GUID del usuario asociado al profesor. |
-| `tipoIdentificacionCode` | Tipo de identificación del profesor. |
-| `identificacion` | Número de identificación. |
-| `email` | Correo electrónico institucional. |
-| `nombreCompleto` | Nombre completo del profesor. |
-| `fechaNacimiento` | Fecha de nacimiento. |
-| `estado` | Estado del registro. |
-| `telefonos` | Lista de teléfonos asociados al profesor. |
-
-## Validaciones
-
-El microservicio aplica las siguientes validaciones:
-
-- Los datos requeridos no pueden estar vacíos.
-- El nombre completo únicamente puede contener letras y espacios.
-- El profesor debe ser mayor de edad.
-- El correo electrónico debe tener un formato válido.
-- El correo debe pertenecer al dominio institucional configurado para profesores.
-- El dominio permitido no se encuentra quemado directamente en la lógica del microservicio.
-- El dominio se obtiene desde MicroservicioParametros mediante el parámetro `DOMPROF`.
-- Todas las operaciones requieren un token válido obtenido mediante MicroservicioLogin.
-- Las acciones realizadas son registradas mediante MicroservicioBitacoras.
-
-## Crear profesor
+### POST /profesor — Crear
 
 ```http
 POST /profesor
-Authorization: Bearer <JWT>
+Authorization: Bearer token-de-ejemplo
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 Content-Type: application/json
-```
 
-Ejemplo de request:
-
-```json
 {
   "usuarioID": "00000000-0000-0000-0000-000000000001",
   "tipoIdentificacionCode": "CED",
@@ -80,15 +70,92 @@ Ejemplo de request:
   "email": "profesor.prueba@cuc.ac.cr",
   "nombreCompleto": "Profesor Prueba",
   "fechaNacimiento": "1990-05-15",
-  "telefonos": [
-    "88888888"
+  "telefonos": ["88888888"]
+}
+```
+
+**Respuesta exitosa (`201 Created`):** el objeto profesor creado (con `profesorID` y `estado: true`); incluye un header `Location` con la ruta del recurso creado.
+
+### PUT /profesor/{profesorID} — Modificar
+
+El `profesorID` de la ruta identifica el registro. El `usuarioID` asociado y el estado actual se conservan; los teléfonos enviados reemplazan los existentes.
+
+```http
+PUT /profesor/00000000-0000-0000-0000-000000000002
+Authorization: Bearer token-de-ejemplo
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "tipoIdentificacionCode": "CED",
+  "identificacion": "123456789",
+  "email": "profesor.modificado@cuc.ac.cr",
+  "nombreCompleto": "Profesor Prueba Modificado",
+  "fechaNacimiento": "1990-05-15",
+  "telefonos": ["88888888", "87777777"]
+}
+```
+
+**Respuesta:** `200 OK` con el objeto actualizado o `404 Not Found` si no existe.
+
+### DELETE /profesor/{profesorID} — Eliminar
+
+La eliminación es física: se elimina el profesor y sus teléfonos asociados de la base de datos.
+
+```http
+DELETE /profesor/00000000-0000-0000-0000-000000000002
+Authorization: Bearer token-de-ejemplo
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+**Respuesta:** `200 OK` con los datos del profesor eliminado o `404 Not Found` si no existe.
+
+### GET /profesor y GET /profesor/{profesorID}
+
+```http
+GET /profesor
+GET /profesor/00000000-0000-0000-0000-000000000002
+Authorization: Bearer token-de-ejemplo
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+La consulta de la colección devuelve todos los profesores, incluidos los inactivos. La consulta individual responde `200 OK` o `404 Not Found`.
+
+### Paginación
+
+Agregar `?pagina=1` (valor ≥ 1). El tamaño de página se obtiene del parámetro `PAGSIZE` (por defecto **15**, nunca superior a 15). Si el parámetro no devuelve un entero positivo o la solicitud al servicio de parámetros falla con un error HTTP, se utiliza el valor por defecto. Los resultados se ordenan por nombre completo y, en caso de empate, por `profesorID`.
+
+```http
+GET /profesor?pagina=1
+Authorization: Bearer token-de-ejemplo
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+**Respuesta paginada:**
+
+```json
+{
+  "pagina": 1,
+  "tamanoPagina": 15,
+  "totalRegistros": 1,
+  "totalPaginas": 1,
+  "datos": [
+    {
+      "profesorID": "00000000-0000-0000-0000-000000000002",
+      "usuarioID": "00000000-0000-0000-0000-000000000001",
+      "tipoIdentificacionCode": "CED",
+      "identificacion": "123456789",
+      "email": "profesor.prueba@cuc.ac.cr",
+      "nombreCompleto": "Profesor Prueba",
+      "fechaNacimiento": "1990-05-15T00:00:00",
+      "estado": true,
+      "telefonos": ["88888888"]
+    }
   ]
 }
 ```
 
-Una creación correcta responde `201 Created`.
-
-Ejemplo de response:
+## Formato de datos
 
 ```json
 {
@@ -100,281 +167,74 @@ Ejemplo de response:
   "nombreCompleto": "Profesor Prueba",
   "fechaNacimiento": "1990-05-15T00:00:00",
   "estado": true,
-  "telefonos": [
-    "88888888"
-  ]
+  "telefonos": ["88888888"]
 }
 ```
 
-## Modificar profesor
+## Reglas de negocio / Validaciones
 
-```http
-PUT /profesor/{profesorID}
-Authorization: Bearer <JWT>
-X-Usuario-Id: <UUID>
-Content-Type: application/json
-```
-
-Ejemplo de request:
-
-```json
-{
-  "usuarioID": "00000000-0000-0000-0000-000000000001",
-  "tipoIdentificacionCode": "CED",
-  "identificacion": "123456789",
-  "email": "profesor.modificado@cuc.ac.cr",
-  "nombreCompleto": "Profesor Prueba Modificado",
-  "fechaNacimiento": "1990-05-15",
-  "telefonos": [
-    "88888888",
-    "87777777"
-  ]
-}
-```
-
-Responde `200 OK` cuando el profesor existe y los datos enviados son válidos.
-
-Si el profesor no existe responde `404 Not Found`.
-
-## Obtener todos los profesores
-
-```http
-GET /profesor
-Authorization: Bearer <JWT>
-X-Usuario-Id: <UUID>
-```
-
-Responde `200 OK` con un arreglo de profesores.
-
-Ejemplo:
-
-```json
-[
-  {
-    "profesorID": "00000000-0000-0000-0000-000000000002",
-    "usuarioID": "00000000-0000-0000-0000-000000000001",
-    "tipoIdentificacionCode": "CED",
-    "identificacion": "123456789",
-    "email": "profesor.prueba@cuc.ac.cr",
-    "nombreCompleto": "Profesor Prueba",
-    "fechaNacimiento": "1990-05-15T00:00:00",
-    "estado": true,
-    "telefonos": [
-      "88888888"
-    ]
-  }
-]
-```
-
-## Obtener profesor por ID
-
-```http
-GET /profesor/{profesorID}
-Authorization: Bearer <JWT>
-X-Usuario-Id: <UUID>
-```
-
-Responde:
-
-- `200 OK` si el profesor existe.
-- `404 Not Found` si no existe.
-
-Ejemplo de respuesta cuando no existe:
-
-```json
-{
-  "mensaje": "El profesor no existe"
-}
-```
-
-## Eliminar profesor
-
-```http
-DELETE /profesor/{profesorID}
-Authorization: Bearer <JWT>
-X-Usuario-Id: <UUID>
-```
-
-Si el profesor existe responde `200 OK` con la información del registro eliminado.
-
-Una consulta posterior al mismo `profesorID` responde `404 Not Found`.
-
-## Dominio de correo parametrizable
-
-El dominio permitido para los correos de profesores se obtiene dinámicamente desde MicroservicioParametros.
-
-El identificador utilizado es:
-
-```text
-DOMPROF
-```
-
-Actualmente el parámetro puede contener:
-
-```text
-cuc.ac.cr
-```
-
-Por ejemplo, el correo:
-
-```text
-profesor.prueba@cuc.ac.cr
-```
-
-es válido.
-
-Mientras que:
-
-```text
-profesor.prueba@gmail.com
-```
-
-es rechazado con `400 Bad Request`.
-
-Ejemplo:
-
-```json
-{
-  "mensaje": "El correo electronico debe pertenecer al dominio cuc.ac.cr"
-}
-```
-
-Esto permite modificar el dominio autorizado desde la parametrización sin tener que cambiar la lógica del microservicio.
-
-## Validación de mayoría de edad
-
-La fecha de nacimiento se valida antes de crear o modificar un profesor.
-
-El profesor debe tener al menos 18 años. Si no cumple con la mayoría de edad, la solicitud responde `400 Bad Request`.
-
-## Validación del nombre
-
-El nombre completo es obligatorio y únicamente permite letras y espacios.
-
-Los nombres que contienen números u otros caracteres no permitidos son rechazados con `400 Bad Request`.
-
-## Autenticación
-
-Todas las operaciones requieren un Bearer Token.
-
-Ejemplo:
-
-```http
-Authorization: Bearer <JWT>
-```
-
-El token se valida mediante MicroservicioLogin.
-
-Una solicitud sin un token válido responde:
-
-```http
-401 Unauthorized
-```
-
-## Bitácora
-
-Las operaciones realizadas sobre profesores generan registros mediante MicroservicioBitacoras.
-
-El usuario que ejecuta la acción se obtiene del header:
-
-```text
-X-Usuario-Id
-```
-
-Se registran acciones relacionadas con:
-
-- Creación.
-- Modificación.
-- Eliminación.
-- Consultas.
-- Errores técnicos.
-
-En una modificación se conserva información del registro anterior y del registro actualizado para mantener trazabilidad.
-
-## Respuestas y errores comunes
-
-| Estado | Cuándo ocurre |
-| --- | --- |
-| `200 OK` | Consulta, modificación o eliminación completada correctamente. |
-| `201 Created` | Profesor creado correctamente. |
-| `400 Bad Request` | Datos inválidos, nombre incorrecto, menor de edad, dominio de correo incorrecto o usuario requerido inválido. |
-| `401 Unauthorized` | Token ausente o inválido. |
-| `404 Not Found` | El profesor solicitado no existe. |
-| `500 Internal Server Error` | Error técnico no recuperable durante el procesamiento. |
+- `usuarioID`, `tipoIdentificacionCode`, `identificacion`, `email`, `nombreCompleto`, `fechaNacimiento` y al menos un teléfono son obligatorios.
+- `usuarioID` debe ser un GUID distinto de vacío.
+- El nombre completo debe contener solo letras y espacios; la base de datos limita el campo a 175 caracteres y rechaza espacios al inicio/final o secuencias de espacios repetidos.
+- El profesor debe tener al menos 18 años.
+- El correo debe pertenecer al dominio configurado en el parámetro `DOMPROF`.
+- La identificación debe contener entre 9 y 30 caracteres alfanuméricos, sin espacios, y ser única.
+- El correo debe tener formato válido, no superar los 150 caracteres y ser único en la base de datos.
+- Cada teléfono debe tener entre 8 y 25 dígitos y ser único para el profesor. Al modificar se reemplaza la lista completa.
+- Al modificar, `usuarioID` y `estado` conservan sus valores actuales.
+- La eliminación es física.
+- Para paginar, `pagina` debe ser mayor o igual a 1.
 
 ## Integraciones
 
-### MicroservicioLogin
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones y errores técnicos |
+| Parámetros | Obtener `DOMPROF` para validar el dominio de correo y `PAGSIZE` para paginación |
 
-Se utiliza para validar el Bearer Token enviado por el usuario antes de ejecutar las operaciones.
-
-### MicroservicioParametros
-
-Se utiliza para obtener el dominio permitido del correo electrónico mediante el parámetro `DOMPROF`.
-
-### MicroservicioBitacoras
-
-Se utiliza para registrar las acciones realizadas sobre los profesores y mantener trazabilidad de las operaciones.
+El dominio del correo se consulta mediante el identificador `DOMPROF`; su valor inicial en la parametrización es `cuc.ac.cr`. Las llamadas de registro a Bitácoras forman parte del procesamiento de las operaciones; si Bitácoras falla, la solicitud puede responder `500 Internal Server Error`, incluso si la operación principal ya se ejecutó.
 
 ## Configuración
 
-El microservicio utiliza las siguientes claves de configuración:
+Claves principales en `appsettings.json` / variables de entorno:
 
-| Clave | Uso |
-| --- | --- |
-| `ConnectionStrings:OfertaAcademica` | Cadena de conexión a la base de datos de oferta académica. |
-| `Servicios:LoginUrl` | URL base de MicroservicioLogin. |
-| `Servicios:BitacoraUrl` | URL base de MicroservicioBitacoras. |
-| `Servicios:ParametroUrl` | URL base de MicroservicioParametros. |
-| `Parametros:IdentificadorDominioProfesor` | Identificador del parámetro utilizado para consultar el dominio permitido. |
+- `ConnectionStrings:OfertaAcademica` → Cadena de conexión a `tiusr20pl_Oferta_Academica_DB` en producción.
+- `Servicios:LoginUrl` → URL base de MicroservicioLogin.
+- `Servicios:BitacoraUrl` → URL base de MicroservicioBitacoras.
+- `Servicios:ParametroUrl` → URL base de MicroservicioParametros.
+- `Parametros:IdentificadorDominioProfesor` → Identificador del parámetro que contiene el dominio de correo permitido (por defecto `DOMPROF`).
+- `Cors:AllowedOrigins` → Orígenes permitidos para CORS.
 
-El identificador configurado para el dominio es:
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
 
-```text
-DOMPROF
+## Base de datos
+
+**Base de datos:** `tiusr20pl_Oferta_Academica_DB` (compartida con Instituciones, Carreras y Cursos).  
+Tablas utilizadas, dentro del esquema `MetaU_DB_User`: `Profesores` y `TelefonosXProfesores`.  
+Usa los procedimientos almacenados `MetaU_DB_User.usp_Profesor_Crear`, `MetaU_DB_User.usp_Profesor_Modificar`, `MetaU_DB_User.usp_Profesor_Eliminar`, `MetaU_DB_User.usp_Profesor_ObtenerTodos` y `MetaU_DB_User.usp_Profesor_ObtenerPorId`.
+
+## Ejecución local
+
+```bash
+dotnet run --project Backend/MicroservicioProfesores/MicroservicioProfesores.csproj
 ```
 
-Las credenciales, cadenas de conexión y URLs específicas de cada ambiente no deben almacenarse directamente en el repositorio.
+## Respuestas y errores comunes
 
-## Persistencia y arquitectura
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta, modificación o eliminación exitosa |
+| 201 Created | Profesor creado |
+| 400 Bad Request | Datos inválidos, nombre con caracteres no permitidos, menor de edad, correo inválido o dominio incorrecto, o `X-Usuario-Id` ausente/no válido |
+| 401 Unauthorized | Token ausente o inválido |
+| 404 Not Found | Profesor no encontrado |
+| 500 Internal Server Error | Error técnico no controlado o restricción de base de datos incumplida |
 
-La información de profesores se almacena en SQL Server.
+## Diagrama de clases
 
-El microservicio utiliza una arquitectura separada por responsabilidades:
+![Diagrama de Clases Profesores](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_AdministracionProfesores.png)
 
-```text
-Endpoint
-   ↓
-ProfesorService
-   ↓
-ProfesorRepository
-   ↓
-SQL Server
-```
+---
 
-Además, los endpoints consumen los clientes de integración necesarios para autenticación, parametrización y bitácoras.
-
-Las capas principales son:
-
-- `Entities`: modelos del dominio.
-- `Services`: reglas de negocio e integraciones.
-- `Repository`: acceso a datos.
-- `ProfesoresEndpoints`: definición de las operaciones REST.
-- `Program`: configuración e inyección de dependencias.
-
-## Ejecutar el microservicio
-
-Requisitos:
-
-- .NET 10.
-- SQL Server.
-- Base de datos de Oferta Académica configurada.
-- MicroservicioLogin disponible.
-- MicroservicioParametros disponible.
-- MicroservicioBitacoras disponible.
-
-Desde la raíz del repositorio:
-
-```powershell
-dotnet run --project .\Backend\MicroservicioProfesores\MicroservicioProfesores.csproj
-```
+*Documentación estandarizada del microservicio MicroservicioProfesores.*

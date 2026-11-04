@@ -22,7 +22,7 @@ Permite crear, modificar, eliminar y consultar profesores, validando la autentic
 `/profesor`
 
 **URL base en producción:**  
-Pendiente de confirmar.
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioProfesores_MetaU/`
 
 **URLs locales** (desde `Properties/launchSettings.json`):
 

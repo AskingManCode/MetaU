@@ -21,6 +21,8 @@ import Pagos from "./pages/Finanzas/Pagos/Index.jsx";
 import Notificaciones from "./pages/Comunicacion/Notificaciones/Index.jsx";
 import Roles from "./pages/Sistema/Roles/Index.jsx";
 import Modulos from "./pages/Sistema/Modulos/Index.jsx";
+import CrearModulo from "./pages/Sistema/Modulos/Create.jsx";
+import EditarModulo from "./pages/Sistema/Modulos/Edit.jsx";
 import Parametros from "./pages/Sistema/Parametros/Index.jsx";
 import Bitacoras from "./pages/Sistema/Bitacoras/Index.jsx";
 
@@ -71,6 +73,8 @@ function App() {
                     <Route path="usuarios" element={<Usuarios />} />
                     <Route path="roles" element={<Roles />} />
                     <Route path="modulos" element={<Modulos />} />
+                    <Route path="modulos/nuevo" element={<CrearModulo />} />
+                    <Route path="modulos/editar/:moduloId" element={<EditarModulo />} />
                     <Route path="parametros" element={<Parametros />} />
                     <Route path="bitacoras" element={<Bitacoras />} />
 

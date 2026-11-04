@@ -234,7 +234,7 @@ Claves principales en `appsettings.json` / variables de entorno:
 
 ## Base de datos
 
-**Base de datos:** `tiusr20pl_Usuarios_DB`.  
+**Base de datos:** `Usuarios_DB`.  
 Tablas utilizadas, dentro del esquema `MetaU_DB_User`: `Roles` (`RolCode` como clave primaria y `NombreRol` único), `Modulos` y `RolesXModulos`. Esta última registra el estado del permiso y tiene una relación única por rol y módulo.  
 La persistencia se realiza con Dapper y consultas SQL directas; este microservicio no utiliza procedimientos almacenados.
 

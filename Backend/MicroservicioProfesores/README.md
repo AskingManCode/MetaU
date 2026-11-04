@@ -210,7 +210,7 @@ Claves principales en `appsettings.json` / variables de entorno:
 
 ## Base de datos
 
-**Base de datos:** `tiusr20pl_Oferta_Academica_DB` (compartida con Instituciones, Carreras y Cursos).  
+**Base de datos:** `Oferta_Academica_DB` (compartida con Instituciones, Carreras y Cursos).  
 Tablas utilizadas, dentro del esquema `MetaU_DB_User`: `Profesores` y `TelefonosXProfesores`.  
 Usa los procedimientos almacenados `MetaU_DB_User.usp_Profesor_Crear`, `MetaU_DB_User.usp_Profesor_Modificar`, `MetaU_DB_User.usp_Profesor_Eliminar`, `MetaU_DB_User.usp_Profesor_ObtenerTodos` y `MetaU_DB_User.usp_Profesor_ObtenerPorId`.
 

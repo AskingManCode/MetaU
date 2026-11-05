@@ -10,15 +10,21 @@ namespace MicroservicioCursos.Services
         private readonly ICursoRepository _repository;
         private readonly IAuthServiceClient _authService;
         private readonly IBitacoraServiceClient _bitacoraService;
+        private readonly IParametroServiceClient _parametroServiceClient;
+
+        private const string Items_Pagina = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         public CursoService(
             ICursoRepository repository,
             IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService)
+            IBitacoraServiceClient bitacoraService,
+            IParametroServiceClient parametroServiceClient)
         {
             _repository = repository;
             _authService = authService;
             _bitacoraService = bitacoraService;
+            _parametroServiceClient = parametroServiceClient;
         }
 
         public Task<Curso> CrearAsync(CursoRequest request, string? authorization, string? usuarioId) =>
@@ -116,6 +122,63 @@ namespace MicroservicioCursos.Services
                     return await _repository.ObtenerPorCarreraAsync(carreraCode);
                 },
                 _ => "El usuario consulta cursos por carrera");
+
+        public Task<PaginaResultado<Curso>> ObtenerPaginadoAsync(int pagina, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: false,
+                async () =>
+                {
+                    if (pagina < 1)
+                        throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+                    var tamano = await ObtenerTamanoPaginaAsync(Guid.Parse(usuarioId!), ObtenerToken(authorization));
+                    var todos = (await _repository.ObtenerTodosAsync()).ToList();
+                    return Paginar(todos, pagina, tamano);
+                },
+                _ => "El usuario consulta cursos");
+
+        public Task<PaginaResultado<Curso>> ObtenerPorCarreraPaginadoAsync(string carreraCode, int pagina, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                registrarErrorEnArgumento: false,
+                async () =>
+                {
+                    if (string.IsNullOrWhiteSpace(carreraCode))
+                        throw new ArgumentException("La carrera es requerida");
+
+                    if (pagina < 1)
+                        throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+                    var tamano = await ObtenerTamanoPaginaAsync(Guid.Parse(usuarioId!), ObtenerToken(authorization));
+                    var todos = (await _repository.ObtenerPorCarreraAsync(carreraCode)).ToList();
+                    return Paginar(todos, pagina, tamano);
+                },
+                _ => "El usuario consulta cursos por carrera");
+
+        private async Task<int> ObtenerTamanoPaginaAsync(Guid usuarioId, string token)
+        {
+            try
+            {
+                var valor = await _parametroServiceClient.ObtenerValorAsync(Items_Pagina, usuarioId, token);
+                return int.TryParse(valor, out var n) && n > 0 ? n : TamanoPaginaDefecto;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                return TamanoPaginaDefecto;
+            }
+        }
+
+        private static PaginaResultado<T> Paginar<T>(List<T> todos, int pagina, int tamano) => new()
+        {
+            Pagina = pagina,
+            TamanoPagina = tamano,
+            TotalRegistros = todos.Count,
+            TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+            Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+        };
 
         private async Task CrearInternoAsync(Curso curso)
         {

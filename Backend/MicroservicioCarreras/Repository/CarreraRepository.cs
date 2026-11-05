@@ -17,7 +17,7 @@ namespace MicroservicioCarreras.Repository
         {
             const string sql = @"
                 SELECT CarreraCode, InstitucionCode, DirectorID, Nombre, Estado
-                FROM Carreras
+                FROM MetaU_DB_User.Carreras
                 WHERE CarreraCode = @CarreraCode AND Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -28,7 +28,7 @@ namespace MicroservicioCarreras.Repository
         {
             const string sql = @"
                 SELECT CarreraCode, InstitucionCode, DirectorID, Nombre, Estado
-                FROM Carreras
+                FROM MetaU_DB_User.Carreras
                 WHERE Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -39,7 +39,7 @@ namespace MicroservicioCarreras.Repository
         {
             const string sql = @"
                 SELECT CarreraCode, InstitucionCode, DirectorID, Nombre, Estado
-                FROM Carreras
+                FROM MetaU_DB_User.Carreras
                 WHERE InstitucionCode = @InstitucionCode AND Estado = 1";
 
             using var conexion = _conexiones.CrearConexion();
@@ -48,7 +48,7 @@ namespace MicroservicioCarreras.Repository
 
         public async Task<bool> ExisteAsync(string carreraCode)
         {
-            const string sql = "SELECT COUNT(1) FROM Carreras WHERE CarreraCode = @CarreraCode";
+            const string sql = "SELECT COUNT(1) FROM MetaU_DB_User.Carreras WHERE CarreraCode = @CarreraCode";
 
             using var conexion = _conexiones.CrearConexion();
             var cantidad = await conexion.ExecuteScalarAsync<int>(sql, new { CarreraCode = carreraCode });
@@ -58,7 +58,7 @@ namespace MicroservicioCarreras.Repository
         public async Task CrearAsync(Carrera carrera)
         {
             const string sql = @"
-                INSERT INTO Carreras (CarreraCode, InstitucionCode, DirectorID, Nombre)
+                INSERT INTO MetaU_DB_User.Carreras (CarreraCode, InstitucionCode, DirectorID, Nombre)
                 VALUES (@CarreraCode, @InstitucionCode, @DirectorID, @Nombre)";
 
             using var conexion = _conexiones.CrearConexion();
@@ -75,7 +75,7 @@ namespace MicroservicioCarreras.Repository
         public async Task<bool> ActualizarAsync(string carreraCode, string nombre, Guid directorId)
         {
             const string sql = @"
-                UPDATE Carreras
+                UPDATE MetaU_DB_User.Carreras
                 SET Nombre = @Nombre, DirectorID = @DirectorID
                 WHERE CarreraCode = @CarreraCode AND Estado = 1";
 
@@ -95,7 +95,7 @@ namespace MicroservicioCarreras.Repository
         public async Task<bool> EliminarAsync(string carreraCode)
         {
             const string sql = @"
-                UPDATE Carreras
+                UPDATE MetaU_DB_User.Carreras
                 SET Estado = 0
                 WHERE CarreraCode = @CarreraCode AND Estado = 1";
 

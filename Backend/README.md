@@ -73,6 +73,8 @@ dotnet run --project MicroservicioLogin/MicroservicioLogin.csproj
 
 Se recomienda revisar el `README.md` de cada carpeta `Microservicio*` para endpoints específicos, ejemplos de requests y detalles de configuración.
 
+Los archivos de la colección y el entorno de Postman están en [`Postman/`](Postman/); consulta su [README](Postman/README.md) para usarlos.
+
 ## Estructura típica de un microservicio
 
 ```

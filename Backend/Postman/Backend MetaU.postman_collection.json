@@ -1,0 +1,3177 @@
+{
+  "info": {
+    "_postman_id": "853aea00-79be-4e61-a38c-d50249da5532",
+    "name": "Backend MetaU",
+    "description": "## Backend MetaU\n\nThis collection centralizes all HTTP requests for the **MetaU** academic management platform, organized as a set of independent microservices. It covers the full backend surface of the system, from authentication to billing, and is intended for development, integration testing, and API exploration.\n\n### Microservices included\n\n| Microservice | Responsibilities |\n|---|---|\n| **MicroservicioLogin** | Authentication: login, token refresh, and token validation |\n| **MicroservicioUsuarios** | User management (CRUD) |\n| **MicroservicioRoles** | Role definition and assignment |\n| **MicroservicioInstituciones** | Institution management |\n| **MicroservicioProfesores** | Teacher records management |\n| **MicroservicioCarreras** | Academic program (career) management |\n| **MicroservicioCursos** | Course management |\n| **MicroservicioPeriodos** | Academic period management |\n| **MicroservicioGrupos** | Group management per course/period |\n| **MicroservicioModulos** | Module management |\n| **MicroservicioDirecciones** | Geographic reference data (provinces, cantons, districts) |\n| **MicroservicioExpedientesEstudiantes** | Student academic file management |\n| **MicroservicioHistorialAcademico** | Academic history retrieval |\n| **MicroservicioMatriculas** | Enrollment management |\n| **MicroservicioPreMatriculas** | Pre-enrollment management |\n| **MicroservicioListaEstudiantes** | Student list retrieval |\n| **MicroservicioNotas** | Grade breakdown and rubric management |\n| **MicroservicioNotificaciones** | Email notification dispatch |\n| **MicroservicioFacturacion** | Invoice creation, retrieval, and cancellation |\n| **MicroservicioPagos** | Payment processing and reversal |\n| **MicroservicioParametros** | System parameter configuration |\n| **MicroservicioBitacoras** | Audit log recording and retrieval |\n\n### Environment\nThis collection uses the **MicroserviciosBaseUrls** environment, which provides the base URL variable for each microservice. Make sure this environment is active before sending requests.\n\nAuthentication relies on a bearer token obtained through the **MicroservicioLogin** endpoints. The token is stored in the `access_token` global variable and should be referenced as `{{access_token}}` in secured requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53918265",
+    "_collection_link": "https://go.postman.co/collection/53918265-853aea00-79be-4e61-a38c-d50249da5532?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "MicroservicioLogin",
+      "item": [
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Parsear la respuesta JSON\r\nlet responseData = pm.response.json();\r\n\r\n// Guardar el token en una variable global\r\nif (responseData.access_token) {\r\n    pm.globals.set(\"access_token\", responseData.access_token);\r\n    pm.globals.set(\"refresh_token\", responseData.refresh_token);\r\n    pm.globals.set(\"UsuarioID\", responseData.usuarioID);\r\n    console.log(\"Token guardado correctamente en la variable global 'token'\");\r\n}\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "usuario",
+                "value": "carlos.alvarado@ejemplo.com"
+              },
+              {
+                "key": "Contrasena",
+                "value": "1234"
+              }
+            ],
+            "url": {
+              "raw": "{{LoginBaseUrl}}/login",
+              "host": [
+                "{{LoginBaseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Parsear la respuesta JSON\r\nlet responseData = pm.response.json();\r\n\r\n// Guardar el token en una variable global\r\nif (responseData.access_token) {\r\n    pm.globals.set(\"access_token\", responseData.access_token);\r\n    pm.globals.set(\"refresh_token\", responseData.refresh_token);\r\n    console.log(\"Token guardado correctamente en la variable global 'token'\");\r\n}\r\n\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"refreshToken\": \"{{refresh_token}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{LoginBaseUrl}}/refresh",
+              "host": [
+                "{{LoginBaseUrl}}"
+              ],
+              "path": [
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "validate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{LoginBaseUrl}}/validate",
+              "host": [
+                "{{LoginBaseUrl}}"
+              ],
+              "path": [
+                "validate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioBitacoras",
+      "item": [
+        {
+          "name": "Obtener Bitacoras",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BitacorasBaseUrl}}/bitacora?pagina=1",
+              "host": [
+                "{{BitacorasBaseUrl}}"
+              ],
+              "path": [
+                "bitacora"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registrar Bitacoras",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \r\n    \"Usuario\": \"00000000-0000-0000-0000-000000000000\", // opcional, el servidor lo sobrescribe con X-Usuario-Id \r\n    \"Descripcion\": \"Prueba: registro desde Postman\" \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BitacorasBaseUrl}}/bitacora",
+              "host": [
+                "{{BitacorasBaseUrl}}"
+              ],
+              "path": [
+                "bitacora"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioParametros",
+      "item": [
+        {
+          "name": "Crear Parametro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"parametroCode\": \"NINTENDO\",\r\n  \"valor\": \"3\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ParametrosBaseUrl}}/parametro",
+              "host": [
+                "{{ParametrosBaseUrl}}"
+              ],
+              "path": [
+                "parametro"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Parametros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ParametrosBaseUrl}}/parametro/?pagina=1",
+              "host": [
+                "{{ParametrosBaseUrl}}"
+              ],
+              "path": [
+                "parametro",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ParametrosBaseUrl}}/parametro/NINTENDO",
+              "host": [
+                "{{ParametrosBaseUrl}}"
+              ],
+              "path": [
+                "parametro",
+                "NINTENDO"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Parametro",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"parametroCode\": \"X\", // Opcional, manda un objeto request\r\n  \"valor\": \"Consola videojuegos\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ParametrosBaseUrl}}/parametro/NINTENDO",
+              "host": [
+                "{{ParametrosBaseUrl}}"
+              ],
+              "path": [
+                "parametro",
+                "NINTENDO"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Parametro",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ParametrosBaseUrl}}/parametro/NINTENDO?eliminacionFisica=true",
+              "host": [
+                "{{ParametrosBaseUrl}}"
+              ],
+              "path": [
+                "parametro",
+                "NINTENDO"
+              ],
+              "query": [
+                {
+                  "key": "eliminacionFisica",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioInstituciones",
+      "item": [
+        {
+          "name": "Crear Institución",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institucionCode\": \"CUC\",\n  \"nombre\": \"Colegio Universitario de Cartago\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{InstitucionesBaseUrl}}/institucion",
+              "host": [
+                "{{InstitucionesBaseUrl}}"
+              ],
+              "path": [
+                "institucion"
+              ]
+            },
+            "description": "**Evidencia:** crear una institución; los datos requeridos son identificador y nombre."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Instituciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{InstitucionesBaseUrl}}/institucion?pagina=1",
+              "host": [
+                "{{InstitucionesBaseUrl}}"
+              ],
+              "path": [
+                "institucion"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "**Evidencia:** obtener los datos de todas las instituciones."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Institución por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{InstitucionesBaseUrl}}/institucion/CUC",
+              "host": [
+                "{{InstitucionesBaseUrl}}"
+              ],
+              "path": [
+                "institucion",
+                "CUC"
+              ]
+            },
+            "description": "Confirma que el cambio quedó guardado."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Institución",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Colegio Universitario de Cartago\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{InstitucionesBaseUrl}}/institucion/CUC",
+              "host": [
+                "{{InstitucionesBaseUrl}}"
+              ],
+              "path": [
+                "institucion",
+                "CUC"
+              ]
+            },
+            "description": "**Evidencia:** modificar una institución."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Institución",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{InstitucionesBaseUrl}}/institucion/CUC",
+              "host": [
+                "{{InstitucionesBaseUrl}}"
+              ],
+              "path": [
+                "institucion",
+                "CUC"
+              ]
+            },
+            "description": "**Evidencia:** eliminar una institución (borrado lógico: Estado = 0)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioModulos",
+      "item": [
+        {
+          "name": "Crear Modulo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idModulo\":\"BITACORAS\",\r\n    \"nombre\":\"Pantalla Bitacoras\",\r\n    \"estado\": true,\r\n    \"orden\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ModulosBaseUrl}}/modulo",
+              "host": [
+                "{{ModulosBaseUrl}}"
+              ],
+              "path": [
+                "modulo"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Modulos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ModulosBaseUrl}}/modulo?pagina=1",
+              "host": [
+                "{{ModulosBaseUrl}}"
+              ],
+              "path": [
+                "modulo"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ModulosBaseUrl}}/modulo/BITACORAS",
+              "host": [
+                "{{ModulosBaseUrl}}"
+              ],
+              "path": [
+                "modulo",
+                "BITACORAS"
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Modulo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idModulo\":\"BITACORAS\",\r\n    \"nombre\":\"Pantalla Bitacoras X\",\r\n    \"estado\": false,\r\n    \"orden\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ModulosBaseUrl}}/modulo/BITACORAS",
+              "host": [
+                "{{ModulosBaseUrl}}"
+              ],
+              "path": [
+                "modulo",
+                "BITACORAS"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Modulo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ModulosBaseUrl}}/modulo/BITACORAS",
+              "host": [
+                "{{ModulosBaseUrl}}"
+              ],
+              "path": [
+                "modulo",
+                "BITACORAS"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioRoles",
+      "item": [
+        {
+          "name": "Crear Rol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idRol\":\"DIC\",\r\n    \"nombre\":\"DIRECTOR\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "Agregar Modulos por Rol",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n    {\r\n        \"idModulo\": \"ADM\",\r\n        \"nombre\": \"Administracion\",\r\n        \"estado\": true\r\n    },\r\n    {\r\n        \"idModulo\": \"SEG\",\r\n        \"nombre\": \"Seguridad\",\r\n        \"estado\": true\r\n    }\r\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol/DIC/modulos",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol",
+                "DIC",
+                "modulos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol?pagina=1",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Modulos por Rol",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol/DIC/modulos",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol",
+                "DIC",
+                "modulos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Rol por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol/DIC",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol",
+                "DIC"
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Rol",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"idRol\":\"DIC\",\r\n    \"nombre\":\"Directora\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol/DIC",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol",
+                "DIC"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Rol",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol/DIC",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol",
+                "DIC"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioUsuarios",
+      "item": [
+        {
+          "name": "Crear Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"sebasjimearrieta@cuc.cr\",\r\n  \"tipoIdentificacion\": \"CEDULA\", // CEDULA\r\n  \"identificacion\": \"986532149\",\r\n  \"nombre\": \"Sebas Jimenez\",\r\n  \"idRol\": \"EST\",\r\n  \"contrasena\": \"Clave123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{UsuariosBaseUrl}}/usuario",
+              "host": [
+                "{{UsuariosBaseUrl}}"
+              ],
+              "path": [
+                "usuario"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{UsuariosBaseUrl}}/usuario?pagina=1",
+              "host": [
+                "{{UsuariosBaseUrl}}"
+              ],
+              "path": [
+                "usuario"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{UsuariosBaseUrl}}/usuario/sebasjimearrieta@cuc.cr",
+              "host": [
+                "{{UsuariosBaseUrl}}"
+              ],
+              "path": [
+                "usuario",
+                "sebasjimearrieta@cuc.cr"
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"sebasjimearrieta@cuc.cr\",\r\n  \"tipoIdentificacion\": \"CEDULA\", // CEDULA\r\n  \"identificacion\": \"986532149\",\r\n  \"nombre\": \"Sebastian Jimenez\",\r\n  \"idRol\": \"EST\",\r\n  \"contrasena\": \"Clave123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{UsuariosBaseUrl}}/usuario/sebasjimearrieta@cuc.cr",
+              "host": [
+                "{{UsuariosBaseUrl}}"
+              ],
+              "path": [
+                "usuario",
+                "sebasjimearrieta@cuc.cr"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{UsuariosBaseUrl}}/usuario/sebasjimearrieta@cuc.cr",
+              "host": [
+                "{{UsuariosBaseUrl}}"
+              ],
+              "path": [
+                "usuario",
+                "sebasjimearrieta@cuc.cr"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioProfesores",
+      "item": [
+        {
+          "name": "Crear Profesor",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuarioID\": \"92DFDBE1-45CF-F111-947E-E5709BBC83CF\",\r\n  \"tipoIdentificacionCode\": \"CED\",\r\n  \"identificacion\": \"123456789\",\r\n  \"email\": \"carlos_alvarado@cuc.ac.cr.com\",\r\n  \"nombreCompleto\": \"Carlos Andres Alvarado Quiros\",\r\n  \"fechaNacimiento\": \"1992-08-24\",\r\n  \"telefonos\": [\r\n    \"87654325\"\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ProfesoreBaseUrl}}/profesor",
+              "host": [
+                "{{ProfesoreBaseUrl}}"
+              ],
+              "path": [
+                "profesor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Profesores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ProfesoreBaseUrl}}/profesor?pagina=1",
+              "host": [
+                "{{ProfesoreBaseUrl}}"
+              ],
+              "path": [
+                "profesor"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Profesor por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ProfesoreBaseUrl}}/profesor/f5c6c3ce-1cd4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{ProfesoreBaseUrl}}"
+              ],
+              "path": [
+                "profesor",
+                "f5c6c3ce-1cd4-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Profesor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuarioID\": \"f5c6c3ce-1cd4-f111-947e-e5709bbc83cf\",\r\n  \"tipoIdentificacionCode\": \"CED\",\r\n  \"identificacion\": \"123456789\",\r\n  \"email\": \"carlos_alvarado@cuc.ac.cr\",\r\n  \"nombreCompleto\": \"Carlos Andres Alvarado Quiros\",\r\n  \"fechaNacimiento\": \"1992-08-24\",\r\n  \"telefonos\": [\r\n    \"8765432556\"\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ProfesoreBaseUrl}}/profesor/f5c6c3ce-1cd4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{ProfesoreBaseUrl}}"
+              ],
+              "path": [
+                "profesor",
+                "f5c6c3ce-1cd4-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Profesor",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ProfesoreBaseUrl}}/profesor/f5c6c3ce-1cd4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{ProfesoreBaseUrl}}"
+              ],
+              "path": [
+                "profesor",
+                "f5c6c3ce-1cd4-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioCarreras",
+      "item": [
+        {
+          "name": "Crear Carrera",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carreraCode\": \"ADM\",\n  \"institucionCode\": \"CUC\",\n  \"directorID\": \"501dfb5c-bcd3-f111-947e-e5709bbc83cf\",\n  \"nombre\": \"Administración de Empresas\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CarrerasBaseUrl}}/carrera",
+              "host": [
+                "{{CarrerasBaseUrl}}"
+              ],
+              "path": [
+                "carrera"
+              ]
+            },
+            "description": "**Evidencia:** crear una carrera; datos requeridos: identificador, nombre, institución y director (un profesor registrado)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Todos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{CarrerasBaseUrl}}/carrera?pagina=1",
+              "host": [
+                "{{CarrerasBaseUrl}}"
+              ],
+              "path": [
+                "carrera"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "**Evidencia:** token no válido según /validate de USR5."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{CarrerasBaseUrl}}/carrera/ADM",
+              "host": [
+                "{{CarrerasBaseUrl}}"
+              ],
+              "path": [
+                "carrera",
+                "ADM"
+              ]
+            },
+            "description": "**Evidencia:** todas las operaciones requieren un token de autorización validado contra /validate de USR5 (sin token)."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Carrera",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Administración y Gestión de Empresas\",\n  \"directorID\": \"501dfb5c-bcd3-f111-947e-e5709bbc83cf\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CarrerasBaseUrl}}/carrera/ADM",
+              "host": [
+                "{{CarrerasBaseUrl}}"
+              ],
+              "path": [
+                "carrera",
+                "ADM"
+              ]
+            },
+            "description": "**Evidencia:** modificar una carrera (nombre y director)."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Carrera",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{CarrerasBaseUrl}}/carrera/ADM",
+              "host": [
+                "{{CarrerasBaseUrl}}"
+              ],
+              "path": [
+                "carrera",
+                "ADM"
+              ]
+            },
+            "description": "**Evidencia:** eliminar una carrera (borrado lógico: Estado = 0)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioCursos",
+      "item": [
+        {
+          "name": "Crear Curso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cursoCode\": \"EXC\",\n    \"carreraCode\": \"ADM\",\n    \"nombre\": \"Excel Administrativo\",\n    \"nivel\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CursosBaseUrl}}/curso",
+              "host": [
+                "{{CursosBaseUrl}}"
+              ],
+              "path": [
+                "curso"
+              ]
+            },
+            "description": "**Evidencia:** crear un curso; datos requeridos: identificador, carrera, nivel y nombre."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Cursos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{CursosBaseUrl}}/curso?pagina=1",
+              "host": [
+                "{{CursosBaseUrl}}"
+              ],
+              "path": [
+                "curso"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "**Evidencia:** obtener los datos de todos los cursos."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Curso por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{CursosBaseUrl}}/curso/EXC",
+              "host": [
+                "{{CursosBaseUrl}}"
+              ],
+              "path": [
+                "curso",
+                "EXC"
+              ]
+            },
+            "description": "**Evidencia:** obtener los datos de un curso por su llave primaria."
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Curso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cursoCode\": \"EXC\",\n    \"carreraCode\": \"ADM\",\n    \"nombre\": \"Excel Administrativo I\",\n    \"nivel\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{CursosBaseUrl}}/curso/EXC",
+              "host": [
+                "{{CursosBaseUrl}}"
+              ],
+              "path": [
+                "curso",
+                "EXC"
+              ]
+            },
+            "description": "**Evidencia:** modificar un curso."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Curso",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{CursosBaseUrl}}/curso/EXC",
+              "host": [
+                "{{CursosBaseUrl}}"
+              ],
+              "path": [
+                "curso",
+                "EXC"
+              ]
+            },
+            "description": "**Evidencia:** eliminar un curso (borrado lógico: Estado = 0). Este servicio responde 200 con el curso eliminado (ACD1 y ACD2 responden 204)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioPeriodos",
+      "item": [
+        {
+          "name": "Crear Periodo",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"anio\": 2027,\r\n  \"numeroPeriodo\": 1,\r\n  \"fechaInicio\": \"2029-01-15\",\r\n  \"fechaFin\": \"2029-04-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{PeriodosBaseUrl}}/periodo",
+              "host": [
+                "{{PeriodosBaseUrl}}"
+              ],
+              "path": [
+                "periodo"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Periodos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PeriodosBaseUrl}}/periodo?pagina=1",
+              "host": [
+                "{{PeriodosBaseUrl}}"
+              ],
+              "path": [
+                "periodo"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Periodo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PeriodosBaseUrl}}/periodo/d96c3692-2bd4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PeriodosBaseUrl}}"
+              ],
+              "path": [
+                "periodo",
+                "d96c3692-2bd4-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Periodo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": " {{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"anio\": 2029,\r\n  \"numeroPeriodo\": 1,\r\n  \"fechaInicio\": \"2029-01-15\",\r\n  \"fechaFin\": \"2029-04-30\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{PeriodosBaseUrl}}/periodo/d96c3692-2bd4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PeriodosBaseUrl}}"
+              ],
+              "path": [
+                "periodo",
+                "d96c3692-2bd4-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Periodo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PeriodosBaseUrl}}/periodo/892d7fa9-2ad4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PeriodosBaseUrl}}"
+              ],
+              "path": [
+                "periodo",
+                "892d7fa9-2ad4-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioGrupos",
+      "item": [
+        {
+          "name": "Crear Grupo",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"grupoCode\": \"GRP01\",\r\n  \"numeroGrupo\": 231,\r\n  \"cursoCode\": \"EXC\",\r\n  \"profesorID\": \"501dfb5c-bcd3-f111-947e-e5709bbc83cf\",\r\n  \"horario\": \"lunes 08:00-11:00\",\r\n  \"cupo\": 30,\r\n  \"periodoID\": \"d96c3692-2bd4-f111-947e-e5709bbc83cf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{GruposBaseUrl}}/grupo",
+              "host": [
+                "{{GruposBaseUrl}}"
+              ],
+              "path": [
+                "grupo"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Grupos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{GruposBaseUrl}}/grupo?pagina=2",
+              "host": [
+                "{{GruposBaseUrl}}"
+              ],
+              "path": [
+                "grupo"
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Grupo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{GruposBaseUrl}}/grupo/GRP01",
+              "host": [
+                "{{GruposBaseUrl}}"
+              ],
+              "path": [
+                "grupo",
+                "GRP01"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Grupo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"grupoCode\": \"GRP01\",\r\n    \"numeroGrupo\": 15,\r\n    \"cursoCode\": \"EXC\",\r\n    \"profesorID\": \"501dfb5c-bcd3-f111-947e-e5709bbc83cf\",\r\n    \"horario\": \"lunes 08:00-11:00\",\r\n    \"cupo\": 30,\r\n    \"periodoID\": \"d96c3692-2bd4-f111-947e-e5709bbc83cf\",\r\n    \"estado\": true\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{GruposBaseUrl}}/grupo/GRP01",
+              "host": [
+                "{{GruposBaseUrl}}"
+              ],
+              "path": [
+                "grupo",
+                "GRP01"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Grupo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{GruposBaseUrl}}/grupo/GRP01",
+              "host": [
+                "{{GruposBaseUrl}}"
+              ],
+              "path": [
+                "grupo",
+                "GRP01"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioDirecciones",
+      "item": [
+        {
+          "name": "Obtener Provincias",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DireccionesBaseUrl}}/provincias",
+              "host": [
+                "{{DireccionesBaseUrl}}"
+              ],
+              "path": [
+                "provincias"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Cantones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DireccionesBaseUrl}}/cantones/5d014154-c8ce-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{DireccionesBaseUrl}}"
+              ],
+              "path": [
+                "cantones",
+                "5d014154-c8ce-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Distritos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{DireccionesBaseUrl}}/distritos/5d014154-c8ce-f111-947e-e5709bbc83cf/8c014154-c8ce-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{DireccionesBaseUrl}}"
+              ],
+              "path": [
+                "distritos",
+                "5d014154-c8ce-f111-947e-e5709bbc83cf",
+                "8c014154-c8ce-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioExpedientesEstudiantes",
+      "item": [
+        {
+          "name": "Crear Expendiente Estudiante",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"tipoIdentificacion\": \"CED\",\r\n  \"email\": \"sebasjimearrieta@cuc.cr\",\r\n  \"nombreCompleto\": \"Sebastián Jiménez Arrieta\",\r\n  \"fechaNacimiento\": \"2000-12-21\",\r\n  \"provinciaID\": \"5d014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"cantonID\": \"8c014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"distritoID\": \"5d014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"otrasSenas\": \"De la iglesia 200 metros al norte\",\r\n  \"telefonos\": [\r\n    \"88887777\",\r\n    \"22223333\"\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ExpedientesBaseUrl}}/expediente",
+              "host": [
+                "{{ExpedientesBaseUrl}}"
+              ],
+              "path": [
+                "expediente"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Expediente Estudiante",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ExpedientesBaseUrl}}/expediente/?pagina=1",
+              "host": [
+                "{{ExpedientesBaseUrl}}"
+              ],
+              "path": [
+                "expediente",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Expediente Estudiante por ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ExpedientesBaseUrl}}/expediente/117980274",
+              "host": [
+                "{{ExpedientesBaseUrl}}"
+              ],
+              "path": [
+                "expediente",
+                "117980274"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Expediente Estudiante",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"tipoIdentificacion\": \"CED\",\r\n  \"email\": \"sebasjimearrieta@cuc.cr\",\r\n  \"nombreCompleto\": \"Sebastián Jiménez Arrieta\",\r\n  \"fechaNacimiento\": \"2000-12-21\",\r\n  \"provinciaID\": \"5d014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"cantonID\": \"8c014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"distritoID\": \"5d014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"otrasSenas\": \"De la iglesia 200 metros al norte\",\r\n  \"telefonos\": [\r\n    \"88887777\",\r\n    \"22223333\"\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ExpedientesBaseUrl}}/expediente/117980274",
+              "host": [
+                "{{ExpedientesBaseUrl}}"
+              ],
+              "path": [
+                "expediente",
+                "117980274"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Expediente Estudiante",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ExpedientesBaseUrl}}/expediente/117980274",
+              "host": [
+                "{{ExpedientesBaseUrl}}"
+              ],
+              "path": [
+                "expediente",
+                "117980274"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioPreMatriculas",
+      "item": [
+        {
+          "name": "Crear PreMatricula",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"carreraCode\": \"ADM\",\r\n  \"cursos\": [\"EXC\"],\r\n  \"observaciones\": \"Prematricula el Curso de Excel de Administración de Empresas\",\r\n  \"periodoID\": \"568928d6-d2d3-f111-947e-e5709bbc83cf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{PreMatriculaBaseUrl}}/prematricula",
+              "host": [
+                "{{PreMatriculaBaseUrl}}"
+              ],
+              "path": [
+                "prematricula"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener PreMatriculas",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PreMatriculaBaseUrl}}/prematricula/?pagina=1",
+              "host": [
+                "{{PreMatriculaBaseUrl}}"
+              ],
+              "path": [
+                "prematricula",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener PreMatricula por ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PreMatriculaBaseUrl}}/prematricula/1282677a-7fd5-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PreMatriculaBaseUrl}}"
+              ],
+              "path": [
+                "prematricula",
+                "1282677a-7fd5-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar PreMatricula",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"carreraCode\": \"ADM\",\r\n  \"cursos\": [\"EXC\"],\r\n  \"observaciones\": \"Prematricula el Curso de Excel de Administración de Empresas\",\r\n  \"periodoID\": \"568928d6-d2d3-f111-947e-e5709bbc83cf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{PreMatriculaBaseUrl}}/prematricula/1282677a-7fd5-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PreMatriculaBaseUrl}}"
+              ],
+              "path": [
+                "prematricula",
+                "1282677a-7fd5-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar PreMatricula",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PreMatriculaBaseUrl}}/prematricula/920fde19-80d5-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PreMatriculaBaseUrl}}"
+              ],
+              "path": [
+                "prematricula",
+                "920fde19-80d5-f111-947e-e5709bbc83cf"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioMatriculas",
+      "item": [
+        {
+          "name": "Crear Matricula",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"cursoCode\": \"EXC\",\r\n  \"grupoCode\": \"GRP01\",\r\n  \"periodoID\": \"bd024141-f1d3-f111-947e-e5709bbc83cf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{MatriculasBaseUrl}}/matricula",
+              "host": [
+                "{{MatriculasBaseUrl}}"
+              ],
+              "path": [
+                "matricula"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Matricula por ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{MatriculasBaseUrl}}/matricula/?identificacion=117980274&pagina=1",
+              "host": [
+                "{{MatriculasBaseUrl}}"
+              ],
+              "path": [
+                "matricula",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "identificacion",
+                  "value": "117980274"
+                },
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Matricula por Curso y Grupo",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{MatriculasBaseUrl}}/matricula?cursoCode=EXC&grupoCode=GRP01",
+              "host": [
+                "{{MatriculasBaseUrl}}"
+              ],
+              "path": [
+                "matricula"
+              ],
+              "query": [
+                {
+                  "key": "cursoCode",
+                  "value": "EXC"
+                },
+                {
+                  "key": "grupoCode",
+                  "value": "GRP01"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Modificar Matricula",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"cursoCode\": \"EXC\",\r\n  \"grupoCode\": \"GRP01\",\r\n  \"periodoID\": \"bd024141-f1d3-f111-947e-e5709bbc83cf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{MatriculasBaseUrl}}/matricula/1",
+              "host": [
+                "{{MatriculasBaseUrl}}"
+              ],
+              "path": [
+                "matricula",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Matricula",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{MatriculasBaseUrl}}/matricula/1",
+              "host": [
+                "{{MatriculasBaseUrl}}"
+              ],
+              "path": [
+                "matricula",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioListaEstudiantes",
+      "item": [
+        {
+          "name": "Obtener Lista Estudiante por Periodo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ListaEstudiantesUrl}}/listadoestudiantes/?periodo=d96c3692-2bd4-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{ListaEstudiantesUrl}}"
+              ],
+              "path": [
+                "listadoestudiantes",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "periodo",
+                  "value": "d96c3692-2bd4-f111-947e-e5709bbc83cf"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioNotas",
+      "item": [
+        {
+          "name": "Cargar Desglose",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grupoCode\": \"GRP01\",\n  \"rubros\": [\n    { \"nombreRubro\": \"Tareas\", \"porcentaje\": 20 },\n    { \"nombreRubro\": \"Proyecto\", \"porcentaje\": 30 },\n    { \"nombreRubro\" : \"Primer Examen\", \"porcentaje\" : 10 },\n    { \"nombreRubro\" : \"Segundo Examen\", \"porcentaje\" : 10 },\n    { \"nombreRubro\": \"Examen final\", \"porcentaje\": 30 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{NotasBaseUrl}}/cargardesglose",
+              "host": [
+                "{{NotasBaseUrl}}"
+              ],
+              "path": [
+                "cargardesglose"
+              ]
+            },
+            "description": "Evidencia: /cargardesglose recibe los rubros. La suma es 100."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Desglose por Grupo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{NotasBaseUrl}}/obtenerdesglose?grupoCode=GRP01",
+              "host": [
+                "{{NotasBaseUrl}}"
+              ],
+              "path": [
+                "obtenerdesglose"
+              ],
+              "query": [
+                {
+                  "key": "grupoCode",
+                  "value": "GRP01"
+                }
+              ]
+            },
+            "description": "Evidencia: /obtenerdesglose devuelve los rubros del grupo."
+          },
+          "response": []
+        },
+        {
+          "name": "Asignar Rubro",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rubroID\": \"c20c4e20-a6d5-f111-947e-e5709bbc83cf\",\n  \"identificacion\": \"117980274\",\n  \"nota\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{NotasBaseUrl}}/asignarnotarubro",
+              "host": [
+                "{{NotasBaseUrl}}"
+              ],
+              "path": [
+                "asignarnotarubro"
+              ]
+            },
+            "description": "Evidencia: PUT /asignarnotarubro modifica una nota existente."
+          },
+          "response": []
+        },
+        {
+          "name": "Modifigar Rubro",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rubroID\": \"c20c4e20-a6d5-f111-947e-e5709bbc83cf\",\r\n  \"identificacion\": \"117980274\",\r\n  \"nota\": 10\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{NotasBaseUrl}}/asignarnotarubro",
+              "host": [
+                "{{NotasBaseUrl}}"
+              ],
+              "path": [
+                "asignarnotarubro"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioHistorialAcademico",
+      "item": [
+        {
+          "name": "Obtener Historial Académico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{HistorialBaseUrl}}/historialacademico?tipoIdentificacion=CED&identificacion=117980274",
+              "host": [
+                "{{HistorialBaseUrl}}"
+              ],
+              "path": [
+                "historialacademico"
+              ],
+              "query": [
+                {
+                  "key": "tipoIdentificacion",
+                  "value": "CED"
+                },
+                {
+                  "key": "identificacion",
+                  "value": "117980274"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioNotificaciones",
+      "item": [
+        {
+          "name": "Enviar Correo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"sebasjimearrieta@gmail.com\",\r\n  \"asunto\": \"Comunicado Oficial - Plataforma MetaU\",\r\n  \"cuerpo\": \"<!DOCTYPE html><html lang=\\\"es\\\"><head><meta charset=\\\"UTF-8\\\"></head><body style=\\\"margin:0;padding:30px 10px;background-color:#f4f6f8;font-family:'Segoe UI',Arial,sans-serif;\\\"><table role=\\\"presentation\\\" width=\\\"100%\\\" cellspacing=\\\"0\\\" cellpadding=\\\"0\\\" border=\\\"0\\\"><tr><td align=\\\"center\\\"><table role=\\\"presentation\\\" width=\\\"100%\\\" style=\\\"max-width:600px;background-color:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06);\\\"><tr><td style=\\\"background-color:#003366;padding:30px 25px;text-align:center;\\\"><h1 style=\\\"color:#ffffff;margin:0;font-size:22px;font-weight:600;letter-spacing:0.5px;\\\">Colegio Universitario de Cartago</h1><p style=\\\"color:#cbd5e1;margin:6px 0 0 0;font-size:13px;\\\">Portal de Servicios Estudiantiles - MetaU</p></td></tr><tr><td style=\\\"padding:35px 30px;\\\"><h2 style=\\\"color:#0f172a;font-size:18px;margin-top:0;margin-bottom:16px;\\\">Estimado Usuario de MetaU,</h2><p style=\\\"font-size:15px;color:#334155;line-height:1.6;margin:0 0 16px 0;\\\">Esperamos que te encuentres muy bien. Te enviamos este mensaje para brindarte información importante sobre el estado y las novedades de tus servicios académicos en el CUC.</p><div style=\\\"background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:24px 0;\\\"><h3 style=\\\"margin:0 0 10px 0;font-size:15px;color:#1e3a8a;\\\"> Aviso Importante</h3><p style=\\\"margin:0;font-size:14px;color:#475569;line-height:1.5;\\\">Por favor asegúrate de revisar tus datos de contacto y el estado de tu matrícula para el próximo periodo lectivo.</p></div><p style=\\\"font-size:15px;color:#334155;line-height:1.6;margin:0 0 24px 0;\\\">Si tienes alguna consulta adicional o requieres asistencia, no dudes en ponerte en contacto con el departamento correspondiente.</p><p style=\\\"font-size:15px;color:#334155;line-height:1.6;margin:0;\\\">Atentamente,<br><strong>Administración Académica CUC</strong></p></td></tr><tr><td style=\\\"background-color:#f1f5f9;padding:20px;text-align:center;border-top:1px solid #e2e8f0;\\\"><p style=\\\"font-size:12px;color:#64748b;margin:0 0 4px 0;\\\">Colegio Universitario de Cartago • Cartago, Costa Rica</p><p style=\\\"font-size:11px;color:#94a3b8;margin:0;\\\">Este es un correo informativo generado automáticamente por el sistema MetaU.</p></td></tr></table></td></tr></table></body></html>\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{NotificacionesBaseUrl}}/notificar",
+              "host": [
+                "{{NotificacionesBaseUrl}}"
+              ],
+              "path": [
+                "notificar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioFacturacion",
+      "item": [
+        {
+          "name": "Crear Factura",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudianteIdentificacion\": \"117980274\",\n  \"monto\": 30000,\n  \"periodoID\": \"bd024141-f1d3-f111-947e-e5709bbc83cf\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{FacturacionBaseUrl}}/factura/",
+              "host": [
+                "{{FacturacionBaseUrl}}"
+              ],
+              "path": [
+                "factura",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por Periodo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{FacturacionBaseUrl}}/factura/periodo/bd024141-f1d3-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{FacturacionBaseUrl}}"
+              ],
+              "path": [
+                "factura",
+                "periodo",
+                "bd024141-f1d3-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Lista las facturas emitidas en el periodo indicado."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{FacturacionBaseUrl}}/factura/7b9617d2-80d6-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{FacturacionBaseUrl}}"
+              ],
+              "path": [
+                "factura",
+                "7b9617d2-80d6-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Obtiene los datos de la factura y sus detalles."
+          },
+          "response": []
+        },
+        {
+          "name": "Anular Factura",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{FacturacionBaseUrl}}/factura/4d93f76e-7ed6-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{FacturacionBaseUrl}}"
+              ],
+              "path": [
+                "factura",
+                "4d93f76e-7ed6-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Anula la factura indicada."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "MicroservicioPagos",
+      "item": [
+        {
+          "name": "Crear Pago",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PagosBaseUrl}}/pago/7b9617d2-80d6-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PagosBaseUrl}}"
+              ],
+              "path": [
+                "pago",
+                "7b9617d2-80d6-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Registra el pago del saldo pendiente total de la factura."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "json/application"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PagosBaseUrl}}/pago/7e2fc828-ebd6-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PagosBaseUrl}}"
+              ],
+              "path": [
+                "pago",
+                "7e2fc828-ebd6-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Obtiene los datos de un pago."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener por Periodo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "json/application"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PagosBaseUrl}}/pago/periodo/bd024141-f1d3-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PagosBaseUrl}}"
+              ],
+              "path": [
+                "pago",
+                "periodo",
+                "bd024141-f1d3-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Lista los pagos asociados a facturas del periodo indicado."
+          },
+          "response": []
+        },
+        {
+          "name": "Reversar Pago",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "json/application"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{PagosBaseUrl}}/pago/7e2fc828-ebd6-f111-947e-e5709bbc83cf",
+              "host": [
+                "{{PagosBaseUrl}}"
+              ],
+              "path": [
+                "pago",
+                "7e2fc828-ebd6-f111-947e-e5709bbc83cf"
+              ]
+            },
+            "description": "Anula el pago y devuelve la factura a pendiente de pago."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "API Gateway",
+      "item": []
+    }
+  ]
+}

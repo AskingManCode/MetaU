@@ -1,0 +1,83 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="MAT3 — Administración de expedientes" id="MAT3_UPDATED">
+    <mxGraphModel dx="536" dy="317" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1540" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="m3laneL" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#D6ECEC;swimlaneFillColor=#FFFFFF;strokeColor=#31859C;fontColor=#1F4E4E;fontStyle=1;fontSize=13;" value="MAT3 — EXPEDIENTES" vertex="1">
+          <mxGeometry height="1010" width="700" x="30" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m3laneR" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="1010" width="740" x="760" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m3auth" parent="m3laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IAuthClient (USR5)&lt;/b&gt;&lt;hr&gt;POST /validate" vertex="1">
+          <mxGeometry height="80" width="300" x="40" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="m3end" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#31859C;" value="&lt;b&gt;ExpedientesEstudiantesEndpoints&lt;/b&gt;&lt;hr&gt;+ POST /expediente&lt;br&gt;+ PUT /expediente/{identificacion}&lt;br&gt;+ DELETE /expediente/{identificacion}&lt;br&gt;+ GET /expediente&lt;br&gt;+ GET /expediente/{identificacion}&lt;br&gt;&lt;br&gt;- Ejecutar(http, acción): IResult" vertex="1">
+          <mxGeometry height="190" width="620" x="70" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m3svc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#D6ECEC;strokeColor=#31859C;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; IExpedienteService&lt;/b&gt;&lt;hr&gt;+ Crear(request, contexto): Estudiante&lt;br&gt;+ Modificar(identificacion, request, contexto): Estudiante&lt;br&gt;+ Eliminar(identificacion, contexto): Task&lt;br&gt;+ ObtenerTodos(contexto): List&amp;lt;Estudiante&amp;gt;&lt;br&gt;+ ObtenerPorId(identificacion, contexto): Estudiante?&lt;br&gt;&lt;br&gt;&lt;b&gt;ExpedienteService&lt;/b&gt;&lt;br&gt;Normaliza y valida requeridos, nombre, email y DOMEST." vertex="1">
+          <mxGeometry height="235" width="620" x="70" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="m3repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; IExpedienteRepository&lt;/b&gt;&lt;hr&gt;Insertar · Reactivar · Actualizar · Eliminar&lt;br&gt;ListarTodos · BuscarPorId · Existe · ExisteEmail&lt;br&gt;&lt;br&gt;&lt;b&gt;ExpedienteRepository · ExpedienteDbContext&lt;/b&gt;&lt;br&gt;Entity Framework Core · Matriculas_DB&lt;br&gt;Eliminación lógica y reemplazo de teléfonos." vertex="1">
+          <mxGeometry height="205" width="620" x="70" y="615" as="geometry" />
+        </mxCell>
+        <mxCell id="m3dto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; EstudianteRequest&lt;/b&gt;&lt;hr&gt;Identificacion · TipoIdentificacion · Email · NombreCompleto&lt;br&gt;FechaNacimiento: DateOnly&lt;br&gt;ProvinciaID · CantonID · DistritoID: Guid&lt;br&gt;OtrasSenas · Telefonos: List&amp;lt;string&amp;gt;" vertex="1">
+          <mxGeometry height="135" width="620" x="70" y="870" as="geometry" />
+        </mxCell>
+        <mxCell id="m3student" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#D6ECEC;strokeColor=#31859C;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Estudiante&lt;/b&gt;&lt;hr&gt;EstudianteID: Guid&lt;br&gt;UsuarioID: Guid?&lt;br&gt;Identificacion · TipoIdentificacion&lt;br&gt;Email · NombreCompleto&lt;br&gt;FechaNacimiento: DateOnly&lt;br&gt;Direccion · Estado: bool&lt;br&gt;Telefonos: List&amp;lt;Telefono&amp;gt;" vertex="1">
+          <mxGeometry height="240" width="300" x="800" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m3addr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#EAF4F4;strokeColor=#31859C;" value="&lt;b&gt;&amp;lt;&amp;lt;ValueObject&amp;gt;&amp;gt; Direccion&lt;/b&gt;&lt;hr&gt;ProvinciaID: Guid&lt;br&gt;CantonID: Guid&lt;br&gt;DistritoID: Guid&lt;br&gt;OtrasSenas: string" vertex="1">
+          <mxGeometry height="145" width="300" x="1160" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m3phone" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Telefono&lt;/b&gt;&lt;hr&gt;TelefonoXEstudiante: int&lt;br&gt;EstudianteID: Guid&lt;br&gt;Numero: string" vertex="1">
+          <mxGeometry height="120" width="300" x="1160" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="m3bit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr&gt;POST /bitacora" vertex="1">
+          <mxGeometry height="80" width="300" x="1160" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="m3param" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IParametroClient (USR3)&lt;/b&gt;&lt;hr&gt;GET /api/parametro/DOMEST&lt;br&gt;Obtiene dominio institucional.&lt;br&gt;Valor por defecto: cuc.cr" vertex="1">
+          <mxGeometry height="125" width="300" x="800" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="m3ctx" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;ContextoUsuario&lt;/b&gt;&lt;hr&gt;UsuarioId: Guid&lt;br&gt;Token: string" vertex="1">
+          <mxGeometry height="90" width="300" x="1160" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="m3e1" edge="1" parent="1" source="m3end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m3svc" value="delega">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3e2" edge="1" parent="1" source="m3svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m3repo" value="persiste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3e3" edge="1" parent="1" source="m3student" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m3addr" value="1 a 1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3e4" edge="1" parent="1" source="m3student" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m3phone" value="1 a muchos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m3e5" edge="1" parent="1" source="m3svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;" target="m3auth" value="valida token">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="750" y="447.5" />
+              <mxPoint x="750" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3e6" edge="1" parent="1" source="m3svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="m3bit" value="registra">
+          <mxGeometry relative="1" x="-0.001" as="geometry">
+            <Array as="points">
+              <mxPoint x="810" y="447.5" />
+              <mxPoint x="810" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m3e7" edge="1" parent="1" source="m3svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="m3param" value="consulta DOMEST">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="810" y="530" as="sourcePoint" />
+            <mxPoint x="1070" y="682.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,23 +1,52 @@
+using MicroservicioExpedientesEstudiantes;
+using MicroservicioExpedientesEstudiantes.Repository;
+using MicroservicioExpedientesEstudiantes.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendReact", policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+builder.Services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
+builder.Services.AddScoped<IExpedienteService, ExpedienteService>();
+
+builder.Services.AddHttpClient<IAuthClient, AuthClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["Servicios:LoginUrl"]
+        ?? throw new InvalidOperationException("Falta Servicios:LoginUrl en appsettings.")));
+
+builder.Services.AddHttpClient<IBitacoraClient, BitacoraClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["Servicios:BitacoraUrl"]
+        ?? throw new InvalidOperationException("Falta Servicios:BitacoraUrl en appsettings.")));
+
+builder.Services.AddHttpClient<IParametroClient, ParametroClient>(c =>
+    c.BaseAddress = new Uri(builder.Configuration["Servicios:ParametroUrl"]
+        ?? throw new InvalidOperationException("Falta Servicios:ParametroUrl en appsettings.")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("FrontendReact");
 
-app.UseAuthorization();
-
-app.MapControllers();
+ExpedientesEstudiantesEndpoints.MapearEndpoints(app);
 
 app.Run();

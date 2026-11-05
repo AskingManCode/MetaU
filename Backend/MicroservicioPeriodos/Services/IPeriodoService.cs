@@ -1,0 +1,15 @@
+﻿
+using MicroservicioPeriodos.Entities;
+
+namespace MicroservicioPeriodos.Services
+{
+    public interface IPeriodoService
+    {
+        Task<Periodo> CrearAsync(Periodo periodo);
+        Task<Periodo> ModificarAsync(Periodo periodo);
+        Task<Periodo> EliminarAsync(Guid periodoID);
+        Task<IEnumerable<Periodo>> ObtenerTodosAsync();
+        Task<PaginaResultado<Periodo>> ObtenerPaginadoAsync(int pagina, Guid usuario, string token);
+        Task<Periodo> ObtenerPorIdAsync(Guid periodoID);
+    }
+}

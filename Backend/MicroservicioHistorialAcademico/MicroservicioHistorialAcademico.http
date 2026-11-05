@@ -1,6 +1,0 @@
-@MicroservicioHistorialAcademico_HostAddress = http://localhost:5133
-
-GET {{MicroservicioHistorialAcademico_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

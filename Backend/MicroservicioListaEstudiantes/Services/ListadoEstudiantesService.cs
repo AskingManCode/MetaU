@@ -1,0 +1,68 @@
+﻿using MicroservicioListaEstudiantes.Entities;
+using MicroservicioListaEstudiantes.Services.Clients;
+
+namespace MicroservicioListaEstudiantes.Services
+{
+    public class ListadoEstudiantesService : IListadoEstudiantesService
+    {
+        private readonly IGrupoServiceClient _grupoClient;
+        private readonly IMatriculaServiceClient _matriculaClient;
+        private readonly ICursoServiceClient _cursoClient;
+        private readonly ICarreraServiceClient _carreraClient;
+        private readonly IPeriodoServiceClient _periodoClient;
+
+        public ListadoEstudiantesService(
+            IGrupoServiceClient grupoClient,
+            IMatriculaServiceClient matriculaClient,
+            ICursoServiceClient cursoClient,
+            ICarreraServiceClient carreraClient,
+            IPeriodoServiceClient periodoClient)
+        {
+            _grupoClient = grupoClient;
+            _matriculaClient = matriculaClient;
+            _cursoClient = cursoClient;
+            _carreraClient = carreraClient;
+            _periodoClient = periodoClient;
+        }
+
+        public async Task<IEnumerable<EstudianteMatriculado>> ObtenerPorPeriodoAsync(string? periodo, Guid usuarioId, string token)
+        {
+            if (string.IsNullOrWhiteSpace(periodo) || !Guid.TryParse(periodo, out var periodoId))
+                throw new ArgumentException("El periodo es requerido y debe ser un identificador valido");
+
+            if (!await _periodoClient.ExisteAsync(periodoId, usuarioId, token))
+                throw new KeyNotFoundException($"No existe un periodo con el identificador '{periodoId}'");
+
+            var grupos = await _grupoClient.ObtenerTodosAsync(usuarioId, token);
+            var gruposDelPeriodo = grupos.Where(g => g.PeriodoID == periodoId).ToList();
+
+            var resultado = new List<EstudianteMatriculado>();
+
+            foreach (var grupo in gruposDelPeriodo)
+            {
+                var estudiantes = await _matriculaClient.ObtenerPorCursoYGrupoAsync(grupo.CursoCode, grupo.GrupoCode, usuarioId, token);
+
+                var curso = await _cursoClient.ObtenerPorIdAsync(grupo.CursoCode, usuarioId, token);
+                var carrera = curso is not null
+                    ? await _carreraClient.ObtenerPorIdAsync(curso.CarreraCode, usuarioId, token)
+                    : null;
+
+                foreach (var est in estudiantes)
+                {
+                    resultado.Add(new EstudianteMatriculado
+                    {
+                        Llave = est.Identificacion,
+                        TipoIdentificacion = est.TipoIdentificacion,
+                        Identificacion = est.Identificacion,
+                        NombreCompleto = est.NombreCompleto,
+                        Carrera = carrera?.Nombre ?? "N/D",
+                        Curso = curso?.Nombre ?? grupo.CursoCode,
+                        Grupo = grupo.NumeroGrupo.ToString()
+                    });
+                }
+            }
+
+            return resultado;
+        }
+    }
+}

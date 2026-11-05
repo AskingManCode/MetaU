@@ -1,0 +1,300 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using MicroservicioPreMatriculas.Entities;
+using MicroservicioPreMatriculas.Repository;
+
+namespace MicroservicioPreMatriculas.Services
+{
+    public class PrematriculaService : IPrematriculaService
+    {
+        private readonly IPrematriculaRepository _repositorio;
+        private readonly IBitacoraClient _bitacora;
+        private readonly ICursoClient _cursos;
+        private readonly ICarreraClient _carreras;
+        private readonly IPeriodoClient _periodos;
+        private readonly IParametroClient _parametros;
+        private readonly ILogger<PrematriculaService> _logger;
+        private const string ParametroPaginacion = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
+
+        public PrematriculaService(
+            IPrematriculaRepository repositorio,
+            IBitacoraClient bitacora,
+            ICursoClient cursos,
+            ICarreraClient carreras,
+            IPeriodoClient periodos,
+            IParametroClient parametros,
+            ILogger<PrematriculaService> logger)
+        {
+            _repositorio = repositorio;
+            _bitacora = bitacora;
+            _cursos = cursos;
+            _carreras = carreras;
+            _periodos = periodos;
+            _parametros = parametros;
+            _logger = logger;
+        }
+
+        public async Task<PrematriculaResponse> Prematricular(PrematriculaRequest request, ContextoUsuario contexto)
+        {
+            ValidarRequest(request);
+
+            var estudiante = await _repositorio.BuscarEstudiantePorIdentificacion(request.Identificacion.Trim())
+                ?? throw new NoEncontradoException("No existe un estudiante con esa identificación.");
+
+            await ValidarCarrera(request.CarreraCode, contexto);
+            var cursos = await ValidarPeriodoYCursos(request, contexto);
+            var carreraCode = request.CarreraCode.Trim();
+            var observaciones = NormalizarObservaciones(request.Observaciones);
+
+            var existente = await _repositorio.BuscarPorEstudianteCarreraPeriodo(
+                estudiante.EstudianteID, carreraCode, request.PeriodoID);
+
+            Prematricula prematricula;
+
+            if (existente is null)
+            {
+                prematricula = new Prematricula
+                {
+                    Estudiante = estudiante,
+                    EstudianteID = estudiante.EstudianteID,
+                    CarreraCode = carreraCode,
+                    PeriodoID = request.PeriodoID,
+                    Observaciones = observaciones,
+                    Estado = true
+                };
+                AplicarCursos(prematricula, cursos);
+
+                await _repositorio.CrearAsync(prematricula);
+            }
+            else
+            {
+                if (existente.Estado)
+                    throw new ConflictoException("El estudiante ya tiene una prematrícula para esa carrera y periodo.");
+
+                existente.Estado = true;
+                existente.Observaciones = observaciones;
+                AplicarCursos(existente, cursos);
+                await _repositorio.ActualizarAsync(existente);
+
+                prematricula = existente;
+            }
+
+            var creada = Mapear(prematricula);
+
+            await RegistrarBitacora(contexto,
+                $"Se creó la prematrícula {creada.Id}: " + JsonSerializer.Serialize(creada));
+
+            return creada;
+        }
+
+        public async Task<PrematriculaResponse> Modificar(Guid id, PrematriculaRequest request, ContextoUsuario contexto)
+        {
+            ValidarRequest(request);
+
+            var prematricula = await _repositorio.BuscarPorId(id)
+                ?? throw new NoEncontradoException("No existe una prematrícula con ese identificador.");
+
+            var anterior = Mapear(prematricula);
+
+            var estudiante = await _repositorio.BuscarEstudiantePorIdentificacion(request.Identificacion.Trim())
+                ?? throw new NoEncontradoException("No existe un estudiante con esa identificación.");
+
+            await ValidarCarrera(request.CarreraCode, contexto);
+            var cursos = await ValidarPeriodoYCursos(request, contexto);
+            var carreraCode = request.CarreraCode.Trim();
+
+            var otra = await _repositorio.BuscarPorEstudianteCarreraPeriodo(
+                estudiante.EstudianteID, carreraCode, request.PeriodoID);
+            if (otra is not null && otra.PreMatriculaID != prematricula.PreMatriculaID)
+                throw new ConflictoException("Ya existe una prematrícula para ese estudiante, carrera y periodo.");
+
+            prematricula.Estudiante = estudiante;
+            prematricula.EstudianteID = estudiante.EstudianteID;
+            prematricula.CarreraCode = carreraCode;
+            prematricula.PeriodoID = request.PeriodoID;
+            prematricula.Observaciones = NormalizarObservaciones(request.Observaciones);
+            AplicarCursos(prematricula, cursos);
+
+            await _repositorio.ActualizarAsync(prematricula);
+
+            var actual = Mapear(prematricula);
+
+            await RegistrarBitacora(contexto,
+                $"Se modificó la prematrícula {id}: " + JsonSerializer.Serialize(new { anterior, actual }));
+
+            return actual;
+        }
+
+        public async Task Eliminar(Guid id, ContextoUsuario contexto)
+        {
+            var prematricula = await _repositorio.BuscarPorId(id)
+                ?? throw new NoEncontradoException("No existe una prematrícula con ese identificador.");
+
+            var eliminada = Mapear(prematricula);
+
+            await _repositorio.EliminarAsync(prematricula);
+
+            await RegistrarBitacora(contexto,
+                $"Se eliminó la prematrícula {id}: " + JsonSerializer.Serialize(eliminada));
+        }
+
+        public async Task<List<PrematriculaResponse>> ObtenerTodas(ContextoUsuario contexto)
+        {
+            var prematriculas = await _repositorio.ListarActivas();
+
+            await RegistrarBitacora(contexto, "El usuario consulta las prematrículas");
+
+            return prematriculas.Select(Mapear).ToList();
+        }
+
+public async Task<PaginaResultado<PrematriculaResponse>> ObtenerPaginado(
+    int pagina, ContextoUsuario contexto)
+{
+    if (pagina < 1)
+        throw new ValidacionException("La página debe ser mayor o igual a 1.");
+
+    var prematriculas = (await ObtenerTodas(contexto))
+        .OrderBy(p => p.PeriodoID)
+        .ThenBy(p => p.Identificacion, StringComparer.Ordinal)
+        .ThenBy(p => p.Id)
+        .ToList();
+
+    var tamano = await ObtenerTamanoPagina(contexto);
+    var inicio = ((long)pagina - 1) * tamano;
+    var datos = inicio >= prematriculas.Count
+        ? new List<PrematriculaResponse>()
+        : prematriculas.Skip((int)inicio).Take(tamano).ToList();
+
+    return new PaginaResultado<PrematriculaResponse>
+    {
+        Pagina = pagina,
+        TamanoPagina = tamano,
+        TotalRegistros = prematriculas.Count,
+        TotalPaginas = (int)Math.Ceiling(prematriculas.Count / (double)tamano),
+        Datos = datos
+    };
+}
+
+private async Task<int> ObtenerTamanoPagina(ContextoUsuario contexto)
+{
+    var tamano = TamanoPaginaDefecto;
+    try
+    {
+        var valor = await _parametros.ObtenerValorAsync(ParametroPaginacion, contexto);
+        if (int.TryParse(valor, out var configurado) && configurado > 0)
+            tamano = Math.Min(configurado, TamanoPaginaDefecto);
+
+        _logger.LogInformation("Paginación de prematrículas: PAGSIZE={Valor}, tamaño aplicado={Tamano}",
+            valor ?? "No disponible", tamano);
+    }
+    catch (HttpRequestException ex)
+    {
+        _logger.LogWarning(ex, "No se pudo consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+    catch (TaskCanceledException ex)
+    {
+        _logger.LogWarning(ex, "Tiempo de espera agotado al consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+
+    return tamano;
+}
+
+public async Task<PrematriculaResponse> ObtenerPorId(Guid id, ContextoUsuario contexto)
+        {
+            var prematricula = await _repositorio.BuscarPorId(id)
+                ?? throw new NoEncontradoException("No existe una prematrícula con ese identificador.");
+
+            await RegistrarBitacora(contexto, $"El usuario consulta la prematrícula {id}");
+
+            return Mapear(prematricula);
+        }
+
+        private async Task RegistrarBitacora(ContextoUsuario contexto, string descripcion)
+        {
+            try
+            {
+                await _bitacora.Registrar(contexto, descripcion);
+            }
+            catch
+            {
+            }
+        }
+
+        private static void ValidarRequest(PrematriculaRequest request)
+        {
+            var faltantes = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(request.Identificacion)) faltantes.Add("identificacion");
+            if (string.IsNullOrWhiteSpace(request.CarreraCode)) faltantes.Add("carreraCode");
+            if (request.Cursos is null || request.Cursos.Count == 0 || request.Cursos.Any(string.IsNullOrWhiteSpace))
+                faltantes.Add("cursos");
+            if (request.PeriodoID == Guid.Empty) faltantes.Add("periodoID");
+
+            if (faltantes.Count > 0)
+                throw new ValidacionException(
+                    $"Los datos son requeridos y no pueden ser vacíos ni espacios en blanco. Faltan: {string.Join(", ", faltantes)}.");
+        }
+
+        private async Task<List<string>> ValidarPeriodoYCursos(PrematriculaRequest request, ContextoUsuario contexto)
+        {
+            var periodo = await _periodos.ObtenerPorId(request.PeriodoID, contexto)
+                ?? throw new NoEncontradoException("No existe el periodo indicado.");
+
+            if (periodo.FechaInicio.Date <= DateTime.Today)
+                throw new ValidacionException("Solo se pueden prematricular periodos futuros.");
+
+            var codigos = new List<string>();
+
+            foreach (var codigo in request.Cursos
+                         .Select(c => c.Trim())
+                         .Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                var curso = await _cursos.ObtenerPorCodigo(codigo, contexto)
+                    ?? throw new NoEncontradoException($"No existe el curso {codigo}.");
+
+                if (!string.Equals(curso.CarreraCode, request.CarreraCode.Trim(), StringComparison.OrdinalIgnoreCase))
+                    throw new ValidacionException($"El curso {curso.CursoCode} no pertenece a la carrera indicada.");
+
+                if (curso.Nivel != 1)
+                    throw new ValidacionException($"El curso {curso.CursoCode} no es de primer nivel.");
+
+                codigos.Add(curso.CursoCode);
+            }
+
+            return codigos;
+        }
+
+        private async Task ValidarCarrera(string carreraCode, ContextoUsuario contexto)
+        {
+            var carrera = await _carreras.ObtenerPorCodigo(carreraCode.Trim(), contexto);
+            if (carrera is null || !carrera.Estado)
+                throw new NoEncontradoException($"No existe la carrera {carreraCode.Trim()}.");
+        }
+
+        private static void AplicarCursos(Prematricula prematricula, List<string> codigos)
+        {
+            foreach (var curso in prematricula.Cursos)
+                curso.Estado = codigos.Contains(curso.CursoCode, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var codigo in codigos)
+            {
+                if (!prematricula.Cursos.Any(c => string.Equals(c.CursoCode, codigo, StringComparison.OrdinalIgnoreCase)))
+                    prematricula.Cursos.Add(new PrematriculaCurso { CursoCode = codigo, Estado = true });
+            }
+        }
+
+        private static string? NormalizarObservaciones(string? observaciones) =>
+            string.IsNullOrWhiteSpace(observaciones)
+                ? null
+                : Regex.Replace(observaciones.Trim(), " {2,}", " ");
+
+        private static PrematriculaResponse Mapear(Prematricula p) =>
+            new(p.PreMatriculaID,
+                p.Estudiante.Identificacion,
+                p.CarreraCode,
+                p.Cursos.Where(c => c.Estado).Select(c => c.CursoCode).ToList(),
+                p.Observaciones,
+                p.PeriodoID);
+    }
+}

@@ -1,0 +1,90 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="01_USR5_Login_CORREGIDO" name="USR5 — Login">
+    <mxGraphModel dx="2046" dy="1140" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1170" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D9EAF7;strokeColor=#5B9BD5;fontSize=18;align=left;spacingLeft=15;" value="&lt;b&gt;USR5 — DIAGRAMA DE CLASES: LOGIN&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#666666&quot;&gt;Autenticación, JWT y refresh token&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="1340" x="30" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ep" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#EAF2F8;strokeColor=#5B9BD5;" value="&lt;b&gt;LoginEndpoints&lt;/b&gt;&lt;hr&gt;+ MapearEndpoints(app)&lt;br&gt;+ login(usuario, contraseña): Response&lt;br&gt;+ refresh(refreshToken): Response&lt;br&gt;+ validate(token): Response" vertex="1">
+          <mxGeometry height="170" width="300" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="svcI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#E2F0D9;strokeColor=#70AD47;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthService&lt;/b&gt;&lt;hr&gt;+ login(usuario, contraseña): TokenResponse&lt;br&gt;+ refresh(refreshToken): TokenResponse&lt;br&gt;+ validate(token): bool" vertex="1">
+          <mxGeometry height="170" width="330" x="390" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="svc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#EAF2F8;strokeColor=#5B9BD5;" value="&lt;b&gt;AuthService&lt;/b&gt;&lt;hr&gt;+ login(usuario, contraseña)&lt;br&gt;+ refresh(refreshToken)&lt;br&gt;+ validate(token)&lt;hr&gt;&lt;i&gt;Valida credenciales y coordina tokens.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="170" width="330" x="770" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="repoI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#E2F0D9;strokeColor=#70AD47;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;IAuthRepository&lt;/b&gt;&lt;hr&gt;+ obtenerUsuario(nombreUsuario): Usuario&lt;br&gt;+ guardarRefreshToken(token)&lt;br&gt;+ obtenerRefreshToken(token): RefreshToken&lt;br&gt;+ revocarRefreshToken(token)" vertex="1">
+          <mxGeometry height="210" width="330" x="40" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#EAF2F8;strokeColor=#5B9BD5;" value="&lt;b&gt;AuthRepository&lt;/b&gt;&lt;hr&gt;+ obtenerUsuario(nombreUsuario)&lt;br&gt;+ guardarRefreshToken(token)&lt;br&gt;+ obtenerRefreshToken(token)&lt;br&gt;+ revocarRefreshToken(token)" vertex="1">
+          <mxGeometry height="210" width="310" x="410" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="tokenI" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#E2F0D9;strokeColor=#70AD47;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;ITokenService&lt;/b&gt;&lt;hr&gt;+ generarJwt(usuario): string&lt;br&gt;+ generarRefreshToken(): string&lt;br&gt;+ validarJwt(token): bool" vertex="1">
+          <mxGeometry height="180" width="300" x="770" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="param" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FCE4D6;strokeColor=#ED7D31;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt; IParametroClient&lt;/b&gt;&lt;hr&gt;+ obtenerValor(identificador): string&lt;br&gt;&lt;i&gt;Vigencia JWT y refresh token&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="230" x="1120" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="bit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FCE4D6;strokeColor=#ED7D31;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;externo&amp;gt;&amp;gt; IBitacoraClient&lt;/b&gt;&lt;hr&gt;+ registrar(usuario, descripcion)&lt;br&gt;&lt;i&gt;GEN1 — /bitacora&lt;/i&gt;" vertex="1">
+          <mxGeometry height="150" width="230" x="1120" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="rol" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Rol&lt;/b&gt;&lt;hr&gt;+ IdRol: int&lt;br&gt;+ Nombre: string&lt;br&gt;+ Descripcion: string?" vertex="1">
+          <mxGeometry height="150" width="230" x="40" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="usu" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Usuario&lt;/b&gt;&lt;hr&gt;+ IdUsuario: int&lt;br&gt;+ IdRol: int&lt;br&gt;+ NombreUsuario: string&lt;br&gt;+ PasswordHash: string&lt;br&gt;+ Activo: bool&lt;br&gt;+ FechaCreacion: DateTime" vertex="1">
+          <mxGeometry height="210" width="300" x="330" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="rt" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; RefreshToken&lt;/b&gt;&lt;hr&gt;+ IdRefreshToken: int&lt;br&gt;+ IdUsuario: int&lt;br&gt;+ Token: string&lt;br&gt;+ FechaCreacion: DateTime&lt;br&gt;+ FechaExpiracion: DateTime&lt;br&gt;+ Revocado: bool" vertex="1">
+          <mxGeometry height="210" width="320" x="690" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="dto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#F3F3F3;strokeColor=#A6A6A6;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; LoginRequest&lt;/b&gt;&lt;hr&gt;+ NombreUsuario: string&lt;br&gt;+ Contraseña: string&lt;br&gt;&lt;i&gt;Headers de /login&lt;/i&gt;" vertex="1">
+          <mxGeometry height="140" width="250" x="1040" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="tr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#F3F3F3;strokeColor=#A6A6A6;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; TokenResponse&lt;/b&gt;&lt;hr&gt;+ ExpiresIn: DateTime&lt;br&gt;+ AccessToken: string&lt;br&gt;+ RefreshToken: string&lt;br&gt;+ UsuarioID: int &lt;i&gt;(solo /login)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="160" width="290" x="1040" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="rules" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=#F3F3F3;strokeColor=#A6A6A6;dashed=1;" value="&lt;b&gt;Reglas de HU USR5&lt;/b&gt;&lt;hr&gt;• /login: POST; usuario y contraseña en headers.&lt;br&gt;• Éxito: 201 + expires_in, access_token, refresh_token, usuarioID.&lt;br&gt;• Fallo: 401 “Usuario y/o contraseña incorrectos”.&lt;br&gt;• /refresh: token válido → 201; inválido → 401 “No autorizado”.&lt;br&gt;• /validate: válido → 200 + true; inválido → 401.&lt;br&gt;• JWT por defecto 5 min y vigencia parametrizable; refresh superior y configurable.&lt;br&gt;• Todos los datos requeridos, no nulos ni blancos." vertex="1">
+          <mxGeometry height="220" width="820" x="390" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="ep" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#5B9BD5;" target="svcI" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="svcI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#70AD47;" target="svc" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#5B9BD5;" target="repoI" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="repoI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=0;dashed=1;strokeColor=#70AD47;" target="repo" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#5B9BD5;" target="tokenI" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#ED7D31;" target="param" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;strokeColor=#ED7D31;dashed=1;" target="bit" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="rol" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;" target="usu" value="1       0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="usu" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startArrow=none;fontSize=11;" target="rt" value="1       0..*">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="dto" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#A6A6A6;" target="ep" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#A6A6A6;" target="tr" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

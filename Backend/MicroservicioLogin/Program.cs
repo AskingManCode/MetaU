@@ -1,14 +1,38 @@
+using MicroservicioLogin;
+using MicroservicioLogin.Repository;
+using MicroservicioLogin.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Conexion a Usuarios_DB (SQL crudo via Dapper, sin EF Core, sin migraciones)
+builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Configuracion del JWT (seccion "Jwt" de appsettings.json)
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+// Cada interfaz con su unica implementacion concreta (DIP)
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+builder.Services.AddScoped<IRefreshTokenHasher, Sha256RefreshTokenHasher>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ClientApps", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -16,8 +40,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseCors("ClientApps");
 
-app.MapControllers();
+app.MapLoginEndpoints();
+
+
 
 app.Run();

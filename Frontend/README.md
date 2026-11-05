@@ -1,32 +1,40 @@
+# Frontend – MetaU
+
+Capa de presentación del sistema MetaU. Consume los microservicios del Backend y expone las funcionalidades a usuarios finales.
+
+Actualmente se encuentra en **fase de planeación**.
+
 ## Aplicaciones planificadas
 
-### Sitio Web
-Aplicación web orientada a estudiantes, profesores y personal administrativo.  
-Permitirá el acceso a las funcionalidades del sistema a través de un navegador.
+| Aplicación | Descripción | Tecnología | Estado |
+|------------|-------------|------------|--------|
+| Sitio Web Administrativo | Aplicación web para personal administrativo, profesores y gestión del sistema | **React** | En planeación |
+| App Móvil | Aplicación móvil orientada principalmente a estudiantes y profesores | Pendiente de definir | En planeación |
 
-> **Estado:** Pendiente de desarrollo (futuros sprints)
+## Tecnologías
 
-### App Móvil
-Aplicación móvil destinada principalmente a estudiantes y profesores.  
-Facilitará el acceso desde dispositivos móviles.
+| Plataforma | Tecnología | Notas |
+|------------|------------|-------|
+| Web (Administrativo) | React | Consumirá directamente los microservicios del Backend vía REST |
+| Móvil | Pendiente de definir | — |
 
-> **Estado:** Pendiente de desarrollo (futuros sprints)
+## Principios
+
+- El frontend es únicamente una capa de presentación.
+- Toda la lógica de negocio reside en los microservicios del Backend.
+- El sitio web administrativo consumirá los endpoints REST de forma directa.
+- Se respetarán los mecanismos de autenticación (JWT) definidos en los microservicios.
+
+## Relación con el resto del proyecto
+
+| Recurso | Ubicación |
+|---------|-----------|
+| Documentación general del proyecto | [../README.md](../README.md) |
+| Detalle de microservicios y endpoints | [../Backend/README.md](../Backend/README.md) |
+| Análisis, diseño y diagramas | [../Documentacion/README.md](../Documentacion/README.md) |
+| Diagramas de clases del frontend | [../Documentacion/Diagramas Generales/Clases/](../Documentacion/Diagramas%20Generales/Clases/) |
+| Documento de sprints y requisitos | [../Documentacion/4. Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf](../Documentacion/4.%20Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf) |
 
 ---
 
-## Tecnologías (preliminares)
-
-Las tecnologías definitivas se definirán al iniciar el desarrollo del frontend.  
-Se está considerando el uso de:
-
-- **Web:** *(Pendiente de definir)*
-- **Móvil:** *(Pendiente de definir)*
-
----
-
-## Nota
-
-Toda la lógica de negocio se consume a través de los microservicios del Backend.  
-El frontend actuará únicamente como capa de presentación.
-
-La documentación detallada de cada aplicación (arquitectura, componentes, flujos, etc.) se agregará una vez inicie su desarrollo.
+La documentación detallada de arquitectura, componentes y flujos de cada aplicación se agregará una vez inicie el desarrollo.

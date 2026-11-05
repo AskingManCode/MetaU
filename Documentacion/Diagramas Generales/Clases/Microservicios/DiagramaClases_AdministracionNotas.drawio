@@ -1,0 +1,101 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="MAT5 — Administración de notas" id="MAT5_UPDATED">
+    <mxGraphModel dx="790" dy="468" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1650" pageHeight="1150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="m5laneL" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#E6E0EC;swimlaneFillColor=#FFFFFF;strokeColor=#8064A2;fontColor=#3F3151;fontStyle=1;fontSize=13;" value="MAT5 — NOTAS" vertex="1">
+          <mxGeometry height="1060" width="760" x="30" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m5laneR" parent="1" style="swimlane;html=1;startSize=34;horizontal=1;rounded=1;fillColor=#F2F2F2;swimlaneFillColor=#FFFFFF;strokeColor=#7F8C8D;fontColor=#404040;fontStyle=1;fontSize=13;" value="CLASES DEL DOMINIO Y DEPENDENCIAS" vertex="1">
+          <mxGeometry height="1060" width="790" x="820" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="m5rubro" parent="m5laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#E6E0EC;strokeColor=#8064A2;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; Rubro&lt;/b&gt;&lt;hr&gt;RubroID: Guid&lt;br&gt;GrupoCode: string&lt;br&gt;NombreRubro: string&lt;br&gt;Porcentaje: decimal&lt;br&gt;Bloqueado: bool&lt;br&gt;Estado: bool" vertex="1">
+          <mxGeometry height="185" width="240" x="60" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m5nota" parent="m5laneR" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#E6E0EC;strokeColor=#8064A2;" value="&lt;b&gt;&amp;lt;&amp;lt;Entity&amp;gt;&amp;gt; NotaRubro&lt;/b&gt;&lt;hr&gt;NotaXEstudianteID: int&lt;br&gt;RubroID: Guid&lt;br&gt;EstudianteID: Guid&lt;br&gt;Nota: decimal&lt;br&gt;FechaRegistro: DateOnly" vertex="1">
+          <mxGeometry height="170" width="250" x="470" y="57.5" as="geometry" />
+        </mxCell>
+        <mxCell id="m5e3" edge="1" parent="m5laneR" source="m5rubro" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m5nota" value="1 a muchos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5end" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#8064A2;" value="&lt;b&gt;NotasEndpoints&lt;/b&gt;&lt;hr&gt;+ POST /cargardesglose&lt;br&gt;+ POST /asignarnotarubro&lt;br&gt;+ PUT /asignarnotarubro&lt;br&gt;+ GET /obtenerdesglose?grupoCode&lt;br&gt;+ GET /obtenernotas?identificacion&amp;amp;grupoCode&lt;br&gt;&lt;br&gt;- Ejecutar(http, acción): IResult" vertex="1">
+          <mxGeometry height="195" width="680" x="70" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m5svc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#E6E0EC;strokeColor=#8064A2;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; INotaService&lt;/b&gt;&lt;hr&gt;+ CargarDesglose(request, contexto): List&amp;lt;Rubro&amp;gt;&lt;br&gt;+ AsignarNotaRubro(request, contexto): NotaRubro&lt;br&gt;+ ModificarNotaRubro(request, contexto): NotaRubro&lt;br&gt;+ ObtenerDesglose(grupoCode, contexto): List&amp;lt;Rubro&amp;gt;&lt;br&gt;+ ObtenerNotas(identificacion, grupoCode, contexto): List&amp;lt;NotaRubro&amp;gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;NotaService&lt;/b&gt;&lt;br&gt;Valida suma, bloqueo, estudiante, rubro y rango parametrizado." vertex="1">
+          <mxGeometry height="250" width="680" x="70" y="335" as="geometry" />
+        </mxCell>
+        <mxCell id="m5repo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFF2CC;strokeColor=#BF9000;" value="&lt;b&gt;&amp;lt;&amp;lt;interface&amp;gt;&amp;gt; INotaRepository&lt;/b&gt;&lt;hr&gt;+ ReemplazarDesglose(grupoCode, rubros)&lt;br&gt;+ ListarRubrosPorGrupo · ObtenerRubro&lt;br&gt;+ ExistenNotasEnGrupo&lt;br&gt;+ InsertarNota · ActualizarNota · ObtenerNota · ListarNotas&lt;br&gt;&lt;br&gt;&lt;b&gt;NotaRepository · NotaDbContext&lt;/b&gt;&lt;br&gt;Entity Framework Core · Notas_Academicas_DB" vertex="1">
+          <mxGeometry height="225" width="680" x="70" y="635" as="geometry" />
+        </mxCell>
+        <mxCell id="m5dto" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; DesgloseRequest&lt;/b&gt;: GrupoCode · Rubros&lt;br&gt;&lt;b&gt;RubroItem&lt;/b&gt;: NombreRubro · Porcentaje: decimal&lt;br&gt;&lt;br&gt;&lt;b&gt;&amp;lt;&amp;lt;DTO&amp;gt;&amp;gt; NotaRubroRequest&lt;/b&gt;&lt;br&gt;RubroID: Guid · Identificacion: string · Nota: decimal" vertex="1">
+          <mxGeometry height="130" width="680" x="70" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="m5auth" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IAuthClient (USR5)&lt;/b&gt;&lt;hr&gt;POST /validate" vertex="1">
+          <mxGeometry height="80" width="320" x="860" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="m5bit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IBitacoraClient (GEN1)&lt;/b&gt;&lt;hr&gt;POST /bitacora" vertex="1">
+          <mxGeometry height="80" width="320" x="1240" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="m5group" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IGrupoClient (ACD4)&lt;/b&gt;&lt;hr&gt;GET /grupo/{grupoCode}&lt;br&gt;Confirma que el grupo existe." vertex="1">
+          <mxGeometry height="110" width="320" x="860" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="m5student" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IExpedienteClient (MAT3)&lt;/b&gt;&lt;hr&gt;GET /expediente/{identificacion}&lt;br&gt;Obtiene EstudianteID." vertex="1">
+          <mxGeometry height="110" width="320" x="1240" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="m5param" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;dashed=1;" value="&lt;b&gt;&amp;lt;&amp;lt;external&amp;gt;&amp;gt; IParametroClient (USR3)&lt;/b&gt;&lt;hr&gt;GET /api/parametro/{codigo}&lt;br&gt;TOTRUBRO · NOTAMIN · NOTAMAX" vertex="1">
+          <mxGeometry height="115" width="320" x="860" y="680" as="geometry" />
+        </mxCell>
+        <mxCell id="m5ctx" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#F2F2F2;strokeColor=#7F8C8D;" value="&lt;b&gt;ContextoUsuario&lt;/b&gt;&lt;hr&gt;UsuarioId: Guid&lt;br&gt;Token: string" vertex="1">
+          <mxGeometry height="90" width="320" x="1240" y="690" as="geometry" />
+        </mxCell>
+        <mxCell id="m5rules" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;fontSize=12;fillColor=#FFFFFF;strokeColor=#7F8C8D;" value="&lt;b&gt;Relaciones&lt;/b&gt;&lt;hr&gt;GrupoCode 1 → 0..* Rubros&lt;br&gt;Rubro 1 → 0..* NotasRubro&lt;br&gt;Estudiante 1 → 0..* NotasRubro&lt;br&gt;&lt;br&gt;La identificación se usa solo para consultar MAT3;&lt;br&gt;la nota persiste con EstudianteID." vertex="1">
+          <mxGeometry height="135" width="700" x="860" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="m5e1" edge="1" parent="1" source="m5end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m5svc" value="delega">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5e2" edge="1" parent="1" source="m5svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;" target="m5repo" value="persiste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5e4" edge="1" parent="1" source="m5svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;" target="m5auth" value="valida token">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5e5" edge="1" parent="1" source="m5svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;" target="m5bit" value="registra">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="450" />
+              <mxPoint x="1200" y="395" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5e6" edge="1" parent="1" source="m5svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;" target="m5group" value="valida grupo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m5e7" edge="1" parent="1" source="m5svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;" target="m5student" value="obtiene estudiante">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="480" />
+              <mxPoint x="1200" y="555" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="m5e8" edge="1" parent="1" source="m5svc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=1.5;dashed=1;" target="m5param" value="">
+          <mxGeometry relative="1" x="-0.3445" as="geometry">
+            <Array as="points">
+              <mxPoint x="770" y="460" />
+              <mxPoint x="770" y="630" />
+              <mxPoint x="1200" y="630" />
+              <mxPoint x="1200" y="737.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="YcwLxh-cjZg62C1mv1d0-1" connectable="0" parent="m5e8" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="consulta reglas" vertex="1">
+          <mxGeometry relative="1" x="0.0818" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

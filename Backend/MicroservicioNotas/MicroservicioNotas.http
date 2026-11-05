@@ -1,6 +1,0 @@
-@MicroservicioNotas_HostAddress = http://localhost:5192
-
-GET {{MicroservicioNotas_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

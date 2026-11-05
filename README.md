@@ -6,16 +6,14 @@ MetaU centraliza la administración de una institución educativa: usuarios, ofe
 
 ## Estado actual
 
-**Fase 7 — Despliegue en Plesk**
+**Fase 8 — Análisis, documentación y diseño base del sitio web administrativo**
 
-El backend se encuentra en proceso de publicación individual de cada microservicio en Plesk. Esta fase incluye:
+El despliegue de los microservicios en Plesk ya fue completado. El trabajo actual se enfoca en preparar el Sitio Web Administrativo antes de iniciar la implementación de sus pantallas. Esta fase incluye:
 
-- Configuración de variables de entorno y conexiones a base de datos.
-- Publicación de los servicios REST.
-- Verificación de endpoints públicos y validación de tokens JWT.
-- Preparación del Pull Request final hacia la rama `main` con código estable.
-
-En paralelo se está realizando la **planeación del frontend** (aplicación web y móvil).
+- Diagrama general de clases del sitio web, incluyendo sus dependencias con los microservicios.
+- Diagrama de casos de uso del sitio web.
+- Acuerdo de diseño visual y definición del flujo de pantallas.
+- Actualización del documento de análisis y diseño del segundo sprint.
 
 ### Fases completadas
 
@@ -28,6 +26,7 @@ En paralelo se está realizando la **planeación del frontend** (aplicación web
 | 4 | Consultas académicas | Historial académico, Listado de estudiantes |
 | 5 | Pagos y notificaciones | Facturación, Pagos, Notificaciones por correo |
 | 6 | Pruebas integradas | Pruebas técnicas, integración entre servicios y documentación final |
+| 7 | Despliegue en Plesk | Publicación de los microservicios |
 
 ## Arquitectura
 

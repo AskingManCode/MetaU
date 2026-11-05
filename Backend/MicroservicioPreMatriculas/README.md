@@ -1,54 +1,69 @@
-# MAT1 - Administración de prematrículas
+# Microservicio de Prematrículas - MAT1
 
-Microservicio REST encargado de administrar la prematrícula de estudiantes en cursos de primer nivel y períodos futuros. Implementa las cinco operaciones solicitadas por la HU MAT1, valida la autenticación mediante USR5 y registra las acciones mediante GEN1.
+Microservicio encargado de la administración de prematrículas de estudiantes.
+
+## Historia de usuario
+
+**MAT1** — Administración de prematrículas.
+
+Permite crear, modificar, eliminar (lógicamente) y consultar prematrículas de estudiantes para cursos de primer nivel y períodos futuros.
 
 ## Tecnologías
 
 - .NET 10
-- ASP.NET Core Minimal API
-- Entity Framework Core 10
-- SQL Server
-- OpenAPI
-- `HttpClient` para integrar Login, Bitácoras, Carreras, Cursos y Períodos
+- ASP.NET Core Minimal APIs
+- Dapper (SQL directo) sobre SQL Server
+- Autenticación mediante ****** (MicroservicioLogin)
+- Registro de acciones en Bitácoras
+- Integración con Carreras, Cursos y Períodos
+- Consulta de parámetros para paginación
 
-## Dirección local y endpoint base
+## Endpoint base
 
-El perfil HTTPS incluido en el proyecto utiliza `https://localhost:7236`. Todas las operaciones se publican bajo:
+`/prematricula`
 
-```text
-/prematricula
-```
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioPreMatriculas_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5232`
+- HTTPS: `https://localhost:7236`
 
 ## Autenticación
 
-Todas las operaciones requieren estos headers:
+Todas las operaciones requieren los siguientes headers:
+
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `******` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación |
+
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `X-Usuario-Id` o no es un GUID válido → `401 Unauthorized`.
+
+## Endpoints
+
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/prematricula` | Crear una prematrícula | 201 Created |
+| PUT | `/prematricula/{id}` | Modificar una prematrícula | 200 OK |
+| DELETE | `/prematricula/{id}` | Eliminar una prematrícula (lógicamente) | 204 No Content |
+| GET | `/prematricula` | Obtener todas las prematrículas activas | 200 OK |
+| GET | `/prematricula?pagina={n}` | Obtener prematrículas paginadas | 200 OK |
+| GET | `/prematricula/{id}` | Obtener una prematrícula por ID | 200 OK |
+
+`id` debe ser un GUID válido.
+
+### POST /prematricula — Crear
 
 ```http
-Authorization: Bearer {token}
-X-Usuario-Id: {guid}
-```
+POST /prematricula
+Authorization: ******
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
 
-Antes de ejecutar una operación, el microservicio envía el token al endpoint `POST /validate` del servicio de Login. Responde `401 Unauthorized` cuando falta el token, `X-Usuario-Id` no contiene un GUID válido o Login rechaza el token.
-
-```json
-{
-  "mensaje": "No autorizado"
-}
-```
-
-## Contratos de datos
-
-### Request
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---:|---|
-| `identificacion` | `string` | Sí | Identificación de un estudiante activo registrado en `Estudiantes`. |
-| `carreraCode` | `string` | Sí | Código de la carrera a la que desea ingresar. |
-| `cursos` | `string[]` | Sí | Uno o más códigos de cursos de primer nivel. |
-| `observaciones` | `string` o `null` | No | Comentario opcional. Los espacios externos se eliminan y los espacios internos repetidos se normalizan. |
-| `periodoID` | `Guid` | Sí | Identificador de un período cuya fecha de inicio sea posterior a la fecha actual. |
-
-```json
 {
   "identificacion": "123456789",
   "carreraCode": "CARRERA1",
@@ -58,16 +73,84 @@ Antes de ejecutar una operación, el microservicio envía el token al endpoint `
 }
 ```
 
-### Response
+**Respuesta exitosa (`201 Created`):** la prematrícula creada, con un header `Location` que apunta a `/prematricula/{id}`.
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | `Guid` | Llave primaria de la prematrícula. |
-| `identificacion` | `string` | Identificación del estudiante. |
-| `carreraCode` | `string` | Código de la carrera. |
-| `cursos` | `string[]` | Cursos activos asociados con la prematrícula. |
-| `observaciones` | `string` o `null` | Observaciones normalizadas. |
-| `periodoID` | `Guid` | Identificador del período. |
+Si ya existe una prematrícula activa para la misma combinación de estudiante, carrera y período, responde `409 Conflict`. Si existe una prematrícula inactiva para esa combinación, se reactiva, se actualizan sus cursos y observaciones, y responde `201 Created`.
+
+### PUT /prematricula/{id} — Modificar
+
+```http
+PUT /prematricula/22222222-2222-2222-2222-222222222222
+Authorization: ******
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "identificacion": "123456789",
+  "carreraCode": "CARRERA1",
+  "cursos": ["CURSO1"],
+  "observaciones": "Horario actualizado",
+  "periodoID": "11111111-1111-1111-1111-111111111111"
+}
+```
+
+**Respuesta:** `200 OK` con la prematrícula actualizada. La operación vuelve a validar el estudiante, la carrera, los cursos y el período. Si la combinación de estudiante, carrera y período ya pertenece a otra prematrícula, responde `409 Conflict`.
+
+### DELETE /prematricula/{id} — Eliminar
+
+La eliminación es lógica: cambia a inactivo el registro y todos sus cursos.
+
+```http
+DELETE /prematricula/22222222-2222-2222-2222-222222222222
+Authorization: ******
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+**Respuesta:** `204 No Content`.
+
+### GET /prematricula y GET /prematricula/{id}
+
+```http
+GET /prematricula
+GET /prematricula/22222222-2222-2222-2222-222222222222
+Authorization: ******
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+La consulta de la colección devuelve únicamente prematrículas activas y, si no hay registros, devuelve una lista vacía. La consulta individual también devuelve solo prematrículas activas; si el ID no existe o corresponde a un registro inactivo, responde `404 Not Found`.
+
+### Paginación
+
+Agregar `?pagina=1` (valor ≥ 1). El tamaño de página se obtiene del parámetro `PAGSIZE` (por defecto **15**, nunca superior a 15). Si el parámetro no está disponible o no contiene un entero positivo, se utiliza el valor por defecto. Los resultados se ordenan por período, identificación y, en caso de empate, por ID de prematrícula.
+
+```http
+GET /prematricula?pagina=1
+Authorization: ******
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+**Respuesta paginada:**
+
+```json
+{
+  "pagina": 1,
+  "tamanoPagina": 15,
+  "totalRegistros": 1,
+  "totalPaginas": 1,
+  "datos": [
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "identificacion": "123456789",
+      "carreraCode": "CARRERA1",
+      "cursos": ["CURSO1", "CURSO2"],
+      "observaciones": "Solicita horario nocturno",
+      "periodoID": "11111111-1111-1111-1111-111111111111"
+    }
+  ]
+}
+```
+
+## Formato de datos
 
 ```json
 {
@@ -80,195 +163,77 @@ Antes de ejecutar una operación, el microservicio envía el token al endpoint `
 }
 ```
 
-Los identificadores y códigos de los ejemplos son ilustrativos. Deben sustituirse por datos existentes en el ambiente de ejecución.
+Los identificadores y códigos de los ejemplos son ilustrativos y deben sustituirse por datos existentes en el ambiente.
 
-## Crear una prematrícula
+## Reglas de negocio / Validaciones
 
-```http
-POST /prematricula
-```
-
-Request:
-
-```json
-{
-  "identificacion": "123456789",
-  "carreraCode": "CARRERA1",
-  "cursos": ["CURSO1", "CURSO2"],
-  "observaciones": "Opcional",
-  "periodoID": "11111111-1111-1111-1111-111111111111"
-}
-```
-
-Respuesta exitosa:
-
-```text
-201 Created
-Location: /prematricula/{id}
-```
-
-El body contiene la prematrícula creada. Si ya existe una prematrícula activa para la misma combinación de estudiante, carrera y período, responde `409 Conflict`:
-
-```json
-{
-  "mensaje": "El estudiante ya tiene una prematrícula para esa carrera y periodo."
-}
-```
-
-Si el registro coincidente existe, pero estaba eliminado lógicamente, la operación lo reactiva, actualiza sus observaciones y cursos, y responde `201 Created`.
-
-## Modificar una prematrícula
-
-```http
-PUT /prematricula/{id}
-```
-
-Request:
-
-```json
-{
-  "identificacion": "123456789",
-  "carreraCode": "CARRERA1",
-  "cursos": ["CURSO1"],
-  "observaciones": "Modificada",
-  "periodoID": "11111111-1111-1111-1111-111111111111"
-}
-```
-
-Respuesta exitosa: `200 OK`. El body contiene la versión actualizada. La operación vuelve a validar el estudiante, los cursos y el período. Si la combinación resultante pertenece a otra prematrícula, responde `409 Conflict`.
-
-## Eliminar una prematrícula
-
-```http
-DELETE /prematricula/{id}
-```
-
-Respuesta exitosa: `204 No Content`. La eliminación es lógica: cambia a inactivo el registro y todos sus cursos. El endpoint no devuelve body.
-
-## Obtener todas las prematrículas
-
-```http
-GET /prematricula
-```
-
-Respuesta exitosa: `200 OK`.
-
-```json
-[
-  {
-    "id": "22222222-2222-2222-2222-222222222222",
-    "identificacion": "123456789",
-    "carreraCode": "CARRERA1",
-    "cursos": ["CURSO1", "CURSO2"],
-    "observaciones": "Opcional",
-    "periodoID": "11111111-1111-1111-1111-111111111111"
-  }
-]
-```
-
-Solo se incluyen prematrículas activas. Si no existen registros, devuelve una lista vacía.
-
-## Obtener una prematrícula por llave primaria
-
-```http
-GET /prematricula/{id}
-```
-
-Respuesta exitosa: `200 OK`. Devuelve únicamente una prematrícula activa. Un GUID inexistente o perteneciente a un registro inactivo responde `404 Not Found`.
-
-## Reglas de negocio
-
-- `identificacion`, `carreraCode`, `cursos` y `periodoID` son obligatorios.
-- La lista de cursos debe contener al menos un valor no vacío.
-- `observaciones` es opcional; un valor vacío o compuesto solo por espacios se almacena como `null`.
+- `identificacion`, `carreraCode`, `cursos` y `periodoID` son obligatorios; los campos requeridos no pueden estar vacíos ni contener solo espacios.
+- La lista `cursos` debe contener al menos un código no vacío. Los códigos repetidos se eliminan sin distinguir entre mayúsculas y minúsculas.
+- `observaciones` es opcional y admite hasta 300 caracteres; si está vacía o contiene solo espacios, se almacena como `null`. Se eliminan los espacios externos y se normalizan los espacios internos repetidos.
 - El estudiante debe existir y estar activo.
+- La carrera debe existir y estar activa.
 - El período debe existir y su `fechaInicio` debe ser posterior al día actual del servidor.
-- Cada curso debe existir y tener `nivel` igual a `1`.
-- Los códigos de curso repetidos se eliminan sin distinguir entre mayúsculas y minúsculas.
-- La combinación estudiante, carrera y período no se puede duplicar entre prematrículas distintas.
-- Las eliminaciones son lógicas mediante el campo `Estado`.
+- Cada curso debe existir, pertenecer a la carrera indicada y tener `nivel` igual a `1`.
+- La combinación de estudiante, carrera y período debe ser única. Una prematrícula inactiva con esa combinación se reactiva al crearla nuevamente.
+- La eliminación es lógica y desactiva también los cursos asociados.
+- Para paginar, `pagina` debe ser mayor o igual a 1.
 
 ## Integraciones
 
-| Servicio | Operación utilizada | Finalidad |
-|---|---|---|
-| Login, HU USR5 | `POST /validate` | Validar el Bearer token. |
-| Cursos | `GET /curso/{cursoCode}` | Confirmar que el curso existe y es de primer nivel. |
-| Carreras | `GET /carrera/{carreraCode}` | Confirmar que la carrera existe y está activa. |
-| Períodos | `GET /periodo/{periodoID}` | Confirmar que el período existe y es futuro. |
-| Bitácoras, HU GEN1 | `POST /bitacora` | Registrar operaciones y errores técnicos. |
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones y errores técnicos (mejor esfuerzo) |
+| Carreras | Validar que la carrera exista y esté activa |
+| Cursos | Validar que los cursos existan, pertenezcan a la carrera y sean de primer nivel |
+| Períodos | Validar que el período exista y sea futuro |
+| Parámetros | Obtener `PAGSIZE` para paginación |
 
-El token y `X-Usuario-Id` recibidos se propagan a Carreras, Cursos, Períodos y Bitácoras.
-
-## Bitácoras
-
-El servicio intenta registrar:
-
-- Creación: JSON de la nueva prematrícula.
-- Modificación: JSON de la versión anterior y la actual.
-- Eliminación: JSON del registro eliminado lógicamente.
-- Consulta general: `El usuario consulta las prematrículas`.
-- Consulta individual: `El usuario consulta la prematrícula {id}`.
-- Error no controlado: `Error técnico: {mensaje}`.
-
-La integración está implementada como mejor esfuerzo: si el servicio de Bitácoras falla, la operación principal continúa.
-
-## Respuestas HTTP
-
-| Código | Descripción |
-|---:|---|
-| `200 OK` | Modificación o consulta completada. |
-| `201 Created` | Prematrícula creada o reactivada. |
-| `204 No Content` | Prematrícula eliminada lógicamente. |
-| `400 Bad Request` | Faltan datos, el período no es futuro o un curso no es de primer nivel. |
-| `401 Unauthorized` | Token o identificador de usuario ausente o inválido. |
-| `404 Not Found` | Prematrícula, estudiante, curso o período inexistente. |
-| `409 Conflict` | Ya existe una prematrícula para la combinación indicada. |
-| `500 Internal Server Error` | Error técnico no controlado. |
-
-Los errores controlados usan este formato:
-
-```json
-{
-  "mensaje": "Descripción del error"
-}
-```
-
-## Persistencia
-
-La cabecera se almacena en `PreMatriculas` y el detalle de cursos en `PreMatriculasXCursos`. Entity Framework Core carga el estudiante y los cursos relacionados para construir cada response.
+El token y `X-Usuario-Id` recibidos se propagan a los servicios integrados que los requieren.
 
 ## Configuración
 
-`appsettings.json` define:
+Claves principales en `appsettings.json` / variables de entorno:
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=TU_SERVIDOR;Database=Matriculas_DB;..."
-  },
-  "Servicios": {
-    "LoginUrl": "https://localhost:57074",
-    "BitacoraUrl": "https://localhost:7116",
-    "CursoUrl": "https://localhost:7136",
-    "PeriodoUrl": "https://localhost:7256"
-  }
-}
-```
+- `ConnectionStrings:Matriculas` → Cadena de conexión a `Matriculas_DB`.
+- `Servicios:LoginUrl` → URL base de MicroservicioLogin.
+- `Servicios:BitacoraUrl` → URL base de MicroservicioBitacoras.
+- `Servicios:CarreraUrl` → URL base de MicroservicioCarreras.
+- `Servicios:CursoUrl` → URL base de MicroservicioCursos.
+- `Servicios:PeriodoUrl` → URL base de MicroservicioPeriodos.
+- `Servicios:ParametroUrl` → URL base de MicroservicioParametros.
+- `Cors:AllowedOrigins` → Orígenes permitidos para CORS.
 
-Las URLs deben corresponder al ambiente de ejecución. No se deben versionar credenciales reales.
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
 
-## Compilación
+## Base de datos
 
-```bash
-dotnet build Backend/MicroservicioPreMatriculas/MicroservicioPreMatriculas.csproj
-```
+**Base de datos:** `Matriculas_DB`  
+Tablas principales: `Estudiantes`, `PreMatriculas`, `PreMatriculasXCursos`.
 
-## Ejecución
+## Ejecución local
 
 ```bash
 dotnet run --project Backend/MicroservicioPreMatriculas/MicroservicioPreMatriculas.csproj
 ```
 
-El proyecto incluye `MicroservicioPreMatriculas.http` con ejemplos de las cinco operaciones. Antes de ejecutarlo, se deben completar `Token`, `UsuarioId`, `PrematriculaId`, los códigos y el identificador del período.
+## Respuestas y errores comunes
 
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta o modificación exitosa |
+| 201 Created | Prematrícula creada o reactivada |
+| 204 No Content | Prematrícula eliminada lógicamente |
+| 400 Bad Request | Datos inválidos, período no futuro, curso que no pertenece a la carrera o que no es de primer nivel, o página < 1 |
+| 401 Unauthorized | Token o `X-Usuario-Id` ausente/inválido |
+| 404 Not Found | Prematrícula, estudiante, carrera, curso o período no encontrado |
+| 409 Conflict | Ya existe una prematrícula activa para la combinación de estudiante, carrera y período |
+| 500 Internal Server Error | Error técnico no controlado |
+
+## Diagrama de clases
+
+![Diagrama de Clases Prematrículas](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases-PreMatricula.png)
+
+---
+
+*Documentación estandarizada del microservicio MicroservicioPreMatriculas (MAT1).*

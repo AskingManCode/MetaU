@@ -1,53 +1,67 @@
-# MAT2 - Administración de matrículas
+# Microservicio de Matrículas - MAT2
 
-Microservicio REST encargado de matricular estudiantes en cursos y grupos durante un período académico activo. Implementa las cuatro operaciones solicitadas por la HU MAT2, valida la autenticación mediante USR5 y registra las acciones mediante GEN1.
+Microservicio REST encargado de matricular estudiantes en cursos y grupos durante un período académico activo.
+
+## Historia de usuario
+
+**MAT2** — Administración de matrículas.
+
+Implementa las operaciones de matricular, modificar, eliminar (lógicamente) y consultar matrículas. Valida la autenticación mediante USR5 y registra las acciones mediante GEN1.
 
 ## Tecnologías
 
 - .NET 10
-- ASP.NET Core Minimal API
+- ASP.NET Core Minimal APIs
 - Entity Framework Core 10
 - SQL Server
-- OpenAPI
-- `HttpClient` para integrar Login, Bitácoras, Cursos, Grupos y Períodos
+- Autenticación mediante Bearer Token (MicroservicioLogin)
+- Registro de acciones en Bitácoras
+- Integración con Cursos, Grupos y Períodos
 
-## Dirección local y endpoint base
+## Endpoint base
 
-El perfil HTTPS incluido en el proyecto utiliza `https://localhost:7070`. Todas las operaciones se publican bajo:
+`/matricula`
 
-```text
-/matricula
-```
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioMatriculas_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5163`
+- HTTPS: `https://localhost:7070`
 
 ## Autenticación
 
-Todas las operaciones requieren estos headers:
+Todas las operaciones requieren los siguientes headers:
+
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación |
+
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `X-Usuario-Id` o no es un GUID válido → `401 Unauthorized`.
+
+## Endpoints
+
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/matricula` | Matricular un estudiante | 201 Created |
+| PUT | `/matricula/{id}` | Modificar una matrícula (solo el grupo) | 200 OK |
+| DELETE | `/matricula/{id}` | Eliminar una matrícula (lógicamente) | 204 No Content |
+| GET | `/matricula?cursoCode={}&grupoCode={}` | Obtener estudiantes matriculados por curso y grupo | 200 OK |
+| GET | `/matricula?identificacion={}` | Obtener matrículas por estudiante | 200 OK |
+| GET | `/matricula?...&pagina={n}` | Versiones paginadas de las consultas | 200 OK |
+
+### POST /matricula — Matricular
 
 ```http
-Authorization: Bearer {token}
-X-Usuario-Id: {guid}
-```
+POST /matricula
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
 
-Antes de ejecutar una operación, el microservicio envía el token al endpoint `POST /validate` del servicio de Login. Responde `401 Unauthorized` cuando falta el token, `X-Usuario-Id` no contiene un GUID válido o Login rechaza el token.
-
-```json
-{
-  "mensaje": "No autorizado"
-}
-```
-
-## Contrato de matrícula
-
-### Request
-
-| Campo | Tipo | Requerido | Descripción |
-|---|---|---:|---|
-| `identificacion` | `string` | Sí | Identificación de un estudiante activo registrado en `Matriculas_DB`. |
-| `cursoCode` | `string` | Sí | Código de un curso existente. |
-| `grupoCode` | `string` | Sí | Código del grupo en el cual se matricula el estudiante. Debe pertenecer al curso indicado. |
-| `periodoID` | `Guid` | Sí | Identificador de un período activo. |
-
-```json
 {
   "identificacion": "123456789",
   "cursoCode": "CURSO1",
@@ -56,16 +70,53 @@ Antes de ejecutar una operación, el microservicio envía el token al endpoint `
 }
 ```
 
-### Response
+**Respuesta exitosa (`201 Created`):** el detalle de matrícula creado.  
+Si la cabecera ya existe, el curso se agrega. Si el mismo curso estaba eliminado lógicamente, se reactiva.
 
-| Campo | Tipo | Descripción |
-|---|---|---|
-| `id` | `int` | Identificador del detalle `MatriculasXCursos`. Se utiliza en PUT y DELETE. |
-| `matriculaID` | `Guid` | Identificador de la cabecera de matrícula. |
-| `identificacion` | `string` | Identificación del estudiante. |
-| `cursoCode` | `string` | Código del curso matriculado. |
-| `grupoCode` | `string` | Código del grupo asignado. |
-| `periodoID` | `Guid` | Identificador del período académico. |
+### PUT /matricula/{id} — Modificar
+
+Solo permite cambiar el `grupoCode`. `id` es el entero del detalle (`MatriculasXCursos`), no el GUID de la cabecera.
+
+```http
+PUT /matricula/25
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "identificacion": "123456789",
+  "cursoCode": "CURSO1",
+  "grupoCode": "GRUPO2",
+  "periodoID": "11111111-1111-1111-1111-111111111111"
+}
+```
+
+### DELETE /matricula/{id} — Eliminar
+
+Eliminación lógica del detalle.
+
+```http
+DELETE /matricula/25
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+**Respuesta:** `204 No Content`.
+
+### Consultas
+
+```http
+GET /matricula?cursoCode=CURSO1&grupoCode=GRUPO1
+GET /matricula?identificacion=123456789
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
+
+### Paginación
+
+Agregar `&pagina=1` (valor ≥ 1). El tamaño de página se obtiene del parámetro `PAGSIZE` (por defecto **15**).
+
+## Formato de respuesta (detalle)
 
 ```json
 {
@@ -78,108 +129,7 @@ Antes de ejecutar una operación, el microservicio envía el token al endpoint `
 }
 ```
 
-Los identificadores y códigos de los ejemplos son ilustrativos. Deben sustituirse por datos existentes en el ambiente de ejecución.
-
-## Matricular un estudiante
-
-```http
-POST /matricula
-```
-
-Request:
-
-```json
-{
-  "identificacion": "123456789",
-  "cursoCode": "CURSO1",
-  "grupoCode": "GRUPO1",
-  "periodoID": "11111111-1111-1111-1111-111111111111"
-}
-```
-
-Respuesta exitosa:
-
-```text
-201 Created
-Location: /matricula/{id}
-```
-
-El body contiene el detalle de matrícula creado. El servicio obtiene `CarreraCode` desde el microservicio de Cursos y lo utiliza para crear o localizar la cabecera de matrícula del estudiante en ese período.
-
-Si la cabecera ya existe, el nuevo curso se agrega a la matrícula existente. Si el mismo curso estaba eliminado lógicamente, se reactiva y se actualiza su grupo.
-
-Conflictos posibles:
-
-```text
-409 Conflict
-```
-
-```json
-{
-  "mensaje": "El estudiante ya está matriculado en ese curso para el periodo indicado."
-}
-```
-
-```json
-{
-  "mensaje": "El grupo no tiene cupo disponible."
-}
-```
-
-## Modificar una matrícula
-
-```http
-PUT /matricula/{id}
-```
-
-`id` corresponde al entero devuelto en el campo `id` del POST, no al GUID `matriculaID`.
-
-Request:
-
-```json
-{
-  "identificacion": "123456789",
-  "cursoCode": "CURSO1",
-  "grupoCode": "GRUPO2",
-  "periodoID": "11111111-1111-1111-1111-111111111111"
-}
-```
-
-Respuesta exitosa: `200 OK`.
-
-La modificación solo permite cambiar `grupoCode`. La identificación, el curso y el período deben coincidir con la matrícula existente. Si alguno cambia, responde `400 Bad Request`:
-
-```json
-{
-  "mensaje": "Solo se puede modificar el grupo de la matrícula; la identificación, el curso y el periodo no pueden cambiar."
-}
-```
-
-Antes de asignar el grupo nuevo, el servicio verifica que pertenezca al curso y que tenga cupo disponible.
-
-## Eliminar una matrícula
-
-```http
-DELETE /matricula/{id}
-```
-
-Respuesta exitosa: `204 No Content`.
-
-La eliminación es lógica: el detalle de curso y grupo cambia a estado inactivo. La cabecera de la matrícula permanece almacenada.
-
-## Obtener estudiantes matriculados por curso y grupo
-
-```http
-GET /matricula?cursoCode={cursoCode}&grupoCode={grupoCode}
-```
-
-Ejemplo:
-
-```http
-GET /matricula?cursoCode=CURSO1&grupoCode=GRUPO1
-```
-
-Respuesta exitosa: `200 OK`.
+## Formato de consulta por curso/grupo
 
 ```json
 [
@@ -192,120 +142,70 @@ Respuesta exitosa: `200 OK`.
 ]
 ```
 
-La consulta solo incluye estudiantes, matrículas y detalles que se encuentren activos. `cursoCode` y `grupoCode` son obligatorios; si falta alguno, responde `400 Bad Request`.
-
-## Obtener matrículas por estudiante
-
-El código incluye una consulta adicional que no forma parte de las cuatro operaciones mínimas de la HU MAT2:
-
-```http
-GET /matricula?identificacion={identificacion}
-```
-
-Ejemplo:
-
-```http
-GET /matricula?identificacion=123456789
-```
-
-Respuesta exitosa: `200 OK`. Devuelve los detalles activos de matrícula asociados con el estudiante. Cuando se envía `identificacion`, esta consulta tiene prioridad sobre `cursoCode` y `grupoCode`.
-
-## Reglas de negocio
+## Reglas de negocio / Validaciones
 
 - `identificacion`, `cursoCode`, `grupoCode` y `periodoID` son obligatorios.
 - El estudiante debe existir y estar activo.
 - El curso debe existir.
-- El grupo debe existir y pertenecer al curso indicado.
-- El período debe existir y estar activo.
-- Un período está activo cuando la fecha actual se encuentra entre `FechaInicio` y `FechaFin`, inclusive.
-- El número de detalles activos del grupo debe ser menor que su `Cupo`.
+- El grupo debe existir, pertenecer al curso indicado y tener cupo disponible.
+- El período debe existir y estar activo (fecha actual entre `FechaInicio` y `FechaFin`).
 - Un estudiante no puede tener dos detalles activos para el mismo curso y período.
-- Al modificar, solo se permite cambiar el grupo.
-- La eliminación del detalle es lógica mediante el campo `Estado`.
+- Al modificar, solo se permite cambiar el grupo (identificación, curso y período deben coincidir).
+- La eliminación del detalle es lógica. La cabecera permanece.
 
 ## Integraciones
 
-| Servicio | Operación utilizada | Finalidad |
-|---|---|---|
-| Login, HU USR5 | `POST /validate` | Validar el Bearer token. |
-| Cursos | `GET /curso/{cursoCode}` | Confirmar que el curso existe y obtener su carrera. |
-| Grupos | `GET /grupo/{grupoCode}` | Confirmar existencia, curso asociado y cupo. |
-| Períodos | `GET /periodo/{periodoID}` | Confirmar que el período existe y está activo. |
-| Bitácoras, HU GEN1 | `POST /bitacora` | Registrar operaciones y errores técnicos. |
-
-El token y `X-Usuario-Id` recibidos se propagan a Cursos, Grupos, Períodos y Bitácoras.
-
-## Bitácoras
-
-El servicio intenta registrar:
-
-- Creación: JSON del detalle de matrícula creado.
-- Modificación: JSON de la versión anterior y la actual.
-- Eliminación: JSON del detalle eliminado lógicamente.
-- Consulta por curso y grupo: descripción de los filtros consultados.
-- Consulta por estudiante: identificación consultada.
-- Error no controlado: `Error técnico: {mensaje}`.
-
-La integración está implementada como mejor esfuerzo: si el servicio de Bitácoras falla, la operación principal continúa.
-
-## Respuestas HTTP
-
-| Código | Descripción |
-|---:|---|
-| `200 OK` | Modificación o consulta completada. |
-| `201 Created` | Detalle de matrícula creado o reactivado. |
-| `204 No Content` | Detalle de matrícula eliminado lógicamente. |
-| `400 Bad Request` | Faltan datos, el grupo no pertenece al curso, el período no está activo o se intentó modificar un campo inmutable. |
-| `401 Unauthorized` | Token o identificador de usuario ausente o inválido. |
-| `404 Not Found` | Matrícula, estudiante, curso, grupo o período inexistente. |
-| `409 Conflict` | Curso duplicado en la matrícula o grupo sin cupo. |
-| `500 Internal Server Error` | Error técnico no controlado. |
-
-Los errores controlados usan este formato:
-
-```json
-{
-  "mensaje": "Descripción del error"
-}
-```
-
-## Persistencia
-
-`Matriculas` almacena la cabecera por estudiante, carrera y período. `MatriculasXCursos` almacena cada combinación de curso y grupo. El identificador entero del detalle se utiliza para modificarlo o eliminarlo.
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones (mejor esfuerzo) |
+| Cursos | Confirmar existencia del curso y obtener carrera |
+| Grupos | Confirmar existencia, curso asociado y cupo |
+| Períodos | Confirmar existencia y estado del período |
+| Parámetros | Obtener `PAGSIZE` para paginación |
 
 ## Configuración
 
-`appsettings.json` define:
+Claves principales en `appsettings.json` / variables de entorno:
 
-```json
-{
-  "ConnectionStrings": {
-    "Matriculas": "Server=tiusr20pl.cuc-carrera-ti.ac.cr;Database=tiusr20pl_Matriculas_DB;TrustServerCertificate=True;"
-  },
-  "Servicios": {
-    "LoginUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioLogin_MetaU/",
-    "BitacoraUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioBitacoras_MetaU/",
-    "CursoUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioCursos_MetaU/",
-    "GrupoUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioGrupos_MetaU/",
-    "PeriodoUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioPeriodos_MetaU/",
-    "ParametroUrl": "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioParametros_MetaU/"
-  }
-}
-```
+- `ConnectionStrings:Matriculas` → Cadena de conexión a `Matriculas_DB`.
+- `Servicios:LoginUrl` → URL base de MicroservicioLogin.
+- `Servicios:BitacoraUrl` → URL base de MicroservicioBitacoras.
+- `Servicios:CursoUrl` → URL base de MicroservicioCursos.
+- `Servicios:GrupoUrl` → URL base de MicroservicioGrupos.
+- `Servicios:PeriodoUrl` → URL base de MicroservicioPeriodos.
+- `Servicios:ParametroUrl` → URL base de MicroservicioParametros.
 
-Las URLs deben corresponder al ambiente de ejecución. La cadena versionada no contiene usuario ni contraseña; esos valores se configuran solo en Plesk. Al actualizar un despliegue existente, no se debe reemplazar su `appsettings.json` con el archivo versionado.
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
 
-## Compilación
+## Base de datos
 
-```bash
-dotnet build Backend/MicroservicioMatriculas/MicroservicioMatriculas.csproj
-```
+**Base de datos:** `Matriculas_DB`  
+Tablas principales: `Matriculas` (cabecera), `MatriculasXCursos` (detalles).
 
-## Ejecución
+## Ejecución local
 
 ```bash
 dotnet run --project Backend/MicroservicioMatriculas/MicroservicioMatriculas.csproj
 ```
 
-El proyecto incluye `MicroservicioMatriculas.http` con ejemplos de las cuatro operaciones principales. Antes de ejecutarlo, se deben completar `Token`, `UsuarioId`, `MatriculaId`, los códigos y el identificador del período.
+## Respuestas y errores comunes
 
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta o modificación exitosa |
+| 201 Created | Matrícula creada o reactivada |
+| 204 No Content | Detalle eliminado lógicamente |
+| 400 Bad Request | Datos inválidos, grupo no pertenece al curso, período inactivo o intento de modificar campo inmutable |
+| 401 Unauthorized | Token o `X-Usuario-Id` ausente/inválido |
+| 404 Not Found | Matrícula, estudiante, curso, grupo o período no encontrado |
+| 409 Conflict | Curso duplicado en la matrícula o grupo sin cupo |
+| 500 Internal Server Error | Error técnico no controlado |
+
+## Diagrama de clases
+
+![Diagrama de Clases Matrículas](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_AdministracionMatricula.png)
+
+---
+
+*Documentación estandarizada del microservicio MicroservicioMatriculas (MAT2).*

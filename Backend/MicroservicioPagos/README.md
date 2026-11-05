@@ -1,88 +1,92 @@
-# MicroservicioPagos
+# Microservicio de Pagos - MAT1
 
 Administra el registro y la reversión de pagos asociados a facturas de servicios estudiantiles.
 
-**URL base del servicio:** pendiente de definir para cada ambiente; en ejecución local, `https://localhost:PORT`.
+## Historia de usuario
 
-**Prefijo de rutas:** `/pago`
+**MAT1** — Administración de Prematrícula / Pagos.
 
-**Diagrama de clases:**
+## Tecnologías
 
-![Diagrama de Clases](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Pagos.png)
+- .NET 10
+- ASP.NET Core Minimal APIs
+- Dapper sobre SQL Server
+- Autenticación mediante Bearer Token (MicroservicioLogin)
+- Registro de acciones en Bitácoras
+- Integración con Períodos
 
-## Antes de consumir la API
+## Endpoint base
 
-Todas las operaciones requieren estos headers:
+`/api/pago`
+
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioPagos_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5010`
+- HTTPS: `https://localhost:7233`
+
+## Autenticación
+
+Todas las operaciones requieren los siguientes headers:
 
 | Header | Valor | Descripción |
-| --- | --- | --- |
-| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin. |
-| `X-Usuario-Id` | `<UUID>` | GUID del usuario que realiza la operación; también se utiliza para la bitácora. |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación |
 
-El servicio valida el token consultando MicroservicioLogin. Sin token, con token inválido o con `X-Usuario-Id` ausente o no válido responde `401 Unauthorized`.
-
-Los cuerpos y respuestas usan JSON.
+El token se valida contra `POST /validate` de Login.  
+Sin token, token inválido o `X-Usuario-Id` ausente/inválido → `401 Unauthorized`.
 
 ## Endpoints
 
-| Método | Ruta | Uso |
-| --- | --- | --- |
-| `POST` | `/pago/{FacturaID}` | Registrar el pago de una factura. |
-| `PATCH` | `/pago/{PagoID}` | Reversar un pago existente. |
-| `GET` | `/pago/{PagoID}` | Obtener un pago por su identificador (incluye la factura asociada). |
-| `GET` | `/pago/periodo/{PeriodoID}` | Obtener todos los pagos de un período. |
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/api/pago/{FacturaID}` | Registrar el pago de una factura | 201 Created |
+| PATCH | `/api/pago/{PagoID}` | Reversar un pago existente | 200 OK |
+| GET | `/api/pago/{PagoID}` | Obtener un pago por ID (incluye factura) | 200 OK |
+| GET | `/api/pago/periodo/{PeriodoID}` | Obtener todos los pagos de un período | 200 OK |
 
-`FacturaID`, `PagoID` y `PeriodoID` son GUID.
-
-### Registrar pago
+### POST /api/pago/{FacturaID} — Registrar pago
 
 ```http
-POST /pago/22222222-2222-2222-2222-222222222222
+POST /api/pago/22222222-2222-2222-2222-222222222222
 Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `201 Created` con el pago creado (incluye la factura completa con sus detalles) y el header `Location` apunta a `/pago/{PagoID}`.
+**Respuesta exitosa (`201 Created`):** el pago creado (incluye la factura completa con sus detalles). El header `Location` apunta a `/pago/{PagoID}`.
 
-El servicio valida que la factura exista y esté en un estado que permita el pago.  
-Si la factura no existe responde `404 Not Found`.  
-Si la factura ya está pagada, anulada o no tiene saldo pendiente responde `409 Conflict`.
-
-### Reversar pago
+### PATCH /api/pago/{PagoID} — Reversar pago
 
 ```http
-PATCH /pago/33333333-3333-3333-3333-333333333333
+PATCH /api/pago/33333333-3333-3333-3333-333333333333
 Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `200 OK` con el pago reversado.  
-Si el pago no existe responde `404 Not Found`.  
-Si el pago ya estaba reversado responde `409 Conflict`.
+**Respuesta:** `200 OK` con el pago reversado.
 
-### Consultar por ID
+### GET /api/pago/{PagoID} — Obtener por ID
 
 ```http
-GET /pago/33333333-3333-3333-3333-333333333333
+GET /api/pago/33333333-3333-3333-3333-333333333333
 Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `200 OK` con el pago y la factura asociada (incluyendo detalles), o `404 Not Found` si no existe.
-
-### Consultar por período
+### GET /api/pago/periodo/{PeriodoID} — Obtener por período
 
 ```http
-GET /pago/periodo/11111111-1111-1111-1111-111111111111
+GET /api/pago/periodo/11111111-1111-1111-1111-111111111111
 Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `200 OK` con un arreglo de pagos (cada uno con su factura y detalles). Si no hay registros, el arreglo está vacío.
+**Respuesta:** `200 OK` con arreglo de pagos (puede estar vacío).
 
-## Formato de datos
-
-### Response de pago
+## Formato de respuesta
 
 ```json
 {
@@ -110,59 +114,66 @@ Responde `200 OK` con un arreglo de pagos (cada uno con su factura y detalles). 
         "descripcion": "Servicios estudiantiles",
         "cursoCode": "CURSO1",
         "monto": 30000
-      },
-      {
-        "detalleFacturaID": 2,
-        "descripcion": "Servicios estudiantiles",
-        "cursoCode": "CURSO2",
-        "monto": 30000
       }
     ]
   }
 }
 ```
 
-ASP.NET Core serializa los nombres JSON en camelCase por defecto.
+## Reglas de negocio / Validaciones
+
+- La factura debe existir y estar en un estado que permita el pago.
+- No se puede pagar una factura ya pagada, anulada o sin saldo pendiente.
+- No se puede reversar un pago que ya está reversado.
+- Los identificadores (`FacturaID`, `PagoID`, `PeriodoID`) son GUID.
+- Al consultar un pago se incluye la factura asociada con sus detalles.
+
+## Integraciones
+
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones (mejor esfuerzo) |
+| Períodos | Validación / referencia de período |
+
+## Configuración
+
+Claves principales en `appsettings.json` / variables de entorno:
+
+- `ConnectionStrings:DefaultConnection` → Cadena de conexión a `Facturacion_DB`.
+- `MicroservicioLogin:BaseUrl` → URL base de MicroservicioLogin.
+- `MicroservicioBitacoras:BaseUrl` → URL base de MicroservicioBitacoras.
+- `MicroservicioPeriodos:BaseUrl` → URL base de MicroservicioPeriodos.
+
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
+
+## Base de datos
+
+**Base de datos:** `Facturacion_DB` (compartida con Facturación).  
+Usa procedimientos almacenados (`usp_Pagos_Crear`, `usp_Pagos_ObtenerPorID`, `usp_Pagos_ObtenerPorPeriodo`, `usp_Pagos_Reversar`, y consulta `usp_Facturas_ObtenerPorID`).
+
+## Ejecución local
+
+```bash
+dotnet run --project Backend/MicroservicioPagos/MicroservicioPagos.csproj
+```
 
 ## Respuestas y errores comunes
 
-| Estado | Cuándo ocurre |
-| --- | --- |
-| `200 OK` | Reversión o consulta completada. |
-| `201 Created` | Pago registrado. |
-| `400 Bad Request` | Identificador inválido o error de negocio reportado por los procedimientos almacenados. |
-| `401 Unauthorized` | Falta el header Bearer, el token no es válido o falta `X-Usuario-Id`. |
-| `404 Not Found` | Factura o pago no encontrados. |
-| `409 Conflict` | La factura ya está pagada/anulada, no tiene saldo, o el pago ya está reversado. |
-| `500 Internal Server Error` | Error técnico no recuperable. En desarrollo se incluye `detalle` y `tipo`. |
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Reversión o consulta exitosa |
+| 201 Created | Pago registrado |
+| 400 Bad Request | Identificador inválido o error de negocio de procedimientos |
+| 401 Unauthorized | Token o `X-Usuario-Id` ausente/inválido |
+| 404 Not Found | Factura o pago no encontrados |
+| 409 Conflict | Factura ya pagada/anulada, sin saldo, o pago ya reversado |
+| 500 Internal Server Error | Error técnico no controlado |
 
-Las operaciones registran acciones en MicroservicioBitacoras. Si la bitácora no está disponible, la operación principal continúa.
+## Diagrama de clases
 
-## Ejecutar y configurar
+![Diagrama de Clases Pagos](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_AdministracionPagos.png)
 
-Requisitos: .NET 10, SQL Server con la base de datos correspondiente creada y los procedimientos almacenados de pagos (y los de facturas que se consultan) instalados.
+---
 
-Desde la raíz del repositorio:
-
-```powershell
-dotnet run --project .\Backend\MicroservicioPagos\MicroservicioPagos.csproj
-```
-
-La aplicación requiere estos valores de configuración. En despliegues se pueden definir mediante variables de entorno .NET (separador `__`); no se deben guardar credenciales reales en el repositorio:
-
-| Clave | Ejemplo/uso |
-| --- | --- |
-| `ConnectionStrings:DefaultConnection` | Cadena de conexión a SQL Server. |
-| `MicroservicioLogin:BaseUrl` | URL base de MicroservicioLogin, con `/` al final. |
-| `MicroservicioBitacoras:BaseUrl` | URL base de MicroservicioBitacoras, con `/` al final. |
-| `MicroservicioPeriodos:BaseUrl` | URL base de MicroservicioPeriodos, con `/` al final. |
-
-Equivalentes como variables de entorno: `ConnectionStrings__DefaultConnection`, `MicroservicioLogin__BaseUrl`, `MicroservicioBitacoras__BaseUrl` y `MicroservicioPeriodos__BaseUrl`. Swagger y OpenAPI interactivo se habilitan solo cuando el ambiente es `Development`.
-
-## Persistencia y componentes
-
-Los datos se persisten mediante Dapper y los procedimientos almacenados `usp_Pagos_Crear`, `usp_Pagos_ObtenerPorID`, `usp_Pagos_ObtenerPorPeriodo` y `usp_Pagos_Reversar`.  
-Al recuperar un pago también se consulta la factura asociada mediante `usp_Facturas_ObtenerPorID`.
-
-Flujo principal: endpoints HTTP → validación de autenticación → `PagosService` → `PagosRepository` → SQL Server.  
-La validación de JWT y el registro de auditoría se integran respectivamente con MicroservicioLogin y MicroservicioBitacoras.
+*Documentación estandarizada del microservicio MicroservicioPagos (MAT1).*

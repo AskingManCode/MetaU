@@ -123,4 +123,5 @@ Las reglas de ramas, commits y revisión están documentadas en:
 | Evidencia de pruebas técnicas | [Pruebas Tecnicas/](Pruebas%20Tecnicas/) (ver [Pruebas Tecnicas/README.md](Pruebas%20Tecnicas/README.md)) |
 | Scripts SQL y diagramas entidad-relación | [Scripts SQL/](Scripts%20SQL/) (ver [Scripts SQL/README.md](Scripts%20SQL/README.md)) |
 | Detalle de cada microservicio (endpoints, configuración) | `Backend/Microservicio*/README.md` y [Backend/README.md](Backend/README.md) |
+| Archivos de Postman | [Backend/Postman/](Backend/Postman/) |
 | Planeación del frontend | [Frontend/README.md](Frontend/README.md) |

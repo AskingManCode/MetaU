@@ -18,7 +18,7 @@ namespace MicroservicioDirecciones.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QueryAsync<ProvinciaResponse>(
-                "dbo.usp_Provincias_ObtenerProvincias",
+                "MetaU_DB_User.usp_Provincias_ObtenerProvincias",
                 commandType: CommandType.StoredProcedure
             );
         }
@@ -28,7 +28,7 @@ namespace MicroservicioDirecciones.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QueryAsync<CantonResponse>(
-                "dbo.usp_Cantones_ObtenerCantones",
+                "MetaU_DB_User.usp_Cantones_ObtenerCantones",
                 new
                 {
                     ProvinciaID 
@@ -42,7 +42,7 @@ namespace MicroservicioDirecciones.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QueryAsync<DistritoResponse>(
-                "dbo.usp_Distritos_ObtenerDistritos",
+                "MetaU_DB_User.usp_Distritos_ObtenerDistritos",
                 new
                 {
                     ProvinciaID,

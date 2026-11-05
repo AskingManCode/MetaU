@@ -161,17 +161,31 @@ namespace MicroservicioParametros
         }
 
         private static async Task<IResult> ObtenerTodos(
+            int? pagina,
             HttpRequest httpRequest,
             IParametroService service)
         {
             try
             {
+                if (pagina.HasValue)
+                {
+                    if (pagina.Value < 1)
+                        return Results.BadRequest(new { mensaje = "La pagina debe ser mayor o igual a 1" });
+
+                    var resultado = await service.ObtenerPaginadoAsync(pagina.Value, httpRequest);
+                    return Results.Ok(resultado);
+                }
+
                 var parametros = await service.ObtenerTodosAsync(httpRequest);
                 return Results.Ok(parametros);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (Exception)
             {

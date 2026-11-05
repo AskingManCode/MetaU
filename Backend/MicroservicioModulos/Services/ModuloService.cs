@@ -1,6 +1,8 @@
-﻿using System.Text.RegularExpressions;
-using MicroservicioModulos.Entities;
+﻿using MicroservicioModulos.Entities;
 using MicroservicioModulos.Repository;
+using MicroservicioModulos.Services.Clients;
+using MicroservicioRoles.Services.Clients;
+using System.Text.RegularExpressions;
 
 namespace MicroservicioModulos.Services
 {
@@ -9,11 +11,16 @@ namespace MicroservicioModulos.Services
         private static readonly Regex IdRegex = new(@"^[A-Z]{1,15}$");
         private static readonly Regex NombreRegex = new(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$");
 
-        private readonly ModuloRepository _moduloRepository;
+        private const string Items_Pagina = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
-        public ModuloService(ModuloRepository moduloRepository)
+        private readonly ModuloRepository _moduloRepository;
+        private readonly IParametroServiceClient _parametroServiceClient;
+
+        public ModuloService(ModuloRepository moduloRepository, IParametroServiceClient parametroServiceClient)
         {
             _moduloRepository = moduloRepository;
+            _parametroServiceClient = parametroServiceClient;
         }
 
         public async Task<IEnumerable<Modulos>> ObtenerTodosAsync()
@@ -41,9 +48,21 @@ namespace MicroservicioModulos.Services
             if (!NombreRegex.IsMatch(modulo.Nombre))
                 throw new ArgumentException("El nombre del modulo solo puede tener letras y espacios");
 
+            if (modulo.Estado is null)
+                throw new ArgumentException("El estado del modulo es obligatorio");
+
+            if (modulo.Orden is null)
+                throw new ArgumentException("El orden del modulo es obligatorio");
+
+            if (modulo.Orden < 1)
+                throw new ArgumentException("El orden del modulo debe ser mayor o igual a 1");
+
             var existente = await _moduloRepository.ObtenerPorIdAsync(modulo.IdModulo);
             if (existente is not null)
                 throw new InvalidOperationException($"Ya existe un modulo con el ID '{modulo.IdModulo}'");
+
+            if (await _moduloRepository.ExisteOrdenAsync(modulo.Orden.Value))
+                throw new InvalidOperationException($"Ya existe un modulo con el orden {modulo.Orden}");
 
             var filas = await _moduloRepository.CrearAsync(modulo);
             if (filas <= 0)
@@ -66,7 +85,19 @@ namespace MicroservicioModulos.Services
             if (!NombreRegex.IsMatch(modulo.Nombre))
                 throw new ArgumentException("El nombre del modulo solo puede tener letras y espacios");
 
+            if (modulo.Estado is null)
+                throw new ArgumentException("El estado del modulo es obligatorio");
+
+            if (modulo.Orden is null)
+                throw new ArgumentException("El orden del modulo es obligatorio");
+
+            if (modulo.Orden < 1)
+                throw new ArgumentException("El orden del modulo debe ser mayor o igual a 1");
+
             var anterior = await ObtenerPorIdAsync(id);
+
+            if (await _moduloRepository.ExisteOrdenAsync(modulo.Orden.Value, id))
+                throw new InvalidOperationException($"Ya existe un modulo con el orden {modulo.Orden}");
 
             var filas = await _moduloRepository.ActualizarAsync(modulo);
             if (filas <= 0)
@@ -81,11 +112,43 @@ namespace MicroservicioModulos.Services
         {
             var existente = await ObtenerPorIdAsync(id);
 
+            if (await _moduloRepository.TieneRolAsignadosAsync(id))
+                throw new InvalidOperationException(
+                    "No se puede eliminar este modulo porque tiene asignado a uno o mas roles");
+
             var filas = await _moduloRepository.EliminarAsync(id);
             if (filas <= 0)
                 throw new ApplicationException("No se pudo eliminar el modulo");
 
             return existente;
+        }
+
+        public async Task<PaginaResultado<Modulos>> ObtenerPaginadoAsync(int pagina, Guid usuarioId, string token)
+        {
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            int tamano;
+            try
+            {
+                var valor = await _parametroServiceClient.ObtenerValorAsync(Items_Pagina, usuarioId, token);
+                tamano = int.TryParse(valor, out var n) && n > 0 ? n : TamanoPaginaDefecto;
+            }
+            catch (HttpRequestException)
+            {
+                tamano = TamanoPaginaDefecto;
+            }
+
+            var todos = (await _moduloRepository.ObtenerTodosAsync()).ToList();
+
+            return new PaginaResultado<Modulos>
+            {
+                Pagina = pagina,
+                TamanoPagina = tamano,
+                TotalRegistros = todos.Count,
+                TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+                Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+            };
         }
     }
 }

@@ -17,7 +17,7 @@ namespace MicroservicioPreMatriculas.Services
 
         public async Task<CursoInfo?> ObtenerPorCodigo(string cursoCode, ContextoUsuario contexto)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"/curso/{Uri.EscapeDataString(cursoCode)}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"curso/{Uri.EscapeDataString(cursoCode)}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
             request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 

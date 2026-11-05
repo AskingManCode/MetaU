@@ -13,6 +13,8 @@ namespace MicroservicioParametros.Services
         private readonly IAuthServiceValidator _authValidator;
         private readonly IBitacoraServiceClient _bitacoraClient;
         private readonly IValidator<ParametroRequest> _validator;
+        private const string Items_Pagina = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         public ParametroService(
             IParametroRepository repository,
@@ -382,5 +384,73 @@ namespace MicroservicioParametros.Services
                 throw;
             }
         }
+
+        public async Task<PaginaResultado<ParametroResponse>> ObtenerPaginadoAsync(int pagina, HttpRequest httpRequest)
+        {
+            var (usuario, token, error) = await _authValidator.ValidarAsync(httpRequest);
+
+            if (error is not null)
+                throw new UnauthorizedAccessException("No autorizado");
+
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            try
+            {
+                var todos = (await _repository.ObtenerTodosAsync()).ToList();
+                var tamano = await ObtenerTamanoPaginaAsync();
+
+                var resultado = Paginar(todos, pagina, tamano);
+
+                try
+                {
+                    await _bitacoraClient.RegistrarBitacoraAsync(
+                        usuario,
+                        $"Consulta de parámetros paginada (página {pagina}).",
+                        token);
+                }
+                catch { }
+
+                return resultado;
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    await _bitacoraClient.RegistrarBitacoraAsync(
+                        usuario,
+                        "Error técnico al consultar parámetros paginados",
+                        token);
+                }
+                catch { }
+
+                throw;
+            }
+        }
+
+        private async Task<int> ObtenerTamanoPaginaAsync()
+        {
+            try
+            {
+                var parametro = await _repository.ObtenerPorIDAsync(Items_Pagina);
+                if (parametro is { Estado: true } && int.TryParse(parametro.Valor, out var n) && n > 0)
+                    return n;
+            }
+            catch
+            {
+                // ignorar y usar default
+            }
+
+            return TamanoPaginaDefecto;
+        }
+
+        private static PaginaResultado<T> Paginar<T>(List<T> todos, int pagina, int tamano) => new()
+        {
+            Pagina = pagina,
+            TamanoPagina = tamano,
+            TotalRegistros = todos.Count,
+            TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+            Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+        };
     }
 }

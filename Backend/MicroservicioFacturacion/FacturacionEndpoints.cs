@@ -86,9 +86,7 @@ namespace MicroservicioFacturacion
             {
                 return Results.Json(new
                 {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                    mensaje = "Error interno del servidor"
                 }, statusCode: 500);
             }
         }
@@ -115,9 +113,7 @@ namespace MicroservicioFacturacion
             {
                 return Results.Json(new
                 {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                    mensaje = "Error interno del servidor"
                 }, statusCode: 500);
             }
         }
@@ -140,9 +136,7 @@ namespace MicroservicioFacturacion
             {
                 return Results.Json(new
                 {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                    mensaje = "Error interno del servidor"
                 }, statusCode: 500);
             }
         }

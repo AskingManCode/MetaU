@@ -1,3 +1,5 @@
+using MicroservicioMatriculas.Entities;
+
 namespace MicroservicioMatriculas.Services
 {
     public interface IMatriculaService
@@ -8,6 +10,10 @@ namespace MicroservicioMatriculas.Services
         Task<List<EstudianteMatriculadoResponse>> ObtenerEstudiantesMatriculados(
             string cursoCode, string grupoCode, ContextoUsuario contexto);
 
+        Task<PaginaResultado<EstudianteMatriculadoResponse>> ObtenerEstudiantesMatriculadosPaginado(
+            string cursoCode, string grupoCode, int pagina, ContextoUsuario contexto);
         Task<List<MatriculaResponse>> ObtenerMatriculasPorEstudiante(string identificacion, ContextoUsuario contexto);
+        Task<PaginaResultado<MatriculaResponse>> ObtenerMatriculasPorEstudiantePaginado(
+            string identificacion, int pagina, ContextoUsuario contexto);
     }
 }

@@ -1,0 +1,155 @@
+
+.data-table-panel {
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.data-table-header {
+    background: #f5f5f7;
+    color: #526cdb;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 15px;
+    border-bottom: 1px solid #dedee3;
+}
+
+.data-table-body {
+    padding: 14px;
+}
+
+.data-table-filters {
+    margin-bottom: 14px;
+}
+
+.data-table-list {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #d6d6d6;
+    font-size: 13px;
+}
+
+.data-table-list thead {
+    background: #5b5d69;
+    color: #fff;
+}
+
+.data-table-list th {
+    padding: 7px 10px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.data-table-list td {
+    padding: 5px 10px;
+    color: #555;
+    vertical-align: middle;
+}
+
+.data-table-list tbody tr:nth-child(odd) {
+    background: #fff;
+}
+
+.data-table-list tbody tr:nth-child(even) {
+    background: #ededed;
+}
+
+.data-table-list tbody tr:hover {
+    background: #e3e8f8;
+}
+
+.data-table-actions,
+.data-table-actions-header {
+    text-align: right !important;
+    white-space: nowrap;
+    width: 105px;
+}
+
+.data-table-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-left: 5px;
+    padding: 0;
+    background: #526cdb;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.data-table-btn:hover {
+    background: #3852c4;
+}
+
+.data-table-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.data-table-sort {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+}
+
+.data-table-sort:hover {
+    color: #e4e8ff;
+}
+
+.data-table-empty {
+    text-align: center;
+    padding: 20px !important;
+    color: #777;
+}
+
+.data-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+    color: #777;
+    font-size: 12px;
+}
+
+.data-table-pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-table-pagination button {
+    padding: 4px 10px;
+    background: #fff;
+    color: #526cdb;
+    border: 1px solid #d6d6d6;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.data-table-pagination button:hover:not(:disabled) {
+    background: #eef1ff;
+}
+
+.data-table-pagination button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.data-table-btn:focus-visible,
+.data-table-sort:focus-visible {
+    outline: 2px solid #1e3a8a;
+    outline-offset: 2px;
+}

@@ -3,6 +3,13 @@ export const normalizarRol = r => ({
     nombre: r.nombre ?? r.Nombre ?? ''
 })
 
+export const normalizarModulo = m => ({
+    idModulo: m.idModulo ?? m.IdModulo ?? '',
+    nombre: m.nombre ?? m.Nombre ?? '',
+    estado: m.estado ?? m.Estado ?? true,
+    orden: m.orden ?? m.Orden ?? 0
+})
+
 export const mensajeError = (error, defecto = 'No se pudo completar la operacion') => {
     const estado = error?.response?.status
     const datos = error?.response?.data

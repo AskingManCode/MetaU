@@ -5,7 +5,7 @@ import Notification from '../../../components/Notification'
 import PageHeader from '../../../components/PageHeader'
 import DataTable from '../../../components/DataTable'
 import rolService from '../../../services/rolService'
-import { mensajeError, normalizarRol } from '../../../utils/sistemaUtils'
+import { mensajeError, normalizarModulo, normalizarRol } from '../../../utils/sistemaUtils'
 
 const estiloBoton = {
     width: '38px',
@@ -26,12 +26,16 @@ function Permisos() {
     const [errorCarga, setErrorCarga] = useState(null)
     const [notification, setNotification] = useState(null)
 
-    useEffect(() => {
+        useEffect(() => {
         let activo = true
 
         Promise.all([rolService.getById(rolId), rolService.getPermisos(rolId)])
             .then(([respuestaRol, respuestaPermisos]) => {
                 if (!activo) return
+
+                if (!Array.isArray(respuestaPermisos.data)) {
+                    throw new Error('El servicio de permisos no devolvio una lista de modulos')
+                }
 
                 const lista = respuestaPermisos.data.map(normalizarModulo)
 
@@ -40,7 +44,11 @@ function Permisos() {
                 setSeleccion(Object.fromEntries(lista.map(m => [m.idModulo, m.estado])))
             })
             .catch(error => {
-                if (activo) setErrorCarga(mensajeError(error, 'No se pudieron cargar los permisos del rol'))
+                console.error('Error al cargar los permisos del rol:', error)
+
+                if (activo) {
+                    setErrorCarga(mensajeError(error, error?.message || 'No se pudieron cargar los permisos del rol'))
+                }
             })
             .finally(() => {
                 if (activo) setCargando(false)

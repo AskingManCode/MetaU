@@ -1,47 +1,66 @@
-﻿# ACD4 - Administracion de Grupos
+# Microservicio de Grupos - ACD4
 
-Microservicio encargado de la administracion de grupos academicos
+Microservicio encargado de la administración de grupos académicos.
 
-Permite crear, modificar, eliminar y consultar grupos, validando autenticacion e integrando el registro de acciones mediante bitacoras.
+## Historia de usuario
 
-## Tecnologias
+**ACD4** — Administración de Grupos.
+
+Permite crear, modificar, eliminar (lógicamente) y consultar grupos, validando autenticación e integrando el registro de acciones mediante bitácoras.
+
+## Tecnologías
 
 - .NET 10
-- Minimal API
-- SQL Server
-- Microsoft.Data.SqlClient
-- Bearer Token
-- Integracion con MicroservicioLogin
-- Integracion con MicroservicioBitacoras
+- ASP.NET Core Minimal APIs
+- SQL Server (`Microsoft.Data.SqlClient`)
+- Autenticación mediante Bearer Token (MicroservicioLogin)
+- Registro de acciones en Bitácoras
+- Consulta de parámetros para paginación
 
 ## Endpoint base
 
-```text
-/grupo
-```
+`/grupo`
 
-## Autenticacion
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioGrupos_MetaU`
 
-Todas las operaciones requieren un token valido.
+**URLs locales** (desde `Properties/launchSettings.json`):
 
-Headers requeridos:
+- HTTP: `http://localhost:5077`
+- HTTPS: `https://localhost:7157`
 
-```text
-Authorization: Bearer {token}
-X-Usuario-Id: {guid}
-```
+## Autenticación
 
-El token se valida mediante el MicroservicioLogin antes de ejecutar cada operacion.
+Todas las operaciones requieren los siguientes headers:
 
-## Crear grupo
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación |
+
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `X-Usuario-Id` o no es un GUID válido → `401 Unauthorized`.
+
+## Endpoints
+
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/grupo` | Crear un grupo | 201 Created |
+| PUT | `/grupo/{grupoCode}` | Modificar un grupo | 200 OK |
+| DELETE | `/grupo/{grupoCode}` | Eliminar un grupo (lógicamente) | 200 OK |
+| GET | `/grupo` | Obtener todos los grupos | 200 OK |
+| GET | `/grupo?pagina={n}` | Obtener grupos paginados | 200 OK |
+| GET | `/grupo/{grupoCode}` | Obtener un grupo por código | 200 OK |
+
+### POST /grupo — Crear
 
 ```http
 POST /grupo
-```
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
 
-Request:
-
-```json
 {
   "grupoCode": "GRP001",
   "numeroGrupo": 1,
@@ -53,182 +72,124 @@ Request:
 }
 ```
 
-Respuesta exitosa:
+**Respuesta exitosa (`201 Created`):** el objeto `Grupo` creado (con `estado: true`).
 
-```text
-201 Created
-```
+### PUT /grupo/{grupoCode} — Modificar
 
-Si el identificador del grupo ya existe:
+El `grupoCode` de la ruta debe coincidir con el del body.
 
-```text
-409 Conflict
-```
+```http
+PUT /grupo/GRP001
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
 
-Si ya existe un grupo con la misma combinacion de curso, periodo y numero de grupo:
-
-```text
-409 Conflict
-```
-
-```json
 {
-  "mensaje": "Ya existe un grupo con el mismo curso, periodo y numero de grupo"
+  "grupoCode": "GRP001",
+  "numeroGrupo": 1,
+  "cursoCode": "CURSOTEST",
+  "profesorID": "6D76980F-15C0-F111-A105-F44EE3F03FF7",
+  "horario": "Martes 18:00-21:00",
+  "cupo": 35,
+  "periodoID": "D3282E06-49BD-F111-A101-F44EE3F03FF7"
 }
 ```
 
-## Modificar grupo
+### DELETE /grupo/{grupoCode} — Eliminar
+
+Eliminación lógica.
 
 ```http
-PUT /grupo/{grupoCode}
+DELETE /grupo/GRP001
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-El identificador enviado en la ruta debe coincidir con el identificador enviado en el body.
+**Respuesta:** `200 OK` con el objeto eliminado.
 
-Respuesta exitosa:
-
-```text
-200 OK
-```
-
-Si el grupo no existe:
-
-```text
-404 Not Found
-```
-
-## Eliminar grupo
-
-```http
-DELETE /grupo/{grupoCode}
-```
-
-Respuesta exitosa:
-
-```text
-200 OK
-```
-
-Si el grupo no existe:
-
-```text
-404 Not Found
-```
-
-## Obtener todos los grupos
+### GET /grupo y GET /grupo/{grupoCode}
 
 ```http
 GET /grupo
+GET /grupo/GRP001
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Respuesta exitosa:
+### Paginación
 
-```text
-200 OK
-```
+Agregar `?pagina=1` (valor ≥ 1). El tamaño de página se obtiene del parámetro `PAGSIZE` (por defecto **15**, nunca superior a 15).
 
-## Obtener grupo por identificador
-
-```http
-GET /grupo/{grupoCode}
-```
-
-Respuesta exitosa:
-
-```text
-200 OK
-```
-
-Si el grupo no existe:
-
-```text
-404 Not Found
-```
-
-## Datos del grupo
-
-Cada grupo contiene:
-
-- GrupoCode
-- NumeroGrupo
-- CursoCode
-- ProfesorID
-- Horario
-- Cupo
-- PeriodoID
-- Estado
-
-## Validaciones
-
-El microservicio valida:
-
-- Identificador del grupo requerido.
-- Numero de grupo requerido.
-- Curso requerido.
-- Profesor requerido.
-- Horario requerido.
-- Cupo requerido.
-- Periodo requerido.
-- Token de autenticacion valido.
-- Identificador de usuario valido.
-- Existencia del grupo antes de modificar o eliminar.
-- No duplicar la combinacion de curso, periodo y numero de grupo.
-
-Las relaciones con curso, profesor y periodo son protegidas mediante las relaciones definidas en la base de datos.
-
-## Bitacora
-
-Las operaciones realizadas sobre grupos generan registros mediante GEN1.
-
-Se registran acciones como:
-
-- Crear grupo.
-- Modificar grupo.
-- Eliminar grupo.
-- Consultar grupos.
-- Consultar grupo por identificador.
-- Errores tecnicos.
-
-## Configuracion
-
-El archivo `appsettings.json` contiene las configuraciones requeridas para la conexion a base de datos y comunicacion con servicios externos.
+## Formato de datos
 
 ```json
 {
-  "ConnectionStrings": {
-    "OfertaAcademica": ""
-  },
-  "Servicios": {
-    "LoginUrl": "",
-    "BitacoraUrl": ""
-  }
+  "grupoCode": "GRP001",
+  "numeroGrupo": 1,
+  "cursoCode": "CURSOTEST",
+  "profesorID": "6D76980F-15C0-F111-A105-F44EE3F03FF7",
+  "horario": "Lunes 18:00-21:00",
+  "cupo": 30,
+  "periodoID": "D3282E06-49BD-F111-A101-F44EE3F03FF7",
+  "estado": true
 }
 ```
 
-Los valores deben configurarse segun el ambiente correspondiente.
+## Reglas de negocio / Validaciones
 
-No se deben versionar credenciales, servidores ni URLs locales.
+- Todos los campos son obligatorios (`grupoCode`, `numeroGrupo` > 0, `cursoCode`, `profesorID` ≠ vacío, `horario`, `cupo` > 0, `periodoID` ≠ vacío).
+- El `grupoCode` debe ser único.
+- No puede existir más de un grupo con la misma combinación de `cursoCode`, `periodoID` y `numeroGrupo`.
+- En modificación, el `grupoCode` de la ruta debe coincidir con el del body.
+- Las relaciones con curso, profesor y período se validan mediante integridad referencial en base de datos.
+- La eliminación es lógica.
 
-## Codigos HTTP
+## Integraciones
 
-| Codigo | Descripcion |
-|---|---|
-| 200 | Operacion realizada correctamente |
-| 201 | Grupo creado correctamente |
-| 400 | Datos invalidos |
-| 401 | Token inexistente o invalido |
-| 404 | Grupo no encontrado |
-| 409 | Conflicto por grupo duplicado |
-| 500 | Error interno del servidor |
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones (mejor esfuerzo) |
+| Parámetros | Obtener `PAGSIZE` para paginación |
 
-## Compilacion
+## Configuración
 
-```bash
-dotnet build Backend/MicroservicioGrupos/MicroservicioGrupos.csproj
-```
+Claves principales en `appsettings.json` / variables de entorno:
 
-## Ejecucion
+- `ConnectionStrings:OfertaAcademica` → Cadena de conexión a `Oferta_Academica_DB`.
+- `Servicios:LoginUrl` → URL base de MicroservicioLogin.
+- `Servicios:BitacoraUrl` → URL base de MicroservicioBitacoras.
+- `Servicios:ParametroUrl` → URL base de MicroservicioParametros.
+
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
+
+## Base de datos
+
+**Base de datos:** `Oferta_Academica_DB`  
+Tabla principal: Grupos.
+
+## Ejecución local
 
 ```bash
 dotnet run --project Backend/MicroservicioGrupos/MicroservicioGrupos.csproj
 ```
+
+## Respuestas y errores comunes
+
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta, modificación o eliminación exitosa |
+| 201 Created | Grupo creado |
+| 400 Bad Request | Datos inválidos, campos vacíos, `grupoCode` no coincide o página < 1 |
+| 401 Unauthorized | Token o `X-Usuario-Id` ausente/inválido |
+| 404 Not Found | Grupo no encontrado |
+| 409 Conflict | Grupo duplicado (código o combinación curso/período/número) |
+| 500 Internal Server Error | Error técnico no controlado |
+
+## Diagrama de clases
+
+![Diagrama de Clases Grupos](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_AdministracionGrupos.png)
+
+---
+
+*Documentación estandarizada del microservicio MicroservicioGrupos (ACD4).*

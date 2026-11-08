@@ -17,7 +17,7 @@ namespace MicroservicioNotas.Services
 
         public async Task<GrupoInfo?> ObtenerPorCodigo(string grupoCode, ContextoUsuario contexto)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"/grupo/{Uri.EscapeDataString(grupoCode)}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"grupo/{Uri.EscapeDataString(grupoCode)}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", contexto.Token);
             request.Headers.Add("X-Usuario-Id", contexto.UsuarioId.ToString());
 

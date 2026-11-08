@@ -9,23 +9,29 @@ namespace MicroservicioListaEstudiantes.Services
         private readonly IMatriculaServiceClient _matriculaClient;
         private readonly ICursoServiceClient _cursoClient;
         private readonly ICarreraServiceClient _carreraClient;
+        private readonly IPeriodoServiceClient _periodoClient;
 
         public ListadoEstudiantesService(
             IGrupoServiceClient grupoClient,
             IMatriculaServiceClient matriculaClient,
             ICursoServiceClient cursoClient,
-            ICarreraServiceClient carreraClient)
+            ICarreraServiceClient carreraClient,
+            IPeriodoServiceClient periodoClient)
         {
             _grupoClient = grupoClient;
             _matriculaClient = matriculaClient;
             _cursoClient = cursoClient;
             _carreraClient = carreraClient;
+            _periodoClient = periodoClient;
         }
 
         public async Task<IEnumerable<EstudianteMatriculado>> ObtenerPorPeriodoAsync(string? periodo, Guid usuarioId, string token)
         {
             if (string.IsNullOrWhiteSpace(periodo) || !Guid.TryParse(periodo, out var periodoId))
                 throw new ArgumentException("El periodo es requerido y debe ser un identificador valido");
+
+            if (!await _periodoClient.ExisteAsync(periodoId, usuarioId, token))
+                throw new KeyNotFoundException($"No existe un periodo con el identificador '{periodoId}'");
 
             var grupos = await _grupoClient.ObtenerTodosAsync(usuarioId, token);
             var gruposDelPeriodo = grupos.Where(g => g.PeriodoID == periodoId).ToList();

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-//import Login from "./pages/Login/Index.jsx";
+import Login from "./pages/Login/Index.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
 import Perfil from "./pages/MiPerfil/Index.jsx";
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
@@ -24,6 +26,8 @@ import Pagos from "./pages/Finanzas/Pagos/Index.jsx";
 import Notificaciones from "./pages/Comunicacion/Notificaciones/Index.jsx";
 import Roles from "./pages/Sistema/Roles/Index.jsx";
 import Modulos from "./pages/Sistema/Modulos/Index.jsx";
+import CrearModulo from "./pages/Sistema/Modulos/Create.jsx";
+import EditarModulo from "./pages/Sistema/Modulos/Edit.jsx";
 import Parametros from "./pages/Sistema/Parametros/Index.jsx";
 import Bitacoras from "./pages/Sistema/Bitacoras/Index.jsx";
 
@@ -31,11 +35,11 @@ function App() {
 
     return (
         <BrowserRouter>
-            <Routes>
-                {/** Login */}
-                {/**<Route path="/login" element={<Login />} /> */}
+            <AuthProvider>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
 
-                <Route path="/" element={<MainLayout />}>
+                    <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
 
                     {/** Mi Perfil */}
                     <Route path="perfil" element={<Perfil />} />
@@ -77,11 +81,14 @@ function App() {
                     <Route path="usuarios/ver/:email" element={<DetalleUsuario />} />
                     <Route path="roles" element={<Roles />} />
                     <Route path="modulos" element={<Modulos />} />
+                    <Route path="modulos/nuevo" element={<CrearModulo />} />
+                    <Route path="modulos/editar/:moduloId" element={<EditarModulo />} />
                     <Route path="parametros" element={<Parametros />} />
                     <Route path="bitacoras" element={<Bitacoras />} />
 
-                </Route>
-            </Routes>
+                    </Route>
+                </Routes>
+            </AuthProvider>
         </BrowserRouter>
     );
 }

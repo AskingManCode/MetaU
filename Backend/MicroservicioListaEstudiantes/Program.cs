@@ -32,6 +32,9 @@ builder.Services.AddHttpClient<ICursoServiceClient, CursoServiceClient>()
 builder.Services.AddHttpClient<ICarreraServiceClient, CarreraServiceClient>()
     .ConfigureHttpClient(c => { var u = builder.Configuration["Servicios:CarreraUrl"]; if (!string.IsNullOrWhiteSpace(u)) c.BaseAddress = new Uri(u); });
 
+builder.Services.AddHttpClient<IPeriodoServiceClient, PeriodoServiceClient>()
+    .ConfigureHttpClient(c => { var u = builder.Configuration["Servicios:PeriodoUrl"]; if (!string.IsNullOrWhiteSpace(u)) c.BaseAddress = new Uri(u); });
+
 var app = builder.Build();
 
 app.UseExceptionHandler(errorApp =>

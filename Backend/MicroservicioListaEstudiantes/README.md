@@ -1,35 +1,51 @@
-# MicroservicioListaEstudiantes
+# Microservicio de Lista de Estudiantes - ACA2
 
-Genera el listado de estudiantes matriculados en un periodo (ACA2), combinando información real de otros microservicios mediante llamadas HTTP: no tiene base de datos propia, solo orquesta.
+Genera el listado de estudiantes matriculados en un período, combinando información de otros microservicios mediante llamadas HTTP. No tiene base de datos propia; actúa como orquestador.
 
-**URL base del servicio:** pendiente de definir para cada ambiente; en ejecución local, `https://localhost:PORT`.
+## Historia de usuario
 
-**Prefijo de rutas:** `/listadoestudiantes`
+**ACA2** — Listado de estudiantes matriculados en un período.
 
-**Diagrama de clases:**
+## Tecnologías
 
-![Diagrama de Clases](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_ListadoEstudiantes.png)
+- .NET 10
+- ASP.NET Core Minimal APIs
+- Autenticación mediante Bearer Token (MicroservicioLogin)
+- Registro de consultas en Bitácoras
+- Integración HTTP con Grupos, Matrículas, Cursos y Carreras
 
-## Antes de consumir la API
+## Endpoint base
 
-Todas las operaciones requieren estos headers:
+`/listadoestudiantes`
+
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioListaEstudiantes_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5162`
+- HTTPS: `https://localhost:7173`
+
+## Autenticación
+
+La operación requiere los siguientes headers:
 
 | Header | Valor | Descripción |
-| --- | --- | --- |
-| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin. |
-| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación; se usa también para la bitácora. |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la consulta |
 
-El servicio valida el token consultando MicroservicioLogin (`POST /validate`). Sin token o con token inválido responde `401 Unauthorized`. Si falta `X-Usuario-Id` o no es un GUID válido responde `400 Bad Request`.
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `X-Usuario-Id` o no es un GUID válido → `400 Bad Request`.
 
 ## Endpoints
 
-| Método | Ruta | Uso |
-| --- | --- | --- |
-| `GET` | `/listadoestudiantes?periodo={guid}` | Obtener el listado de estudiantes matriculados en el periodo indicado. |
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| GET | `/listadoestudiantes?periodo={guid}` | Obtener el listado de estudiantes matriculados en el período | 200 OK |
 
-El parámetro `periodo` es obligatorio y se envía como query string, no en el cuerpo. Debe ser un GUID válido correspondiente a un `PeriodoID` existente.
-
-### Consultar
+### GET /listadoestudiantes — Consultar listado
 
 ```http
 GET /listadoestudiantes?periodo=11111111-1111-1111-1111-111111111111
@@ -37,9 +53,9 @@ Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `400 Bad Request` si `periodo` falta o no tiene formato de GUID válido. Si el periodo existe pero no tiene grupos o matrículas asociadas, responde `200 OK` con un arreglo vacío.
+El parámetro `periodo` es obligatorio y debe ser un GUID válido correspondiente a un `PeriodoID` existente.
 
-## Formato de datos
+**Respuesta exitosa (`200 OK`):**
 
 ```json
 [
@@ -55,48 +71,96 @@ Responde `400 Bad Request` si `periodo` falta o no tiene formato de GUID válido
 ]
 ```
 
-`llave` usa la identificación del estudiante cuando no existe otro identificador de fila. ASP.NET Core serializa los nombres JSON en camelCase por defecto.
+Si el período existe pero no tiene grupos o matrículas asociadas, responde con un arreglo vacío.
+
+## Formato de datos
+
+```json
+{
+  "llave": "118760234",
+  "tipoIdentificacion": "CED",
+  "identificacion": "118760234",
+  "nombreCompleto": "Maria Fernanda Rojas",
+  "carrera": "Ingenieria en Sistemas",
+  "curso": "Programacion V",
+  "grupo": "1"
+}
+```
+
+`llave` usa la identificación del estudiante cuando no existe otro identificador de fila. Las respuestas se serializan en camelCase.
+
+## Flujo de procesamiento
+
+1. Se valida el token mediante MicroservicioLogin y el header `X-Usuario-Id`.
+2. Se consultan todos los grupos (MicroservicioGrupos) y se filtran los que pertenecen al período solicitado.
+3. Para cada grupo, se consultan los estudiantes matriculados en ese curso y grupo (MicroservicioMatriculas).
+4. Para cada grupo, se consulta el curso (MicroservicioCursos) y, con el código de carrera, se consulta la carrera (MicroservicioCarreras).
+5. Se combina la información y se registra la consulta en MicroservicioBitacoras.
+6. Se devuelve el listado.
+
+## Reglas de negocio / Validaciones
+
+- El parámetro `periodo` es obligatorio y debe ser un GUID válido.
+- Si no hay grupos o matrículas para el período, se devuelve un arreglo vacío (no error).
+- La información se obtiene en tiempo real de los servicios dependientes.
+
+## Integraciones
+
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar la consulta (mejor esfuerzo) |
+| Grupos (ACD4) | Obtener grupos del período |
+| Matrículas | Obtener estudiantes matriculados por curso y grupo |
+| Cursos | Obtener nombre del curso y código de carrera |
+| Carreras | Obtener nombre de la carrera |
+| Períodos | (referencia para el `periodo`) |
+
+## Configuración
+
+Claves principales en `appsettings.json` / variables de entorno:
+
+- `Servicios:LoginUrl` → URL base de MicroservicioLogin.
+- `Servicios:BitacoraUrl` → URL base de MicroservicioBitacoras.
+- `Servicios:GrupoUrl` → URL base de MicroservicioGrupos.
+- `Servicios:MatriculaUrl` → URL base de MicroservicioMatriculas.
+- `Servicios:CursoUrl` → URL base de MicroservicioCursos.
+- `Servicios:CarreraUrl` → URL base de MicroservicioCarreras.
+- `Servicios:PeriodoUrl` → URL base de MicroservicioPeriodos.
+
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
+
+## Base de datos
+
+Este microservicio **no posee base de datos propia**. Orquesta la información desde otros servicios.
+
+## Ejecución local
+
+```bash
+dotnet run --project Backend/MicroservicioListaEstudiantes/MicroservicioListaEstudiantes.csproj
+```
+
+**Dependencias requeridas para el flujo completo:**
+- MicroservicioLogin
+- MicroservicioBitacoras
+- MicroservicioGrupos
+- MicroservicioMatriculas
+- MicroservicioCursos
+- MicroservicioCarreras
 
 ## Respuestas y errores comunes
 
-| Estado | Cuándo ocurre |
-| --- | --- |
-| `200 OK` | Consulta completada (con o sin resultados). |
-| `400 Bad Request` | El parámetro `periodo` falta o no es un GUID válido, o `X-Usuario-Id` ausente/no válido. |
-| `401 Unauthorized` | Falta el header Bearer o el token no es válido. |
-| `500 Internal Server Error` | Error técnico no recuperable, incluye fallas al consultar cualquiera de los microservicios dependientes (Grupos, Matrículas, Cursos o Carreras). |
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta completada (con o sin resultados) |
+| 400 Bad Request | Parámetro `periodo` ausente, no es GUID válido o `X-Usuario-Id` inválido |
+| 401 Unauthorized | Token ausente o inválido |
+| 500 Internal Server Error | Error técnico o falla al consultar microservicios dependientes |
 
-La operación registra una acción en MicroservicioBitacoras. Si la bitácora no está disponible, la operación principal continúa.
+## Diagrama de clases
 
-## Ejecutar y configurar
+![Diagrama de Clases Lista de Estudiantes](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_ListadoEstudiantes.png)
 
-Requisitos: .NET 10. Este microservicio no tiene base de datos propia; depende de que los siguientes microservicios estén disponibles al momento de la consulta: MicroservicioLogin, MicroservicioBitacoras, MicroservicioGrupos, MicroservicioMatriculas, MicroservicioCursos y MicroservicioCarreras.
+---
 
-Desde la raíz del repositorio:
-
-```powershell
-dotnet run --project .\Backend\MicroservicioListaEstudiantes\MicroservicioListaEstudiantes.csproj
-```
-
-La aplicación requiere estos valores de configuración. En despliegues se pueden definir mediante variables de entorno .NET (separador `__`); no se deben guardar credenciales reales en el repositorio:
-
-| Clave | Ejemplo/uso |
-| --- | --- |
-| `Servicios:LoginUrl` | URL base de MicroservicioLogin, con `/` al final; se invoca `validate`. |
-| `Servicios:BitacoraUrl` | URL base de MicroservicioBitacoras, con `/` al final; se invoca `bitacora`. |
-| `Servicios:GrupoUrl` | URL base de MicroservicioGrupos, con `/` al final; se invoca `grupo` para obtener los grupos y filtrarlos por periodo. |
-| `Servicios:MatriculaUrl` | URL base de MicroservicioMatriculas, con `/` al final; se invoca `matricula` filtrando por curso y grupo. |
-| `Servicios:CursoUrl` | URL base de MicroservicioCursos, con `/` al final; se invoca `curso/{id}` para el nombre del curso y su carrera asociada. |
-| `Servicios:CarreraUrl` | URL base de MicroservicioCarreras, con `/` al final; se invoca `carrera/{id}` para el nombre de la carrera. |
-
-Equivalentes como variables de entorno: `Servicios__LoginUrl`, `Servicios__BitacoraUrl`, `Servicios__GrupoUrl`, `Servicios__MatriculaUrl`, `Servicios__CursoUrl` y `Servicios__CarreraUrl`. Swagger y OpenAPI interactivo se habilitan solo cuando el ambiente es `Development`.
-
-## Componentes y flujo
-
-No persiste datos propios: no usa base de datos ni procedimientos almacenados. El flujo de una consulta es:
-
-1. Valida el token (MicroservicioLogin) y el header `X-Usuario-Id`.
-2. Consulta todos los grupos (MicroservicioGrupos) y filtra los que pertenecen al periodo solicitado.
-3. Para cada grupo, consulta los estudiantes matriculados en ese curso y grupo (MicroservicioMatriculas); esa respuesta ya trae tipo de identificación, identificación y nombre completo.
-4. Para cada grupo, consulta el curso (MicroservicioCursos) y, con el código de carrera que éste devuelve, consulta la carrera (MicroservicioCarreras).
-5. Combina todo en la respuesta y registra la consulta en MicroservicioBitacoras.
+*Documentación estandarizada del microservicio MicroservicioListaEstudiantes (ACA2).*

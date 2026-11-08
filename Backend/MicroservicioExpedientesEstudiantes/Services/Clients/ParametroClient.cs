@@ -16,6 +16,11 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
         public async Task<string> ObtenerValor(string identificador, ContextoUsuario contexto)
         {
+            return await ObtenerValorPaginacion(identificador, contexto) ?? DominioPorDefecto;
+        }
+
+        public async Task<string?> ObtenerValorPaginacion(string identificador, ContextoUsuario contexto)
+        {
             try
             {
                 using var request = new HttpRequestMessage(
@@ -24,18 +29,17 @@ namespace MicroservicioExpedientesEstudiantes.Services
                 request.Headers.Add("UsuarioGUID", contexto.UsuarioId.ToString());
 
                 using var response = await _http.SendAsync(request);
-                if (response.StatusCode == HttpStatusCode.NotFound) return DominioPorDefecto;
+                if (response.StatusCode == HttpStatusCode.NotFound) return null;
                 response.EnsureSuccessStatusCode();
 
                 var parametro = await response.Content.ReadFromJsonAsync<ParametroResponse>();
-
                 return parametro is { Estado: true } && !string.IsNullOrWhiteSpace(parametro.Valor)
                     ? parametro.Valor
-                    : DominioPorDefecto;
+                    : null;
             }
             catch (HttpRequestException)
             {
-                return DominioPorDefecto;
+                return null;
             }
         }
 

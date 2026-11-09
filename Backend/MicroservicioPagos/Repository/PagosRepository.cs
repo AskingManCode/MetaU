@@ -18,7 +18,7 @@ namespace MicroservicioPagos.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<Guid>(
-                "dbo.usp_Pagos_Crear",
+                "MetaU_DB_User.usp_Pagos_Crear",
                 new { FacturaID = facturaId },
                 commandType: CommandType.StoredProcedure);
         }
@@ -28,7 +28,7 @@ namespace MicroservicioPagos.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             var pago = await connection.QuerySingleOrDefaultAsync<PagoResponse>(
-                "dbo.usp_Pagos_ObtenerPorID",
+                "MetaU_DB_User.usp_Pagos_ObtenerPorID",
                 new { PagoID = pagoId },
                 commandType: CommandType.StoredProcedure);
 
@@ -44,7 +44,7 @@ namespace MicroservicioPagos.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             var pagos = (await connection.QueryAsync<PagoResponse>(
-                "dbo.usp_Pagos_ObtenerPorPeriodo",
+                "MetaU_DB_User.usp_Pagos_ObtenerPorPeriodo",
                 new { PeriodoID = periodoId },
                 commandType: CommandType.StoredProcedure)).ToList();
 
@@ -61,7 +61,7 @@ namespace MicroservicioPagos.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             var pago = await connection.QuerySingleOrDefaultAsync<PagoResponse>(
-                "dbo.usp_Pagos_Reversar",
+                "MetaU_DB_User.usp_Pagos_Reversar",
                 new { PagoID = pagoId },
                 commandType: CommandType.StoredProcedure);
 
@@ -75,7 +75,7 @@ namespace MicroservicioPagos.Repository
         private async Task<FacturaResponse> ObtenerFacturaAsync(IDbConnection connection, Guid facturaId)
         {
             var rows = (await connection.QueryAsync(
-                "dbo.usp_Facturas_ObtenerPorID",
+                "MetaU_DB_User.usp_Facturas_ObtenerPorID",
                 new { FacturaID = facturaId },
                 commandType: CommandType.StoredProcedure)).ToList();
 

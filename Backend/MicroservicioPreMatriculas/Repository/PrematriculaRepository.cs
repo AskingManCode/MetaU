@@ -14,7 +14,7 @@ namespace MicroservicioPreMatriculas.Repository
         {
             const string sql = """
                 SELECT EstudianteID, Identificacion, NombreCompleto, Estado
-                FROM Estudiantes WHERE Identificacion = @identificacion AND Estado = 1
+                FROM [MetaU_DB_User].[Estudiantes] WHERE Identificacion = @identificacion AND Estado = 1
                 """;
             using var conexion = _conexiones.CrearConexion();
             return await conexion.QuerySingleOrDefaultAsync<Estudiante>(sql, new { identificacion });
@@ -24,7 +24,7 @@ namespace MicroservicioPreMatriculas.Repository
             Guid estudianteId, string carreraCode, Guid periodoId)
         {
             const string sql = """
-                SELECT TOP 1 PreMatriculaID FROM PreMatriculas
+                SELECT TOP 1 PreMatriculaID FROM [MetaU_DB_User].[PreMatriculas]
                 WHERE EstudianteID = @estudianteId AND CarreraCode = @carreraCode AND PeriodoID = @periodoId
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -42,7 +42,7 @@ namespace MicroservicioPreMatriculas.Repository
         {
             using var conexion = _conexiones.CrearConexion();
             var ids = await conexion.QueryAsync<Guid>(
-                "SELECT PreMatriculaID FROM PreMatriculas WHERE Estado = 1");
+                "SELECT PreMatriculaID FROM [MetaU_DB_User].[PreMatriculas] WHERE Estado = 1");
             var resultado = new List<Prematricula>();
             foreach (var id in ids)
             {
@@ -55,12 +55,12 @@ namespace MicroservicioPreMatriculas.Repository
         public async Task CrearAsync(Prematricula prematricula)
         {
             const string insertarCabecera = """
-                INSERT INTO PreMatriculas (EstudianteID, CarreraCode, PeriodoID, Observaciones, Estado)
+                INSERT INTO [MetaU_DB_User].[PreMatriculas] (EstudianteID, CarreraCode, PeriodoID, Observaciones, Estado)
                 OUTPUT INSERTED.PreMatriculaID
                 VALUES (@EstudianteID, @CarreraCode, @PeriodoID, @Observaciones, @Estado)
                 """;
             const string insertarCurso = """
-                INSERT INTO PreMatriculasXCursos (PreMatriculaID, CursoCode, Estado)
+                INSERT INTO [MetaU_DB_User].[PreMatriculasXCursos] (PreMatriculaID, CursoCode, Estado)
                 VALUES (@PreMatriculaID, @CursoCode, @Estado)
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -87,16 +87,16 @@ namespace MicroservicioPreMatriculas.Repository
         public async Task ActualizarAsync(Prematricula prematricula)
         {
             const string actualizar = """
-                UPDATE PreMatriculas SET EstudianteID=@EstudianteID, CarreraCode=@CarreraCode,
+                UPDATE [MetaU_DB_User].[PreMatriculas] SET EstudianteID=@EstudianteID, CarreraCode=@CarreraCode,
                     PeriodoID=@PeriodoID, Observaciones=@Observaciones, Estado=@Estado
                 WHERE PreMatriculaID=@PreMatriculaID
                 """;
-            const string desactivar = "UPDATE PreMatriculasXCursos SET Estado=0 WHERE PreMatriculaID=@PreMatriculaID";
+            const string desactivar = "UPDATE [MetaU_DB_User].[PreMatriculasXCursos] SET Estado=0 WHERE PreMatriculaID=@PreMatriculaID";
             const string activar = """
-                IF EXISTS (SELECT 1 FROM PreMatriculasXCursos WHERE PreMatriculaID=@PreMatriculaID AND CursoCode=@CursoCode)
-                    UPDATE PreMatriculasXCursos SET Estado=1 WHERE PreMatriculaID=@PreMatriculaID AND CursoCode=@CursoCode;
+                IF EXISTS (SELECT 1 FROM [MetaU_DB_User].[PreMatriculasXCursos] WHERE PreMatriculaID=@PreMatriculaID AND CursoCode=@CursoCode)
+                    UPDATE [MetaU_DB_User].[PreMatriculasXCursos] SET Estado=1 WHERE PreMatriculaID=@PreMatriculaID AND CursoCode=@CursoCode;
                 ELSE
-                    INSERT INTO PreMatriculasXCursos (PreMatriculaID, CursoCode, Estado)
+                    INSERT INTO [MetaU_DB_User].[PreMatriculasXCursos] (PreMatriculaID, CursoCode, Estado)
                     VALUES (@PreMatriculaID, @CursoCode, 1);
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -121,8 +121,8 @@ namespace MicroservicioPreMatriculas.Repository
         public async Task EliminarAsync(Prematricula prematricula)
         {
             const string sql = """
-                UPDATE PreMatriculas SET Estado=0 WHERE PreMatriculaID=@PreMatriculaID;
-                UPDATE PreMatriculasXCursos SET Estado=0 WHERE PreMatriculaID=@PreMatriculaID;
+                UPDATE [MetaU_DB_User].[PreMatriculas] SET Estado=0 WHERE PreMatriculaID=@PreMatriculaID;
+                UPDATE [MetaU_DB_User].[PreMatriculasXCursos] SET Estado=0 WHERE PreMatriculaID=@PreMatriculaID;
                 """;
             using var conexion = _conexiones.CrearConexion();
             await conexion.ExecuteAsync(sql, new { prematricula.PreMatriculaID });
@@ -138,12 +138,12 @@ namespace MicroservicioPreMatriculas.Repository
                        p.Observaciones, p.Estado,
                        e.EstudianteID AS EstudianteSeparador, e.EstudianteID,
                        e.Identificacion, e.NombreCompleto, e.Estado
-                FROM PreMatriculas p INNER JOIN Estudiantes e ON e.EstudianteID=p.EstudianteID
+                FROM [MetaU_DB_User].[PreMatriculas] p INNER JOIN [MetaU_DB_User].[Estudiantes] e ON e.EstudianteID=p.EstudianteID
                 WHERE p.PreMatriculaID=@id AND (@soloActiva=0 OR p.Estado=1)
                 """;
             const string cursos = """
                 SELECT PreMatriculaXCurso AS PreMatriculaXCursoID, PreMatriculaID, CursoCode, Estado
-                FROM PreMatriculasXCursos WHERE PreMatriculaID=@id
+                FROM [MetaU_DB_User].[PreMatriculasXCursos] WHERE PreMatriculaID=@id
                 """;
             Prematricula? resultado = null;
             await conexion.QueryAsync<Prematricula, Estudiante, Prematricula>(

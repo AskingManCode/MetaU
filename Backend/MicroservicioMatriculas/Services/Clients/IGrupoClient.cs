@@ -5,5 +5,5 @@ namespace MicroservicioMatriculas.Services
         Task<GrupoInfo?> ObtenerPorCodigo(string grupoCode, ContextoUsuario contexto);
     }
 
-    public record GrupoInfo(string GrupoCode, string CursoCode, int Cupo);
+    public record GrupoInfo(string GrupoCode, string CursoCode, Guid PeriodoID, int Cupo);
 }

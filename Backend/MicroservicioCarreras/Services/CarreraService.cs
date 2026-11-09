@@ -9,15 +9,21 @@ namespace MicroservicioCarreras.Services
         private readonly ICarreraRepository _repository;
         private readonly IAuthServiceClient _authService;
         private readonly IBitacoraServiceClient _bitacoraService;
+        private readonly IParametroServiceClient _parametroServiceClient;
+
+        private const string Items_Pagina = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         public CarreraService(
             ICarreraRepository repository,
             IAuthServiceClient authService,
-            IBitacoraServiceClient bitacoraService)
+            IBitacoraServiceClient bitacoraService,
+            IParametroServiceClient parametroServiceClient)
         {
             _repository = repository;
             _authService = authService;
             _bitacoraService = bitacoraService;
+            _parametroServiceClient = parametroServiceClient;
         }
 
         public Task<Carrera> CrearAsync(Carrera carrera, string? authorization, string? usuarioId) =>
@@ -94,6 +100,22 @@ namespace MicroservicioCarreras.Services
                 () => _repository.ObtenerTodosAsync(),
                 _ => "El usuario consulta carreras");
 
+        public Task<PaginaResultado<Carrera>> ObtenerPaginadoAsync(int pagina, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                "obtener carreras paginadas",
+                async () =>
+                {
+                    if (pagina < 1)
+                        throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+                    var tamano = await ObtenerTamanoPaginaAsync(Guid.Parse(usuarioId!), ObtenerToken(authorization));
+                    var todas = (await _repository.ObtenerTodosAsync()).ToList();
+                    return Paginar(todas, pagina, tamano);
+                },
+                _ => "El usuario consulta carreras");
+
         public Task<Carrera> ObtenerPorIdAsync(string carreraCode, string? authorization, string? usuarioId) =>
             EjecutarAutorizadaAsync(
                 authorization,
@@ -113,6 +135,44 @@ namespace MicroservicioCarreras.Services
                 "obtener carreras por institucion",
                 () => _repository.ObtenerPorInstitucionAsync(institucionCode),
                 _ => $"El usuario consulta carreras de la institucion {institucionCode}");
+
+        public Task<PaginaResultado<Carrera>> ObtenerPorInstitucionPaginadoAsync(string institucionCode, int pagina, string? authorization, string? usuarioId) =>
+            EjecutarAutorizadaAsync(
+                authorization,
+                usuarioId,
+                "obtener carreras por institucion paginadas",
+                async () =>
+                {
+                    if (pagina < 1)
+                        throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+                    var tamano = await ObtenerTamanoPaginaAsync(Guid.Parse(usuarioId!), ObtenerToken(authorization));
+                    var todas = (await _repository.ObtenerPorInstitucionAsync(institucionCode)).ToList();
+                    return Paginar(todas, pagina, tamano);
+                },
+                _ => $"El usuario consulta carreras de la institucion {institucionCode}");
+
+        private async Task<int> ObtenerTamanoPaginaAsync(Guid usuarioId, string token)
+        {
+            try
+            {
+                var valor = await _parametroServiceClient.ObtenerValorAsync(Items_Pagina, usuarioId, token);
+                return int.TryParse(valor, out var n) && n > 0 ? n : TamanoPaginaDefecto;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                return TamanoPaginaDefecto;
+            }
+        }
+
+        private static PaginaResultado<T> Paginar<T>(List<T> todos, int pagina, int tamano) => new()
+        {
+            Pagina = pagina,
+            TamanoPagina = tamano,
+            TotalRegistros = todos.Count,
+            TotalPaginas = (int)Math.Ceiling(todos.Count / (double)tamano),
+            Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
+        };
 
         private async Task CrearInternoAsync(Carrera carrera)
         {

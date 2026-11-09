@@ -1,29 +1,200 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Modal } from 'react-bootstrap';
-import MaintenanceHeader from '../../../components/MaintenanceHeader';
-import Notification from '../../../components/Notification';
-import DataTable from '../../../components/DataTable';
-import expedienteService from '../../../services/expedienteService';
-import direccionService from '../../../services/direccionService';
+import { useEffect, useMemo, useState } from 'react'
+import { Button, Form } from 'react-bootstrap'
+import { useLocation, useNavigate } from 'react-router-dom'
+import DataTable from '../../../components/DataTable'
+import MaintenanceHeader from '../../../components/MaintenanceHeader'
+import Notification from '../../../components/Notification'
+import expedienteService from '../../../services/expedienteService'
+import { mensajeError, textoBusqueda } from '../../../utils/sistemaUtils'
 
-const empty = { identificacion: '', tipoIdentificacion: 'CED', email: '', nombreCompleto: '', fechaNacimiento: '', provinciaID: '', cantonID: '', distritoID: '', otrasSenas: '', telefonos: [''] };
-const read = r => r?.data ?? r;
+const list = value => {
+    const data = value?.data ?? value
 
-export default function Expedientes() {
-  const [rows, setRows] = useState([]), [provincias, setProvincias] = useState([]), [cantones, setCantones] = useState([]), [distritos, setDistritos] = useState([]);
-  const [form, setForm] = useState(empty), [editing, setEditing] = useState(null), [search, setSearch] = useState(''), [modal, setModal] = useState(false), [remove, setRemove] = useState(null), [notification, setNotification] = useState(null), [loading, setLoading] = useState(false);
-  const notify = (type, message) => setNotification({ type, message });
-  const load = async () => { setLoading(true); try { const [e, p] = await Promise.all([expedienteService.getAll(), direccionService.getProvincias()]); setRows(read(e) || []); setProvincias(read(p) || []); } catch { notify('error', 'No se pudieron cargar los expedientes o las provincias.'); } finally { setLoading(false); } };
-  useEffect(() => { load(); }, []);
-  useEffect(() => { if (!form.provinciaID) { setCantones([]); setDistritos([]); return; } direccionService.getCantones(form.provinciaID).then(r => setCantones(read(r) || [])).catch(() => notify('error', 'No se pudieron cargar los cantones.')); }, [form.provinciaID]);
-  useEffect(() => { if (!form.provinciaID || !form.cantonID) { setDistritos([]); return; } direccionService.getDistritos(form.provinciaID, form.cantonID).then(r => setDistritos(read(r) || [])).catch(() => notify('error', 'No se pudieron cargar los distritos.')); }, [form.provinciaID, form.cantonID]);
-  const filtered = useMemo(() => rows.filter(x => `${x.nombreCompleto} ${x.identificacion} ${x.email}`.toLowerCase().includes(search.toLowerCase())), [rows, search]);
-  const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
-  const open = row => { setEditing(row?.identificacion || null); setForm(row ? { ...empty, ...row, telefonos: (row.telefonos || []).map(t => t.numero || t) } : { ...empty }); setModal(true); };
-  const submit = async event => { event.preventDefault(); const data = { ...form, telefonos: form.telefonos.map(x => x.trim()).filter(Boolean) }; if (!data.identificacion || !data.nombreCompleto || !data.email || !data.fechaNacimiento || !data.provinciaID || !data.cantonID || !data.distritoID || !data.otrasSenas || !data.telefonos.length) return notify('warning', 'Complete todos los campos obligatorios.'); if (!/@cuc\.cr$/i.test(data.email)) return notify('warning', 'El correo debe pertenecer al dominio cuc.cr.'); try { editing ? await expedienteService.update(editing, data) : await expedienteService.create(data); setModal(false); notify('success', editing ? 'Expediente actualizado correctamente.' : 'Expediente creado correctamente.'); load(); } catch (e) { notify('error', e?.response?.data?.mensaje || 'No se pudo guardar el expediente.'); } };
-  const destroy = async () => { try { await expedienteService.delete(remove.identificacion); setRemove(null); notify('success', 'Expediente eliminado correctamente.'); load(); } catch { notify('error', 'No se pudo eliminar el expediente.'); } };
-  const columns = [{ key: 'identificacion', label: 'Identificación' }, { key: 'nombreCompleto', label: 'Nombre' }, { key: 'email', label: 'Email' }, { key: 'telefonos', label: 'Teléfonos', render: r => (r.telefonos || []).map(t => t.numero || t).join(', ') }];
-  return <><Notification {...notification} show={!!notification} onClose={() => setNotification(null)} /><MaintenanceHeader title="Mantenimiento de Expedientes" buttonLabel="Nuevo Expediente" onButtonClick={() => open()} /><DataTable title="Información" columns={columns} data={filtered} loading={loading} rowKey="identificacion" filters={<Form.Control value={search} onChange={e => setSearch(e.target.value)} placeholder="Nombre, identificación o email" />} actions={[{ type: 'editar', onClick: open }, { type: 'eliminar', onClick: setRemove }]} />
-    <Modal show={modal} onHide={() => setModal(false)} size="lg"><Form onSubmit={submit}><Modal.Header closeButton><Modal.Title>{editing ? 'Editar expediente' : 'Nuevo expediente'}</Modal.Title></Modal.Header><Modal.Body><div className="row g-3"><div className="col-md-4"><Form.Label>Identificación</Form.Label><Form.Control required disabled={!!editing} value={form.identificacion} onChange={e => set('identificacion', e.target.value)} /></div><div className="col-md-4"><Form.Label>Tipo</Form.Label><Form.Select value={form.tipoIdentificacion} onChange={e => set('tipoIdentificacion', e.target.value)}><option value="CED">Cédula</option><option value="EXT">Extranjero</option><option value="PAS">Pasaporte</option></Form.Select></div><div className="col-md-4"><Form.Label>Fecha de nacimiento</Form.Label><Form.Control required type="date" value={form.fechaNacimiento?.slice(0, 10)} onChange={e => set('fechaNacimiento', e.target.value)} /></div><div className="col-md-6"><Form.Label>Nombre completo</Form.Label><Form.Control required value={form.nombreCompleto} onChange={e => set('nombreCompleto', e.target.value)} /></div><div className="col-md-6"><Form.Label>Email cuc.cr</Form.Label><Form.Control required type="email" value={form.email} onChange={e => set('email', e.target.value)} /></div><div className="col-md-4"><Form.Label>Provincia</Form.Label><Form.Select required value={form.provinciaID} onChange={e => setForm(f => ({ ...f, provinciaID: e.target.value, cantonID: '', distritoID: '' }))}><option value="">Seleccione</option>{provincias.map(x => <option key={x.id || x.provinciaID} value={x.id || x.provinciaID}>{x.nombre}</option>)}</Form.Select></div><div className="col-md-4"><Form.Label>Cantón</Form.Label><Form.Select required value={form.cantonID} disabled={!form.provinciaID} onChange={e => setForm(f => ({ ...f, cantonID: e.target.value, distritoID: '' }))}><option value="">Seleccione</option>{cantones.map(x => <option key={x.id || x.cantonID} value={x.id || x.cantonID}>{x.nombre}</option>)}</Form.Select></div><div className="col-md-4"><Form.Label>Distrito</Form.Label><Form.Select required value={form.distritoID} disabled={!form.cantonID} onChange={e => set('distritoID', e.target.value)}><option value="">Seleccione</option>{distritos.map(x => <option key={x.id || x.distritoID} value={x.id || x.distritoID}>{x.nombre}</option>)}</Form.Select></div><div className="col-md-8"><Form.Label>Otras señas</Form.Label><Form.Control required value={form.otrasSenas} onChange={e => set('otrasSenas', e.target.value)} /></div><div className="col-md-4"><Form.Label>Teléfono</Form.Label><Form.Control required value={form.telefonos[0] || ''} onChange={e => setForm(f => ({ ...f, telefonos: [e.target.value] }))} /></div></div></Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setModal(false)}>Cancelar</Button><Button type="submit">Guardar</Button></Modal.Footer></Form></Modal>
-    <Modal show={!!remove} onHide={() => setRemove(null)} centered><Modal.Header closeButton><Modal.Title>Confirmar eliminación</Modal.Title></Modal.Header><Modal.Body>¿Realmente desea eliminar el expediente seleccionado?</Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setRemove(null)}>No</Button><Button variant="danger" onClick={destroy}>Sí, eliminar</Button></Modal.Footer></Modal></>;
+    return Array.isArray(data)
+        ? data
+        : data?.items ?? data?.datos ?? data?.data ?? []
 }
+
+const value = (row, ...keys) => keys
+    .map(key => row?.[key])
+    .find(item => item !== undefined && item !== null)
+
+function Index() {
+    const navigate = useNavigate()
+    const location = useLocation()
+    const [rows, setRows] = useState([])
+    const [search, setSearch] = useState('')
+    const [loading, setLoading] = useState(true)
+    const [notification, setNotification] = useState(
+        location.state?.mensaje
+            ? { type: 'success', message: location.state.mensaje }
+            : null,
+    )
+    const [pendingDelete, setPendingDelete] = useState(null)
+
+    const load = async () => {
+        setLoading(true)
+
+        try {
+            setRows(list(await expedienteService.getAll()))
+        } catch (error) {
+            setNotification({
+                type: 'error',
+                message: mensajeError(error, 'No se pudieron cargar los expedientes'),
+            })
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        load()
+
+        if (location.state?.mensaje) {
+            window.history.replaceState({}, document.title)
+        }
+    }, [])
+
+    const filtered = useMemo(() => {
+        const term = textoBusqueda(search.trim())
+
+        if (!term) {
+            return rows
+        }
+
+        return rows.filter(row => textoBusqueda([
+            value(row, 'identificacion', 'Identificacion'),
+            value(row, 'nombreCompleto', 'NombreCompleto'),
+            value(row, 'email', 'Email'),
+        ].join(' ')).includes(term))
+    }, [rows, search])
+
+    const remove = async () => {
+        if (!pendingDelete) {
+            return
+        }
+
+        try {
+            await expedienteService.delete(
+                value(pendingDelete, 'identificacion', 'Identificacion'),
+            )
+            setPendingDelete(null)
+            setNotification({
+                type: 'success',
+                message: 'Expediente eliminado correctamente.',
+            })
+            await load()
+        } catch (error) {
+            setPendingDelete(null)
+            setNotification({
+                type: 'error',
+                message: mensajeError(error, 'No se pudo eliminar el expediente'),
+            })
+        }
+    }
+
+    const columns = [
+        {
+            key: 'identificacion',
+            label: 'Identificación',
+            sortable: true,
+            sortValue: row => value(row, 'identificacion', 'Identificacion'),
+        },
+        {
+            key: 'nombreCompleto',
+            label: 'Nombre',
+            sortable: true,
+            sortValue: row => value(row, 'nombreCompleto', 'NombreCompleto'),
+        },
+        {
+            key: 'email',
+            label: 'Email',
+            sortable: true,
+            sortValue: row => value(row, 'email', 'Email'),
+        },
+        {
+            key: 'telefonos',
+            label: 'Teléfonos',
+            render: row => (row.telefonos ?? row.Telefonos ?? [])
+                .map(phone => phone.numero ?? phone.Numero ?? phone)
+                .join(', ') || '-',
+        },
+    ]
+
+    const filters = (
+        <div className="row g-3 align-items-end">
+            <div className="col-md-9">
+                <Form.Label>Nombre, identificación o email</Form.Label>
+                <Form.Control
+                    value={search}
+                    onChange={event => setSearch(event.target.value)}
+                    placeholder="Buscar expediente"
+                />
+            </div>
+
+            <div className="col-md-3">
+                <Button
+                    variant="outline-secondary"
+                    className="w-100"
+                    onClick={() => setSearch('')}
+                >
+                    <i className="bi bi-arrow-counterclockwise me-2" />
+                    Limpiar filtros
+                </Button>
+            </div>
+        </div>
+    )
+
+    return (
+        <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
+            <MaintenanceHeader
+                title="Mantenimiento de Expedientes"
+                buttonLabel="Nuevo Expediente"
+                onButtonClick={() => navigate('/expedientes/nuevo')}
+            />
+
+            <DataTable
+                title="Información"
+                columns={columns}
+                data={filtered}
+                loading={loading}
+                rowKey={row => value(row, 'identificacion', 'Identificacion')}
+                filters={filters}
+                actions={[
+                    {
+                        type: 'editar',
+                        onClick: row => navigate(
+                            `/expedientes/editar/${encodeURIComponent(
+                                value(row, 'identificacion', 'Identificacion'),
+                            )}`,
+                        ),
+                    },
+                    {
+                        type: 'eliminar',
+                        onClick: setPendingDelete,
+                    },
+                ]}
+            />
+
+            <Notification
+                type="warning"
+                message={pendingDelete
+                    ? '¿Realmente desea eliminar el expediente seleccionado?'
+                    : null}
+                show={!!pendingDelete}
+                onConfirm={remove}
+                onCancel={() => setPendingDelete(null)}
+                onClose={() => setPendingDelete(null)}
+            />
+        </div>
+    )
+}
+
+export default Index

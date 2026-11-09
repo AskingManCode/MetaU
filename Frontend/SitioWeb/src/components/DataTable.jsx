@@ -29,7 +29,10 @@ export default function DataTable({
     const [paginaLocal, setPaginaLocal] = useState(1)
     const [orden, setOrden] = useState({ key: null, direction: 'asc' })
 
-    const registros = Array.isArray(data) ? data : []
+    const registros = useMemo(
+        () => Array.isArray(data) ? data : [],
+        [data]
+    )
 
     const obtenerValor = (registro, columna) => {
         if (typeof columna.accessor === 'function') {

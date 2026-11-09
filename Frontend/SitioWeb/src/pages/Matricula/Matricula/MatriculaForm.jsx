@@ -31,10 +31,15 @@ export default function MatriculaForm({ initial, title, onSave, onCancel }) {
     }, [])
 
     const now = new Date()
-    const activePeriods = catalog.periods.filter(item => (
-        new Date(get(item, 'fechaInicio', 'FechaInicio')) <= now &&
-        new Date(get(item, 'fechaFin', 'FechaFin')) >= now
-    ))
+    const activePeriods = catalog.periods
+        .filter(item => (
+            new Date(get(item, 'fechaInicio', 'FechaInicio')) <= now &&
+            new Date(get(item, 'fechaFin', 'FechaFin')) >= now
+        ))
+        .sort((first, second) => (
+            Number(get(first, 'anio', 'Anio')) - Number(get(second, 'anio', 'Anio')) ||
+            Number(get(first, 'numeroPeriodo', 'NumeroPeriodo')) - Number(get(second, 'numeroPeriodo', 'NumeroPeriodo'))
+        ))
     const availableGroups = catalog.groups
         .filter(item => !form.cursoCode || get(item, 'cursoCode', 'CursoCode') === form.cursoCode)
         .filter(item => !form.periodoID || get(item, 'periodoID', 'PeriodoID') === form.periodoID)

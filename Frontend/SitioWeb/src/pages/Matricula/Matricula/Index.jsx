@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Col, Form, Row } from 'react-bootstrap'
+import { Button, Col, Form, Row } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import MaintenanceHeader from '../../../components/MaintenanceHeader'
 import Notification from '../../../components/Notification'
@@ -19,7 +19,7 @@ export default function Matricula() {
     const location = useLocation()
     const [catalog, setCatalog] = useState({ periods: [], courses: [], groups: [], students: [] })
     const [rows, setRows] = useState([])
-    const [filters, setFilters] = useState({ course: '', group: '', student: '' })
+    const [filters, setFilters] = useState({ period: '', course: '', group: '', student: '' })
     const [loading, setLoading] = useState(false)
     const [notice, setNotice] = useState(null)
 
@@ -47,7 +47,21 @@ export default function Matricula() {
         setLoading(true)
         try {
             const response = await matriculaService.getAll({ cursoCode: filters.course, grupoCode: filters.group })
-            setRows(list(response.data))
+            const estudiantes = list(response.data)
+            const identificaciones = estudiantes
+                .map(row => get(row, 'identificacion', 'Identificacion'))
+                .filter(Boolean)
+
+            const respuestas = await Promise.all(
+                identificaciones.map(identificacion => matriculaService.getAll({ identificacion }))
+            )
+            const matriculas = respuestas.flatMap(respuesta => list(respuesta.data))
+
+            setRows(matriculas.filter(row => (
+                get(row, 'cursoCode', 'CursoCode') === filters.course &&
+                get(row, 'grupoCode', 'GrupoCode') === filters.group &&
+                (!filters.period || get(row, 'periodoID', 'PeriodoID') === filters.period)
+            )))
         } catch (error) {
             setNotice({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudieron cargar las matrículas' })
         } finally {
@@ -64,9 +78,19 @@ export default function Matricula() {
         }
     }, [location, navigate])
 
+    const activePeriods = useMemo(() => catalog.periods
+        .filter(item => (
+            new Date(get(item, 'fechaInicio', 'FechaInicio')) <= new Date() &&
+            new Date(get(item, 'fechaFin', 'FechaFin')) >= new Date()
+        ))
+        .sort((first, second) => (
+            Number(get(first, 'anio', 'Anio')) - Number(get(second, 'anio', 'Anio')) ||
+            Number(get(first, 'numeroPeriodo', 'NumeroPeriodo')) - Number(get(second, 'numeroPeriodo', 'NumeroPeriodo'))
+        )), [catalog.periods])
     const courses = useMemo(() => Object.fromEntries(catalog.courses.map(item => [get(item, 'cursoCode', 'CursoCode'), item])), [catalog.courses])
     const groups = useMemo(() => Object.fromEntries(catalog.groups.map(item => [get(item, 'grupoCode', 'GrupoCode'), item])), [catalog.groups])
     const students = useMemo(() => Object.fromEntries(catalog.students.map(item => [get(item, 'identificacion', 'Identificacion'), item])), [catalog.students])
+    const periods = useMemo(() => Object.fromEntries(catalog.periods.map(item => [get(item, 'periodoID', 'PeriodoID'), item])), [catalog.periods])
     const filteredRows = rows.filter(row => {
         if (!filters.student) return true
         const student = students[get(row, 'identificacion', 'Identificacion')]
@@ -74,6 +98,10 @@ export default function Matricula() {
             .toLowerCase()
             .includes(filters.student.toLowerCase())
     })
+
+    const limpiarFiltros = () => {
+        setFilters({ period: '', course: '', group: '', student: '' })
+    }
 
     const confirmarEliminacion = row => {
         setNotice({
@@ -97,11 +125,13 @@ export default function Matricula() {
         {
             key: 'student',
             label: 'Estudiante',
+            sortable: true,
+            sortValue: row => `${get(students[get(row, 'identificacion', 'Identificacion')], 'nombreCompleto', 'NombreCompleto') ?? ''} ${get(row, 'identificacion', 'Identificacion') ?? ''}`,
             render: row => <><div>{get(students[get(row, 'identificacion', 'Identificacion')], 'nombreCompleto', 'NombreCompleto') ?? 'Estudiante no encontrado'}</div><small>{get(row, 'identificacion', 'Identificacion')}</small></>
         },
-        { key: 'course', label: 'Curso', render: row => get(courses[get(row, 'cursoCode', 'CursoCode')], 'nombre', 'Nombre') ?? get(row, 'cursoCode', 'CursoCode') },
-        { key: 'group', label: 'Grupo', render: row => get(groups[get(row, 'grupoCode', 'GrupoCode')], 'grupoCode', 'GrupoCode') ?? get(row, 'grupoCode', 'GrupoCode') },
-        { key: 'period', label: 'Periodo', render: row => get(row, 'periodoID', 'PeriodoID') }
+        { key: 'course', label: 'Curso', sortable: true, sortValue: () => get(courses[filters.course], 'nombre', 'Nombre') ?? filters.course, render: row => get(courses[get(row, 'cursoCode', 'CursoCode')], 'nombre', 'Nombre') ?? get(courses[filters.course], 'nombre', 'Nombre') ?? get(row, 'cursoCode', 'CursoCode') ?? filters.course },
+        { key: 'group', label: 'Grupo', sortable: true, sortValue: () => filters.group, render: row => get(groups[get(row, 'grupoCode', 'GrupoCode')], 'grupoCode', 'GrupoCode') ?? get(groups[filters.group], 'grupoCode', 'GrupoCode') ?? get(row, 'grupoCode', 'GrupoCode') ?? filters.group },
+        { key: 'period', label: 'Periodo', sortable: true, sortValue: () => filters.period, render: row => { const periodId = get(row, 'periodoID', 'PeriodoID') ?? filters.period; const period = periods[periodId]; return period ? `${get(period, 'anio', 'Anio')} - Periodo ${get(period, 'numeroPeriodo', 'NumeroPeriodo')}` : periodId } }
     ]
 
     return (
@@ -131,24 +161,40 @@ export default function Matricula() {
                 pageSize={15}
                 rowKey={idOf}
                 filters={(
-                    <Row className="g-3">
-                        <Col md={4}>
+                    <Row className="g-3 align-items-end">
+                        <Col md={3}>
+                            <Form.Label>Periodo</Form.Label>
+                            <Form.Select value={filters.period} onChange={event => setFilters({ ...filters, period: event.target.value, group: '' })}>
+                                <option value="">Todos</option>
+                                {activePeriods.map(item => { const id = get(item, 'periodoID', 'PeriodoID'); return <option key={id} value={id}>{get(item, 'anio', 'Anio')} - Periodo {get(item, 'numeroPeriodo', 'NumeroPeriodo')}</option> })}
+                            </Form.Select>
+                        </Col>
+                        <Col md={3}>
                             <Form.Label>Curso</Form.Label>
-                            <Form.Select value={filters.course} onChange={event => setFilters({ course: event.target.value, group: '', student: '' })}>
+                            <Form.Select value={filters.course} onChange={event => setFilters({ ...filters, course: event.target.value, group: '', student: '' })}>
                                 <option value="">Seleccione un curso</option>
                                 {catalog.courses.map(item => { const code = get(item, 'cursoCode', 'CursoCode'); return <option key={code} value={code}>{get(item, 'nombre', 'Nombre')}</option> })}
                             </Form.Select>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <Form.Label>Grupo</Form.Label>
                             <Form.Select value={filters.group} disabled={!filters.course} onChange={event => setFilters({ ...filters, group: event.target.value })}>
                                 <option value="">Seleccione un grupo</option>
-                                {catalog.groups.filter(item => !filters.course || get(item, 'cursoCode', 'CursoCode') === filters.course).map(item => { const code = get(item, 'grupoCode', 'GrupoCode'); return <option key={code} value={code}>{code} · Cupo {get(item, 'cupo', 'Cupo')}</option> })}
+                                {catalog.groups
+                                    .filter(item => !filters.course || get(item, 'cursoCode', 'CursoCode') === filters.course)
+                                    .filter(item => !filters.period || get(item, 'periodoID', 'PeriodoID') === filters.period)
+                                    .map(item => { const code = get(item, 'grupoCode', 'GrupoCode'); return <option key={code} value={code}>{code} · Cupo {get(item, 'cupo', 'Cupo')}</option> })}
                             </Form.Select>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <Form.Label>Estudiante</Form.Label>
                             <Form.Control placeholder="Nombre o identificación" value={filters.student} onChange={event => setFilters({ ...filters, student: event.target.value })} />
+                        </Col>
+                        <Col md={3}>
+                            <Button type="button" variant="outline-secondary" className="w-100" onClick={limpiarFiltros}>
+                                <i className="bi bi-arrow-counterclockwise me-2" />
+                                Limpiar filtros
+                            </Button>
                         </Col>
                     </Row>
                 )}

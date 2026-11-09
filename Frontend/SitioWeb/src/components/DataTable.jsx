@@ -4,6 +4,7 @@ import '../styles/DataTable.css'
 
 const tiposAccion = {
     ver: { icon: 'bi-eye', label: 'Ver' },
+    permisos: { icon: 'bi-ui-checks', label: 'Permisos' },
     editar: { icon: 'bi-pencil-square', label: 'Editar' },
     eliminar: { icon: 'bi-trash', label: 'Eliminar' }
 }

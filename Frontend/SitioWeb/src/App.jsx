@@ -25,6 +25,9 @@ import Facturas from "./pages/Finanzas/Facturas/Index.jsx";
 import Pagos from "./pages/Finanzas/Pagos/Index.jsx";
 import Notificaciones from "./pages/Comunicacion/Notificaciones/Index.jsx";
 import Roles from "./pages/Sistema/Roles/Index.jsx";
+import CrearRol from "./pages/Sistema/Roles/Create.jsx";
+import EditarRol from "./pages/Sistema/Roles/Edit.jsx";
+import PermisosRol from "./pages/Sistema/Roles/Permisos.jsx";
 import Modulos from "./pages/Sistema/Modulos/Index.jsx";
 import CrearModulo from "./pages/Sistema/Modulos/Create.jsx";
 import EditarModulo from "./pages/Sistema/Modulos/Edit.jsx";
@@ -80,6 +83,9 @@ function App() {
                     <Route path="usuarios/editar/:email" element={<EditarUsuario />} />
                     <Route path="usuarios/ver/:email" element={<DetalleUsuario />} />
                     <Route path="roles" element={<Roles />} />
+                    <Route path="roles/nuevo" element={<CrearRol />} />
+                    <Route path="roles/editar/:rolId" element={<EditarRol />} />
+                    <Route path="roles/permisos/:rolId" element={<PermisosRol />} />
                     <Route path="modulos" element={<Modulos />} />
                     <Route path="modulos/nuevo" element={<CrearModulo />} />
                     <Route path="modulos/editar/:moduloId" element={<EditarModulo />} />

@@ -41,7 +41,13 @@ export default function Prematricula() {
     const careers = useMemo(() => Object.fromEntries(catalog.careers.map(item => [get(item, 'carreraCode', 'CarreraCode'), item])), [catalog.careers])
     const courses = useMemo(() => Object.fromEntries(catalog.courses.map(item => [get(item, 'cursoCode', 'CursoCode'), item])), [catalog.courses])
     const students = useMemo(() => Object.fromEntries(catalog.students.map(item => [get(item, 'identificacion', 'Identificacion'), item])), [catalog.students])
-    const futurePeriods = catalog.periods.filter(item => new Date(get(item, 'fechaInicio', 'FechaInicio')) > new Date())
+    const futurePeriods = [...catalog.periods]
+        .filter(item => new Date(get(item, 'fechaInicio', 'FechaInicio')) > new Date())
+        .sort((first, second) => (
+            Number(get(first, 'anio', 'Anio')) - Number(get(second, 'anio', 'Anio')) ||
+            Number(get(first, 'numeroPeriodo', 'NumeroPeriodo')) -
+            Number(get(second, 'numeroPeriodo', 'NumeroPeriodo'))
+        ))
 
     const visible = rows.filter(row => {
         const period = periods[get(row, 'periodoID', 'PeriodoID')]

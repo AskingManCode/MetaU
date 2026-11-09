@@ -10,7 +10,7 @@ export default function Create() {
 
     const guardar = async datos => {
         try { await prematriculaService.create(datos); navigate('/prematricula', { state: { mensaje: 'Prematrícula creada correctamente' } }) }
-        catch (error) { setNotification({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo guardar la prematrícula' }) }
+        catch (error) { setNotification({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudo guardar la prematrícula' }) }
     }
 
     return (

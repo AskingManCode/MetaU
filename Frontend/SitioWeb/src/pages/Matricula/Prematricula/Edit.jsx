@@ -26,12 +26,12 @@ export default function Edit() {
                 periodoID: get(data, 'periodoID', 'PeriodoID'),
                 observaciones: get(data, 'observaciones', 'Observaciones') ?? ''
             }))
-            .catch(error => setNotification({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo cargar la prematrícula' }))
+            .catch(error => setNotification({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudo cargar la prematrícula' }))
     }, [prematriculaId])
 
     const guardar = async datos => {
         try { await prematriculaService.update(prematriculaId, datos); navigate('/prematricula', { state: { mensaje: 'Prematrícula actualizada correctamente' } }) }
-        catch (error) { setNotification({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo actualizar la prematrícula' }) }
+        catch (error) { setNotification({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudo actualizar la prematrícula' }) }
     }
 
     return (

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Col, Form, Row } from 'react-bootstrap'
+import { Button, Col, Form, Row } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import MaintenanceHeader from '../../../components/MaintenanceHeader'
 import Notification from '../../../components/Notification'
@@ -32,7 +32,7 @@ export default function Prematricula() {
             setRows(list(pre.data))
             setCatalog({ periods: list(periods.data), careers: list(careers.data), courses: list(courses.data), students: list(students.data) })
         } catch (error) {
-            setNotification({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo cargar la información' })
+            setNotification({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudo cargar la información' })
         } finally { setLoading(false) }
     }
     useEffect(() => { load() }, [])
@@ -53,17 +53,17 @@ export default function Prematricula() {
         const period = periods[get(row, 'periodoID', 'PeriodoID')]
         const career = careers[get(row, 'carreraCode', 'CarreraCode')]
         const student = students[get(row, 'identificacion', 'Identificacion')]
-        const periodName = period ? `${get(period, 'anio', 'Anio')} - Periodo ${get(period, 'numeroPeriodo', 'NumeroPeriodo')}` : ''
-        const careerName = get(career, 'nombre', 'Nombre') ?? get(row, 'carreraCode', 'CarreraCode')
         const studentName = `${get(student, 'nombreCompleto', 'NombreCompleto') ?? ''} ${get(row, 'identificacion', 'Identificacion') ?? ''}`.toLowerCase()
         const rowCourses = get(row, 'cursos', 'Cursos') ?? []
         return (
-            (!filters.period || filters.period === periodName) &&
-            (!filters.career || filters.career === careerName) &&
+            (!filters.period || filters.period === get(row, 'periodoID', 'PeriodoID')) &&
+            (!filters.career || filters.career === get(row, 'carreraCode', 'CarreraCode')) &&
             (!filters.course || rowCourses.includes(filters.course)) &&
             (!filters.student || studentName.includes(filters.student.toLowerCase()))
         )
     })
+
+    const limpiarFiltros = () => setFilters({ period: '', career: '', course: '', student: '' })
 
     useEffect(() => {
         if (location.state?.mensaje) {
@@ -104,6 +104,8 @@ export default function Prematricula() {
         {
             key: 'estudiante',
             label: 'Estudiante',
+            sortable: true,
+            sortValue: row => `${get(students[get(row, 'identificacion', 'Identificacion')], 'nombreCompleto', 'NombreCompleto') ?? ''} ${get(row, 'identificacion', 'Identificacion') ?? ''}`,
             render: row => <>
                 <div>{get(students[get(row, 'identificacion', 'Identificacion')], 'nombreCompleto', 'NombreCompleto') ?? 'Estudiante no encontrado'}</div>
                 <small>{get(row, 'identificacion', 'Identificacion')}</small>
@@ -112,11 +114,15 @@ export default function Prematricula() {
         {
             key: 'carrera',
             label: 'Carrera',
+            sortable: true,
+            sortValue: row => get(careers[get(row, 'carreraCode', 'CarreraCode')], 'nombre', 'Nombre') ?? get(row, 'carreraCode', 'CarreraCode'),
             render: row => get(careers[get(row, 'carreraCode', 'CarreraCode')], 'nombre', 'Nombre') ?? get(row, 'carreraCode', 'CarreraCode')
         },
         {
             key: 'cursos',
             label: 'Cursos',
+            sortable: true,
+            sortValue: row => (get(row, 'cursos', 'Cursos') ?? []).join(', '),
             render: row => (get(row, 'cursos', 'Cursos') ?? [])
                 .map(code => get(courses[code], 'nombre', 'Nombre') ?? code)
                 .join(', ')
@@ -124,6 +130,11 @@ export default function Prematricula() {
         {
             key: 'periodo',
             label: 'Periodo',
+            sortable: true,
+            sortValue: row => {
+                const period = periods[get(row, 'periodoID', 'PeriodoID')]
+                return period ? `${get(period, 'anio', 'Anio')} ${get(period, 'numeroPeriodo', 'NumeroPeriodo')}` : ''
+            },
             render: row => {
                 const period = periods[get(row, 'periodoID', 'PeriodoID')]
                 return period
@@ -134,6 +145,8 @@ export default function Prematricula() {
         {
             key: 'observaciones',
             label: 'Observaciones',
+            sortable: true,
+            sortValue: row => get(row, 'observaciones', 'Observaciones') || '',
             render: row => get(row, 'observaciones', 'Observaciones') || '-'
         }
     ]
@@ -173,7 +186,7 @@ export default function Prematricula() {
                                 <option value="">Todos</option>
                                 {futurePeriods.map(item => {
                                     const text = `${get(item, 'anio', 'Anio')} - Periodo ${get(item, 'numeroPeriodo', 'NumeroPeriodo')}`
-                                    return <option key={get(item, 'periodoID', 'PeriodoID')} value={text}>{text}</option>
+                                    return <option key={get(item, 'periodoID', 'PeriodoID')} value={get(item, 'periodoID', 'PeriodoID')}>{text}</option>
                                 })}
                             </Form.Select>
                         </Col>
@@ -187,7 +200,7 @@ export default function Prematricula() {
                                     const name = get(item, 'nombre', 'Nombre')
 
                                     return (
-                                        <option key={code} value={name}>
+                                        <option key={code} value={code}>
                                             {name}
                                         </option>
                                     )
@@ -214,6 +227,12 @@ export default function Prematricula() {
                         <Col md={3}>
                             <Form.Label>Estudiante</Form.Label>
                             <Form.Control placeholder="Nombre o identificación" value={filters.student} onChange={e => setFilters({ ...filters, student: e.target.value })} />
+                        </Col>
+                        <Col md={3}>
+                            <Button type="button" variant="outline-secondary" className="w-100" onClick={limpiarFiltros}>
+                                <i className="bi bi-arrow-counterclockwise me-2" />
+                                Limpiar filtros
+                            </Button>
                         </Col>
                     </Row>
                 )}

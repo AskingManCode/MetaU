@@ -12,7 +12,6 @@ import EditarInstitucion from "./pages/OfertaAcademica/instituciones/Edit.jsx";
 import CrearUsuario from "./pages/Sistema/Usuarios/Create.jsx";
 import EditarUsuario from "./pages/Sistema/Usuarios/Edit.jsx";
 import DetalleUsuario from "./pages/Sistema/Usuarios/Detalle.jsx";
-import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
 import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
 import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, Col, Form, Modal, Row } from 'react-bootstrap'
+import { Col, Form, Row } from 'react-bootstrap'
+import { useLocation, useNavigate } from 'react-router-dom'
 import MaintenanceHeader from '../../../components/MaintenanceHeader'
 import Notification from '../../../components/Notification'
 import DataTable from '../../../components/DataTable'
@@ -14,29 +15,161 @@ const get = (item, ...keys) => keys.map(key => item?.[key]).find(value => value 
 const idOf = row => get(row, 'id', 'Id', 'matriculaXCursoID', 'MatriculaXCursoID')
 
 export default function Matricula() {
+    const navigate = useNavigate()
+    const location = useLocation()
     const [catalog, setCatalog] = useState({ periods: [], courses: [], groups: [], students: [] })
-    const [rows, setRows] = useState([]), [form, setForm] = useState(null), [deleteTarget, setDeleteTarget] = useState(null)
-    const [filters, setFilters] = useState({ course: '', group: '', student: '' }), [loading, setLoading] = useState(false), [notice, setNotice] = useState(null)
+    const [rows, setRows] = useState([])
+    const [filters, setFilters] = useState({ course: '', group: '', student: '' })
+    const [loading, setLoading] = useState(false)
+    const [notice, setNotice] = useState(null)
+
     const loadCatalog = async () => {
-        try { const [periods, courses, groups, students] = await Promise.all([periodoService.getAll(), cursoService.getAll(), grupoService.getAll(), expedienteService.getAll()]); setCatalog({ periods: list(periods.data), courses: list(courses.data), groups: list(groups.data), students: list(students.data) }) }
-        catch (error) { setNotice({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudieron cargar los catálogos' }) }
+        try {
+            const [periods, courses, groups, students] = await Promise.all([
+                periodoService.getAll(), cursoService.getAll(), grupoService.getAll(), expedienteService.getAll()
+            ])
+            setCatalog({
+                periods: list(periods.data),
+                courses: list(courses.data),
+                groups: list(groups.data),
+                students: list(students.data)
+            })
+        } catch (error) {
+            setNotice({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudieron cargar los catálogos' })
+        }
     }
+
     const loadRows = async () => {
-        if (!filters.course || !filters.group) { setRows([]); return }
-        setLoading(true); try { const response = await matriculaService.getAll({ cursoCode: filters.course, grupoCode: filters.group }); setRows(list(response.data)) } catch (error) { setNotice({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudieron cargar las matrículas' }) } finally { setLoading(false) }
+        if (!filters.course || !filters.group) {
+            setRows([])
+            return
+        }
+        setLoading(true)
+        try {
+            const response = await matriculaService.getAll({ cursoCode: filters.course, grupoCode: filters.group })
+            setRows(list(response.data))
+        } catch (error) {
+            setNotice({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudieron cargar las matrículas' })
+        } finally {
+            setLoading(false)
+        }
     }
+
     useEffect(() => { loadCatalog() }, [])
     useEffect(() => { loadRows() }, [filters.course, filters.group])
-    const activePeriods = catalog.periods.filter(item => new Date(get(item, 'fechaInicio', 'FechaInicio')) <= new Date() && new Date(get(item, 'fechaFin', 'FechaFin')) >= new Date())
+    useEffect(() => {
+        if (location.state?.mensaje) {
+            setNotice({ type: 'success', message: location.state.mensaje })
+            navigate(location.pathname, { replace: true, state: null })
+        }
+    }, [location, navigate])
+
     const courses = useMemo(() => Object.fromEntries(catalog.courses.map(item => [get(item, 'cursoCode', 'CursoCode'), item])), [catalog.courses])
     const groups = useMemo(() => Object.fromEntries(catalog.groups.map(item => [get(item, 'grupoCode', 'GrupoCode'), item])), [catalog.groups])
     const students = useMemo(() => Object.fromEntries(catalog.students.map(item => [get(item, 'identificacion', 'Identificacion'), item])), [catalog.students])
-    const filteredRows = rows.filter(row => { const student = students[get(row, 'identificacion', 'Identificacion')]; return !filters.student || `${get(student, 'nombreCompleto', 'NombreCompleto') ?? ''} ${get(row, 'identificacion', 'Identificacion') ?? ''}`.toLowerCase().includes(filters.student.toLowerCase()) })
-    const openCreate = () => setForm({ id: null, identificacion: '', cursoCode: filters.course, grupoCode: filters.group, periodoID: activePeriods[0] ? get(activePeriods[0], 'periodoID', 'PeriodoID') : '' })
-    const openEdit = row => setForm({ id: idOf(row), identificacion: get(row, 'identificacion', 'Identificacion'), cursoCode: get(row, 'cursoCode', 'CursoCode'), grupoCode: get(row, 'grupoCode', 'GrupoCode'), periodoID: get(row, 'periodoID', 'PeriodoID') })
-    const save = async event => { event.preventDefault(); try { const payload = { identificacion: form.identificacion, cursoCode: form.cursoCode, grupoCode: form.grupoCode, periodoID: form.periodoID }; if (form.id) await matriculaService.update(form.id, payload); else await matriculaService.create(payload); setForm(null); setNotice({ type: 'success', message: form.id ? 'Matrícula actualizada correctamente' : 'Matrícula creada correctamente' }); loadRows() } catch (error) { setNotice({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo guardar la matrícula' }) } }
-    const remove = async () => { try { await matriculaService.delete(idOf(deleteTarget)); setDeleteTarget(null); setNotice({ type: 'success', message: 'Matrícula eliminada correctamente' }); loadRows() } catch (error) { setNotice({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo eliminar la matrícula' }) } }
-    const columns = [{ key: 'student', label: 'Estudiante', render: row => <><div>{get(students[get(row, 'identificacion', 'Identificacion')], 'nombreCompleto', 'NombreCompleto') ?? 'Estudiante no encontrado'}</div><small>{get(row, 'identificacion', 'Identificacion')}</small></> }, { key: 'course', label: 'Curso', render: row => get(courses[get(row, 'cursoCode', 'CursoCode')], 'nombre', 'Nombre') ?? get(row, 'cursoCode', 'CursoCode') }, { key: 'group', label: 'Grupo', render: row => get(groups[get(row, 'grupoCode', 'GrupoCode')], 'grupoCode', 'GrupoCode') ?? get(row, 'grupoCode', 'GrupoCode') }, { key: 'period', label: 'Periodo', render: row => get(row, 'periodoID', 'PeriodoID') }]
-    const availableGroups = catalog.groups.filter(group => !form?.cursoCode || get(group, 'cursoCode', 'CursoCode') === form.cursoCode).filter(group => !form?.periodoID || get(group, 'periodoID', 'PeriodoID') === form.periodoID)
-    return <div><Notification type={notice?.type} message={notice?.message} show={!!notice} onClose={() => setNotice(null)} /><MaintenanceHeader title="Mantenimiento de Matrículas" buttonLabel="Nueva Matrícula" onButtonClick={openCreate} /><DataTable title="Información" columns={columns} data={filteredRows} loading={loading} pageSize={15} rowKey={idOf} filters={<Row className="g-3"><Col md={4}><Form.Label>Curso<Form.Select value={filters.course} onChange={e => setFilters({ course: e.target.value, group: '', student: '' })}><option value="">Seleccione un curso</option>{catalog.courses.map(item => <option key={get(item, 'cursoCode', 'CursoCode')} value={get(item, 'cursoCode', 'CursoCode')}>{get(item, 'nombre', 'Nombre')}</option>)}</Form.Select></Form.Label></Col><Col md={4}><Form.Label>Grupo<Form.Select value={filters.group} disabled={!filters.course} onChange={e => setFilters({ ...filters, group: e.target.value })}><option value="">Seleccione un grupo</option>{catalog.groups.filter(item => !filters.course || get(item, 'cursoCode', 'CursoCode') === filters.course).map(item => <option key={get(item, 'grupoCode', 'GrupoCode')} value={get(item, 'grupoCode', 'GrupoCode')}>{get(item, 'grupoCode', 'GrupoCode')} · Cupo {get(item, 'cupo', 'Cupo')}</option>)}</Form.Select></Form.Label></Col><Col md={4}><Form.Label>Estudiante<Form.Control placeholder="Nombre o identificación" value={filters.student} onChange={e => setFilters({ ...filters, student: e.target.value })} /></Form.Label></Col></Row>} actions={[{ type: 'editar', onClick: openEdit }, { type: 'eliminar', onClick: setDeleteTarget }]} /><Modal show={!!form} onHide={() => setForm(null)} centered><Form onSubmit={save}><Modal.Header closeButton><Modal.Title>{form?.id ? 'Editar matrícula' : 'Nueva matrícula'}</Modal.Title></Modal.Header><Modal.Body><Form.Label>Estudiante<Form.Select required disabled={!!form?.id} value={form?.identificacion ?? ''} onChange={e => setForm({ ...form, identificacion: e.target.value })}><option value="">Seleccione un estudiante</option>{catalog.students.map(item => { const id = get(item, 'identificacion', 'Identificacion'); return <option key={id} value={id}>{get(item, 'nombreCompleto', 'NombreCompleto')} · {id}</option> })}</Form.Select></Form.Label><Form.Label>Periodo activo<Form.Select required disabled={!!form?.id} value={form?.periodoID ?? ''} onChange={e => setForm({ ...form, periodoID: e.target.value, grupoCode: '' })}><option value="">Seleccione un periodo activo</option>{activePeriods.map(item => <option key={get(item, 'periodoID', 'PeriodoID')} value={get(item, 'periodoID', 'PeriodoID')}>{get(item, 'anio', 'Anio')} - Periodo {get(item, 'numeroPeriodo', 'NumeroPeriodo')}</option>)}</Form.Select></Form.Label><Form.Label>Curso<Form.Select required disabled={!!form?.id} value={form?.cursoCode ?? ''} onChange={e => setForm({ ...form, cursoCode: e.target.value, grupoCode: '' })}><option value="">Seleccione un curso</option>{catalog.courses.map(item => <option key={get(item, 'cursoCode', 'CursoCode')} value={get(item, 'cursoCode', 'CursoCode')}>{get(item, 'nombre', 'Nombre')}</option>)}</Form.Select></Form.Label><Form.Label>Grupo<Form.Select required value={form?.grupoCode ?? ''} onChange={e => setForm({ ...form, grupoCode: e.target.value })}><option value="">Seleccione un grupo</option>{availableGroups.map(item => <option key={get(item, 'grupoCode', 'GrupoCode')} value={get(item, 'grupoCode', 'GrupoCode')}>{get(item, 'grupoCode', 'GrupoCode')} · Cupo {get(item, 'cupo', 'Cupo')}</option>)}</Form.Select></Form.Label></Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setForm(null)}>Cancelar</Button><Button type="submit">Confirmar matrícula</Button></Modal.Footer></Form></Modal><Modal show={!!deleteTarget} onHide={() => setDeleteTarget(null)} centered><Modal.Header closeButton><Modal.Title>Confirmar eliminación</Modal.Title></Modal.Header><Modal.Body>¿Realmente desea eliminar la matrícula seleccionada?</Modal.Body><Modal.Footer><Button variant="secondary" onClick={() => setDeleteTarget(null)}>Cancelar</Button><Button variant="danger" onClick={remove}>Sí, eliminar</Button></Modal.Footer></Modal></div>
+    const filteredRows = rows.filter(row => {
+        if (!filters.student) return true
+        const student = students[get(row, 'identificacion', 'Identificacion')]
+        return `${get(student, 'nombreCompleto', 'NombreCompleto') ?? ''} ${get(row, 'identificacion', 'Identificacion') ?? ''}`
+            .toLowerCase()
+            .includes(filters.student.toLowerCase())
+    })
+
+    const confirmarEliminacion = row => {
+        setNotice({
+            type: 'warning',
+            message: '¿Realmente desea eliminar la matrícula seleccionada?',
+            onCancel: () => setNotice(null),
+            onConfirm: async () => {
+                setNotice(null)
+                try {
+                    await matriculaService.delete(idOf(row))
+                    setNotice({ type: 'success', message: 'Matrícula eliminada correctamente' })
+                    loadRows()
+                } catch (error) {
+                    setNotice({ type: 'error', message: error.response?.data?.mensaje ?? 'No se pudo eliminar la matrícula' })
+                }
+            }
+        })
+    }
+
+    const columns = [
+        {
+            key: 'student',
+            label: 'Estudiante',
+            render: row => <><div>{get(students[get(row, 'identificacion', 'Identificacion')], 'nombreCompleto', 'NombreCompleto') ?? 'Estudiante no encontrado'}</div><small>{get(row, 'identificacion', 'Identificacion')}</small></>
+        },
+        { key: 'course', label: 'Curso', render: row => get(courses[get(row, 'cursoCode', 'CursoCode')], 'nombre', 'Nombre') ?? get(row, 'cursoCode', 'CursoCode') },
+        { key: 'group', label: 'Grupo', render: row => get(groups[get(row, 'grupoCode', 'GrupoCode')], 'grupoCode', 'GrupoCode') ?? get(row, 'grupoCode', 'GrupoCode') },
+        { key: 'period', label: 'Periodo', render: row => get(row, 'periodoID', 'PeriodoID') }
+    ]
+
+    return (
+        <div>
+            <Notification
+                type={notice?.type}
+                message={notice?.message}
+                show={!!notice}
+                onClose={() => setNotice(null)}
+                onConfirm={notice?.onConfirm}
+                onCancel={notice?.onCancel}
+            />
+
+            <MaintenanceHeader
+                title="Mantenimiento de Matrículas"
+                buttonLabel="Nueva Matrícula"
+                onButtonClick={() => navigate('/matricula/nuevo', {
+                    state: { initial: { cursoCode: filters.course, grupoCode: filters.group } }
+                })}
+            />
+
+            <DataTable
+                title="Información"
+                columns={columns}
+                data={filteredRows}
+                loading={loading}
+                pageSize={15}
+                rowKey={idOf}
+                filters={(
+                    <Row className="g-3">
+                        <Col md={4}>
+                            <Form.Label>Curso</Form.Label>
+                            <Form.Select value={filters.course} onChange={event => setFilters({ course: event.target.value, group: '', student: '' })}>
+                                <option value="">Seleccione un curso</option>
+                                {catalog.courses.map(item => { const code = get(item, 'cursoCode', 'CursoCode'); return <option key={code} value={code}>{get(item, 'nombre', 'Nombre')}</option> })}
+                            </Form.Select>
+                        </Col>
+                        <Col md={4}>
+                            <Form.Label>Grupo</Form.Label>
+                            <Form.Select value={filters.group} disabled={!filters.course} onChange={event => setFilters({ ...filters, group: event.target.value })}>
+                                <option value="">Seleccione un grupo</option>
+                                {catalog.groups.filter(item => !filters.course || get(item, 'cursoCode', 'CursoCode') === filters.course).map(item => { const code = get(item, 'grupoCode', 'GrupoCode'); return <option key={code} value={code}>{code} · Cupo {get(item, 'cupo', 'Cupo')}</option> })}
+                            </Form.Select>
+                        </Col>
+                        <Col md={4}>
+                            <Form.Label>Estudiante</Form.Label>
+                            <Form.Control placeholder="Nombre o identificación" value={filters.student} onChange={event => setFilters({ ...filters, student: event.target.value })} />
+                        </Col>
+                    </Row>
+                )}
+                actions={[
+                    {
+                        type: 'editar',
+                        onClick: row => navigate(`/matricula/editar/${idOf(row)}`, {
+                            state: {
+                                matricula: {
+                                    id: idOf(row),
+                                    identificacion: get(row, 'identificacion', 'Identificacion'),
+                                    cursoCode: get(row, 'cursoCode', 'CursoCode'),
+                                    grupoCode: get(row, 'grupoCode', 'GrupoCode'),
+                                    periodoID: get(row, 'periodoID', 'PeriodoID')
+                                }
+                            }
+                        })
+                    },
+                    { type: 'eliminar', onClick: confirmarEliminacion }
+                ]}
+            />
+        </div>
+    )
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
+import Notification from '../../../components/Notification'
 import PageHeader from '../../../components/PageHeader'
 
 const estiloBoton = {
@@ -9,6 +10,42 @@ const estiloBoton = {
     borderColor: '#5d75e5'
 }
 
+const PATRON_CODIGO = /^[A-Z]{1,15}$/
+const PATRON_NOMBRE = /^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+$/
+
+const validar = datos => {
+    const idModulo = datos.idModulo.trim()
+    const nombre = datos.nombre.trim()
+    const textoOrden = String(datos.orden).trim()
+    const orden = Number(textoOrden)
+
+    if (!idModulo) {
+        return 'El codigo es obligatorio'
+    }
+
+    if (!PATRON_CODIGO.test(idModulo)) {
+        return 'El codigo solo puede tener letras mayusculas sin espacios ni numeros y maximo 15 caracteres'
+    }
+
+    if (!nombre) {
+        return 'El nombre es obligatorio'
+    }
+
+    if (!PATRON_NOMBRE.test(nombre)) {
+        return 'El nombre solo puede tener letras y espacios'
+    }
+
+    if (!textoOrden) {
+        return 'El orden en el menu es obligatorio'
+    }
+
+    if (!Number.isInteger(orden) || orden < 1) {
+        return 'El orden en el menu debe ser un numero entero mayor o igual a 1'
+    }
+
+    return null
+}
+
 function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion = false }) {
     const [datos, setDatos] = useState({
         idModulo: inicial?.idModulo ?? '',
@@ -16,6 +53,7 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
         orden: inicial?.orden ?? '',
         estado: inicial?.estado ?? true
     })
+    const [notification, setNotification] = useState(null)
 
     const cambiarCampo = (campo, valor) => {
         setDatos(actual => ({ ...actual, [campo]: valor }))
@@ -23,6 +61,16 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
 
     const manejarSubmit = e => {
         e.preventDefault()
+
+        const error = validar(datos)
+
+        if (error) {
+            setNotification({ type: 'error', message: error })
+            return
+        }
+
+        setNotification(null)
+
         onGuardar({
             idModulo: datos.idModulo.trim(),
             nombre: datos.nombre.trim(),
@@ -33,6 +81,13 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <PageHeader title={titulo} />
 
             <div className="d-flex gap-2 mb-3">
@@ -67,7 +122,7 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
                 </Card.Header>
 
                 <Card.Body className="p-3">
-                    <Form id="formularioModulo" onSubmit={manejarSubmit}>
+                    <Form id="formularioModulo" noValidate onSubmit={manejarSubmit}>
                         <fieldset disabled={guardando} className="border-0 p-0 m-0 w-100">
                             <Row className="g-3">
                                 <Col md={6}>
@@ -79,10 +134,7 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
                                             value={datos.idModulo}
                                             readOnly={esEdicion}
                                             maxLength={15}
-                                            pattern="[A-Z]{1,15}"
-                                            title="Solo letras mayusculas, maximo 15"
                                             onChange={e => cambiarCampo('idModulo', e.target.value.toUpperCase())}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Solo letras mayusculas, sin espacios ni numeros
@@ -97,10 +149,7 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
                                             type="text"
                                             placeholder="Ingrese el nombre del modulo"
                                             value={datos.nombre}
-                                            pattern="[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+"
-                                            title="Solo letras y espacios"
                                             onChange={e => cambiarCampo('nombre', e.target.value)}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Solo letras y espacios
@@ -118,7 +167,6 @@ function ModuloForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdici
                                             placeholder="Ej: 1"
                                             value={datos.orden}
                                             onChange={e => cambiarCampo('orden', e.target.value)}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Mayor o igual a 1 y no puede repetirse entre modulos

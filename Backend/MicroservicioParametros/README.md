@@ -1,41 +1,63 @@
-# MicroservicioParametros
+# Microservicio de Parámetros
 
-Administra los parámetros globales de configuración de MetaU. Cada parámetro tiene un código único, un valor y un estado de activación.
+Microservicio encargado de la administración de los parámetros globales de configuración de MetaU.
 
-**URL base del servicio:** pendiente de definir para cada ambiente; en ejecución local, `https://localhost:PORT`.
+## Historia de usuario
 
-**Prefijo de rutas:** `/api/parametro`
+Administración de parámetros globales.
 
-**Diagrama de clases:** 
+Permite crear, modificar, eliminar (lógica o físicamente) y consultar los parámetros de configuración utilizados por los demás microservicios.
 
-![Diagrama de Clases](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_AdministracionParametrizacion.drawio.png)
+## Tecnologías
 
-## Antes de consumir la API
+- .NET 10
+- ASP.NET Core Minimal APIs
+- Dapper (SQL directo) sobre SQL Server
+- Validación de solicitudes con FluentValidation
+- Autenticación mediante JWT (MicroservicioLogin)
+- Registro de acciones en Bitácoras
 
-Todas las operaciones requieren estos headers:
+## Endpoint base
+
+`/api/parametro`
+
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioParametros_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5227`
+- HTTPS: `https://localhost:7051`
+
+## Autenticación
+
+Todas las operaciones requieren los siguientes headers:
 
 | Header | Valor | Descripción |
-| --- | --- | --- |
-| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin. |
-| `UsuarioGUID` | `<UUID>` | GUID del usuario que realiza la operación; también se utiliza para la bitácora. |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `UsuarioGUID` | `<GUID>` | Identificador del usuario que realiza la operación |
 
-El servicio valida el token consultando MicroservicioLogin. Sin token o con token inválido responde `401 Unauthorized`. Si falta `UsuarioGUID` o no es un GUID válido responde `400 Bad Request`.
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `UsuarioGUID` o no es un GUID válido → `401 Unauthorized`.
 
-Los cuerpos y respuestas usan JSON. El código del parámetro debe tener entre 1 y 10 letras mayúsculas (`A-Z`); el valor es obligatorio y admite hasta 500 caracteres.
+Los cuerpos y respuestas usan JSON. El código debe contener entre 1 y 10 letras mayúsculas (`A-Z`); el valor es obligatorio y admite hasta 500 caracteres.
 
 ## Endpoints
 
-| Método | Ruta | Uso |
-| --- | --- | --- |
-| `GET` | `/api/parametro/` | Obtener todos los parámetros, incluidos los desactivados. |
-| `GET` | `/api/parametro/{ParametroCode}` | Obtener un parámetro por su código, incluye desactivados. |
-| `POST` | `/api/parametro/` | Crear un parámetro. |
-| `PATCH` | `/api/parametro/{ParametroCode}` | Actualizar el valor de un parámetro existente. |
-| `DELETE` | `/api/parametro/{ParametroCode}?eliminacionFisica=false` | Desactivar el parámetro o eliminarlo físicamente. |
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/api/parametro/` | Crear un parámetro | 201 Created |
+| PATCH | `/api/parametro/{ParametroCode}` | Actualizar el valor de un parámetro | 200 OK |
+| DELETE | `/api/parametro/{ParametroCode}?eliminacionFisica={valor}` | Desactivar o eliminar un parámetro | 200 OK |
+| GET | `/api/parametro/` | Obtener todos los parámetros, activos e inactivos | 200 OK |
+| GET | `/api/parametro/?pagina={n}` | Obtener parámetros paginados | 200 OK |
+| GET | `/api/parametro/{ParametroCode}` | Obtener un parámetro por código | 200 OK |
 
-`ParametroCode` acepta únicamente letras mayúsculas: `IVA` es válido y `ivA` no. En el `PATCH`, el código de la ruta es el que se procesa; el cuerpo solo necesita contener `Valor`.
+`ParametroCode` distingue mayúsculas y minúsculas en las rutas: `IVA` es válido y `ivA` no. En el `PATCH`, el código de la ruta es el que se procesa; el cuerpo solo necesita incluir `Valor`.
 
-### Crear
+### POST /api/parametro/ — Crear
 
 ```http
 POST /api/parametro/
@@ -49,19 +71,11 @@ Content-Type: application/json
 }
 ```
 
-Responde `201 Created` con el parámetro creado y el header `Location` apunta a `/api/parametro/IVA`. Si el código ya existe, responde `409 Conflict`.
+Responde `201 Created` con el parámetro creado y un header `Location` que apunta a `/api/parametro/IVA`. Si ya existe un parámetro con ese código, responde `409 Conflict`.
 
-### Consultar
+### PATCH /api/parametro/{ParametroCode} — Modificar
 
-```http
-GET /api/parametro/IVA
-Authorization: Bearer <JWT>
-UsuarioGUID: 00000000-0000-0000-0000-000000000001
-```
-
-La consulta individual devuelve `200 OK` o `404 Not Found`. La consulta de la colección devuelve `200 OK` con un arreglo; si no hay registros, el arreglo está vacío.
-
-### Actualizar
+Este endpoint actualiza únicamente el valor. El código se toma de la ruta.
 
 ```http
 PATCH /api/parametro/IVA
@@ -74,9 +88,11 @@ Content-Type: application/json
 }
 ```
 
-Responde `200 OK` con el parámetro actualizado o `404 Not Found` si no existe. Este endpoint actualiza únicamente `Valor`.
+Responde `200 OK` con el parámetro actualizado o `404 Not Found` si no existe.
 
-### Eliminar o desactivar
+### DELETE /api/parametro/{ParametroCode} — Eliminar
+
+El parámetro de consulta `eliminacionFisica` permite seleccionar el tipo de eliminación:
 
 ```http
 DELETE /api/parametro/IVA?eliminacionFisica=false
@@ -84,14 +100,51 @@ Authorization: Bearer <JWT>
 UsuarioGUID: 00000000-0000-0000-0000-000000000001
 ```
 
-- `eliminacionFisica=false` (predeterminado): eliminación lógica; conserva el registro y establece `Estado` en `false`.
-- `eliminacionFisica=true`: elimina el registro de la base de datos de forma permanente.
+- `eliminacionFisica=false`: eliminación lógica; conserva el registro y establece `Estado` en `false`.
+- `eliminacionFisica=true`: elimina el registro de la base de datos de forma permanente e irreversible.
 
-Responde `200 OK` con el registro resultante o `404 Not Found` si el código no existe. La opción física es irreversible.
+Responde `200 OK` con el registro resultante o `404 Not Found` si el código no existe.
+
+### GET /api/parametro/ y GET /api/parametro/{ParametroCode}
+
+```http
+GET /api/parametro/
+GET /api/parametro/IVA
+Authorization: Bearer <JWT>
+UsuarioGUID: 00000000-0000-0000-0000-000000000001
+```
+
+La consulta individual devuelve `200 OK` o `404 Not Found`. La consulta de la colección devuelve `200 OK` con un arreglo e incluye también los parámetros inactivos; si no hay registros, el arreglo está vacío.
+
+### Paginación
+
+Agregar `?pagina=1` (valor ≥ 1). El tamaño de página se obtiene del parámetro `PAGSIZE` (por defecto **15**). Si el parámetro no está disponible, está inactivo o no contiene un entero positivo, se utiliza el valor por defecto.
+
+```http
+GET /api/parametro/?pagina=1
+Authorization: Bearer <JWT>
+UsuarioGUID: 00000000-0000-0000-0000-000000000001
+```
+
+**Respuesta paginada:**
+
+```json
+{
+  "pagina": 1,
+  "tamanoPagina": 15,
+  "totalRegistros": 1,
+  "totalPaginas": 1,
+  "datos": [
+    {
+      "parametroCode": "IVA",
+      "valor": "13",
+      "estado": true
+    }
+  ]
+}
+```
 
 ## Formato de datos
-
-Los endpoints de lectura, creación, modificación y eliminación devuelven objetos con esta forma:
 
 ```json
 {
@@ -101,44 +154,63 @@ Los endpoints de lectura, creación, modificación y eliminación devuelven obje
 }
 ```
 
-La colección devuelve un arreglo de estos objetos. ASP.NET Core serializa los nombres JSON en camelCase por defecto.
+## Reglas de negocio / Validaciones
+
+- `ParametroCode` es obligatorio, único y solo puede contener entre 1 y 10 letras mayúsculas (`A-Z`).
+- `Valor` es obligatorio y admite hasta 500 caracteres.
+- En una modificación, el valor de `ParametroCode` en la ruta determina el registro; solo se actualiza `Valor`.
+- La eliminación lógica (`eliminacionFisica=false`) conserva el registro y cambia `Estado` a `false`; con `eliminacionFisica=true` se elimina permanentemente.
+- Las consultas de colección incluyen parámetros activos e inactivos.
+- Para paginar, `pagina` debe ser mayor o igual a 1.
+
+## Integraciones
+
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones (mejor esfuerzo) |
+
+## Configuración
+
+Claves principales en `appsettings.json` / variables de entorno:
+
+- `ConnectionStrings:DefaultConnection` → Cadena de conexión a `tiusr20pl_Configuraciones_DB`.
+- `MicroservicioLogin:BaseUrl` → URL base de MicroservicioLogin; el servicio invoca `validate`.
+- `MicroservicioBitacoras:BaseUrl` → URL base de MicroservicioBitacoras; el servicio invoca `bitacora`.
+- `Cors:AllowedOrigins` → Orígenes permitidos para solicitudes CORS.
+
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
+
+## Base de datos
+
+**Base de datos:** `Configuraciones_DB`  
+Tabla principal: Parametros.  
+Usa procedimientos almacenados (`usp_Parametros_Crear`, `usp_Parametros_ObtenerPorID`, `usp_Parametros_ObtenerTodos`, `usp_Parametros_Modificar` y `usp_Parametros_Eliminar`).
+
+## Ejecución local
+
+Requiere .NET 10 y SQL Server con la base de datos y los procedimientos almacenados configurados.
+
+```bash
+dotnet run --project Backend/MicroservicioParametros/MicroservicioParametros.csproj
+```
 
 ## Respuestas y errores comunes
 
-| Estado | Cuándo ocurre |
-| --- | --- |
-| `200 OK` | Consulta, modificación o eliminación completada. |
-| `201 Created` | Parámetro creado. |
-| `400 Bad Request` | Código o valor inválido, o `UsuarioGUID` ausente/no válido. La validación del cuerpo incluye `errores`, con `campo` y `mensaje`. |
-| `401 Unauthorized` | Falta el header Bearer o el token no es válido. |
-| `404 Not Found` | El código solicitado no existe. |
-| `409 Conflict` | Ya existe un parámetro con el código indicado al crear. |
-| `500 Internal Server Error` | Error técnico no recuperable al procesar la solicitud. |
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta, modificación o eliminación exitosa |
+| 201 Created | Parámetro creado |
+| 400 Bad Request | Datos inválidos, código en minúsculas, `UsuarioGUID` inválido o página < 1 |
+| 401 Unauthorized | Token o `UsuarioGUID` ausente/inválido |
+| 404 Not Found | Parámetro no encontrado |
+| 409 Conflict | Ya existe un parámetro con el mismo código |
+| 500 Internal Server Error | Error técnico no controlado |
 
-Las operaciones registran acciones en MicroservicioBitacoras. Si la bitácora no está disponible, la operación principal continúa.
+## Diagrama de clases
 
-## Ejecutar y configurar
+![Diagrama de Clases de Parámetros](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_AdministracionParametrizacion.drawio.png)
 
-Requisitos: .NET 10, SQL Server con la base de datos `Configuraciones_DB` creada y los procedimientos almacenados de parámetros instalados. La definición está en [`Scripts SQL/Configuraciones_DB`](../../Scripts%20SQL/Configuraciones_DB/01.%20Configuraciones_DB.sql); los procedimientos están en su carpeta [`Scripts SQL/Configuraciones_DB/Procedimientos Almacenados`](../../Scripts%20SQL/Configuraciones_DB/Procedimientos%20Almacenados).
+---
 
-Desde la raíz del repositorio:
-
-```powershell
-dotnet run --project .\Backend\MicroservicioParametros\MicroservicioParametros.csproj
-```
-
-La aplicación requiere estos valores de configuración. En despliegues se pueden definir mediante variables de entorno .NET (separador `__`); no se deben guardar credenciales reales en el repositorio:
-
-| Clave | Ejemplo/uso |
-| --- | --- |
-| `ConnectionStrings:DefaultConnection` | Cadena de conexión a SQL Server y a `Configuraciones_DB`. |
-| `MicroservicioLogin:BaseUrl` | URL base de MicroservicioLogin, con `/` al final; el servicio invoca `validate`. |
-| `MicroservicioBitacoras:BaseUrl` | URL base de MicroservicioBitacoras, con `/` al final; el servicio invoca `bitacora`. |
-
-Equivalentes como variables de entorno: `ConnectionStrings__DefaultConnection`, `MicroservicioLogin__BaseUrl` y `MicroservicioBitacoras__BaseUrl`. Swagger y OpenAPI interactivo se habilitan solo cuando el ambiente es `Development`.
-
-## Persistencia y componentes
-
-Los datos se guardan en `Configuraciones_DB.dbo.Parametros`, con `ParametroCode` como clave primaria, `Valor` como texto de configuración y `Estado` como indicador de activación. La persistencia usa Dapper y estos procedimientos almacenados: `usp_Parametros_Crear`, `usp_Parametros_ObtenerPorID`, `usp_Parametros_ObtenerTodos`, `usp_Parametros_Modificar` y `usp_Parametros_Eliminar`.
-
-Flujo principal: endpoints HTTP -> validación de autenticación y de la solicitud -> `ParametroService` -> `ParametroRepository` -> SQL Server. La validación de JWT y el registro de auditoría se integran respectivamente con MicroservicioLogin y MicroservicioBitacoras.
+*Documentación estandarizada del microservicio MicroservicioParametros.*

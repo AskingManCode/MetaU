@@ -8,7 +8,7 @@ namespace MicroservicioPagos
     {
         public static void MapPagosEndpoints(this WebApplication app)
         {
-            var group = app.MapGroup("/pago");
+            var group = app.MapGroup("/api/pago");
 
             group.MapPost("/{FacturaID}", Crear);
             group.MapPatch("/{PagoID}", Reversar);
@@ -95,9 +95,7 @@ namespace MicroservicioPagos
             {
                 return Results.Json(new
                 {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                    mensaje = "Error interno del servidor"
                 }, statusCode: 500);
             }
         }
@@ -124,9 +122,7 @@ namespace MicroservicioPagos
             {
                 return Results.Json(new
                 {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
+                    mensaje = "Error interno del servidor"
                 }, statusCode: 500);
             }
         }
@@ -145,14 +141,13 @@ namespace MicroservicioPagos
             {
                 return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
+            catch (KeyNotFoundException ex)
+            {
+                return Results.NotFound(new { mensaje = ex.Message });
+            }
             catch (Exception ex)
             {
-                return Results.Json(new
-                {
-                    mensaje = "Error interno del servidor",
-                    detalle = ex.Message,
-                    tipo = ex.GetType().Name
-                }, statusCode: 500);
+                return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }
         }
     }

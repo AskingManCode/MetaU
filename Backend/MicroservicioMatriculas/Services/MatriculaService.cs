@@ -11,19 +11,27 @@ namespace MicroservicioMatriculas.Services
         private readonly ICursoClient _cursos;
         private readonly IGrupoClient _grupos;
         private readonly IPeriodoClient _periodos;
+        private readonly IParametroClient _parametros;
+        private readonly ILogger<MatriculaService> _logger;
+        private const string ParametroPaginacion = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         public MatriculaService(
             IMatriculaRepository repositorio,
             IBitacoraClient bitacora,
             ICursoClient cursos,
             IGrupoClient grupos,
-            IPeriodoClient periodos)
+            IPeriodoClient periodos,
+        IParametroClient parametros,
+        ILogger<MatriculaService> logger)
         {
             _repositorio = repositorio;
             _bitacora = bitacora;
             _cursos = cursos;
             _grupos = grupos;
             _periodos = periodos;
+            _parametros = parametros;
+            _logger = logger;
         }
 
         public async Task<MatriculaResponse> Matricular(MatriculaRequest request, ContextoUsuario contexto)
@@ -163,6 +171,78 @@ namespace MicroservicioMatriculas.Services
                 .ToList();
         }
 
+public async Task<PaginaResultado<EstudianteMatriculadoResponse>> ObtenerEstudiantesMatriculadosPaginado(
+    string cursoCode, string grupoCode, int pagina, ContextoUsuario contexto)
+{
+    if (pagina < 1)
+        throw new ValidacionException("La página debe ser mayor o igual a 1.");
+
+    var estudiantes = (await ObtenerEstudiantesMatriculados(cursoCode, grupoCode, contexto))
+        .OrderBy(e => e.NombreCompleto, StringComparer.OrdinalIgnoreCase)
+        .ThenBy(e => e.Identificacion, StringComparer.Ordinal)
+        .ToList();
+
+    return await CrearPaginaAsync(estudiantes, pagina, contexto);
+}
+
+public async Task<PaginaResultado<MatriculaResponse>> ObtenerMatriculasPorEstudiantePaginado(
+    string identificacion, int pagina, ContextoUsuario contexto)
+{
+    if (pagina < 1)
+        throw new ValidacionException("La página debe ser mayor o igual a 1.");
+
+    var matriculas = (await ObtenerMatriculasPorEstudiante(identificacion, contexto))
+        .OrderBy(m => m.PeriodoID)
+        .ThenBy(m => m.CursoCode, StringComparer.Ordinal)
+        .ThenBy(m => m.Id)
+        .ToList();
+
+    return await CrearPaginaAsync(matriculas, pagina, contexto);
+}
+
+private async Task<PaginaResultado<T>> CrearPaginaAsync<T>(
+    List<T> elementos, int pagina, ContextoUsuario contexto)
+{
+    var tamano = await ObtenerTamanoPagina(contexto);
+    var inicio = ((long)pagina - 1) * tamano;
+    var datos = inicio >= elementos.Count
+        ? new List<T>()
+        : elementos.Skip((int)inicio).Take(tamano).ToList();
+
+    return new PaginaResultado<T>
+    {
+        Pagina = pagina,
+        TamanoPagina = tamano,
+        TotalRegistros = elementos.Count,
+        TotalPaginas = (int)Math.Ceiling(elementos.Count / (double)tamano),
+        Datos = datos
+    };
+}
+
+private async Task<int> ObtenerTamanoPagina(ContextoUsuario contexto)
+{
+    var tamano = TamanoPaginaDefecto;
+    try
+    {
+        var valor = await _parametros.ObtenerValorAsync(ParametroPaginacion, contexto);
+        if (int.TryParse(valor, out var configurado) && configurado > 0)
+            tamano = Math.Min(configurado, TamanoPaginaDefecto);
+
+        _logger.LogInformation("Paginación de matrículas: PAGSIZE={Valor}, tamaño aplicado={Tamano}",
+            valor ?? "No disponible", tamano);
+    }
+    catch (HttpRequestException ex)
+    {
+        _logger.LogWarning(ex, "No se pudo consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+    catch (TaskCanceledException ex)
+    {
+        _logger.LogWarning(ex, "Tiempo de espera agotado al consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+
+    return tamano;
+}
+
         public async Task<List<MatriculaResponse>> ObtenerMatriculasPorEstudiante(string identificacion, ContextoUsuario contexto)
         {
             if (string.IsNullOrWhiteSpace(identificacion))
@@ -213,6 +293,9 @@ namespace MicroservicioMatriculas.Services
 
             if (!string.Equals(grupo.CursoCode, curso.CursoCode, StringComparison.OrdinalIgnoreCase))
                 throw new ValidacionException("El grupo no pertenece al curso indicado.");
+
+            if (grupo.PeriodoID != request.PeriodoID)
+                throw new ValidacionException("El grupo no pertenece al periodo indicado.");
 
             var periodo = await _periodos.ObtenerPorId(request.PeriodoID, contexto)
                 ?? throw new NoEncontradoException("No existe el periodo indicado.");

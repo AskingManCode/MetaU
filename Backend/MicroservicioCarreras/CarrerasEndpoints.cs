@@ -71,16 +71,20 @@ namespace MicroservicioCarreras
         private static async Task<IResult> ObtenerTodosAsync(
             [FromHeader(Name = "Authorization")] string? authorization,
             [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            int? pagina,
             ICarreraService service)
         {
             try
             {
+                if (pagina.HasValue)
+                    return Results.Ok(await service.ObtenerPaginadoAsync(pagina.Value, authorization, usuarioId));
+
                 var carreras = await service.ObtenerTodosAsync(authorization, usuarioId);
                 return Results.Ok(carreras);
             }
             catch (Exception ex)
             {
-                return RespuestaError(ex);
+                return RespuestaError(ex, argumentoEsBadRequest: true);
             }
         }
 
@@ -105,16 +109,20 @@ namespace MicroservicioCarreras
             string institucionId,
             [FromHeader(Name = "Authorization")] string? authorization,
             [FromHeader(Name = "X-Usuario-Id")] string? usuarioId,
+            int? pagina,
             ICarreraService service)
         {
             try
             {
+                if (pagina.HasValue)
+                    return Results.Ok(await service.ObtenerPorInstitucionPaginadoAsync(institucionId, pagina.Value, authorization, usuarioId));
+
                 var carreras = await service.ObtenerPorInstitucionAsync(institucionId, authorization, usuarioId);
                 return Results.Ok(carreras);
             }
             catch (Exception ex)
             {
-                return RespuestaError(ex);
+                return RespuestaError(ex, argumentoEsBadRequest: true);
             }
         }
 

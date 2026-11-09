@@ -6,6 +6,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendReact", policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
 builder.Services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
 builder.Services.AddScoped<IExpedienteService, ExpedienteService>();
@@ -30,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("FrontendReact");
 
 ExpedientesEstudiantesEndpoints.MapearEndpoints(app);
 

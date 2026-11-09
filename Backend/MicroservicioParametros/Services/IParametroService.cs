@@ -9,5 +9,6 @@ namespace MicroservicioParametros.Services
         Task<ParametroResponse?> EliminarAsync(string parametroCode, bool eliminacionFisica, HttpRequest httpRequest);
         Task<ParametroResponse?> ObtenerPorIDAsync(string parametroCode, HttpRequest httpRequest);
         Task<IEnumerable<ParametroResponse>> ObtenerTodosAsync(HttpRequest httpRequest);
+        Task<PaginaResultado<ParametroResponse>> ObtenerPaginadoAsync(int pagina, HttpRequest httpRequest);
     }
 }

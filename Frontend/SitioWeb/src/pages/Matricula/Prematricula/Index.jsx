@@ -68,10 +68,30 @@ export default function Prematricula() {
             navigate(location.pathname, { replace: true, state: null })
         }
     }, [location, navigate])
-    const remove = async row => {
-        if (!window.confirm('¿Realmente desea eliminar la prematrícula seleccionada?')) return
-        try { await prematriculaService.delete(idOf(row)); setNotification({ type: 'success', message: 'Prematrícula eliminada correctamente' }); load() }
-        catch (error) { setNotification({ type: 'danger', message: error.response?.data?.mensaje ?? 'No se pudo eliminar la prematrícula' }) }
+    const confirmarEliminacion = row => {
+        setNotification({
+            type: 'warning',
+            message: '¿Realmente desea eliminar la prematrícula seleccionada?',
+            onCancel: () => setNotification(null),
+            onConfirm: async () => {
+                setNotification(null)
+
+                try {
+                    await prematriculaService.delete(idOf(row))
+                    setNotification({
+                        type: 'success',
+                        message: 'Prematrícula eliminada correctamente'
+                    })
+                    load()
+                } catch (error) {
+                    setNotification({
+                        type: 'error',
+                        message: error.response?.data?.mensaje ??
+                            'No se pudo eliminar la prematrícula'
+                    })
+                }
+            }
+        })
     }
 
     const columns = [
@@ -119,6 +139,8 @@ export default function Prematricula() {
                 message={notification?.message}
                 show={!!notification}
                 onClose={() => setNotification(null)}
+                onConfirm={notification?.onConfirm}
+                onCancel={notification?.onCancel}
             />
 
             <MaintenanceHeader
@@ -189,7 +211,7 @@ export default function Prematricula() {
                         </Col>
                     </Row>
                 )}
-                actions={[{ type: 'editar', onClick: row => navigate(`/prematricula/editar/${idOf(row)}`) }, { type: 'eliminar', onClick: remove }]}
+                actions={[{ type: 'editar', onClick: row => navigate(`/prematricula/editar/${idOf(row)}`) }, { type: 'eliminar', onClick: confirmarEliminacion }]}
             />
         </div>
     )

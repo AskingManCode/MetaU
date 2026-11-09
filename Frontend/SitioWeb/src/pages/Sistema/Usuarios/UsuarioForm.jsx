@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Alert, Card, Col, Form, Row, Spinner } from 'react-bootstrap'
+import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
+import Notification from '../../../components/Notification'
 import PageHeader from '../../../components/PageHeader'
 import rolService from '../../../services/rolService'
 import { normalizarRol } from '../../../utils/sistemaUtils'
@@ -13,13 +14,27 @@ const estiloBoton = {
 }
 
 const PATRON_NOMBRE = /^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+$/
+const PATRON_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PATRON_IDENTIFICACION = /^[A-Za-z0-9]{9,}$/
 
-const validar = datos => {
+const validar = (datos, esEdicion) => {
     const email = datos.email.trim().toLowerCase()
     const dominio = email.split('@')[1]
 
+    if (!email) {
+        return 'El email es obligatorio'
+    }
+
+    if (!PATRON_EMAIL.test(email)) {
+        return 'El formato del email no es valido'
+    }
+
     if (!DOMINIOS.includes(dominio)) {
         return 'El email debe pertenecer al dominio cuc.cr o cuc.ac.cr'
+    }
+
+    if (!datos.idRol) {
+        return 'Debe seleccionar un rol'
     }
 
     if (dominio === 'cuc.cr' && datos.idRol !== 'EST') {
@@ -30,8 +45,24 @@ const validar = datos => {
         return 'Los emails del dominio cuc.ac.cr deben tener el rol Profesor o Administrativo'
     }
 
+    if (!datos.tipoIdentificacion) {
+        return 'Debe seleccionar un tipo de identificacion'
+    }
+
+    if (!datos.identificacion.trim()) {
+        return 'La identificacion es obligatoria'
+    }
+
+    if (!PATRON_IDENTIFICACION.test(datos.identificacion.trim())) {
+        return 'La identificacion debe tener minimo 9 caracteres y solo letras y numeros'
+    }
+
     if (!datos.nombre.trim() || !PATRON_NOMBRE.test(datos.nombre.trim())) {
         return 'El nombre es obligatorio y solo puede tener letras y espacios'
+    }
+
+    if (!esEdicion && !datos.contrasena) {
+        return 'La contrasena es obligatoria'
     }
 
     return null
@@ -48,8 +79,7 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
     })
     const [roles, setRoles] = useState([])
     const [cargandoRoles, setCargandoRoles] = useState(true)
-    const [errorRoles, setErrorRoles] = useState(false)
-    const [errorValidacion, setErrorValidacion] = useState(null)
+    const [notification, setNotification] = useState(null)
 
     useEffect(() => {
         let activo = true
@@ -59,7 +89,12 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                 if (activo) setRoles(data.map(normalizarRol))
             })
             .catch(() => {
-                if (activo) setErrorRoles(true)
+                if (activo) {
+                    setNotification({
+                        type: 'error',
+                        message: 'No se pudo cargar la lista de roles'
+                    })
+                }
             })
             .finally(() => {
                 if (activo) setCargandoRoles(false)
@@ -75,10 +110,14 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
     const manejarSubmit = e => {
         e.preventDefault()
 
-        const error = validar(datos)
-        setErrorValidacion(error)
+        const error = validar(datos, esEdicion)
 
-        if (error) return
+        if (error) {
+            setNotification({ type: 'error', message: error })
+            return
+        }
+
+        setNotification(null)
 
         const cuerpo = {
             email: datos.email.trim(),
@@ -95,6 +134,13 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <PageHeader title={titulo} />
 
             <div className="d-flex gap-2 mb-3">
@@ -129,12 +175,7 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                 </Card.Header>
 
                 <Card.Body className="p-3">
-                    {errorValidacion && <Alert variant="danger">{errorValidacion}</Alert>}
-                    {errorRoles && (
-                        <Alert variant="warning">No se pudo cargar la lista de roles</Alert>
-                    )}
-
-                    <Form id="formularioUsuario" onSubmit={manejarSubmit}>
+                    <Form id="formularioUsuario" noValidate onSubmit={manejarSubmit}>
                         <fieldset disabled={guardando} className="border-0 p-0 m-0 w-100">
                             <Row className="g-3">
                                 <Col md={6}>
@@ -146,7 +187,6 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                                             value={datos.email}
                                             readOnly={esEdicion}
                                             onChange={e => cambiarCampo('email', e.target.value)}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Dominio cuc.cr (estudiantes) o cuc.ac.cr (profesores y administrativos)
@@ -161,7 +201,6 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                                             value={datos.idRol}
                                             onChange={e => cambiarCampo('idRol', e.target.value)}
                                             disabled={cargandoRoles}
-                                            required
                                         >
                                             <option value="">
                                                 {cargandoRoles ? 'Cargando roles...' : 'Seleccione un rol'}
@@ -179,7 +218,6 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                                         <Form.Select
                                             value={datos.tipoIdentificacion}
                                             onChange={e => cambiarCampo('tipoIdentificacion', e.target.value)}
-                                            required
                                         >
                                             <option value="">Seleccione un tipo</option>
                                             {TIPOS_IDENTIFICACION.map(t => (
@@ -196,10 +234,7 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                                             type="text"
                                             placeholder="Numero de identificacion"
                                             value={datos.identificacion}
-                                            pattern="[A-Za-z0-9]{9,}"
-                                            title="Minimo 9 caracteres, solo letras y numeros, sin espacios"
                                             onChange={e => cambiarCampo('identificacion', e.target.value)}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Minimo 9 caracteres, solo letras y numeros
@@ -215,7 +250,6 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                                             placeholder="Ingrese el nombre completo"
                                             value={datos.nombre}
                                             onChange={e => cambiarCampo('nombre', e.target.value)}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Solo letras y espacios
@@ -232,7 +266,6 @@ function UsuarioForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdic
                                             placeholder={esEdicion ? 'Dejar en blanco para no cambiarla' : 'Ingrese la contrasena'}
                                             value={datos.contrasena}
                                             onChange={e => cambiarCampo('contrasena', e.target.value)}
-                                            required={!esEdicion}
                                         />
                                         {esEdicion && (
                                             <Form.Text className="text-muted">

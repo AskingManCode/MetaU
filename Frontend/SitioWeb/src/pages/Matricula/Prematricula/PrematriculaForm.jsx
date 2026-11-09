@@ -51,9 +51,15 @@ export default function PrematriculaForm({ initial, title, onSave, onCancel }) {
             .finally(() => setLoading(false))
     }, [])
 
-    const futurePeriods = catalog.periods.filter(item => (
-        new Date(get(item, 'fechaInicio', 'FechaInicio')) > new Date()
-    ))
+    const futurePeriods = [...catalog.periods]
+        .filter(item => (
+            new Date(get(item, 'fechaInicio', 'FechaInicio')) > new Date()
+        ))
+        .sort((first, second) => (
+            Number(get(first, 'anio', 'Anio')) - Number(get(second, 'anio', 'Anio')) ||
+            Number(get(first, 'numeroPeriodo', 'NumeroPeriodo')) -
+            Number(get(second, 'numeroPeriodo', 'NumeroPeriodo'))
+        ))
 
     const update = changes => {
         setForm(current => ({ ...current, ...changes }))

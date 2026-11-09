@@ -6,6 +6,9 @@ import { AuthProvider } from "./context/AuthContext";
 import Perfil from "./pages/MiPerfil/Index.jsx";
 import Dashboard from "./pages/Dashboard/Index.jsx";
 import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
+import CrearUsuario from "./pages/Sistema/Usuarios/Create.jsx";
+import EditarUsuario from "./pages/Sistema/Usuarios/Edit.jsx";
+import DetalleUsuario from "./pages/Sistema/Usuarios/Detalle.jsx";
 import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
 import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
@@ -73,6 +76,9 @@ function App() {
 
                     {/* Sistema */}
                     <Route path="usuarios" element={<Usuarios />} />
+                    <Route path="usuarios/nuevo" element={<CrearUsuario />} />
+                    <Route path="usuarios/editar/:email" element={<EditarUsuario />} />
+                    <Route path="usuarios/ver/:email" element={<DetalleUsuario />} />
                     <Route path="roles" element={<Roles />} />
                     <Route path="modulos" element={<Modulos />} />
                     <Route path="modulos/nuevo" element={<CrearModulo />} />

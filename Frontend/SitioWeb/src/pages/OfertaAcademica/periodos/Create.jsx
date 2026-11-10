@@ -1,7 +1,8 @@
 
 import { useEffect, useState } from 'react'
-import { Alert, Spinner } from 'react-bootstrap'
+import { Spinner } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import Notification from '../../../components/Notification'
 import periodoService from '../../../services/periodoService'
 import PeriodoForm from './PeriodoForm'
 
@@ -12,6 +13,7 @@ export default function Create() {
     const [cargando, setCargando] = useState(true)
     const [guardando, setGuardando] = useState(false)
     const [error, setError] = useState('')
+    const [tipoError, setTipoError] = useState('error')
 
     useEffect(() => {
         periodoService.getAll().then(({ data }) => setPeriodos(data)).catch(err => setError(err.response?.data?.mensaje || 'No se pudieron cargar los periodos')).finally(() => setCargando(false))
@@ -20,6 +22,8 @@ export default function Create() {
     const guardar = async e => {
         e.preventDefault()
         setError('')
+        setTipoError('warning')
+
         const anio = Number(datos.anio)
         const numero = Number(datos.numeroPeriodo)
 
@@ -39,6 +43,7 @@ export default function Create() {
             await periodoService.create({ anio, numeroPeriodo: numero, fechaInicio: `${datos.fechaInicio}T00:00:00`, fechaFin: `${datos.fechaFin}T00:00:00` })
             navigate('/periodos', { state: { mensaje: 'Periodo creado correctamente' } })
         } catch (err) {
+            setTipoError('error')
             setError(err.response?.data?.mensaje || 'No se pudo crear el periodo')
         } finally {
             setGuardando(false)
@@ -47,8 +52,24 @@ export default function Create() {
 
     return (
         <>
-            {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
-            {cargando ? <div className="text-center p-4"><Spinner animation="border" /></div> : <PeriodoForm titulo="Nuevo periodo" datos={datos} onChange={(campo, valor) => setDatos(actual => ({ ...actual, [campo]: valor }))} onSubmit={guardar} onCancelar={() => navigate('/periodos')} guardando={guardando} />}
+            <Notification
+                type={tipoError}
+                message={error}
+                show={!!error}
+                onClose={() => setError('')}
+            />
+
+            {cargando
+                ? <div className="text-center p-4"><Spinner animation="border" /></div>
+                : <PeriodoForm
+                    titulo="Nuevo periodo"
+                    datos={datos}
+                    onChange={(campo, valor) => setDatos(actual => ({ ...actual, [campo]: valor }))}
+                    onSubmit={guardar}
+                    onCancelar={() => navigate('/periodos')}
+                    guardando={guardando}
+                />
+            }
         </>
     )
 }

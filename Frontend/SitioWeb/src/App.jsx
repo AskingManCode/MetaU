@@ -11,9 +11,7 @@ import EditarUsuario from "./pages/Sistema/Usuarios/Edit.jsx";
 import DetalleUsuario from "./pages/Sistema/Usuarios/Detalle.jsx";
 import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
-import Cursos from "./pages/OfertaAcademica/cursos/Index.jsx";
-import CrearCurso from "./pages/OfertaAcademica/cursos/Create.jsx";
-import EditarCurso from "./pages/OfertaAcademica/cursos/Edit.jsx";
+import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
 import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
 import Periodos from "./pages/OfertaAcademica/Periodos/Index.jsx";
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
@@ -56,8 +54,6 @@ function App() {
                     <Route path="instituciones" element={<Instituciones />} />
                     <Route path="carreras" element={<Carreras />} />
                     <Route path="cursos" element={<Cursos />} />
-                    <Route path="cursos/nuevo" element={<CrearCurso />} />
-                    <Route path="cursos/editar/:cursoCode" element={<EditarCurso />} />
                     <Route path="grupos" element={<Grupos />} />
                     <Route path="periodos" element={<Periodos />} />
 

@@ -9,7 +9,7 @@ const parametroService = {
     create: data => api.post('/parametro', data),
     update: (parametroCode, data) => api.patch(`/parametro/${encodeURIComponent(parametroCode)}`, data),
     delete: parametroCode => api.delete(`/parametro/${encodeURIComponent(parametroCode)}`, {
-        params: { eliminacionFisica: false }
+        params: { eliminacionFisica: true }
     })
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate, useLocation} from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -8,16 +8,14 @@ import logo from '../assets/logo.png';
 import MENU from '../utils/menu';
 import SidebarLink from '../components/sidebar/SidebarLink';
 import SidebarSection from '../components/sidebar/SidebarSection';
+import useAuth from '../hooks/useAuth';
 
 export default function MainLayout() {
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [openSection, setOpenSection] = useState(null);
     const navigate = useNavigate();
-
-    // Dato temporal (luego debe venir del contexto / login)
-    const usuario = { nombre: 'Usuario Administrador', rol: 'Administrador' };
-    const usuario2 = { nombre: 'Usuario Profesor', rol: 'Profesor' }
+    const { user, logout } = useAuth();
 
     const toggleSection = (label) => {
         setSidebarOpen(true); // si está colapsado, se expande para mostrar el submenú
@@ -25,8 +23,7 @@ export default function MainLayout() {
     };
 
     const handleLogout = () => {
-        // Más adelante deberá limpiar el token
-        navigate('/login');
+        logout();
     };
 
     return (
@@ -107,8 +104,8 @@ export default function MainLayout() {
                         </Button>
                         
                         <div className="d-flex flex-column lh-sm">
-                            <span className="user-name fw-semibold text-dark">{usuario.nombre}</span>
-                            <span className="user-role text-muted">{usuario.rol}</span>
+                            <span className="user-name fw-semibold text-dark">{user?.email || 'Usuario'}</span>
+                            <span className="user-role text-muted">{user?.role || 'Usuario'}</span>
                         </div>
 
                         <Button

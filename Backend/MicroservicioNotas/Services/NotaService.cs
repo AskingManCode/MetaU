@@ -97,6 +97,10 @@ namespace MicroservicioNotas.Services
 
         public async Task<List<Rubro>> ObtenerDesglose(string grupoCode, ContextoUsuario contexto)
         {
+            if (string.IsNullOrWhiteSpace(grupoCode))
+                throw new ValidacionException("El código del grupo es requerido.");
+
+            grupoCode = grupoCode.Trim();
             var rubros = await _repository.ListarRubrosPorGrupo(grupoCode);
             await RegistrarBitacora(contexto, $"El usuario consulta desglose del grupo {grupoCode}");
             return rubros;
@@ -104,6 +108,11 @@ namespace MicroservicioNotas.Services
 
         public async Task<List<NotaRubro>> ObtenerNotas(string identificacion, string grupoCode, ContextoUsuario contexto)
         {
+            if (string.IsNullOrWhiteSpace(identificacion) || string.IsNullOrWhiteSpace(grupoCode))
+                throw new ValidacionException("La identificación del estudiante y el código del grupo son requeridos.");
+
+            identificacion = identificacion.Trim();
+            grupoCode = grupoCode.Trim();
             var estudianteId = await _expedienteClient.ObtenerEstudianteID(identificacion, contexto)
                 ?? throw new ValidacionException($"El estudiante {identificacion} no existe.");
 
@@ -127,6 +136,9 @@ namespace MicroservicioNotas.Services
         {
             if (string.IsNullOrWhiteSpace(request.Identificacion))
                 throw new ValidacionException("Debe indicarse la identificación del estudiante.");
+
+            if (request.RubroID == Guid.Empty)
+                throw new ValidacionException("Debe indicarse un rubro válido.");
 
             _ = await _repository.ObtenerRubro(request.RubroID)
                 ?? throw new ValidacionException($"El rubro {request.RubroID} no existe.");

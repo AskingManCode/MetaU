@@ -12,7 +12,8 @@ CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Facturas_Crear
     @IdentificacionEstudiante VARCHAR(30),
     @MatriculaID UNIQUEIDENTIFIER,
     @PeriodoID UNIQUEIDENTIFIER,
-    @Monto DECIMAL(12,2)
+    @Monto DECIMAL(12,2),
+    @PorcentajeImpuesto DECIMAL(5,2)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -28,12 +29,6 @@ BEGIN
         RETURN;
     END
 
-    IF @MatriculaID IS NULL
-    BEGIN
-        RAISERROR('El identificador de la matrícula es obligatorio.', 16, 1);
-        RETURN;
-    END
-
     IF @PeriodoID IS NULL
     BEGIN
         RAISERROR('El identificador del periodo es obligatorio.', 16, 1);
@@ -46,6 +41,12 @@ BEGIN
         RETURN;
     END
 
+    IF @PorcentajeImpuesto IS NULL OR @PorcentajeImpuesto < 0 OR @PorcentajeImpuesto > 100
+    BEGIN
+        RAISERROR('El porcentaje de impuesto debe estar entre 0 y 100.', 16, 1);
+        RETURN;
+    END
+
     IF NOT EXISTS (
         SELECT 1 FROM MetaU_DB_User.EstadosFacturas 
         WHERE EstadoFacturaCode = 'PEND' AND Estado = 1
@@ -55,16 +56,18 @@ BEGIN
         RETURN;
     END
 
+    -- Una sola factura por estudiante + período
     IF EXISTS (
         SELECT 1 FROM MetaU_DB_User.Facturas WITH (UPDLOCK, HOLDLOCK)
-        WHERE MatriculaID = @MatriculaID
+        WHERE IdentificacionEstudiante = TRIM(@IdentificacionEstudiante)
+          AND PeriodoID = @PeriodoID
     )
     BEGIN
-        RAISERROR('Ya existe una factura para la matrícula indicada.', 16, 1);
+        RAISERROR('Ya existe una factura para el estudiante en el periodo indicado.', 16, 1);
         RETURN;
     END
 
-    SET @Impuesto = ROUND(@Monto * 2.00 / 100, 2);
+    SET @Impuesto = ROUND(@Monto * @PorcentajeImpuesto / 100, 2);
     SET @Total = @Monto + @Impuesto;
 
     DECLARE @FacturaCreada TABLE (FacturaID UNIQUEIDENTIFIER);
@@ -88,13 +91,12 @@ BEGIN
         @PeriodoID,
         'PEND',
         @Monto,
-        2.00,
+        @PorcentajeImpuesto,
         @Impuesto,
         @Total
     );
 
     SELECT @FacturaID = FacturaID FROM @FacturaCreada;
-
     SELECT @FacturaID AS FacturaID;
 END
 GO

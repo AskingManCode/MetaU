@@ -26,9 +26,14 @@ namespace MicroservicioPreMatriculas
                     return Results.NoContent();
                 }));
 
-            grupo.MapGet("/", (HttpRequest http, IPrematriculaService servicio) =>
+            grupo.MapGet("/", (int? pagina, HttpRequest http, IPrematriculaService servicio) =>
                 Ejecutar(http, async contexto =>
-                    Results.Ok(await servicio.ObtenerTodas(contexto))));
+                {
+                    if (pagina.HasValue)
+                        return Results.Ok(await servicio.ObtenerPaginado(pagina.Value, contexto));
+
+                    return Results.Ok(await servicio.ObtenerTodas(contexto));
+                }));
 
             grupo.MapGet("/{id:guid}", (Guid id, HttpRequest http, IPrematriculaService servicio) =>
                 Ejecutar(http, async contexto =>

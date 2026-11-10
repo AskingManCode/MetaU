@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
+import Notification from '../../../components/Notification'
 import PageHeader from '../../../components/PageHeader'
 
 const estiloBoton = {
@@ -9,11 +10,38 @@ const estiloBoton = {
     borderColor: '#5d75e5'
 }
 
+const PATRON_CODIGO = /^[A-Z]{1,15}$/
+const PATRON_NOMBRE = /^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+$/
+
+const validar = datos => {
+    const idRol = datos.idRol.trim()
+    const nombre = datos.nombre.trim()
+
+    if (!idRol) {
+        return 'El codigo es obligatorio'
+    }
+
+    if (!PATRON_CODIGO.test(idRol)) {
+        return 'El codigo solo puede tener letras mayusculas sin espacios ni numeros y maximo 15 caracteres'
+    }
+
+    if (!nombre) {
+        return 'El nombre es obligatorio'
+    }
+
+    if (!PATRON_NOMBRE.test(nombre)) {
+        return 'El nombre solo puede tener letras y espacios'
+    }
+
+    return null
+}
+
 function RolForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion = false }) {
     const [datos, setDatos] = useState({
         idRol: inicial?.idRol ?? '',
         nombre: inicial?.nombre ?? ''
     })
+    const [notification, setNotification] = useState(null)
 
     const cambiarCampo = (campo, valor) => {
         setDatos(actual => ({ ...actual, [campo]: valor }))
@@ -21,6 +49,16 @@ function RolForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion 
 
     const manejarSubmit = e => {
         e.preventDefault()
+
+        const error = validar(datos)
+
+        if (error) {
+            setNotification({ type: 'error', message: error })
+            return
+        }
+
+        setNotification(null)
+
         onGuardar({
             idRol: datos.idRol.trim(),
             nombre: datos.nombre.trim()
@@ -29,6 +67,13 @@ function RolForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion 
 
     return (
         <div>
+            <Notification
+                type={notification?.type}
+                message={notification?.message}
+                show={!!notification}
+                onClose={() => setNotification(null)}
+            />
+
             <PageHeader title={titulo} />
 
             <div className="d-flex gap-2 mb-3">
@@ -63,7 +108,7 @@ function RolForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion 
                 </Card.Header>
 
                 <Card.Body className="p-3">
-                    <Form id="formularioRol" onSubmit={manejarSubmit}>
+                    <Form id="formularioRol" noValidate onSubmit={manejarSubmit}>
                         <fieldset disabled={guardando} className="border-0 p-0 m-0 w-100">
                             <Row className="g-3">
                                 <Col md={6}>
@@ -75,10 +120,7 @@ function RolForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion 
                                             value={datos.idRol}
                                             readOnly={esEdicion}
                                             maxLength={15}
-                                            pattern="[A-Z]{1,15}"
-                                            title="Solo letras mayusculas, maximo 15"
                                             onChange={e => cambiarCampo('idRol', e.target.value.toUpperCase())}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Solo letras mayusculas, sin espacios ni numeros
@@ -93,10 +135,7 @@ function RolForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion 
                                             type="text"
                                             placeholder="Ingrese el nombre del rol"
                                             value={datos.nombre}
-                                            pattern="[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+"
-                                            title="Solo letras y espacios"
                                             onChange={e => cambiarCampo('nombre', e.target.value)}
-                                            required
                                         />
                                         <Form.Text className="text-muted">
                                             Solo letras y espacios

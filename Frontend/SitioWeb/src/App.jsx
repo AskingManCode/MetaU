@@ -30,6 +30,8 @@ import EditarProfesor from './pages/Personas/Profesores/Edit.jsx'
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
 import Matricula from "./pages/Matricula/Matricula/Index.jsx";
+import CrearMatricula from "./pages/Matricula/Matricula/Create.jsx";
+import EditarMatricula from "./pages/Matricula/Matricula/Edit.jsx";
 import Notas from "./pages/Evaluacion/Notas/Index.jsx";
 import Listados from "./pages/Evaluacion/Listados/Index.jsx";
 import Historial from "./pages/Evaluacion/Historial/Index.jsx";
@@ -90,6 +92,8 @@ function App() {
                     {/* Matrícula */}
                     <Route path="prematricula" element={<Prematricula />} />
                     <Route path="matricula" element={<Matricula />} />
+                    <Route path="matricula/nuevo" element={<CrearMatricula />} />
+                    <Route path="matricula/editar/:matriculaId" element={<EditarMatricula />} />
 
                     {/* Evaluación */}
                     <Route path="notas" element={<Notas />} />

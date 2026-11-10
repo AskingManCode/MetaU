@@ -12,5 +12,6 @@ namespace MicroservicioRoles.Services
         Task<IEnumerable<RolModulo>> ObtenerPermisosAsync(string id);
         Task<(IEnumerable<RolModulo> Anteriores, IEnumerable<RolModulo> Actuales)> ActualizarPermisosAsync(string id, List<RolModulo> cambios);
         Task<PaginaResultado<Rol>> ObtenerPaginadoAsync(int pagina, Guid usuarioId, string token);
+        Task<IEnumerable<MenuModulo>> ObtenerMenuAsync(string id);
     }
 }

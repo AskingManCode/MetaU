@@ -12,13 +12,13 @@ import DetalleUsuario from "./pages/Sistema/Usuarios/Detalle.jsx";
 import Instituciones from "./pages/OfertaAcademica/instituciones/Index.jsx";
 import CrearInstitucion from "./pages/OfertaAcademica/instituciones/Create.jsx";
 import EditarInstitucion from "./pages/OfertaAcademica/instituciones/Edit.jsx";
-import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
+import Carreras from "./pages/OfertaAcademica/carreras/Index.jsx";
+import CrearCarrera from "./pages/OfertaAcademica/carreras/Create.jsx";
+import EditarCarrera from "./pages/OfertaAcademica/carreras/Edit.jsx";
 import Cursos from "./pages/OfertaAcademica/cursos/Index.jsx";
 import CrearCurso from "./pages/OfertaAcademica/cursos/Create.jsx";
 import EditarCurso from "./pages/OfertaAcademica/cursos/Edit.jsx";
-
 import Grupos from "./pages/OfertaAcademica/grupos/Index.jsx";
-
 import Periodos from "./pages/OfertaAcademica/periodos/Index.jsx";
 import CrearPeriodo from "./pages/OfertaAcademica/periodos/Create.jsx";
 import EditarPeriodo from "./pages/OfertaAcademica/periodos/Edit.jsx";
@@ -63,6 +63,8 @@ function App() {
                     <Route path="instituciones/nuevo" element={<CrearInstitucion />} />
                     <Route path="instituciones/editar/:institucionId" element={<EditarInstitucion />} />
                     <Route path="carreras" element={<Carreras />} />
+                    <Route path="carreras/nuevo" element={<CrearCarrera />} />
+                    <Route path="carreras/editar/:carreraCode" element={<EditarCarrera />} />
                     <Route path="cursos" element={<Cursos />} />
                     <Route path="cursos/nuevo" element={<CrearCurso />} />
                     <Route path="cursos/editar/:cursoCode" element={<EditarCurso />} />

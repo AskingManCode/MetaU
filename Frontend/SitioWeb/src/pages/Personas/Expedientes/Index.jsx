@@ -19,6 +19,20 @@ const value = (row, ...keys) => keys
     .map(key => row?.[key])
     .find(item => item !== undefined && item !== null)
 
+const phoneValues = value => {
+    if (Array.isArray(value)) {
+        return value
+            .map(phone => phone?.numero ?? phone?.Numero ?? phone)
+            .filter(Boolean)
+    }
+
+    if (typeof value === 'string') {
+        return value.split(',').map(phone => phone.trim()).filter(Boolean)
+    }
+
+    return value ? [value?.numero ?? value?.Numero ?? value] : []
+}
+
 function Index() {
     const navigate = useNavigate()
     const location = useLocation()
@@ -115,9 +129,7 @@ function Index() {
         {
             key: 'telefonos',
             label: 'Teléfonos',
-            render: row => (row.telefonos ?? row.Telefonos ?? [])
-                .map(phone => phone.numero ?? phone.Numero ?? phone)
-                .join(', ') || '-',
+            render: row => phoneValues(row.telefonos ?? row.Telefonos).join(', ') || '-',
         },
     ]
 

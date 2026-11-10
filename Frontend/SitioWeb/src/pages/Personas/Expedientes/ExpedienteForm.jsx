@@ -17,29 +17,20 @@ const list = value => {
 
     return Array.isArray(data)
         ? data
-        : data?.items ?? data?.datos ?? data?.data ?? []
+        : data?.items ?? data?.datos ?? data?.data ?? data?.result ?? data?.value ?? []
 }
 
-const provinciaIdOf = item => item?.provinciaID
-    ?? item?.ProvinciaID
-    ?? item?.id
-    ?? item?.ID
+const firstValue = (item, keys) => keys
+    .map(key => item?.[key])
+    .find(value => value !== undefined && value !== null && value !== '')
 
-const cantonIdOf = item => item?.cantonID
-    ?? item?.CantonID
-    ?? item?.id
-    ?? item?.ID
+const provinciaIdOf = item => firstValue(item, ['provinciaID', 'ProvinciaID', 'provinciaId', 'ProvinciaId', 'id', 'ID'])
 
-const distritoIdOf = item => item?.distritoID
-    ?? item?.DistritoID
-    ?? item?.id
-    ?? item?.ID
+const cantonIdOf = item => firstValue(item, ['cantonID', 'CantonID', 'cantonId', 'CantonId', 'id', 'ID'])
 
-const nameOf = item => item?.nombre
-    ?? item?.Nombre
-    ?? item?.descripcion
-    ?? item?.Descripcion
-    ?? ''
+const distritoIdOf = item => firstValue(item, ['distritoID', 'DistritoID', 'distritoId', 'DistritoId', 'id', 'ID'])
+
+const nameOf = item => firstValue(item, ['nombre', 'Nombre', 'descripcion', 'Descripcion']) ?? ''
 
 const keyOf = (id, index) => `${id ?? 'sin-id'}-${index}`
 
@@ -56,32 +47,34 @@ const empty = {
     telefonos: [''],
 }
 
+const phoneValues = value => {
+    if (Array.isArray(value)) {
+        return value
+            .map(phone => phone?.numero ?? phone?.Numero ?? phone)
+            .filter(Boolean)
+    }
+
+    if (typeof value === 'string') {
+        return value.split(',').map(phone => phone.trim()).filter(Boolean)
+    }
+
+    return value ? [value?.numero ?? value?.Numero ?? value] : []
+}
+
+const locationValue = (initial, directKeys, nestedKeys) => firstValue(initial, directKeys)
+    ?? firstValue(initial?.direccion ?? initial?.Direccion, nestedKeys)
+    ?? ''
+
+const idValue = value => value === undefined || value === null ? '' : String(value)
+
 const normalize = initial => ({
     ...empty,
     ...initial,
-    provinciaID: initial?.provinciaID
-        ?? initial?.ProvinciaID
-        ?? initial?.direccion?.provinciaID
-        ?? initial?.Direccion?.ProvinciaID
-        ?? '',
-    cantonID: initial?.cantonID
-        ?? initial?.CantonID
-        ?? initial?.direccion?.cantonID
-        ?? initial?.Direccion?.CantonID
-        ?? '',
-    distritoID: initial?.distritoID
-        ?? initial?.DistritoID
-        ?? initial?.direccion?.distritoID
-        ?? initial?.Direccion?.DistritoID
-        ?? '',
-    otrasSenas: initial?.otrasSenas
-        ?? initial?.OtrasSenas
-        ?? initial?.direccion?.otrasSenas
-        ?? initial?.Direccion?.OtrasSenas
-        ?? '',
-    telefonos: (initial?.telefonos ?? initial?.Telefonos ?? [])
-        .map(phone => phone?.numero ?? phone?.Numero ?? phone)
-        .filter(Boolean),
+    provinciaID: idValue(locationValue(initial, ['provinciaID', 'ProvinciaID', 'provinciaId', 'ProvinciaId'], ['provinciaID', 'ProvinciaID', 'provinciaId', 'ProvinciaId'])),
+    cantonID: idValue(locationValue(initial, ['cantonID', 'CantonID', 'cantonId', 'CantonId'], ['cantonID', 'CantonID', 'cantonId', 'CantonId'])),
+    distritoID: idValue(locationValue(initial, ['distritoID', 'DistritoID', 'distritoId', 'DistritoId'], ['distritoID', 'DistritoID', 'distritoId', 'DistritoId'])),
+    otrasSenas: locationValue(initial, ['otrasSenas', 'OtrasSenas'], ['otrasSenas', 'OtrasSenas']),
+    telefonos: phoneValues(initial?.telefonos ?? initial?.Telefonos),
 })
 
 function ExpedienteForm({
@@ -96,6 +89,7 @@ function ExpedienteForm({
     const [provincias, setProvincias] = useState([])
     const [cantones, setCantones] = useState([])
     const [distritos, setDistritos] = useState([])
+    const [cantonesListos, setCantonesListos] = useState(false)
     const [cargandoCatalogos, setCargandoCatalogos] = useState(true)
     const [notification, setNotification] = useState(null)
 
@@ -130,19 +124,25 @@ function ExpedienteForm({
     useEffect(() => {
         if (!datos.provinciaID) {
             setCantones([])
+            setCantonesListos(false)
             return undefined
         }
 
         let activo = true
+        setCantonesListos(false)
+        setCantones([])
+        setDistritos([])
 
         direccionService.getCantones(datos.provinciaID)
             .then(response => {
                 if (activo) {
                     setCantones(list(response))
+                    setCantonesListos(true)
                 }
             })
             .catch(error => {
                 if (activo) {
+                    setCantonesListos(false)
                     setNotification({
                         type: 'error',
                         message: mensajeError(error, 'No se pudieron cargar los cantones'),
@@ -156,7 +156,7 @@ function ExpedienteForm({
     }, [datos.provinciaID])
 
     useEffect(() => {
-        if (!datos.provinciaID || !datos.cantonID) {
+        if (!datos.provinciaID || !datos.cantonID || !cantonesListos) {
             setDistritos([])
             return undefined
         }
@@ -181,7 +181,7 @@ function ExpedienteForm({
         return () => {
             activo = false
         }
-    }, [datos.provinciaID, datos.cantonID])
+    }, [datos.provinciaID, datos.cantonID, cantonesListos])
 
     const change = (field, value) => {
         setDatos(current => ({ ...current, [field]: value }))
@@ -201,6 +201,29 @@ function ExpedienteForm({
             ...current,
             cantonID: event.target.value,
             distritoID: '',
+        }))
+    }
+
+    const changePhone = (index, value) => {
+        setDatos(current => ({
+            ...current,
+            telefonos: current.telefonos.map((phone, phoneIndex) => (
+                phoneIndex === index ? value : phone
+            )),
+        }))
+    }
+
+    const addPhone = () => {
+        setDatos(current => ({
+            ...current,
+            telefonos: [...current.telefonos, ''],
+        }))
+    }
+
+    const removePhone = index => {
+        setDatos(current => ({
+            ...current,
+            telefonos: current.telefonos.filter((_, phoneIndex) => phoneIndex !== index),
         }))
     }
 
@@ -343,7 +366,7 @@ function ExpedienteForm({
                                             {provincias.map((item, index) => (
                                                 <option
                                                     key={keyOf(provinciaIdOf(item), index)}
-                                                    value={provinciaIdOf(item)}
+                                                    value={idValue(provinciaIdOf(item))}
                                                 >
                                                     {nameOf(item)}
                                                 </option>
@@ -363,7 +386,7 @@ function ExpedienteForm({
                                             {cantones.map((item, index) => (
                                                 <option
                                                     key={keyOf(cantonIdOf(item), index)}
-                                                    value={cantonIdOf(item)}
+                                                    value={idValue(cantonIdOf(item))}
                                                 >
                                                     {nameOf(item)}
                                                 </option>
@@ -383,7 +406,7 @@ function ExpedienteForm({
                                             {distritos.map((item, index) => (
                                                 <option
                                                     key={keyOf(distritoIdOf(item), index)}
-                                                    value={distritoIdOf(item)}
+                                                    value={idValue(distritoIdOf(item))}
                                                 >
                                                     {nameOf(item)}
                                                 </option>
@@ -401,14 +424,38 @@ function ExpedienteForm({
                                     </Col>
 
                                     <Col md={4}>
-                                        <Form.Label>Teléfono *</Form.Label>
-                                        <Form.Control
-                                            required
-                                            pattern="[0-9]{8}"
-                                            title="Debe contener exactamente 8 dígitos"
-                                            value={datos.telefonos[0] ?? ''}
-                                            onChange={event => change('telefonos', [event.target.value])}
-                                        />
+                                        <Form.Label>Teléfonos *</Form.Label>
+                                        {datos.telefonos.map((phone, index) => (
+                                            <div className="d-flex gap-2 mb-2" key={`telefono-${index}`}>
+                                                <Form.Control
+                                                    required
+                                                    type="tel"
+                                                    pattern="[0-9]{4}[- ]?[0-9]{4}"
+                                                    title="Debe contener 8 dígitos"
+                                                    value={phone}
+                                                    onChange={event => changePhone(index, event.target.value)}
+                                                />
+                                                {datos.telefonos.length > 1 && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-danger"
+                                                        onClick={() => removePhone(index)}
+                                                        title="Quitar teléfono"
+                                                        aria-label="Quitar teléfono"
+                                                    >
+                                                        <i className="bi bi-trash" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-primary btn-sm"
+                                            onClick={addPhone}
+                                        >
+                                            <i className="bi bi-plus-circle me-1" />
+                                            Agregar teléfono
+                                        </button>
                                     </Col>
                                 </Row>
                             </fieldset>

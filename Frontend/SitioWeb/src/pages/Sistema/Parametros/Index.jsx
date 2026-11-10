@@ -1,37 +1,29 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Form } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import MaintenanceHeader from '../../../components/MaintenanceHeader'
 import Notification from '../../../components/Notification'
 import DataTable from '../../../components/DataTable'
 import useListado from '../../../hooks/useListado'
 import parametroService from '../../../services/parametroService'
-import { mensajeError, normalizarParametro, textoBusqueda } from '../../../utils/sistemaUtils'
+import { mensajeError, normalizarParametro } from '../../../utils/sistemaUtils'
 
 const columnas = [
-    { key: 'parametroCode', label: 'Codigo', sortable: true },
-    { key: 'valor', label: 'Valor', sortable: true },
-    { key: 'estado', label: 'Estado', sortable: true, render: p => p.estado ? 'Activo' : 'Inactivo' }
+    { key: 'parametroCode', label: 'Codigo' },
+    { key: 'valor', label: 'Valor' },
+    { key: 'estado', label: 'Estado', render: p => p.estado ? 'Activo' : 'Inactivo' }
 ]
 
 function Parametros() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const [codigo, setCodigo] = useState('')
-    const [valor, setValor] = useState('')
-    const [ordenTabla, setOrdenTabla] = useState({ key: null, direction: 'asc' })
     const [eliminando, setEliminando] = useState(false)
-
     const [errorOculto, setErrorOculto] = useState(null)
     const [notification, setNotification] = useState(
         location.state?.mensaje
             ? { type: 'success', message: location.state.mensaje }
             : null
     )
-
-    const tieneFiltros = Boolean(codigo.trim() || valor.trim())
-    const listaCompleta = tieneFiltros || Boolean(ordenTabla.key)
 
     const {
         registros,
@@ -45,8 +37,7 @@ function Parametros() {
     } = useListado({
         servicio: parametroService,
         normalizar: normalizarParametro,
-        nombre: 'parametros',
-        listaCompleta
+        nombre: 'parametros'
     })
 
     useEffect(() => {
@@ -72,32 +63,10 @@ function Parametros() {
         }
     }
 
-    const filtrados = useMemo(() => registros.filter(p =>
-        textoBusqueda(p.parametroCode).includes(textoBusqueda(codigo)) &&
-        textoBusqueda(p.valor).includes(textoBusqueda(valor))
-    ), [registros, codigo, valor])
-
-    const cambiarFiltro = (campo, nuevoValor) => {
-        if (campo === 'codigo') setCodigo(nuevoValor)
-        if (campo === 'valor') setValor(nuevoValor)
-        setPagina(1)
-    }
-
-    const limpiarFiltros = () => {
-        setCodigo('')
-        setValor('')
-        setPagina(1)
-    }
-
-    const cambiarOrden = nuevoOrden => {
-        setOrdenTabla(nuevoOrden)
-        setPagina(1)
-    }
-
     const confirmarEliminacion = parametro => {
         setNotification({
             type: 'warning',
-            message: '¿Realmente desea eliminar el elemento seleccionado?',
+            message: '¿Realmente desea eliminar el elemento seleccionado? Esto podría alterar el funcionamiento correcto del sistema.',
             onCancel: () => setNotification(null),
             onConfirm: async () => {
                 if (eliminando) return
@@ -119,41 +88,6 @@ function Parametros() {
             }
         })
     }
-
-    const filtros = (
-        <div className="row g-2">
-            <div className="col-md-4">
-                <Form.Label className="small mb-1">Codigo</Form.Label>
-                <Form.Control
-                    size="sm"
-                    placeholder="Buscar codigo"
-                    value={codigo}
-                    onChange={e => cambiarFiltro('codigo', e.target.value)}
-                />
-            </div>
-
-            <div className="col-md-4">
-                <Form.Label className="small mb-1">Valor</Form.Label>
-                <Form.Control
-                    size="sm"
-                    placeholder="Buscar valor"
-                    value={valor}
-                    onChange={e => cambiarFiltro('valor', e.target.value)}
-                />
-            </div>
-
-            <div className="col-md-4 d-flex align-items-end">
-                <button
-                    type="button"
-                    className="btn btn-sm btn-outline-secondary w-100"
-                    onClick={limpiarFiltros}
-                >
-                    <i className="bi bi-arrow-counterclockwise me-2" />
-                    Limpiar filtros
-                </button>
-            </div>
-        </div>
-    )
 
     const acciones = [
         {
@@ -187,18 +121,16 @@ function Parametros() {
             <DataTable
                 title="Informacion"
                 columns={columnas}
-                data={filtrados}
+                data={registros}
                 actions={acciones}
                 rowKey="parametroCode"
                 loading={loading}
-                filters={filtros}
                 pageSize={15}
-                serverPagination={!listaCompleta}
+                serverPagination
                 currentPage={pagina}
                 totalPages={totalPaginas}
                 totalRecords={totalRegistros}
                 onPageChange={setPagina}
-                onSortChange={cambiarOrden}
                 emptyMessage={
                     errorCarga
                         ? 'No se pudieron cargar los parametros'

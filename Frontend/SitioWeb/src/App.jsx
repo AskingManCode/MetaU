@@ -44,6 +44,8 @@ import Modulos from "./pages/Sistema/Modulos/Index.jsx";
 import CrearModulo from "./pages/Sistema/Modulos/Create.jsx";
 import EditarModulo from "./pages/Sistema/Modulos/Edit.jsx";
 import Parametros from "./pages/Sistema/Parametros/Index.jsx";
+import CrearParametro from "./pages/Sistema/Parametros/Create.jsx";
+import EditarParametro from "./pages/Sistema/Parametros/Edit.jsx";
 import Bitacoras from "./pages/Sistema/Bitacoras/Index.jsx";
 
 function App() {
@@ -114,6 +116,8 @@ function App() {
                     <Route path="modulos/nuevo" element={<CrearModulo />} />
                     <Route path="modulos/editar/:moduloId" element={<EditarModulo />} />
                     <Route path="parametros" element={<Parametros />} />
+                    <Route path="parametros/nuevo" element={<CrearParametro />} />
+                    <Route path="parametros/editar/:parametroCode" element={<EditarParametro />} />
                     <Route path="bitacoras" element={<Bitacoras />} />
 
                     </Route>

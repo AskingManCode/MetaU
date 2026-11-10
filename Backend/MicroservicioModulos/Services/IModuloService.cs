@@ -9,5 +9,6 @@ namespace MicroservicioModulos.Services
         Task<Modulos> CrearAsync(Modulos modulo);
         Task<(Modulos Anterior, Modulos Actual)> ActualizarAsync(string id, Modulos modulo);
         Task<Modulos> EliminarAsync(string id);
+        Task<PaginaResultado<Modulos>> ObtenerPaginadoAsync(int pagina, Guid usuarioId, string token);
     }
 }

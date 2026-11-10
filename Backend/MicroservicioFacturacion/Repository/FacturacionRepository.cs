@@ -2,7 +2,7 @@ using System.Data;
 using Dapper;
 using MicroservicioFacturacion.Entities;
 
-namespace MicroservicioFacturacion.Repository
+namespace MicroservicioFacturacion.Repository 
 {
     public class FacturacionRepository : IFacturacionRepository
     {
@@ -18,6 +18,7 @@ namespace MicroservicioFacturacion.Repository
             Guid matriculaId,
             Guid periodoId,
             decimal monto,
+            decimal porcentajeImpuesto,
             IEnumerable<(string CursoCode, string Descripcion, decimal Monto)> detalles)
         {
             using var connection = _connectionFactory.CreateConnection();
@@ -27,24 +28,23 @@ namespace MicroservicioFacturacion.Repository
 
             try
             {
-                // Crear encabezado (el SP ya no maneja su propia transacción)
                 var facturaId = await connection.QuerySingleAsync<Guid>(
-                    "dbo.usp_Facturas_Crear",
+                    "MetaU_DB_User.usp_Facturas_Crear",
                     new
                     {
                         IdentificacionEstudiante = identificacionEstudiante,
                         MatriculaID = matriculaId,
                         PeriodoID = periodoId,
-                        Monto = monto
+                        Monto = monto,
+                        PorcentajeImpuesto = porcentajeImpuesto
                     },
                     transaction,
                     commandType: CommandType.StoredProcedure);
 
-                // Agregar detalles
                 foreach (var detalle in detalles)
                 {
                     await connection.ExecuteAsync(
-                        "dbo.usp_Facturas_AgregarDetalle",
+                        "MetaU_DB_User.usp_Facturas_AgregarDetalle",
                         new
                         {
                             FacturaID = facturaId,
@@ -61,7 +61,7 @@ namespace MicroservicioFacturacion.Repository
             }
             catch
             {
-                try { transaction.Rollback(); } catch { /* ya estaba rolled back */ }
+                try { transaction.Rollback(); } catch { }
                 throw;
             }
         }
@@ -71,7 +71,7 @@ namespace MicroservicioFacturacion.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             var rowsAffected = await connection.ExecuteAsync(
-                "dbo.usp_Facturas_Anular",
+                "MetaU_DB_User.usp_Facturas_Anular",
                 new { FacturaID = facturaId },
                 commandType: CommandType.StoredProcedure);
 
@@ -83,7 +83,7 @@ namespace MicroservicioFacturacion.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             var rows = (await connection.QueryAsync(
-                "dbo.usp_Facturas_ObtenerPorID",
+                "MetaU_DB_User.usp_Facturas_ObtenerPorID",
                 new { FacturaID = facturaId },
                 commandType: CommandType.StoredProcedure)).ToList();
 
@@ -98,7 +98,7 @@ namespace MicroservicioFacturacion.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             var rows = (await connection.QueryAsync(
-                "dbo.usp_Facturas_ObtenerPorPeriodo",
+                "MetaU_DB_User.usp_Facturas_ObtenerPorPeriodo",
                 new { PeriodoID = periodoId },
                 commandType: CommandType.StoredProcedure)).ToList();
 

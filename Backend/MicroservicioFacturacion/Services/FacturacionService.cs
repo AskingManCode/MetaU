@@ -13,9 +13,15 @@ namespace MicroservicioFacturacion.Services
         private readonly IAuthServiceValidator _authValidator;
         private readonly IBitacoraServiceClient _bitacoraClient;
         private readonly IValidator<FacturacionRequest> _validator;
+        private readonly IParametroServiceClient _parametroClient;
 
-        private const decimal MontoPorCurso = 30000m;
-        private const string DescripcionDetalle = "Servicios estudiantiles";
+        private const string ParamCostoCurso = "COSTOCUR";
+        private const string ParamImpuesto = "IMPPCT";
+        private const string ParamDescripcion = "DETFAC";
+
+        private const decimal CostoCursoDefecto = 30000m;
+        private const decimal ImpuestoDefecto = 2m;
+        private const string DescripcionDefecto = "Servicios estudiantiles";
 
         public FacturacionService(
             IFacturacionRepository repository,
@@ -23,7 +29,8 @@ namespace MicroservicioFacturacion.Services
             IPeriodoServiceClient periodoClient,
             IAuthServiceValidator authValidator,
             IBitacoraServiceClient bitacoraClient,
-            IValidator<FacturacionRequest> validator)
+            IValidator<FacturacionRequest> validator,
+            IParametroServiceClient parametroClient)
         {
             _repository = repository;
             _matriculaClient = matriculaClient;
@@ -31,6 +38,7 @@ namespace MicroservicioFacturacion.Services
             _authValidator = authValidator;
             _bitacoraClient = bitacoraClient;
             _validator = validator;
+            _parametroClient = parametroClient;
         }
 
         public async Task<FacturaResponse> CrearAsync(FacturacionRequest request, HttpRequest httpRequest)
@@ -41,7 +49,6 @@ namespace MicroservicioFacturacion.Services
                 throw new UnauthorizedAccessException("No autorizado");
 
             var validationResult = await _validator.ValidateAsync(request);
-
             if (!validationResult.IsValid)
             {
                 var mensaje = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
@@ -50,11 +57,20 @@ namespace MicroservicioFacturacion.Services
 
             try
             {
-                var periodoValido = await _periodoClient.ObtenerPorIdAsync(request.PeriodoID, usuario, token);
+                // 1. Obtener parámetros configurables
+                var costoCurso = await ObtenerDecimalParametroAsync(ParamCostoCurso, usuario, token, CostoCursoDefecto);
+                var porcentajeImpuesto = await ObtenerDecimalParametroAsync(ParamImpuesto, usuario, token, ImpuestoDefecto);
+                var descripcionDetalle = await ObtenerTextoParametroAsync(ParamDescripcion, usuario, token, DescripcionDefecto);
 
+                if (costoCurso <= 0)
+                    throw new InvalidOperationException("El parámetro COSTOCUR debe ser mayor que cero.");
+
+                // 2. Validar período
+                var periodoValido = await _periodoClient.ObtenerPorIdAsync(request.PeriodoID, usuario, token);
                 if (!periodoValido)
                     throw new KeyNotFoundException("El periodo indicado no existe o no está activo.");
 
+                // 3. Obtener matrículas activas del estudiante en el período
                 var matriculas = await _matriculaClient.ObtenerPorEstudianteAsync(
                     request.EstudianteIdentificacion.Trim(), usuario, token);
 
@@ -65,22 +81,27 @@ namespace MicroservicioFacturacion.Services
                 if (cursosDelPeriodo.Count == 0)
                     throw new KeyNotFoundException("No se encontró una matrícula activa para el estudiante en el periodo indicado.");
 
-                var montoEsperado = cursosDelPeriodo.Count * MontoPorCurso;
+                // 4. Calcular monto esperado
+                var montoEsperado = cursosDelPeriodo.Count * costoCurso;
 
                 if (request.Monto != montoEsperado)
-                    throw new ArgumentException($"El monto debe ser {montoEsperado} colones para los {cursosDelPeriodo.Count} cursos matriculados.");
+                    throw new ArgumentException(
+                        $"El monto debe ser {montoEsperado} colones para los {cursosDelPeriodo.Count} cursos matriculados " +
+                        $"(costo por curso: {costoCurso}).");
 
-                var matricula = cursosDelPeriodo.First();
+                // 5. Una factura por estudiante + período (referencia a la primera matrícula)
+                var matriculaReferencia = cursosDelPeriodo.First();
 
                 var detalles = cursosDelPeriodo
-                    .Select(c => (c.CursoCode, DescripcionDetalle, MontoPorCurso))
+                    .Select(c => (c.CursoCode, descripcionDetalle, costoCurso))
                     .ToList();
 
                 var facturaId = await _repository.CrearConDetallesAsync(
                     request.EstudianteIdentificacion.Trim(),
-                    matricula.MatriculaID,
+                    matriculaReferencia.MatriculaID,
                     request.PeriodoID,
                     request.Monto,
+                    porcentajeImpuesto,
                     detalles);
 
                 var factura = await _repository.ObtenerPorIdAsync(facturaId)
@@ -93,10 +114,7 @@ namespace MicroservicioFacturacion.Services
                         $"Se creó la factura {factura.FacturaID}: {System.Text.Json.JsonSerializer.Serialize(factura)}",
                         token);
                 }
-                catch
-                {
-                    // Mejor esfuerzo: no fallar la operación principal
-                }
+                catch { }
 
                 return factura;
             }
@@ -109,10 +127,7 @@ namespace MicroservicioFacturacion.Services
                         $"Error al crear factura para {request.EstudianteIdentificacion}: {ex.Message}",
                         token);
                 }
-                catch
-                {
-                    // Ignorar fallo de bitácora
-                }
+                catch { }
 
                 throw;
             }
@@ -251,6 +266,34 @@ namespace MicroservicioFacturacion.Services
                 catch { }
 
                 throw;
+            }
+        }
+
+        private async Task<decimal> ObtenerDecimalParametroAsync(
+            string codigo, Guid usuarioId, string token, decimal valorDefecto)
+        {
+            try
+            {
+                var valor = await _parametroClient.ObtenerValorAsync(codigo, usuarioId, token);
+                return decimal.TryParse(valor, out var n) && n >= 0 ? n : valorDefecto;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                return valorDefecto;
+            }
+        }
+
+        private async Task<string> ObtenerTextoParametroAsync(
+            string codigo, Guid usuarioId, string token, string valorDefecto)
+        {
+            try
+            {
+                var valor = await _parametroClient.ObtenerValorAsync(codigo, usuarioId, token);
+                return string.IsNullOrWhiteSpace(valor) ? valorDefecto : valor.Trim();
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                return valorDefecto;
             }
         }
     }

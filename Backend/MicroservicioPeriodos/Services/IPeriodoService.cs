@@ -1,4 +1,5 @@
-﻿using MicroservicioPeriodos.Entities;
+﻿
+using MicroservicioPeriodos.Entities;
 
 namespace MicroservicioPeriodos.Services
 {
@@ -8,6 +9,7 @@ namespace MicroservicioPeriodos.Services
         Task<Periodo> ModificarAsync(Periodo periodo);
         Task<Periodo> EliminarAsync(Guid periodoID);
         Task<IEnumerable<Periodo>> ObtenerTodosAsync();
+        Task<PaginaResultado<Periodo>> ObtenerPaginadoAsync(int pagina, Guid usuario, string token);
         Task<Periodo> ObtenerPorIdAsync(Guid periodoID);
     }
 }

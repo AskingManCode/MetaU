@@ -19,8 +19,7 @@ namespace MicroservicioListaEstudiantes.Services.Clients
             request.Headers.Add("X-Usuario-Id", usuarioId.ToString());
 
             using var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-                return [];
+            response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadFromJsonAsync<IEnumerable<EstudianteMatriculadoDto>>() ?? [];
         }

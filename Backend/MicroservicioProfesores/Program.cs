@@ -1,3 +1,4 @@
+
 using MicroservicioProfesores;
 using MicroservicioProfesores.Repository;
 using MicroservicioProfesores.Services;
@@ -5,6 +6,20 @@ using MicroservicioProfesores.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendReact", policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 builder.Services.AddScoped<IProfesorRepository, ProfesorRepository>();
@@ -40,6 +55,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("FrontendReact");
 
 app.MapProfesoresEndpoints();
 

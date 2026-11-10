@@ -11,12 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ClientApps", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(origenesPermitidos)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -72,6 +75,17 @@ builder.Services.AddHttpClient<IPeriodoServiceClient, PeriodoServiceClient>(clie
 
     if (string.IsNullOrWhiteSpace(url))
         throw new InvalidOperationException("No se configuró 'MicroservicioPeriodos:BaseUrl'");
+
+    client.BaseAddress = new Uri(url);
+});
+
+// Parametros Service Client
+builder.Services.AddHttpClient<IParametroServiceClient, ParametroServiceClient>(client =>
+{
+    var url = builder.Configuration["MicroservicioParametros:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(url))
+        throw new InvalidOperationException("No se configuró 'MicroservicioParametros:BaseUrl'");
 
     client.BaseAddress = new Uri(url);
 });

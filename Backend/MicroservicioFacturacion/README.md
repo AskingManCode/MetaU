@@ -1,40 +1,54 @@
-# MicroservicioFacturacion
+# Microservicio de Facturación
 
 Administra la emisión y anulación de facturas de servicios estudiantiles asociadas a matrículas activas en un período académico.
 
-**URL base del servicio:** pendiente de definir para cada ambiente; en ejecución local, `https://localhost:PORT`.
+## Historia de usuario
 
-**Prefijo de rutas:** `/api/factura`
+Emisión y anulación de facturas por servicios estudiantiles, vinculadas a matrículas activas y períodos.
 
-**Diagrama de clases:**
+## Tecnologías
 
-![Diagrama de Clases](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Facturacion.png)
+- .NET 10
+- ASP.NET Core Minimal APIs
+- Dapper sobre SQL Server
+- Autenticación mediante Bearer Token (MicroservicioLogin)
+- Registro de acciones en Bitácoras
+- Integración con Matrículas y Períodos
 
-## Antes de consumir la API
+## Endpoint base
 
-Todas las operaciones requieren estos headers:
+`/api/factura`
+
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioFacturacion_MetaU/api`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5173`
+- HTTPS: `https://localhost:7227`
+
+## Autenticación
+
+Todas las operaciones requieren los siguientes headers:
 
 | Header | Valor | Descripción |
-| --- | --- | --- |
-| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin. |
-| `X-Usuario-Id` | `<UUID>` | GUID del usuario que realiza la operación; también se utiliza para la bitácora. |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la operación |
 
-El servicio valida el token consultando MicroservicioLogin. Sin token, con token inválido o con `X-Usuario-Id` ausente o no válido responde `401 Unauthorized`.
-
-Los cuerpos y respuestas usan JSON. El monto debe ser un múltiplo de 30 000 colones y corresponder exactamente al número de cursos matriculados en el período indicado (30 000 por curso).
+El token se valida contra `POST /validate` de Login.  
+Sin token, token inválido o `X-Usuario-Id` ausente/inválido → `401 Unauthorized`.
 
 ## Endpoints
 
-| Método | Ruta | Uso |
-| --- | --- | --- |
-| `POST` | `/api/factura/` | Crear una factura para un estudiante en un período. |
-| `PATCH` | `/api/factura/{FacturaID}` | Anular una factura existente. |
-| `GET` | `/api/factura/{FacturaID}` | Obtener una factura por su identificador, con sus detalles. |
-| `GET` | `/api/factura/periodo/{PeriodoID}` | Obtener todas las facturas de un período. |
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/api/factura/` | Crear una factura | 201 Created |
+| PATCH | `/api/factura/{FacturaID}` | Anular una factura | 200 OK |
+| GET | `/api/factura/{FacturaID}` | Obtener una factura por ID | 200 OK |
+| GET | `/api/factura/periodo/{PeriodoID}` | Obtener facturas de un período | 200 OK |
 
-`FacturaID` y `PeriodoID` son GUID.
-
-### Crear
+### POST /api/factura/ — Crear
 
 ```http
 POST /api/factura/
@@ -49,16 +63,9 @@ Content-Type: application/json
 }
 ```
 
-Responde `201 Created` con la factura creada (encabezado + detalles) y el header `Location` apunta a `/api/factura/{FacturaID}`.
+**Respuesta exitosa (`201 Created`):** la factura creada (encabezado + detalles). El header `Location` apunta a `/api/factura/{FacturaID}`.
 
-El servicio valida que:
-- El período exista y esté activo.
-- El estudiante tenga matrícula activa en ese período.
-- El monto coincida con `cantidad de cursos × 30 000`.
-
-Si ya existe una factura para la misma matrícula responde `409 Conflict`.
-
-### Anular
+### PATCH /api/factura/{FacturaID} — Anular
 
 ```http
 PATCH /api/factura/22222222-2222-2222-2222-222222222222
@@ -66,9 +73,9 @@ Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `200 OK` con la factura anulada. Si la factura no existe responde `404 Not Found`. Si ya estaba anulada responde `409 Conflict`.
+**Respuesta:** `200 OK` con la factura anulada.
 
-### Consultar por ID
+### GET /api/factura/{FacturaID} — Obtener por ID
 
 ```http
 GET /api/factura/22222222-2222-2222-2222-222222222222
@@ -76,9 +83,7 @@ Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `200 OK` con la factura y sus detalles, o `404 Not Found` si no existe.
-
-### Consultar por período
+### GET /api/factura/periodo/{PeriodoID} — Obtener por período
 
 ```http
 GET /api/factura/periodo/11111111-1111-1111-1111-111111111111
@@ -86,21 +91,9 @@ Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 ```
 
-Responde `200 OK` con un arreglo de facturas (cada una con sus detalles). Si no hay registros, el arreglo está vacío.
+**Respuesta:** `200 OK` con arreglo de facturas (puede estar vacío).
 
-## Formato de datos
-
-### Request de creación
-
-```json
-{
-  "estudianteIdentificacion": "123456789",
-  "monto": 60000,
-  "periodoID": "11111111-1111-1111-1111-111111111111"
-}
-```
-
-### Response de factura
+## Formato de respuesta
 
 ```json
 {
@@ -121,59 +114,72 @@ Responde `200 OK` con un arreglo de facturas (cada una con sus detalles). Si no 
       "descripcion": "Servicios estudiantiles",
       "cursoCode": "CURSO1",
       "monto": 30000
-    },
-    {
-      "detalleFacturaID": 2,
-      "descripcion": "Servicios estudiantiles",
-      "cursoCode": "CURSO2",
-      "monto": 30000
     }
   ]
 }
 ```
 
-ASP.NET Core serializa los nombres JSON en camelCase por defecto.
+## Reglas de negocio / Validaciones
+
+- El período debe existir y estar activo.
+- El estudiante debe tener matrícula activa en ese período.
+- El `monto` debe ser un múltiplo de 30 000 y corresponder exactamente a la cantidad de cursos matriculados × 30 000.
+- El impuesto se calcula como el 2 % del subtotal.
+- No puede existir más de una factura activa para la misma matrícula.
+- Una factura ya anulada no puede volver a anularse.
+- Los identificadores (`FacturaID`, `PeriodoID`) son GUID.
+
+## Integraciones
+
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar operaciones (mejor esfuerzo) |
+| Matrículas | Validar matrículas activas del estudiante |
+| Períodos | Validar existencia y estado del período |
+| Parámetros | (configuración adicional si aplica) |
+
+## Configuración
+
+Claves principales en `appsettings.json` / variables de entorno:
+
+- `ConnectionStrings:DefaultConnection` → Cadena de conexión a `Facturacion_DB`.
+- `MicroservicioLogin:BaseUrl` → URL base de MicroservicioLogin.
+- `MicroservicioBitacoras:BaseUrl` → URL base de MicroservicioBitacoras.
+- `MicroservicioMatriculas:BaseUrl` → URL base de MicroservicioMatriculas.
+- `MicroservicioPeriodos:BaseUrl` → URL base de MicroservicioPeriodos.
+- `MicroservicioParametros:BaseUrl` → URL base de MicroservicioParametros.
+
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
+
+## Base de datos
+
+**Base de datos:** `Facturacion_DB`  
+Tablas principales: `Facturas`, `DetallesFacturas`.  
+Usa procedimientos almacenados (`usp_Facturas_Crear`, `usp_Facturas_AgregarDetalle`, `usp_Facturas_Anular`, etc.).
+
+## Ejecución local
+
+```bash
+dotnet run --project Backend/MicroservicioFacturacion/MicroservicioFacturacion.csproj
+```
 
 ## Respuestas y errores comunes
 
-| Estado | Cuándo ocurre |
-| --- | --- |
-| `200 OK` | Anulación o consulta completada. |
-| `201 Created` | Factura creada. |
-| `400 Bad Request` | Datos inválidos, monto incorrecto o error de negocio reportado por los procedimientos almacenados. |
-| `401 Unauthorized` | Falta el header Bearer, el token no es válido o falta `X-Usuario-Id`. |
-| `404 Not Found` | Período, matrícula o factura no encontrados. |
-| `409 Conflict` | Ya existe factura para la matrícula o la factura ya está anulada. |
-| `500 Internal Server Error` | Error técnico no recuperable. En desarrollo se incluye `detalle` y `tipo`. |
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Anulación o consulta exitosa |
+| 201 Created | Factura creada |
+| 400 Bad Request | Datos inválidos, monto incorrecto o error de negocio de procedimientos |
+| 401 Unauthorized | Token o `X-Usuario-Id` ausente/inválido |
+| 404 Not Found | Período, matrícula o factura no encontrados |
+| 409 Conflict | Ya existe factura para la matrícula o factura ya anulada |
+| 500 Internal Server Error | Error técnico no controlado |
 
-Las operaciones registran acciones en MicroservicioBitacoras. Si la bitácora no está disponible, la operación principal continúa.
+## Diagrama de clases
 
-## Ejecutar y configurar
+![Diagrama de Clases Facturación](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Facturacion.png)
 
-Requisitos: .NET 10, SQL Server con la base de datos `Facturacion_DB` creada y los procedimientos almacenados de facturación instalados.
+---
 
-Desde la raíz del repositorio:
-
-```powershell
-dotnet run --project .\Backend\MicroservicioFacturacion\MicroservicioFacturacion.csproj
-```
-
-La aplicación requiere estos valores de configuración. En despliegues se pueden definir mediante variables de entorno .NET (separador `__`); no se deben guardar credenciales reales en el repositorio:
-
-| Clave | Ejemplo/uso |
-| --- | --- |
-| `ConnectionStrings:DefaultConnection` | Cadena de conexión a SQL Server y a `Facturacion_DB`. |
-| `MicroservicioLogin:BaseUrl` | URL base de MicroservicioLogin, con `/` al final. |
-| `MicroservicioBitacoras:BaseUrl` | URL base de MicroservicioBitacoras, con `/` al final. |
-| `MicroservicioMatriculas:BaseUrl` | URL base de MicroservicioMatriculas, con `/` al final. |
-| `MicroservicioPeriodos:BaseUrl` | URL base de MicroservicioPeriodos, con `/` al final. |
-
-Equivalentes como variables de entorno: `ConnectionStrings__DefaultConnection`, `MicroservicioLogin__BaseUrl`, `MicroservicioBitacoras__BaseUrl`, `MicroservicioMatriculas__BaseUrl` y `MicroservicioPeriodos__BaseUrl`. Swagger y OpenAPI interactivo se habilitan solo cuando el ambiente es `Development`.
-
-## Persistencia y componentes
-
-Los datos se guardan en `Facturacion_DB.dbo.Facturas` (encabezado) y `Facturacion_DB.dbo.DetallesFacturas` (líneas por curso). La persistencia usa Dapper y estos procedimientos almacenados: `usp_Facturas_Crear`, `usp_Facturas_AgregarDetalle`, `usp_Facturas_Anular`, `usp_Facturas_ObtenerPorID` y `usp_Facturas_ObtenerPorPeriodo`.
-
-Flujo principal: endpoints HTTP → validación de autenticación y de la solicitud → `FacturacionService` → `FacturacionRepository` → SQL Server. El servicio consulta MicroservicioPeriodos y MicroservicioMatriculas para validar el período y las matrículas activas del estudiante. La validación de JWT y el registro de auditoría se integran respectivamente con MicroservicioLogin y MicroservicioBitacoras.
-
-El impuesto se calcula como el 2 % del subtotal. El monto por curso es fijo (30 000 colones).
+*Documentación estandarizada del microservicio MicroservicioFacturacion.*

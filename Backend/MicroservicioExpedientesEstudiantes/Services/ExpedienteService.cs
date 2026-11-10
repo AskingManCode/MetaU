@@ -10,6 +10,9 @@ namespace MicroservicioExpedientesEstudiantes.Services
         private readonly IExpedienteRepository _repository;
         private readonly IParametroClient _parametroClient;
         private readonly IBitacoraClient _bitacoraClient;
+        private readonly ILogger<ExpedienteService> _logger;
+        private const string ParametroPaginacion = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
 
         private static readonly Regex SoloLetrasYEspacios =
             new(@"^[\p{L}\s]+$", RegexOptions.Compiled);
@@ -20,14 +23,19 @@ namespace MicroservicioExpedientesEstudiantes.Services
         private static readonly Regex EspaciosRepetidos =
             new(@"\s{2,}", RegexOptions.Compiled);
 
+        private static readonly Regex TelefonoValido =
+            new(@"^\d{8}$", RegexOptions.Compiled);
+
         public ExpedienteService(
             IExpedienteRepository repository,
             IParametroClient parametroClient,
-            IBitacoraClient bitacoraClient)
+            IBitacoraClient bitacoraClient,
+            ILogger<ExpedienteService> logger)
         {
             _repository = repository;
             _parametroClient = parametroClient;
             _bitacoraClient = bitacoraClient;
+            _logger = logger;
         }
 
         public async Task<Estudiante> Crear(EstudianteRequest request, ContextoUsuario contexto)
@@ -89,6 +97,48 @@ namespace MicroservicioExpedientesEstudiantes.Services
             return lista;
         }
 
+public async Task<PaginaResultado<Estudiante>> ObtenerTodosPaginado(
+    int pagina, ContextoUsuario contexto)
+{
+    if (pagina < 1)
+        throw new ValidacionException("La página debe ser mayor o igual a 1.");
+
+    var estudiantes = (await ObtenerTodos(contexto))
+        .OrderBy(e => e.NombreCompleto, StringComparer.OrdinalIgnoreCase)
+        .ThenBy(e => e.Identificacion, StringComparer.Ordinal)
+        .ThenBy(e => e.EstudianteID)
+        .ToList();
+
+    var tamano = TamanoPaginaDefecto;
+    try
+    {
+        var valor = await _parametroClient.ObtenerValorPaginacion(ParametroPaginacion, contexto);
+        if (int.TryParse(valor, out var configurado) && configurado > 0)
+            tamano = Math.Min(configurado, TamanoPaginaDefecto);
+
+        _logger.LogInformation("Paginación de expedientes: PAGSIZE={Valor}, tamaño aplicado={Tamano}",
+            valor ?? "No disponible", tamano);
+    }
+    catch (TaskCanceledException ex)
+    {
+        _logger.LogWarning(ex, "Tiempo de espera agotado al consultar PAGSIZE. Se utilizará el valor por defecto");
+    }
+
+    var inicio = ((long)pagina - 1) * tamano;
+    var datos = inicio >= estudiantes.Count
+        ? new List<Estudiante>()
+        : estudiantes.Skip((int)inicio).Take(tamano).ToList();
+
+    return new PaginaResultado<Estudiante>
+    {
+        Pagina = pagina,
+        TamanoPagina = tamano,
+        TotalRegistros = estudiantes.Count,
+        TotalPaginas = (int)Math.Ceiling(estudiantes.Count / (double)tamano),
+        Datos = datos
+    };
+}
+
         public async Task<Estudiante> ObtenerPorId(string identificacion, ContextoUsuario contexto)
         {
             identificacion = identificacion.Trim();
@@ -133,6 +183,12 @@ namespace MicroservicioExpedientesEstudiantes.Services
 
             if (request.Telefonos.Count == 0 || request.Telefonos.Any(EsVacioOEnBlanco))
                 throw new ValidacionException("Debe indicarse al menos un teléfono y ninguno puede estar vacío.");
+
+            if (request.Telefonos.Any(telefono => !TelefonoValido.IsMatch(telefono)))
+                throw new ValidacionException("Cada teléfono debe contener exactamente 8 dígitos.");
+
+            if (request.FechaNacimiento > DateOnly.FromDateTime(DateTime.Today))
+                throw new ValidacionException("La fecha de nacimiento no puede estar en el futuro.");
 
             if (!SoloLetrasYEspacios.IsMatch(request.NombreCompleto))
                 throw new ValidacionException("El nombre completo solo puede contener letras y espacios.");

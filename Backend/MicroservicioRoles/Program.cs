@@ -38,6 +38,13 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>()
         if (!string.IsNullOrWhiteSpace(url)) client.BaseAddress = new Uri(url);
     });
 
+builder.Services.AddHttpClient<IParametroServiceClient, ParametroServiceClient>()
+    .ConfigureHttpClient(client =>
+    {
+        var url = builder.Configuration["Servicios:ParametroUrl"];
+        if (!string.IsNullOrWhiteSpace(url)) client.BaseAddress = new Uri(url);
+    });
+
 var app = builder.Build();
 
 app.UseExceptionHandler(errorApp =>

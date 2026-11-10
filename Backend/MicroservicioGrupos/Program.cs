@@ -1,3 +1,4 @@
+
 using MicroservicioGrupos;
 using MicroservicioGrupos.Repository;
 using MicroservicioGrupos.Services;
@@ -5,6 +6,21 @@ using MicroservicioGrupos.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+
+var origenesPermitidos = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendReact", policy =>
+    {
+        policy.WithOrigins(origenesPermitidos)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
 builder.Services.AddScoped<IGrupoRepository, GrupoRepository>();
 builder.Services.AddScoped<IGrupoService, GrupoService>();
@@ -12,6 +28,7 @@ builder.Services.AddScoped<IGrupoService, GrupoService>();
 builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
 {
     var url = builder.Configuration["Servicios:LoginUrl"];
+
     if (!string.IsNullOrWhiteSpace(url))
         client.BaseAddress = new Uri(url);
 });
@@ -19,6 +36,15 @@ builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(client =>
 builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(client =>
 {
     var url = builder.Configuration["Servicios:BitacoraUrl"];
+
+    if (!string.IsNullOrWhiteSpace(url))
+        client.BaseAddress = new Uri(url);
+});
+
+builder.Services.AddHttpClient<IParametroServiceClient, ParametroServiceClient>(client =>
+{
+    var url = builder.Configuration["Servicios:ParametroUrl"];
+
     if (!string.IsNullOrWhiteSpace(url))
         client.BaseAddress = new Uri(url);
 });
@@ -29,6 +55,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors("FrontendReact");
+
 app.MapGruposEndpoints();
 
 app.Run();

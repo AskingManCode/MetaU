@@ -13,9 +13,11 @@ import Instituciones from "./pages/OfertaAcademica/instituciones/Index.jsx";
 import CrearInstitucion from "./pages/OfertaAcademica/instituciones/Create.jsx";
 import EditarInstitucion from "./pages/OfertaAcademica/instituciones/Edit.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
-import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
-import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
-import Periodos from "./pages/OfertaAcademica/Periodos/Index.jsx";
+import Cursos from "./pages/OfertaAcademica/cursos/Index.jsx";
+import Grupos from "./pages/OfertaAcademica/grupos/Index.jsx";
+import CrearGrupo from "./pages/OfertaAcademica/grupos/Create.jsx";
+import EditarGrupo from "./pages/OfertaAcademica/grupos/Edit.jsx";
+import Periodos from "./pages/OfertaAcademica/periodos/Index.jsx";
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
@@ -59,6 +61,8 @@ function App() {
                     <Route path="carreras" element={<Carreras />} />
                     <Route path="cursos" element={<Cursos />} />
                     <Route path="grupos" element={<Grupos />} />
+                    <Route path="grupos/nuevo" element={<CrearGrupo />} />
+                    <Route path="grupos/editar/:grupoCode" element={<EditarGrupo />} />
                     <Route path="periodos" element={<Periodos />} />
 
                     {/* Personas */}

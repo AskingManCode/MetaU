@@ -14,22 +14,6 @@ function getLoginUrl() {
     return baseUrl.replace(/\/+$/, '');
 }
 
-const guardarTokens = (datos, usuarioId) => {
-    const token = datos?.access_token ?? datos?.accessToken;
-    const refreshToken = datos?.refresh_token ?? datos?.refreshToken;
-
-    if (!token || !refreshToken) {
-        throw new Error('La respuesta de autenticación no contiene los tokens');
-    }
-
-    localStorage.setItem('token', token);
-    localStorage.setItem('refreshToken', refreshToken);
-
-    if (usuarioId) {
-        localStorage.setItem('usuarioId', usuarioId);
-    }
-};
-
 const authService = {
     login: (email, password) => authApi.post(`${getLoginUrl()}/login`, undefined, {
         headers: {

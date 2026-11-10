@@ -28,6 +28,8 @@ import Profesores from "./pages/Personas/Profesores/Index.jsx";
 import CrearProfesor from './pages/Personas/Profesores/Create.jsx'
 import EditarProfesor from './pages/Personas/Profesores/Edit.jsx'
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
+import CrearExpediente from "./pages/Personas/Expedientes/Create.jsx";
+import EditarExpediente from "./pages/Personas/Expedientes/Edit.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
 import CrearPrematricula from "./pages/Matricula/Prematricula/Create.jsx";
 import EditarPrematricula from "./pages/Matricula/Prematricula/Edit.jsx";
@@ -90,6 +92,8 @@ function App() {
                     <Route path="profesores/nuevo" element={<CrearProfesor />} />
                     <Route path="profesores/editar/:profesorId" element={<EditarProfesor />} />
                     <Route path="expedientes" element={<Expedientes />} />
+                    <Route path="expedientes/nuevo" element={<CrearExpediente />} />
+                    <Route path="expedientes/editar/:identificacion" element={<EditarExpediente />} />
 
                     {/* Matrícula */}
                     <Route path="prematricula" element={<Prematricula />} />

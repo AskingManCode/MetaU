@@ -1,6 +1,6 @@
 /* ============================================================
    STORED PROCEDURE: MetaU_DB_User.usp_Facturas_Anular
-   Descripción: Anula una factura existente (cambia estado a ANU)
+   Descripción: Anula una factura existente (cambia estado a ANU y registra motivo)
    Base de datos: tiusr20pl_Facturacion_DB
    ============================================================ */
 
@@ -8,7 +8,8 @@ USE tiusr20pl_Facturacion_DB;
 GO
 
 CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Facturas_Anular
-    @FacturaID UNIQUEIDENTIFIER
+    @FacturaID UNIQUEIDENTIFIER,
+    @MotivoAnulacion VARCHAR(250)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,6 +19,12 @@ BEGIN
         IF @FacturaID IS NULL
         BEGIN
             RAISERROR('El identificador de la factura es obligatorio.', 16, 1);
+            RETURN;
+        END
+
+        IF @MotivoAnulacion IS NULL OR LEN(TRIM(@MotivoAnulacion)) = 0
+        BEGIN
+            RAISERROR('El motivo de anulación es obligatorio.', 16, 1);
             RETURN;
         END
 
@@ -54,7 +61,8 @@ BEGIN
         UPDATE MetaU_DB_User.Facturas
         SET 
             EstadoFacturaCode = 'ANU',
-            FechaAnulacion = SYSDATETIME()
+            FechaAnulacion = SYSDATETIME(),
+            MotivoAnulacion = TRIM(@MotivoAnulacion)
         WHERE FacturaID = @FacturaID
           AND EstadoFacturaCode <> 'ANU';
 

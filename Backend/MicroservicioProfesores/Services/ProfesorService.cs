@@ -1,4 +1,5 @@
-﻿using MicroservicioProfesores.Entities;
+﻿
+using MicroservicioProfesores.Entities;
 using MicroservicioProfesores.Repository;
 using System.Net.Mail;
 
@@ -6,6 +7,9 @@ namespace MicroservicioProfesores.Services
 {
     public class ProfesorService : IProfesorService
     {
+        private const string ParametroPaginacion = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
+
         private readonly IProfesorRepository _repository;
         private readonly IParametroServiceClient _parametros;
         private readonly IConfiguration _configuration;
@@ -39,6 +43,46 @@ namespace MicroservicioProfesores.Services
         public Task<IEnumerable<Profesor>> ObtenerTodosAsync()
         {
             return _repository.ObtenerTodosAsync();
+        }
+
+        public async Task<PaginaResultado<Profesor>> ObtenerPaginadoAsync(int pagina, Guid usuario, string token)
+        {
+            if (pagina < 1)
+                throw new ArgumentException("La pagina debe ser mayor o igual a 1");
+
+            var tamano = TamanoPaginaDefecto;
+
+            try
+            {
+                var valor = await _parametros.ObtenerValorAsync(ParametroPaginacion, usuario, token);
+
+                if (int.TryParse(valor, out var configurado) && configurado > 0)
+                    tamano = Math.Min(configurado, TamanoPaginaDefecto);
+            }
+            catch (HttpRequestException)
+            {
+                tamano = TamanoPaginaDefecto;
+            }
+
+            var profesores = (await _repository.ObtenerTodosAsync())
+                .OrderBy(p => p.NombreCompleto)
+                .ThenBy(p => p.ProfesorID)
+                .ToList();
+
+            var inicio = ((long)pagina - 1) * tamano;
+
+            var datos = inicio >= profesores.Count
+                ? new List<Profesor>()
+                : profesores.Skip((int)inicio).Take(tamano).ToList();
+
+            return new PaginaResultado<Profesor>
+            {
+                Pagina = pagina,
+                TamanoPagina = tamano,
+                TotalRegistros = profesores.Count,
+                TotalPaginas = (int)Math.Ceiling(profesores.Count / (double)tamano),
+                Datos = datos
+            };
         }
 
         public async Task<Profesor> ObtenerPorIdAsync(Guid profesorID)

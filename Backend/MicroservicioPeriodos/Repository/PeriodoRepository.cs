@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿
+using Microsoft.Data.SqlClient;
 using MicroservicioPeriodos.Entities;
 using System.Data;
 
@@ -16,10 +17,9 @@ namespace MicroservicioPeriodos.Repository
         public async Task<Periodo> CrearAsync(Periodo periodo)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Periodo_Crear", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Periodo_Crear]", connection);
             command.CommandType = CommandType.StoredProcedure;
             AgregarParametros(command, periodo, false);
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
@@ -32,10 +32,9 @@ namespace MicroservicioPeriodos.Repository
         public async Task ModificarAsync(Periodo periodo)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Periodo_Modificar", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Periodo_Modificar]", connection);
             command.CommandType = CommandType.StoredProcedure;
             AgregarParametros(command, periodo, true);
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -43,10 +42,9 @@ namespace MicroservicioPeriodos.Repository
         public async Task EliminarAsync(Guid periodoID)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Periodo_Eliminar", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Periodo_Eliminar]", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add("@PeriodoID", SqlDbType.UniqueIdentifier).Value = periodoID;
-
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
         }
@@ -55,9 +53,8 @@ namespace MicroservicioPeriodos.Repository
         {
             var periodos = new List<Periodo>();
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Periodo_ObtenerTodos", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Periodo_ObtenerTodos]", connection);
             command.CommandType = CommandType.StoredProcedure;
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
@@ -70,13 +67,11 @@ namespace MicroservicioPeriodos.Repository
         public async Task<Periodo?> ObtenerPorIdAsync(Guid periodoID)
         {
             await using var connection = _connectionFactory.CrearConexion();
-            await using var command = new SqlCommand("dbo.usp_Periodo_ObtenerPorId", connection);
+            await using var command = new SqlCommand("[MetaU_DB_User].[usp_Periodo_ObtenerPorId]", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add("@PeriodoID", SqlDbType.UniqueIdentifier).Value = periodoID;
-
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
-
             return await reader.ReadAsync() ? MapearPeriodo(reader) : null;
         }
 

@@ -4,75 +4,155 @@ Microservicio encargado de la autenticación de usuarios y la gestión de tokens
 
 ## Historia de usuario
 
-USR5 - Login.
+**USR5** — Login.
 
-El servicio permite autenticar usuarios mediante su nombre de usuario y contraseña, generar tokens JWT y refresh tokens, renovar sesiones y validar tokens de acceso.
+El servicio permite autenticar usuarios mediante su nombre de usuario (email) y contraseña, generar tokens JWT y refresh tokens, renovar sesiones y validar tokens de acceso.
 
-## Tecnologias
+## Tecnologías
 
-* .NET 10
-* Minimal API
-* SQL Server
-* Microsoft.Data.SqlClient
-* Autenticacion mediante JWT Bearer Token
-* Refresh Tokens
-* Integracion con Microservicio de Bitacoras
-* Integracion con Microservicio de Parametros
+- .NET 10
+- ASP.NET Core Minimal APIs
+- SQL Server (`Microsoft.Data.SqlClient`)
+- JWT Bearer Token + Refresh Tokens
+- BCrypt para hash de contraseñas
+- SHA256 para hash de refresh tokens
+- Integración con Bitácoras y Parámetros (según configuración)
 
 ## Endpoint base
 
-```text
-/login
-```
+`/login`, `/refresh`, `/validate`
+
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioLogin_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:57075`
+- HTTPS: `https://localhost:57074`
+
+## Autenticación
+
+Este microservicio es el emisor de tokens. Los demás servicios validan contra él.
+
+- `/login` no requiere token previo (usa headers de credenciales).
+- `/refresh` recibe el refresh token en el body.
+- `/validate` recibe el `Authorization: Bearer <token>`.
 
 ## Endpoints
 
-### POST /login
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| POST | `/login` | Autenticar usuario | 201 Created |
+| POST | `/refresh` | Renovar tokens | 201 Created |
+| POST | `/validate` | Validar un JWT | 200 OK |
 
-Permite autenticar un usuario mediante su nombre de usuario y contraseña.
+### POST /login — Autenticar
 
-Los datos de autenticación se reciben mediante headers:
+Las credenciales se envían en **headers** (no en el body).
 
-```text
-usuario
-contrasena
+```http
+POST /login
+usuario: usuario@cuc.cr
+contrasena: MiClaveSegura
 ```
 
-Si las credenciales son correctas, devuelve un `TokenResponse` con:
+**Respuesta exitosa (`201 Created`):**
 
-* AccessToken (JWT)
-* RefreshToken
-* ExpiresIn
-* UsuarioID
-
-Una autenticación incorrecta devuelve:
-
-```text
-401 Unauthorized
-Usuario y/o contraseña incorrectos
+```json
+{
+  "expires_in": "2026-11-04T19:35:00",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "a1b2c3d4e5f6...",
+  "usuarioID": "00000000-0000-0000-0000-000000000001"
+}
 ```
 
-### POST /refresh
+Credenciales incorrectas o usuario inactivo → `401 Unauthorized`.
 
-Permite renovar el token de acceso utilizando un refresh token válido.
+### POST /refresh — Renovar sesión
 
-```text
-/refresh
+```http
+POST /refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "a1b2c3d4e5f6..."
+}
 ```
 
-Un refresh token inválido, expirado o revocado devuelve:
+**Respuesta exitosa (`201 Created`):**
 
-```text
-401 Unauthorized
+```json
+{
+  "expires_in": "2026-11-04T19:40:00",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "nuevoRefreshToken..."
+}
 ```
 
-### POST /validate
+El refresh token anterior se revoca (rotación). Token inválido, expirado o revocado → `401 Unauthorized`.
 
-Permite validar un token JWT.
+### POST /validate — Validar token
 
-```text
-/validate
+```http
+POST /validate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-Devuelve un resultado booleano indicando si el token es válido.
+**Respuesta exitosa (`200 OK`):** `true`  
+Token inválido o ausente → `401 Unauthorized`.
 
+## Reglas de negocio / Validaciones
+
+- El usuario debe existir, estar activo (`Estado = true`) y la contraseña debe coincidir (BCrypt).
+- El lookup se hace por email (`usuario` header).
+- Los refresh tokens se almacenan hasheados (SHA256) y se rotan en cada renovación.
+- Access token expira según configuración (`MinutosExpiracionAccessToken`, por defecto 5 minutos).
+- Refresh token expira según configuración (`MinutosExpiracionRefreshToken`, por defecto 60 minutos).
+
+## Integraciones
+
+| Servicio | Uso |
+|----------|-----|
+| Bitácoras (GEN1) | Registrar intentos de login / acciones (si está configurado) |
+| Parámetros | Configuración adicional si aplica |
+
+## Configuración
+
+Claves principales en `appsettings.json` / variables de entorno:
+
+- `ConnectionStrings:UsuariosDb` → Cadena de conexión a `Usuarios_DB`.
+- `Jwt:ClaveSecreta` → Clave secreta para firmar JWT (**nunca versionar la real**).
+- `Jwt:Issuer` → Emisor del token.
+- `Jwt:Audience` → Audiencia del token.
+- `Jwt:MinutosExpiracionAccessToken` → Duración del access token.
+- `Jwt:MinutosExpiracionRefreshToken` → Duración del refresh token.
+
+> **Nota de seguridad:** No versionar contraseñas, claves secretas JWT ni credenciales. Usar variables de entorno o secretos de Plesk en producción. Rotar la `ClaveSecreta` si se expuso.
+
+## Base de datos
+
+**Base de datos:** `Usuarios_DB`  
+Tablas principales: Usuarios, RefreshTokens.
+
+## Ejecución local
+
+```bash
+dotnet run --project Backend/MicroservicioLogin/MicroservicioLogin.csproj
+```
+
+## Respuestas y errores comunes
+
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Token válido (`/validate`) |
+| 201 Created | Login o refresh exitoso |
+| 401 Unauthorized | Credenciales incorrectas, token inválido/expirado/revocado o usuario inactivo |
+
+## Diagrama de clases
+
+![Diagrama de Clases Login](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases_Login.png)
+
+---
+
+*Documentación estandarizada del microservicio MicroservicioLogin (USR5).*

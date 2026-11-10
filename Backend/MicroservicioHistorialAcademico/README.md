@@ -1,25 +1,70 @@
-﻿ACA1 - Consulta del Historial Academico
-Microservicio encargado de consultar el historial academico de un estudiante y obtener el promedio correspondiente a cada curso matriculado.
-La informacion se obtiene mediante la integracion con los microservicios de Expedientes, Matriculas, Notas y Cursos. Adicionalmente, se valida la autenticacion mediante Login y se registra la consulta mediante Bitacoras.
-Endpoint
-Consultar historial academico
-GET /historialacademico?tipoIdentificacion={tipoIdentificacion}&identificacion={identificacion}
-Ejemplo
+# Microservicio de Historial Académico - ACA1
+
+Microservicio encargado de consultar el historial académico de un estudiante y obtener el promedio correspondiente a cada curso matriculado.
+
+## Historia de usuario
+
+**ACA1** — Consulta del Historial Académico.
+
+La información se obtiene mediante la integración con los microservicios de Expedientes, Matrículas, Notas y Cursos. No posee base de datos propia; actúa como orquestador.
+
+## Tecnologías
+
+- .NET 10
+- ASP.NET Core Minimal APIs
+- Autenticación mediante Bearer Token (MicroservicioLogin)
+- Registro de consultas en Bitácoras
+- Integración HTTP con Expedientes, Matrículas, Notas y Cursos
+
+## Endpoint base
+
+`/historialacademico`
+
+**URL base en producción:**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioHistorialAcademico_MetaU`
+
+**URLs locales** (desde `Properties/launchSettings.json`):
+
+- HTTP: `http://localhost:5133`
+- HTTPS: `https://localhost:7219`
+
+## Autenticación
+
+La operación requiere los siguientes headers:
+
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <JWT>` | Token emitido por MicroservicioLogin |
+| `X-Usuario-Id` | `<GUID>` | Identificador del usuario que realiza la consulta |
+
+El token se valida contra `POST /validate` de Login.  
+Sin token o token inválido → `401 Unauthorized`.  
+Si falta `X-Usuario-Id` o no es un GUID válido → `401 Unauthorized`.
+
+## Endpoints
+
+| Método | Ruta | Descripción | Respuesta exitosa |
+|--------|------|-------------|-------------------|
+| GET | `/historialacademico?tipoIdentificacion={tipo}&identificacion={id}` | Consultar historial académico de un estudiante | 200 OK |
+
+### GET /historialacademico — Consultar historial
+
+```http
 GET /historialacademico?tipoIdentificacion=CEDULA&identificacion=123456789
-Parametros
-Parametro	Tipo	Requerido	Descripcion
-tipoIdentificacion	string	Si	Tipo de identificacion del estudiante
-identificacion	string	Si	Numero de identificacion del estudiante
+Authorization: Bearer <JWT>
+X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+```
 
+**Parámetros de query:**
 
-Autenticacion
-La operacion requiere un token Bearer valido y el identificador del usuario autenticado.
-Authorization: Bearer {token}
-X-Usuario-Id: {usuarioId}
-El token es validado mediante el MicroservicioLogin antes de ejecutar la consulta.
-Respuesta exitosa
-200 OK
-Ejemplo:
+| Parámetro | Tipo | Requerido | Descripción |
+|-----------|------|-----------|-------------|
+| `tipoIdentificacion` | string | Sí | Tipo de identificación del estudiante |
+| `identificacion` | string | Sí | Número de identificación del estudiante |
+
+**Respuesta exitosa (`200 OK`):**
+
+```json
 [
   {
     "codigoCurso": "CURSOTEST",
@@ -27,66 +72,108 @@ Ejemplo:
     "promedio": 89.00
   }
 ]
-Flujo de procesamiento
+```
+
+## Formato de datos
+
+```json
+{
+  "codigoCurso": "CURSOTEST",
+  "nombreCurso": "Curso Prueba",
+  "promedio": 89.00
+}
+```
+
+## Flujo de procesamiento
+
 1. Se valida el token mediante MicroservicioLogin.
 2. Se valida la existencia del estudiante mediante MicroservicioExpedientesEstudiantes.
-3. Se consultan las matriculas del estudiante mediante MicroservicioMatriculas.
-4. Se obtienen el curso y grupo correspondientes a cada matricula.
-5. Se consultan las notas y rubros mediante MicroservicioNotas.
-6. Se calcula el promedio ponderado de cada curso.
-7. Se consulta el nombre del curso mediante MicroservicioCursos.
-8. Se registra la consulta mediante MicroservicioBitacoras.
-9. Se devuelve el historial academico.
-Calculo del promedio
-El promedio se calcula utilizando la nota obtenida y el porcentaje asignado a cada rubro.
-Promedio = suma de (Nota * Porcentaje / 100)
-Ejemplo:
-Examen: 85 * 60 / 100 = 51
-Proyecto: 95 * 40 / 100 = 38
+3. Se consultan las matrículas del estudiante mediante MicroservicioMatriculas.
+4. Para cada matrícula se obtienen las notas y el desglose de rubros mediante MicroservicioNotas.
+5. Se calcula el promedio ponderado de cada curso.
+6. Se consulta el nombre del curso mediante MicroservicioCursos.
+7. Se registra la consulta mediante MicroservicioBitacoras.
+8. Se devuelve el historial académico.
 
-Promedio = 89
-Integraciones
-MicroservicioLogin
-Valida el token Bearer recibido en la solicitud.
-MicroservicioExpedientesEstudiantes
-Valida la existencia del estudiante mediante el tipo de identificacion y la identificacion.
-MicroservicioMatriculas
-Obtiene las matriculas asociadas al estudiante y la informacion necesaria de curso y grupo.
-MicroservicioNotas
-Obtiene las notas del estudiante y el desglose de rubros utilizado para calcular el promedio.
-MicroservicioCursos
-Obtiene el nombre del curso mediante su codigo.
-MicroservicioBitacoras
-Registra la consulta realizada por el usuario.
-Configuracion
-Las URLs de los servicios externos se configuran en appsettings.json.
-{
-  "Servicios": {
-    "LoginUrl": "",
-    "BitacoraUrl": "",
-    "ExpedienteUrl": "",
-    "MatriculaUrl": "",
-    "NotasUrl": "",
-    "CursoUrl": ""
-  }
-}
-Codigos HTTP
-Codigo	Descripcion
-200 OK	Consulta realizada correctamente
-400 Bad Request	Parametros requeridos ausentes o invalidos
-401 Unauthorized	Token ausente o invalido
-500 Internal Server Error	Error interno durante el procesamiento
+## Cálculo del promedio
 
+El promedio se calcula utilizando la nota obtenida y el porcentaje asignado a cada rubro:
 
-Dependencias
-Para ejecutar el flujo completo deben estar disponibles los siguientes servicios:
+\[
+\text{Promedio} = \sum (\text{Nota} \times \text{Porcentaje} / 100)
+\]
+
+**Ejemplo:**
+- Examen: \(85 \times 60 / 100 = 51\)
+- Proyecto: \(95 \times 40 / 100 = 38\)
+- **Promedio = 89**
+
+El resultado se redondea a 2 decimales.
+
+## Reglas de negocio / Validaciones
+
+- `tipoIdentificacion` e `identificacion` son obligatorios.
+- El estudiante debe existir en Expedientes.
+- Solo se consideran las matrículas del estudiante.
+- Si no hay notas para un rubro, ese rubro no aporta al promedio.
+- Si no se puede obtener el nombre del curso, se usa el código del curso como fallback.
+
+## Integraciones
+
+| Servicio | Uso |
+|----------|-----|
+| Login (USR5) | Validar token JWT |
+| Bitácoras (GEN1) | Registrar la consulta (mejor esfuerzo) |
+| Expedientes Estudiantes (MAT3) | Validar existencia del estudiante |
+| Matrículas | Obtener matrículas del estudiante |
+| Notas (MAT5) | Obtener notas y desglose de rubros |
+| Cursos | Obtener nombre del curso |
+
+## Configuración
+
+Claves principales en `appsettings.json` / variables de entorno:
+
+- `Servicios:LoginUrl` → URL base de MicroservicioLogin.
+- `Servicios:BitacoraUrl` → URL base de MicroservicioBitacoras.
+- `Servicios:ExpedientesUrl` → URL base de MicroservicioExpedientesEstudiantes.
+- `Servicios:MatriculaUrl` → URL base de MicroservicioMatriculas.
+- `Servicios:NotasUrl` → URL base de MicroservicioNotas.
+- `Servicios:CursoUrl` → URL base de MicroservicioCursos.
+
+> **Nota de seguridad:** No versionar contraseñas ni credenciales. Usar variables de entorno o secretos de Plesk en producción.
+
+## Base de datos
+
+Este microservicio **no posee base de datos propia**. Orquesta la información desde otros servicios.
+
+## Ejecución local
+
+```bash
+dotnet run --project Backend/MicroservicioHistorialAcademico/MicroservicioHistorialAcademico.csproj
+```
+
+**Dependencias requeridas para el flujo completo:**
 - MicroservicioLogin
 - MicroservicioBitacoras
 - MicroservicioExpedientesEstudiantes
 - MicroservicioMatriculas
 - MicroservicioNotas
 - MicroservicioCursos
-Compilacion
-dotnet build Backend/MicroservicioHistorialAcademico/MicroservicioHistorialAcademico.csproj
-Ejecucion
-dotnet run --project Backend/MicroservicioHistorialAcademico/MicroservicioHistorialAcademico.csproj
+
+## Respuestas y errores comunes
+
+| Código | Cuándo ocurre |
+|--------|---------------|
+| 200 OK | Consulta realizada correctamente |
+| 400 Bad Request | Parámetros requeridos ausentes o inválidos |
+| 401 Unauthorized | Token o `X-Usuario-Id` ausente/inválido |
+| 404 Not Found | Estudiante no encontrado |
+| 500 Internal Server Error | Error interno durante el procesamiento |
+
+## Diagrama de clases
+
+![Diagrama de Clases Historial Académico](../../Documentacion/Diagramas%20Generales/Clases/Microservicios/DiagramaClases-HistorialAcademico.png)
+
+---
+
+*Documentación estandarizada del microservicio MicroservicioHistorialAcademico (ACA1).*

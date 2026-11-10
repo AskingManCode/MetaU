@@ -24,8 +24,6 @@ import CrearPeriodo from "./pages/OfertaAcademica/periodos/Create.jsx";
 import EditarPeriodo from "./pages/OfertaAcademica/periodos/Edit.jsx";
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
-import CrearExpediente from "./pages/Personas/Expedientes/Create.jsx";
-import EditarExpediente from "./pages/Personas/Expedientes/Edit.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
 import Matricula from "./pages/Matricula/Matricula/Index.jsx";
 import Notas from "./pages/Evaluacion/Notas/Index.jsx";
@@ -78,8 +76,6 @@ function App() {
                     {/* Personas */}
                     <Route path="profesores" element={<Profesores />} />
                     <Route path="expedientes" element={<Expedientes />} />
-                    <Route path="expedientes/nuevo" element={<CrearExpediente />} />
-                    <Route path="expedientes/editar/:identificacion" element={<EditarExpediente />} />
 
                     {/* Matrícula */}
                     <Route path="prematricula" element={<Prematricula />} />

@@ -3,7 +3,7 @@ import { Alert, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/PageHeader';
 import Notification from '../../components/Notification';
-import { useAuth } from '../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 import { loadDashboardData, recordDashboardView } from '../../services/dashboardService';
 
 const roleName = (role) => role || 'Usuario autenticado';

@@ -9,7 +9,9 @@ import Usuarios from "./pages/Sistema/Usuarios/Index.jsx";
 import CrearUsuario from "./pages/Sistema/Usuarios/Create.jsx";
 import EditarUsuario from "./pages/Sistema/Usuarios/Edit.jsx";
 import DetalleUsuario from "./pages/Sistema/Usuarios/Detalle.jsx";
-import Instituciones from "./pages/OfertaAcademica/Instituciones/Index.jsx";
+import Instituciones from "./pages/OfertaAcademica/instituciones/Index.jsx";
+import CrearInstitucion from "./pages/OfertaAcademica/instituciones/Create.jsx";
+import EditarInstitucion from "./pages/OfertaAcademica/instituciones/Edit.jsx";
 import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
 import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
 import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
@@ -52,6 +54,8 @@ function App() {
                     
                     {/** Oferta Académica */}
                     <Route path="instituciones" element={<Instituciones />} />
+                    <Route path="instituciones/nuevo" element={<CrearInstitucion />} />
+                    <Route path="instituciones/editar/:institucionId" element={<EditarInstitucion />} />
                     <Route path="carreras" element={<Carreras />} />
                     <Route path="cursos" element={<Cursos />} />
                     <Route path="grupos" element={<Grupos />} />

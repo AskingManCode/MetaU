@@ -15,9 +15,13 @@ import EditarInstitucion from "./pages/OfertaAcademica/instituciones/Edit.jsx";
 import Carreras from "./pages/OfertaAcademica/carreras/Index.jsx";
 import CrearCarrera from "./pages/OfertaAcademica/carreras/Create.jsx";
 import EditarCarrera from "./pages/OfertaAcademica/carreras/Edit.jsx";
-import Cursos from "./pages/OfertaAcademica/Cursos/Index.jsx";
-import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
-import Periodos from "./pages/OfertaAcademica/Periodos/Index.jsx";
+import Cursos from "./pages/OfertaAcademica/cursos/Index.jsx";
+import CrearCurso from "./pages/OfertaAcademica/cursos/Create.jsx";
+import EditarCurso from "./pages/OfertaAcademica/cursos/Edit.jsx";
+import Grupos from "./pages/OfertaAcademica/grupos/Index.jsx";
+import Periodos from "./pages/OfertaAcademica/periodos/Index.jsx";
+import CrearPeriodo from "./pages/OfertaAcademica/periodos/Create.jsx";
+import EditarPeriodo from "./pages/OfertaAcademica/periodos/Edit.jsx";
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
@@ -62,8 +66,12 @@ function App() {
                     <Route path="carreras/nuevo" element={<CrearCarrera />} />
                     <Route path="carreras/editar/:carreraCode" element={<EditarCarrera />} />
                     <Route path="cursos" element={<Cursos />} />
+                    <Route path="cursos/nuevo" element={<CrearCurso />} />
+                    <Route path="cursos/editar/:cursoCode" element={<EditarCurso />} />
                     <Route path="grupos" element={<Grupos />} />
                     <Route path="periodos" element={<Periodos />} />
+                    <Route path="periodos/nuevo" element={<CrearPeriodo />} />
+                    <Route path="periodos/editar/:periodoId" element={<EditarPeriodo />} />
 
                     {/* Personas */}
                     <Route path="profesores" element={<Profesores />} />

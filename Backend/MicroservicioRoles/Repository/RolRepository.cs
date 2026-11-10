@@ -101,5 +101,19 @@ namespace MicroservicioRoles.Repository
                 throw;
             }
         }
+
+        public async Task<IEnumerable<MenuModulo>> ObtenerMenuAsync(string rolId)
+        {
+            using var connection = _dbConnectionFactory.CrearConexion();
+            var sql = @"SELECT m.ModuloCode AS IdModulo, m.Nombre, m.Orden
+                FROM [MetaU_DB_User].[Modulos] m
+                INNER JOIN [MetaU_DB_User].[RolesXModulos] rm
+                        ON rm.ModuloCode = m.ModuloCode
+                WHERE rm.RolCode = @rolId
+                  AND rm.Estado = 1
+                  AND m.Estado = 1
+                ORDER BY m.Orden, m.Nombre";
+            return await connection.QueryAsync<MenuModulo>(sql, new { rolId });
+        }
     }
 }

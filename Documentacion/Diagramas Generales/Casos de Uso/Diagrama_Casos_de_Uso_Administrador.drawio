@@ -1,0 +1,412 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mxfile host="app.diagrams.net" modified="2026-11-08T02:40:00.000Z" agent="Antigravity" version="22.1.0" type="device">
+  <diagram id="fd9c988c-5917-48b1-82eb-c1aa1bc3fc36" name="Casos de Uso - Administrador">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1580" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Diagrama de Casos de Uso Administrador — Sistema Web Administrativo" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="530" y="20" width="900" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#444444;strokeWidth=2;dashed=0;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="220" y="100" width="1520" height="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary_label" value="Sistema Web Administrativo" style="text;html=1;strokeColor=none;fillColor=#333333;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=13;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="110" width="220" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="actor" value="Administrador" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="700" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 1: Autenticación, Perfil y Dashboard -->
+        <mxCell id="g1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="160" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g1_lbl" value="Autenticación, Perfil y Dashboard" style="text;html=1;strokeColor=none;fillColor=#6c8ebf;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="168" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 2: Sistema (Usuarios y Seguridad) -->
+        <mxCell id="g2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="330" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g2_lbl" value="Sistema (Usuarios y Seguridad)" style="text;html=1;strokeColor=none;fillColor=#82b366;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="338" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 3: Oferta Académica -->
+        <mxCell id="g3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="500" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g3_lbl" value="Oferta Académica" style="text;html=1;strokeColor=none;fillColor=#d79b00;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="508" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 4: Personas -->
+        <mxCell id="g4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="670" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g4_lbl" value="Personas" style="text;html=1;strokeColor=none;fillColor=#666666;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="678" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 5: Matrícula -->
+        <mxCell id="g5" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="840" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g5_lbl" value="Matrícula" style="text;html=1;strokeColor=none;fillColor=#b85450;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="848" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 6: Evaluación y Consultas Académicas -->
+        <mxCell id="g6" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="1010" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g6_lbl" value="Evaluación y Consultas Académicas" style="text;html=1;strokeColor=none;fillColor=#d6b656;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1018" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Grupo 7: Finanzas y Comunicación -->
+        <mxCell id="g7" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=1;opacity=40;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="1180" width="1410" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="g7_lbl" value="Finanzas y Comunicación" style="text;html=1;strokeColor=none;fillColor=#9673a6;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1188" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 1 (Autenticación, Perfil y Dashboard) -->
+        <mxCell id="uc_login" value="Iniciar sesión" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_logout" value="Cerrar sesión" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_dashboard" value="Visualizar dashboard" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_perfil" value="Ver perfil" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_password" value="Cambiar contraseña" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="230" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 2 (Sistema) -->
+        <mxCell id="uc_usuarios" value="Administrar usuarios" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="400" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_roles" value="Administrar roles" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="400" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_parametros" value="Administrar parámetros" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="400" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_modulos" value="Administrar módulos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="400" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_bitacoras" value="Consultar bitácoras" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="400" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 3 (Oferta Académica) -->
+        <mxCell id="uc_instituciones" value="Administrar instituciones" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="570" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_carreras" value="Administrar carreras" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="570" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_cursos" value="Administrar cursos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="570" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_grupos" value="Administrar grupos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="570" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_periodos" value="Administrar periodos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="570" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 4 (Personas) -->
+        <mxCell id="uc_profesores" value="Administrar profesores" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="740" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_expedientes" value="Administrar expedientes" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="740" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 5 (Matrícula) -->
+        <mxCell id="uc_prematricula" value="Gestionar prematrículas" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="910" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_matricula" value="Matricular estudiantes" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="910" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 6 (Evaluación y Consultas Académicas) -->
+        <mxCell id="uc_notas" value="Administrar notas y desgloses" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1080" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_promedios" value="Consultar historial académico (promedios)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="1080" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_listados" value="Consultar listados de estudiantes" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1080" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Casos de Uso: Grupo 7 (Finanzas y Comunicación) -->
+        <mxCell id="uc_facturas" value="Administrar facturas" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1250" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_pagos" value="Administrar pagos" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="1250" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_notificaciones" value="Enviar notificaciones" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=1.5;fontSize=12;fontColor=#1a1a1a;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1250" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Asociaciones (Líneas simples estándar UML, sin punta de flecha de flujo) -->
+        <!-- Grupo 1 -->
+        <mxCell id="edge_200" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_login">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="206" />
+              <mxPoint x="420" y="206" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_201" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_logout">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="206" />
+              <mxPoint x="650" y="206" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_201b" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_dashboard">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="206" />
+              <mxPoint x="880" y="206" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_202" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_perfil">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="206" />
+              <mxPoint x="1110" y="206" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_203" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_password">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="206" />
+              <mxPoint x="1340" y="206" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Grupo 2 -->
+        <mxCell id="edge_204" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_usuarios">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="376" />
+              <mxPoint x="420" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_205" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_roles">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="376" />
+              <mxPoint x="650" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_206" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_parametros">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="376" />
+              <mxPoint x="880" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_207" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_modulos">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="376" />
+              <mxPoint x="1110" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_208" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_bitacoras">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="376" />
+              <mxPoint x="1340" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Grupo 3 -->
+        <mxCell id="edge_209" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_instituciones">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="546" />
+              <mxPoint x="420" y="546" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_210" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_carreras">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="546" />
+              <mxPoint x="650" y="546" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_211" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_cursos">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="546" />
+              <mxPoint x="880" y="546" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_214" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_grupos">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="546" />
+              <mxPoint x="1110" y="546" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_213" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_periodos">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="546" />
+              <mxPoint x="1340" y="546" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Grupo 4 -->
+        <mxCell id="edge_212" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_profesores">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="716" />
+              <mxPoint x="420" y="716" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_217" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_expedientes">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="716" />
+              <mxPoint x="650" y="716" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Grupo 5 -->
+        <mxCell id="edge_215" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_prematricula">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="886" />
+              <mxPoint x="420" y="886" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_216" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_matricula">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="886" />
+              <mxPoint x="650" y="886" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Grupo 6 -->
+        <mxCell id="edge_218a" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_notas">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="1056" />
+              <mxPoint x="420" y="1056" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_218" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_promedios">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="1056" />
+              <mxPoint x="650" y="1056" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_219" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_listados">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="1056" />
+              <mxPoint x="880" y="1056" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Grupo 7 -->
+        <mxCell id="edge_220" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_facturas">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="1226" />
+              <mxPoint x="420" y="1226" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_221" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_pagos">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="1226" />
+              <mxPoint x="650" y="1226" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_222" style="html=1;strokeColor=#666666;strokeWidth=1.2;endArrow=none;endFill=0;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor" target="uc_notificaciones">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="740" />
+              <mxPoint x="250" y="1226" />
+              <mxPoint x="880" y="1226" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="note" value="Diagrama de Casos de Uso — Sistema de Administración Académica Proyecto Nuevo Avatar V2 · Colegio Universitario de Cartago" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#666666;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="240" y="1370" width="600" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

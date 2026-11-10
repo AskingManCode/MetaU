@@ -10,6 +10,12 @@ export const normalizarModulo = m => ({
     orden: m.orden ?? m.Orden ?? 0
 })
 
+export const normalizarParametro = p => ({
+    parametroCode: p.parametroCode ?? p.ParametroCode ?? '',
+    valor: p.valor ?? p.Valor ?? '',
+    estado: p.estado ?? p.Estado ?? true
+})
+
 export const mensajeError = (error, defecto = 'No se pudo completar la operacion') => {
     const estado = error?.response?.status
     const datos = error?.response?.data
@@ -17,7 +23,7 @@ export const mensajeError = (error, defecto = 'No se pudo completar la operacion
     if (estado === 401) return 'No autorizado. Inicie sesion nuevamente'
     if (estado === 403) return 'No tiene permisos para realizar esta operacion'
 
-    return datos?.message || datos?.mensaje || defecto
+    return datos?.message || datos?.mensaje || datos?.errores?.[0]?.mensaje || defecto
 }
 
 export const textoBusqueda = valor =>

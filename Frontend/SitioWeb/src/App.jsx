@@ -12,16 +12,23 @@ import DetalleUsuario from "./pages/Sistema/Usuarios/Detalle.jsx";
 import Instituciones from "./pages/OfertaAcademica/instituciones/Index.jsx";
 import CrearInstitucion from "./pages/OfertaAcademica/instituciones/Create.jsx";
 import EditarInstitucion from "./pages/OfertaAcademica/instituciones/Edit.jsx";
-import Carreras from "./pages/OfertaAcademica/Carreras/Index.jsx";
+import Carreras from "./pages/OfertaAcademica/carreras/Index.jsx";
+import CrearCarrera from "./pages/OfertaAcademica/carreras/Create.jsx";
+import EditarCarrera from "./pages/OfertaAcademica/carreras/Edit.jsx";
 import Cursos from "./pages/OfertaAcademica/cursos/Index.jsx";
 import CrearCurso from "./pages/OfertaAcademica/cursos/Create.jsx";
 import EditarCurso from "./pages/OfertaAcademica/cursos/Edit.jsx";
-import Grupos from "./pages/OfertaAcademica/Grupos/Index.jsx";
-import Periodos from './pages/OfertaAcademica/periodos/Index.jsx';
+import Grupos from "./pages/OfertaAcademica/grupos/Index.jsx";
+
+import Periodos from "./pages/OfertaAcademica/periodos/Index.jsx";
+import CrearPeriodo from "./pages/OfertaAcademica/periodos/Create.jsx";
+import EditarPeriodo from "./pages/OfertaAcademica/periodos/Edit.jsx";
 import Profesores from "./pages/Personas/Profesores/Index.jsx";
 import CrearProfesor from './pages/Personas/Profesores/Create.jsx'
 import EditarProfesor from './pages/Personas/Profesores/Edit.jsx'
 import Expedientes from "./pages/Personas/Expedientes/Index.jsx";
+import CrearExpediente from "./pages/Personas/Expedientes/Create.jsx";
+import EditarExpediente from "./pages/Personas/Expedientes/Edit.jsx";
 import Prematricula from "./pages/Matricula/Prematricula/Index.jsx";
 import Matricula from "./pages/Matricula/Matricula/Index.jsx";
 import Notas from "./pages/Evaluacion/Notas/Index.jsx";
@@ -61,17 +68,23 @@ function App() {
                     <Route path="instituciones/nuevo" element={<CrearInstitucion />} />
                     <Route path="instituciones/editar/:institucionId" element={<EditarInstitucion />} />
                     <Route path="carreras" element={<Carreras />} />
+                    <Route path="carreras/nuevo" element={<CrearCarrera />} />
+                    <Route path="carreras/editar/:carreraCode" element={<EditarCarrera />} />
                     <Route path="cursos" element={<Cursos />} />
                     <Route path="cursos/nuevo" element={<CrearCurso />} />
                     <Route path="cursos/editar/:cursoCode" element={<EditarCurso />} />
                     <Route path="grupos" element={<Grupos />} />
                     <Route path="periodos" element={<Periodos />} />
+                    <Route path="periodos/nuevo" element={<CrearPeriodo />} />
+                    <Route path="periodos/editar/:periodoId" element={<EditarPeriodo />} />
 
                     {/* Personas */}
                     <Route path="profesores" element={<Profesores />} />
                     <Route path="profesores/nuevo" element={<CrearProfesor />} />
                     <Route path="profesores/editar/:profesorId" element={<EditarProfesor />} />
                     <Route path="expedientes" element={<Expedientes />} />
+                    <Route path="expedientes/nuevo" element={<CrearExpediente />} />
+                    <Route path="expedientes/editar/:identificacion" element={<EditarExpediente />} />
 
                     {/* Matrícula */}
                     <Route path="prematricula" element={<Prematricula />} />

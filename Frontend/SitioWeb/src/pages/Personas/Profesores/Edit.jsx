@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { Button, Spinner } from 'react-bootstrap'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -25,7 +24,11 @@ function Edit() {
                 if (activo) setProfesor(normalizarProfesor(data))
             })
             .catch(error => {
-                if (activo) setErrorCarga(mensajeError(error, 'No se pudo cargar el profesor'))
+                if (activo) {
+                    const mensaje = mensajeError(error, 'No se pudo cargar el profesor')
+                    setErrorCarga(mensaje)
+                    setNotification({ type: 'error', message: mensaje })
+                }
             })
             .finally(() => {
                 if (activo) setCargando(false)
@@ -72,7 +75,6 @@ function Edit() {
             ) : errorCarga ? (
                 <div className="card border-0 shadow-sm">
                     <div className="card-body">
-                        <div className="alert alert-danger">{errorCarga}</div>
                         <Button variant="outline-secondary" onClick={() => navigate('/profesores')}>
                             Volver al listado
                         </Button>
@@ -85,6 +87,7 @@ function Edit() {
                     inicial={profesor}
                     esEdicion
                     onGuardar={guardar}
+                    onValidacion={mensaje => setNotification({ type: 'warning', message: mensaje })}
                     onCancelar={() => navigate('/profesores')}
                     guardando={guardando}
                 />

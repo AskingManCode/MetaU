@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Notification from '../../../components/Notification'
@@ -44,6 +43,7 @@ function Create() {
             <ProfesorForm
                 titulo="Nuevo Profesor"
                 onGuardar={guardar}
+                onValidacion={mensaje => setNotification({ type: 'warning', message: mensaje })}
                 onCancelar={() => navigate('/profesores')}
                 guardando={guardando}
             />

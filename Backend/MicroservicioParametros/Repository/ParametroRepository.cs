@@ -18,7 +18,7 @@ namespace MicroservicioParametros.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleAsync<ParametroResponse>(
-                "dbo.usp_Parametros_Crear",
+                "MetaU_DB_User.usp_Parametros_Crear",
                 new
                 {
                     request.ParametroCode,
@@ -33,7 +33,7 @@ namespace MicroservicioParametros.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleOrDefaultAsync<ParametroResponse>(
-                "dbo.usp_Parametros_ObtenerPorID",
+                "MetaU_DB_User.usp_Parametros_ObtenerPorID",
                 new 
                 { 
                     ParametroCode = parametroCode 
@@ -47,7 +47,7 @@ namespace MicroservicioParametros.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleOrDefaultAsync<ParametroResponse>(
-                "dbo.usp_Parametros_Modificar",
+                "MetaU_DB_User.usp_Parametros_Modificar",
                 new
                 {
                     ParametroCode = parametroCode,
@@ -62,7 +62,7 @@ namespace MicroservicioParametros.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QueryAsync<ParametroResponse>(
-                "dbo.usp_Parametros_ObtenerTodos",
+                "MetaU_DB_User.usp_Parametros_ObtenerTodos",
                 commandType: CommandType.StoredProcedure
             );
         }
@@ -72,7 +72,7 @@ namespace MicroservicioParametros.Repository
             using var connection = _connectionFactory.CreateConnection();
 
             return await connection.QuerySingleOrDefaultAsync<ParametroResponse>(
-                "dbo.usp_Parametros_Eliminar",
+                "MetaU_DB_User.usp_Parametros_Eliminar",
                 new
                 {
                     ParametroCode = parametroCode,

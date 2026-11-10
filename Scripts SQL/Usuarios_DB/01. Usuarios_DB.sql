@@ -77,6 +77,7 @@ IF OBJECT_ID('MetaU_DB_User.Modulos', 'U') IS NULL
         ModuloCode VARCHAR(15) NOT NULL,
         Nombre VARCHAR(75) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
+        Orden INT NOT NULL DEFAULT 0,
 
         CONSTRAINT PK_Modulos
             PRIMARY KEY CLUSTERED (ModuloCode),
@@ -113,6 +114,7 @@ IF OBJECT_ID('MetaU_DB_User.Usuarios', 'U') IS NULL
         Email VARCHAR(150) NOT NULL,
         ContrasenaHash VARCHAR(500) NOT NULL,
         Estado BIT NOT NULL DEFAULT 1,
+        FechaModificacion DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
         CONSTRAINT PK_Usuarios
             PRIMARY KEY CLUSTERED (UsuarioID),

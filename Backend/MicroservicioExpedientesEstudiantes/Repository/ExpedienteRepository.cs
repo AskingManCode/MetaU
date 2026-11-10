@@ -13,7 +13,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         public async Task<Estudiante> Insertar(Estudiante estudiante)
         {
             const string insertarEstudiante = """
-                INSERT INTO Estudiantes (EstudianteID, UsuarioID, TipoIdentificacionCode, Identificacion,
+                INSERT INTO [MetaU_DB_User].[Estudiantes] (EstudianteID, UsuarioID, TipoIdentificacionCode, Identificacion,
                     NombreCompleto, Email, FechaNacimiento, ProvinciaID, CantonID, DistritoID, Direccion, Estado)
                 VALUES (@EstudianteID, @UsuarioID, @TipoIdentificacion, @Identificacion,
                     @NombreCompleto, @Email, @FechaNacimiento, @ProvinciaID, @CantonID, @DistritoID, @OtrasSenas, @Estado)
@@ -39,7 +39,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         {
             using var conexion = _conexiones.CrearConexion();
             var id = await conexion.QuerySingleOrDefaultAsync<Guid?>(
-                "SELECT EstudianteID FROM Estudiantes WHERE Identificacion=@Identificacion AND Estado=0",
+                "SELECT EstudianteID FROM [MetaU_DB_User].[Estudiantes] WHERE Identificacion=@Identificacion AND Estado=0",
                 new { estudiante.Identificacion });
             if (!id.HasValue) return null;
             estudiante.EstudianteID = id.Value;
@@ -51,7 +51,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         {
             using var conexion = _conexiones.CrearConexion();
             var existe = await conexion.ExecuteScalarAsync<int>(
-                "SELECT COUNT(*) FROM Estudiantes WHERE Identificacion=@Identificacion AND Estado=1",
+                "SELECT COUNT(*) FROM [MetaU_DB_User].[Estudiantes] WHERE Identificacion=@Identificacion AND Estado=1",
                 new { estudiante.Identificacion });
             return existe == 0 ? null : await GuardarActualizacion(conexion, estudiante);
         }
@@ -60,7 +60,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         {
             using var conexion = _conexiones.CrearConexion();
             return await conexion.ExecuteAsync(
-                "UPDATE Estudiantes SET Estado=0 WHERE Identificacion=@identificacion AND Estado=1",
+                "UPDATE [MetaU_DB_User].[Estudiantes] SET Estado=0 WHERE Identificacion=@identificacion AND Estado=1",
                 new { identificacion }) > 0;
         }
 
@@ -91,14 +91,14 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         {
             using var conexion = _conexiones.CrearConexion();
             return await conexion.ExecuteScalarAsync<int>(
-                "SELECT COUNT(*) FROM Estudiantes WHERE Identificacion=@identificacion AND Estado=1",
+                "SELECT COUNT(*) FROM [MetaU_DB_User].[Estudiantes] WHERE Identificacion=@identificacion AND Estado=1",
                 new { identificacion }) > 0;
         }
 
         public async Task<bool> ExisteEmail(string email, string? identificacionExcluir = null)
         {
             const string sql = """
-                SELECT COUNT(*) FROM Estudiantes
+                SELECT COUNT(*) FROM [MetaU_DB_User].[Estudiantes]
                 WHERE Email=@email AND (@identificacionExcluir IS NULL OR Identificacion<>@identificacionExcluir)
                 """;
             using var conexion = _conexiones.CrearConexion();
@@ -108,7 +108,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         private static async Task<Estudiante> GuardarActualizacion(IDbConnection conexion, Estudiante estudiante)
         {
             const string actualizar = """
-                UPDATE Estudiantes SET UsuarioID=@UsuarioID, TipoIdentificacionCode=@TipoIdentificacion,
+                UPDATE [MetaU_DB_User].[Estudiantes] SET UsuarioID=@UsuarioID, TipoIdentificacionCode=@TipoIdentificacion,
                     NombreCompleto=@NombreCompleto, Email=@Email, FechaNacimiento=@FechaNacimiento,
                     ProvinciaID=@ProvinciaID, CantonID=@CantonID, DistritoID=@DistritoID,
                     Direccion=@OtrasSenas, Estado=@Estado
@@ -120,7 +120,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
             {
                 await conexion.ExecuteAsync(actualizar, Parametros(estudiante), transaccion);
                 await conexion.ExecuteAsync(
-                    "DELETE FROM TelefonosXEstudiantes WHERE EstudianteID=@EstudianteID",
+                    "DELETE FROM [MetaU_DB_User].[TelefonosXEstudiantes] WHERE EstudianteID=@EstudianteID",
                     new { estudiante.EstudianteID }, transaccion);
                 await InsertarTelefonos(conexion, transaccion, estudiante);
                 transaccion.Commit();
@@ -137,7 +137,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
             IDbConnection conexion, IDbTransaction transaccion, Estudiante estudiante)
         {
             const string sql = """
-                INSERT INTO TelefonosXEstudiantes (EstudianteID, Telefono, Estado)
+                INSERT INTO [MetaU_DB_User].[TelefonosXEstudiantes] (EstudianteID, Telefono, Estado)
                 VALUES (@EstudianteID, @Numero, 1)
                 """;
             foreach (var telefono in estudiante.Telefonos)
@@ -151,7 +151,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
         {
             const string sql = """
                 SELECT TelefonoXEstudiante, EstudianteID, Telefono AS Numero
-                FROM TelefonosXEstudiantes WHERE EstudianteID=@estudianteId AND Estado=1
+                FROM [MetaU_DB_User].[TelefonosXEstudiantes] WHERE EstudianteID=@estudianteId AND Estado=1
                 """;
             return (await conexion.QueryAsync<Telefono>(sql, new { estudianteId })).ToList();
         }
@@ -176,7 +176,7 @@ namespace MicroservicioExpedientesEstudiantes.Repository
             SELECT e.EstudianteID, e.UsuarioID, e.TipoIdentificacionCode, e.Identificacion,
                    e.NombreCompleto, e.Email, e.FechaNacimiento, e.ProvinciaID,
                    e.CantonID, e.DistritoID, e.Direccion, e.Estado
-            FROM Estudiantes e
+            FROM [MetaU_DB_User].[Estudiantes] e
             """;
 
         private static Estudiante Mapear(EstudianteRow fila) => new()

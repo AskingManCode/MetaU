@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
 import PageHeader from '../../../components/PageHeader'
@@ -11,7 +10,7 @@ const estiloBoton = {
     borderColor: '#5d75e5'
 }
 
-function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdicion = false }) {
+function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, onValidacion, guardando, esEdicion = false }) {
     const [datos, setDatos] = useState({
         usuarioID: inicial?.usuarioID ?? '',
         tipoIdentificacionCode: inicial?.tipoIdentificacionCode ?? '',
@@ -46,6 +45,27 @@ function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdi
 
     const manejarSubmit = e => {
         e.preventDefault()
+
+        const formulario = e.currentTarget
+        if (!formulario.checkValidity()) {
+            const campo = formulario.querySelector(':invalid')
+            const nombresCampos = {
+                profesorUsuario: 'Usuario asociado (GUID)',
+                profesorTipoIdentificacion: 'Tipo de identificacion',
+                profesorIdentificacion: 'Identificacion',
+                profesorNombre: 'Nombre completo',
+                profesorCorreo: 'Correo electronico',
+                profesorNacimiento: 'Fecha de nacimiento'
+            }
+            const nombreCampo = nombresCampos[campo?.id] ?? campo?.getAttribute('aria-label') ?? 'indicado'
+            const mensaje = campo?.validity.valueMissing
+                ? `Debe completar el campo ${nombreCampo}`
+                : `Debe ingresar un valor valido en el campo ${nombreCampo}`
+
+            onValidacion?.(mensaje)
+            return
+        }
+
         onGuardar(prepararProfesorRequest(datos))
     }
 
@@ -85,7 +105,7 @@ function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, guardando, esEdi
                 </Card.Header>
 
                 <Card.Body className="p-3">
-                    <Form id="formularioProfesor" onSubmit={manejarSubmit}>
+                    <Form id="formularioProfesor" onSubmit={manejarSubmit} noValidate>
                         <fieldset disabled={guardando} className="border-0 p-0 m-0 w-100">
                             <Row className="g-3">
                                 <Col md={6}>

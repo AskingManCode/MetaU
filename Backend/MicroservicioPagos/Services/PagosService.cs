@@ -9,15 +9,18 @@ namespace MicroservicioPagos.Services
         private readonly IPagosRepository _repository;
         private readonly IAuthServiceValidator _authValidator;
         private readonly IBitacoraServiceClient _bitacoraClient;
+        private readonly IPeriodoServiceClient _periodoClient;
 
         public PagosService(
             IPagosRepository repository,
             IAuthServiceValidator authValidator,
-            IBitacoraServiceClient bitacoraClient)
+            IBitacoraServiceClient bitacoraClient,
+            IPeriodoServiceClient periodoClient)
         {
             _repository = repository;
             _authValidator = authValidator;
             _bitacoraClient = bitacoraClient;
+            _periodoClient = periodoClient;
         }
 
         public async Task<PagoResponse> CrearAsync(Guid facturaId, HttpRequest httpRequest)
@@ -155,6 +158,10 @@ namespace MicroservicioPagos.Services
 
             try
             {
+                var periodoValido = await _periodoClient.ObtenerPorIdAsync(periodoId, usuario, token);
+                if (!periodoValido)
+                    throw new KeyNotFoundException("El periodo indicado no existe o no está activo.");
+
                 var pagos = await _repository.ObtenerPorPeriodoAsync(periodoId);
 
                 try

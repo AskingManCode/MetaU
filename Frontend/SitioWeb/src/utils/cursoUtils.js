@@ -1,12 +1,8 @@
-export const normalizarTextoCurso = valor =>
-    String(valor ?? '').trim().replace(/ +/g, ' ')
-
 export const normalizarCurso = curso => ({
     cursoCode: curso?.cursoCode ?? curso?.CursoCode ?? '',
     carreraCode: curso?.carreraCode ?? curso?.CarreraCode ?? '',
     nombre: curso?.nombre ?? curso?.Nombre ?? '',
-    nivel: curso?.nivel ?? curso?.Nivel ?? '',
-    estado: curso?.estado ?? curso?.Estado
+    nivel: curso?.nivel ?? curso?.Nivel ?? ''
 })
 
 export const normalizarCarreraCurso = carrera => ({
@@ -14,28 +10,29 @@ export const normalizarCarreraCurso = carrera => ({
     nombre: carrera?.nombre ?? carrera?.Nombre ?? ''
 })
 
+export const textoBusquedaCurso = valor =>
+    String(valor ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+
 export const mensajeErrorCurso = (
     error,
-    predeterminado = 'No se pudo completar la operación.'
+    mensajePredeterminado = 'No se pudo completar la operación.'
 ) => {
     const estado = error?.response?.status
     const datos = error?.response?.data
+    const mensaje = datos?.mensaje ?? datos?.message
 
-    if (estado === 500) {
-        return 'Ocurrió un error interno. Inténtelo de nuevo más tarde.'
-    }
+    if (mensaje) return mensaje
+    if (estado === 400) return 'Los datos enviados no son válidos.'
+    if (estado === 401) return 'No autorizado. Inicie sesión nuevamente.'
+    if (estado === 403) return 'No tiene permisos para realizar esta operación.'
+    if (estado === 404) return 'No se encontró el curso solicitado.'
+    if (estado === 409) return 'Ya existe un curso con ese código.'
+    if (estado >= 500) return 'Ocurrió un error interno. Inténtelo de nuevo más tarde.'
 
-    if ([400, 404, 409].includes(estado)) {
-        return datos?.mensaje || datos?.message || predeterminado
-    }
-
-    return datos?.mensaje || datos?.message || predeterminado
-}
-
-export const mensajeErrorGuardarCurso = error => {
-    if (error?.response?.status === 500) {
-        return 'No se pudo guardar: verifique que el código y el nombre no estén repetidos en la carrera.'
-    }
-
-    return mensajeErrorCurso(error, 'No se pudo guardar el curso.')
+    return error?.message?.startsWith('No se pudo verificar')
+        ? error.message
+        : mensajePredeterminado
 }

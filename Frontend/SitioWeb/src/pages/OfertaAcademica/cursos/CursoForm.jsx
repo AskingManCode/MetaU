@@ -1,266 +1,250 @@
-import { useEffect, useState } from 'react'
-import { Alert, Button, Form, Spinner } from 'react-bootstrap'
-import { useNavigate, useParams } from 'react-router-dom'
-import Notification from '../../../components/Notification'
-import useCatalogosCurso from '../../../hooks/useCatalogosCurso'
-import cursoModuleServices from '../../../services/cursoModuleServices'
-import {
-    mensajeErrorCurso,
-    mensajeErrorGuardarCurso,
-    normalizarCurso,
-    normalizarTextoCurso
-} from '../../../utils/cursoUtils'
+import { useState } from 'react'
+import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
+import PageHeader from '../../../components/PageHeader'
+import useCarrerasCurso from '../../../hooks/useCarrerasCurso'
 
-const nombreValido = /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/
-const codigoValido = /^[A-Z0-9]{1,15}$/
+const estiloBoton = {
+    width: '38px',
+    height: '38px',
+    backgroundColor: '#5d75e5',
+    borderColor: '#5d75e5'
+}
 
-export default function CursoForm({ modo }) {
-    const esEdicion = modo === 'editar'
-    const { cursoCode: codigoRuta } = useParams()
-    const navigate = useNavigate()
-    const { carreras, error: errorCarreras, loading: cargandoCarreras } =
-        useCatalogosCurso()
+const CODIGO_CURSO = /^[A-Z0-9]{1,15}$/
+const NOMBRE_CURSO = /^[\p{L}]+(?: +[\p{L}]+)*$/u
+
+function CursoForm({
+    titulo,
+    inicial,
+    onGuardar,
+    onCancelar,
+    guardando,
+    esEdicion = false
+}) {
+    const { carreras, loading: cargandoCarreras, error: errorCarreras } =
+        useCarrerasCurso()
     const [curso, setCurso] = useState({
-        cursoCode: '',
-        carreraCode: '',
-        nombre: '',
-        nivel: ''
+        cursoCode: inicial?.cursoCode ?? '',
+        carreraCode: inicial?.carreraCode ?? '',
+        nombre: inicial?.nombre ?? '',
+        nivel: inicial?.nivel === undefined ? '' : String(inicial.nivel)
     })
-    const [cargandoCurso, setCargandoCurso] = useState(esEdicion)
-    const [errorCurso, setErrorCurso] = useState('')
-    const [guardando, setGuardando] = useState(false)
-    const [notificacion, setNotificacion] = useState(null)
+    const [errores, setErrores] = useState({})
 
-    useEffect(() => {
-        if (!esEdicion) return undefined
+    const nombreCarrera = carreras.find(
+        carrera => carrera.carreraCode === curso.carreraCode
+    )?.nombre ?? curso.carreraCode
 
-        let activo = true
-        cursoModuleServices.getCurso(codigoRuta)
-            .then(({ data }) => {
-                if (!activo) return
-                setCurso(normalizarCurso(data))
-            })
-            .catch(error => {
-                if (!activo) return
-                setErrorCurso(mensajeErrorCurso(error, 'No se pudo cargar el curso.'))
-            })
-            .finally(() => {
-                if (activo) setCargandoCurso(false)
-            })
-
-        return () => {
-            activo = false
-        }
-    }, [codigoRuta, esEdicion])
-
-    const actualizarCampo = evento => {
-        const { name, value } = evento.target
-        setCurso(actual => ({ ...actual, [name]: value }))
+    const actualizarCampo = (campo, valor) => {
+        setCurso(actual => ({ ...actual, [campo]: valor }))
+        setErrores(actual => ({ ...actual, [campo]: '' }))
     }
 
-    const validar = () => {
-        if (!codigoValido.test(curso.cursoCode)) {
-            return 'El código es requerido y debe contener solo letras mayúsculas y números (máximo 15).'
+    const manejarSubmit = event => {
+        event.preventDefault()
+
+        const codigoNormalizado = String(curso.cursoCode).trim().toUpperCase()
+        const nombreNormalizado = String(curso.nombre).trim().replace(/ +/g, ' ')
+        const nivel = Number(curso.nivel)
+        const nuevosErrores = {}
+
+        if (!codigoNormalizado) {
+            nuevosErrores.cursoCode = 'El código es requerido.'
+        } else if (!esEdicion && !CODIGO_CURSO.test(codigoNormalizado)) {
+            nuevosErrores.cursoCode =
+                'Use solo letras mayúsculas y dígitos (máximo 15).'
         }
 
         if (!curso.carreraCode) {
-            return 'Seleccione una carrera.'
+            nuevosErrores.carreraCode = 'Seleccione una carrera.'
         }
 
-        const nombre = normalizarTextoCurso(curso.nombre)
-        if (!nombre) return 'El nombre es requerido.'
-        if (nombre.length > 150) {
-            return 'El nombre no puede superar los 150 caracteres.'
-        }
-        if (!nombreValido.test(nombre)) {
-            return 'El nombre solo puede contener letras y espacios.'
-        }
-
-        const nivel = Number(curso.nivel)
-        if (!Number.isInteger(nivel) || nivel < 1 || nivel > 12) {
-            return 'El nivel debe ser un número entero entre 1 y 12.'
+        if (!nombreNormalizado) {
+            nuevosErrores.nombre = 'El nombre es requerido.'
+        } else if (nombreNormalizado.length > 150) {
+            nuevosErrores.nombre = 'El nombre no puede superar los 150 caracteres.'
+        } else if (!NOMBRE_CURSO.test(nombreNormalizado)) {
+            nuevosErrores.nombre = 'El nombre solo puede contener letras y espacios.'
         }
 
-        return ''
-    }
-
-    const guardar = async evento => {
-        evento.preventDefault()
-        const errorValidacion = validar()
-
-        if (errorValidacion) {
-            setNotificacion({ type: 'error', message: errorValidacion })
-            return
+        if (!curso.nivel || !Number.isInteger(nivel) || nivel < 1 || nivel > 12) {
+            nuevosErrores.nivel = 'El nivel debe ser un número entero entre 1 y 12.'
         }
+
+        setErrores(nuevosErrores)
+        if (Object.keys(nuevosErrores).length > 0) return
 
         if (!esEdicion && (cargandoCarreras || errorCarreras)) {
-            setNotificacion({
-                type: 'error',
-                message: errorCarreras || 'Espere a que se cargue la lista de carreras.'
-            })
+            setErrores(actual => ({
+                ...actual,
+                carreraCode: errorCarreras || 'Espere a que se cargue la lista de carreras.'
+            }))
             return
         }
 
-        const datos = {
-            cursoCode: esEdicion ? curso.cursoCode : curso.cursoCode.trim(),
+        onGuardar({
+            cursoCode: esEdicion ? inicial.cursoCode : codigoNormalizado,
             carreraCode: curso.carreraCode,
-            nombre: normalizarTextoCurso(curso.nombre),
-            nivel: Number(curso.nivel)
-        }
-
-        setGuardando(true)
-        setNotificacion(null)
-
-        try {
-            if (esEdicion) {
-                await cursoModuleServices.actualizarCurso(codigoRuta, datos)
-            } else {
-                await cursoModuleServices.crearCurso(datos)
-            }
-
-            navigate('/cursos', {
-                state: {
-                    mensaje: esEdicion
-                        ? 'Curso actualizado correctamente.'
-                        : 'Curso creado correctamente.',
-                    mostrarUltimaPagina: true
-                }
-            })
-        } catch (error) {
-            setNotificacion({
-                type: 'error',
-                message: mensajeErrorGuardarCurso(error)
-            })
-        } finally {
-            setGuardando(false)
-        }
-    }
-
-    if (cargandoCurso) {
-        return (
-            <div className="d-flex align-items-center gap-2" role="status">
-                <Spinner size="sm" />
-                <span>Cargando curso...</span>
-            </div>
-        )
-    }
-
-    if (errorCurso) {
-        return (
-            <div>
-                <Alert variant="danger">{errorCurso}</Alert>
-                <Button variant="outline-secondary" onClick={() => navigate('/cursos')}>
-                    Regresar al listado
-                </Button>
-            </div>
-        )
+            nombre: nombreNormalizado,
+            nivel
+        })
     }
 
     return (
         <div>
-            <Notification
-                type={notificacion?.type}
-                message={notificacion?.message}
-                show={Boolean(notificacion)}
-                onClose={() => setNotificacion(null)}
-            />
+            <PageHeader title={titulo} />
 
-            <div className="d-flex align-items-center justify-content-between mb-3">
-                <h5 className="mb-0">{esEdicion ? 'Editar curso' : 'Nuevo curso'}</h5>
+            <div className="d-flex gap-2 mb-3">
+                <button
+                    type="button"
+                    className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                    style={estiloBoton}
+                    onClick={onCancelar}
+                    disabled={guardando}
+                    title="Volver al listado"
+                    aria-label="Volver al listado"
+                >
+                    <i className="bi bi-arrow-left fs-5" />
+                </button>
+
+                <button
+                    type="submit"
+                    form="formularioCurso"
+                    className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                    style={estiloBoton}
+                    disabled={guardando}
+                    title="Guardar"
+                    aria-label="Guardar"
+                >
+                    {guardando
+                        ? <Spinner animation="border" size="sm" />
+                        : <i className="bi bi-floppy fs-5" />}
+                </button>
             </div>
 
-            {errorCarreras && (
-                <Alert variant="danger">
-                    No se pudo cargar la lista de carreras: {errorCarreras}
-                </Alert>
-            )}
+            <Card className="border-0 shadow-sm">
+                <Card.Header className="bg-light border-bottom py-3">
+                    <span className="text-primary fw-semibold">
+                        Información del Curso
+                    </span>
+                </Card.Header>
 
-            <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                    <Form onSubmit={guardar} noValidate>
-                        <Form.Group className="mb-3" controlId="cursoCode">
-                            <Form.Label>Código</Form.Label>
-                            <Form.Control
-                                name="cursoCode"
-                                value={curso.cursoCode}
-                                onChange={actualizarCampo}
-                                readOnly={esEdicion}
-                                maxLength={15}
-                                required
-                                autoComplete="off"
-                            />
-                        </Form.Group>
+                <Card.Body className="p-3">
+                    <Form id="formularioCurso" noValidate onSubmit={manejarSubmit}>
+                        <fieldset disabled={guardando} className="border-0 p-0 m-0 w-100">
+                            <Row className="g-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="cursoCodigo">
+                                        <Form.Label>Código *</Form.Label>
+                                        <Form.Control
+                                            value={curso.cursoCode}
+                                            readOnly={esEdicion}
+                                            maxLength={15}
+                                            isInvalid={!!errores.cursoCode}
+                                            onChange={event => actualizarCampo(
+                                                'cursoCode',
+                                                event.target.value.toUpperCase()
+                                            )}
+                                            required
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errores.cursoCode}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Col>
 
-                        <Form.Group className="mb-3" controlId="carreraCode">
-                            <Form.Label>Carrera</Form.Label>
-                            {esEdicion ? (
-                                <Form.Control value={curso.carreraCode} readOnly />
-                            ) : (
-                                <Form.Select
-                                    name="carreraCode"
-                                    value={curso.carreraCode}
-                                    onChange={actualizarCampo}
-                                    disabled={cargandoCarreras || Boolean(errorCarreras)}
-                                    required
-                                >
-                                    <option value="">
-                                        {cargandoCarreras
-                                            ? 'Cargando carreras...'
-                                            : 'Seleccione una carrera'}
-                                    </option>
-                                    {carreras.map(carrera => (
-                                        <option
-                                            key={carrera.carreraCode}
-                                            value={carrera.carreraCode}
-                                        >
-                                            {carrera.nombre}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            )}
-                        </Form.Group>
+                                <Col md={6}>
+                                    <Form.Group controlId="cursoCarrera">
+                                        <Form.Label>Carrera *</Form.Label>
+                                        {esEdicion ? (
+                                            <Form.Control value={nombreCarrera} readOnly />
+                                        ) : (
+                                            <Form.Select
+                                                value={curso.carreraCode}
+                                                isInvalid={!!errores.carreraCode || !!errorCarreras}
+                                                onChange={event => actualizarCampo(
+                                                    'carreraCode',
+                                                    event.target.value
+                                                )}
+                                                disabled={cargandoCarreras || !!errorCarreras}
+                                                required
+                                            >
+                                                <option value="">
+                                                    {cargandoCarreras
+                                                        ? 'Cargando carreras...'
+                                                        : 'Seleccione una carrera'}
+                                                </option>
+                                                {carreras.map(carrera => (
+                                                    <option
+                                                        key={carrera.carreraCode}
+                                                        value={carrera.carreraCode}
+                                                    >
+                                                        {carrera.nombre}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        )}
+                                        {!esEdicion && (
+                                            <Form.Control.Feedback type="invalid">
+                                                {errores.carreraCode || errorCarreras}
+                                            </Form.Control.Feedback>
+                                        )}
+                                    </Form.Group>
+                                </Col>
 
-                        <Form.Group className="mb-3" controlId="nombre">
-                            <Form.Label>Nombre</Form.Label>
-                            <Form.Control
-                                name="nombre"
-                                value={curso.nombre}
-                                onChange={actualizarCampo}
-                                maxLength={150}
-                                required
-                            />
-                        </Form.Group>
+                                <Col md={6}>
+                                    <Form.Group controlId="cursoNivel">
+                                        <Form.Label>Nivel *</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={curso.nivel}
+                                            min={1}
+                                            max={12}
+                                            step={1}
+                                            isInvalid={!!errores.nivel}
+                                            onChange={event => actualizarCampo(
+                                                'nivel',
+                                                event.target.value
+                                            )}
+                                            required
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errores.nivel}
+                                        </Form.Control.Feedback>
+                                        <Form.Text className="text-muted">
+                                            Ingrese un número entero entre 1 y 12
+                                        </Form.Text>
+                                    </Form.Group>
+                                </Col>
 
-                        <Form.Group className="mb-3" controlId="nivel">
-                            <Form.Label>Nivel</Form.Label>
-                            <Form.Control
-                                type="number"
-                                name="nivel"
-                                value={curso.nivel}
-                                onChange={actualizarCampo}
-                                min={1}
-                                max={12}
-                                step={1}
-                                required
-                            />
-                        </Form.Group>
-
-                        <div className="d-flex gap-2">
-                            <Button type="submit" disabled={guardando}>
-                                {guardando ? 'Guardando...' : 'Guardar'}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline-secondary"
-                                onClick={() => navigate('/cursos')}
-                                disabled={guardando}
-                            >
-                                Regresar al listado
-                            </Button>
-                        </div>
+                                <Col md={6}>
+                                    <Form.Group controlId="cursoNombre">
+                                        <Form.Label>Nombre *</Form.Label>
+                                        <Form.Control
+                                            value={curso.nombre}
+                                            maxLength={150}
+                                            isInvalid={!!errores.nombre}
+                                            onChange={event => actualizarCampo(
+                                                'nombre',
+                                                event.target.value
+                                            )}
+                                            required
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errores.nombre}
+                                        </Form.Control.Feedback>
+                                        <Form.Text className="text-muted">
+                                            Solo letras y espacios
+                                        </Form.Text>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </fieldset>
                     </Form>
-                </div>
-            </div>
+                </Card.Body>
+            </Card>
         </div>
     )
 }
+
+export default CursoForm

@@ -18,8 +18,6 @@ import CrearCurso from "./pages/OfertaAcademica/cursos/Create.jsx";
 import EditarCurso from "./pages/OfertaAcademica/cursos/Edit.jsx";
 
 import Grupos from "./pages/OfertaAcademica/grupos/Index.jsx";
-import CrearGrupo from "./pages/OfertaAcademica/grupos/Create.jsx";
-import EditarGrupo from "./pages/OfertaAcademica/grupos/Edit.jsx";
 
 import Periodos from "./pages/OfertaAcademica/periodos/Index.jsx";
 import CrearPeriodo from "./pages/OfertaAcademica/periodos/Create.jsx";
@@ -69,8 +67,6 @@ function App() {
                     <Route path="cursos/nuevo" element={<CrearCurso />} />
                     <Route path="cursos/editar/:cursoCode" element={<EditarCurso />} />
                     <Route path="grupos" element={<Grupos />} />
-                    <Route path="grupos/nuevo" element={<CrearGrupo />} />
-                    <Route path="grupos/editar/:grupoCode" element={<EditarGrupo />} />
                     <Route path="periodos" element={<Periodos />} />
                     <Route path="periodos/nuevo" element={<CrearPeriodo />} />
                     <Route path="periodos/editar/:periodoId" element={<EditarPeriodo />} />

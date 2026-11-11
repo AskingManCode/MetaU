@@ -9,6 +9,7 @@ import periodoService from '../../../services/periodoService'
 import cursoService from '../../../services/cursoService'
 import grupoService from '../../../services/grupoService'
 import expedienteService from '../../../services/expedienteService'
+import { descargarArchivo, generarCsv, registrarBitacora } from '../../../utils/listaEstudiantesUtils'
 
 const list = data => Array.isArray(data) ? data : data?.items ?? data?.data ?? []
 const get = (item, ...keys) => keys.map(key => item?.[key]).find(value => value !== undefined && value !== null)
@@ -98,6 +99,43 @@ export default function Matricula() {
             .toLowerCase()
             .includes(filters.student.toLowerCase())
     })
+
+    const exportarCsv = () => {
+        if (!filteredRows.length) {
+            setNotice({ type: 'info', message: 'No hay matrículas para exportar' })
+            return
+        }
+
+        const exportColumns = [
+            { key: 'identificacion', label: 'Identificación' },
+            { key: 'estudiante', label: 'Estudiante' },
+            { key: 'curso', label: 'Curso' },
+            { key: 'grupo', label: 'Grupo' },
+            { key: 'periodo', label: 'Periodo' },
+        ]
+        const exportRows = filteredRows.map(row => {
+            const identificacion = get(row, 'identificacion', 'Identificacion') ?? ''
+            const periodoId = get(row, 'periodoID', 'PeriodoID') ?? filters.period
+            const period = periods[periodoId]
+
+            return {
+                identificacion,
+                estudiante: get(students[identificacion], 'nombreCompleto', 'NombreCompleto') ?? 'Estudiante no encontrado',
+                curso: get(courses[get(row, 'cursoCode', 'CursoCode')], 'nombre', 'Nombre') ?? get(row, 'cursoCode', 'CursoCode') ?? '',
+                grupo: get(row, 'grupoCode', 'GrupoCode') ?? filters.group ?? '',
+                periodo: period
+                    ? `${get(period, 'anio', 'Anio')} - Periodo ${get(period, 'numeroPeriodo', 'NumeroPeriodo')}`
+                    : periodoId ?? '',
+            }
+        })
+
+        descargarArchivo(
+            generarCsv(exportColumns, exportRows),
+            'matriculas.csv',
+            'text/csv;charset=utf-8',
+        )
+        registrarBitacora('El usuario exporta a CSV el listado de matrículas')
+    }
 
     const limpiarFiltros = () => {
         setFilters({ period: '', course: '', group: '', student: '' })
@@ -194,6 +232,12 @@ export default function Matricula() {
                             <Button type="button" variant="outline-secondary" className="w-100" onClick={limpiarFiltros}>
                                 <i className="bi bi-arrow-counterclockwise me-2" />
                                 Limpiar filtros
+                            </Button>
+                        </Col>
+                        <Col md={3}>
+                            <Button type="button" variant="outline-primary" className="w-100" onClick={exportarCsv} disabled={!filteredRows.length || loading}>
+                                <i className="bi bi-filetype-csv me-2" />
+                                Exportar CSV
                             </Button>
                         </Col>
                     </Row>

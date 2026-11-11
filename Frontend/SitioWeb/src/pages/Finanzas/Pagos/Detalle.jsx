@@ -390,7 +390,7 @@ function DetallePago() {
                                         <div className="text-muted small">Sistema de Gestión Académica y Financiera</div>
                                     </Col>
                                     <Col sm={6} className="text-sm-end mt-2 mt-sm-0">
-                                        <div className="fw-semibold">COMPROBANTE DE CANCELACIÓN</div>
+                                        <div className="fw-semibold">COMPROBANTE DE PAGO</div>
                                         <div className="text-muted small">Fecha: {formatearFecha(pago.fechaPago)}</div>
                                     </Col>
                                 </Row>

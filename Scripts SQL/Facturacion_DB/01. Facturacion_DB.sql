@@ -201,6 +201,7 @@ IF OBJECT_ID('MetaU_DB_User.Pagos', 'U') IS NULL
         Monto DECIMAL(12,2) NOT NULL,
         FechaPago DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
         FechaReversion DATETIME2 NULL, -- Se llena cuando el pago se reversa, para mantener auditoria
+        MotivoReversion VARCHAR(250) NULL, -- Se llena con el motivo cuando el pago se reversa, para mantener auditoría
         EstadoPagoCode VARCHAR(15) NOT NULL,
 
         CONSTRAINT PK_Pagos
@@ -219,6 +220,12 @@ IF OBJECT_ID('MetaU_DB_User.Pagos', 'U') IS NULL
         
         CONSTRAINT CH_Pagos_FechaReversion
             CHECK ((EstadoPagoCode = 'REV' AND FechaReversion IS NOT NULL) OR
-                (EstadoPagoCode <> 'REV' AND FechaReversion IS NULL))
+                (EstadoPagoCode <> 'REV' AND FechaReversion IS NULL)),
+
+        CONSTRAINT CH_Pagos_MotivoReversion
+            CHECK (
+                (EstadoPagoCode = 'REV' AND MotivoReversion IS NOT NULL AND LEN(TRIM(MotivoReversion)) > 0)
+                OR (EstadoPagoCode <> 'REV' AND MotivoReversion IS NULL)
+            )
     );
 GO

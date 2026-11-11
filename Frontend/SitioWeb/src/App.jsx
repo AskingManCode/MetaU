@@ -116,6 +116,7 @@ function App() {
                     <Route path="facturas" element={<Facturas />} />
                     <Route path="facturas/nuevo" element={<CrearFactura />} />
                     <Route path="facturas/ver/:facturaId" element={<DetalleFactura />} />
+                    <Route path="facturas/editar/:facturaId" element={<DetalleFactura />} />
                     <Route path="pagos" element={<Pagos />} />
                     <Route path="pagos/nuevo" element={<CrearPago />} />
                     <Route path="pagos/ver/:pagoId" element={<DetallePago />} />

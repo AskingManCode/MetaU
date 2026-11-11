@@ -192,8 +192,7 @@ function DetalleFactura() {
                         onClick={abrirModalAnular}
                         className="d-flex align-items-center gap-1"
                     >
-                        <i className="bi bi-x-circle" />
-                        Anular Factura
+                        <i className="bi bi-arrow-counterclockwise" /> Anular Factura
                     </Button>
                 )}
             </div>
@@ -386,7 +385,7 @@ function DetalleFactura() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button
-                        variant="outline-secondary"
+                        variant="secondary"
                         onClick={cerrarModalAnular}
                         disabled={anulando}
                     >
@@ -399,14 +398,18 @@ function DetalleFactura() {
                     >
                         {anulando ? (
                             <>
-                                <Spinner animation="border" size="sm" className="me-2" />
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    className="me-2"
+                                />
                                 Anulando...
                             </>
                         ) : (
-                            <>
-                                <i className="bi bi-x-circle me-1" />
-                                Confirmar Anulación
-                            </>
+                            'Confirmar Anulación'
                         )}
                     </Button>
                 </Modal.Footer>

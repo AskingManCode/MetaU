@@ -66,13 +66,17 @@ namespace MicroservicioFacturacion.Repository
             }
         }
 
-        public async Task<bool> AnularAsync(Guid facturaId)
+        public async Task<bool> AnularAsync(Guid facturaId, string motivoAnulacion)
         {
             using var connection = _connectionFactory.CreateConnection();
 
             var rowsAffected = await connection.ExecuteAsync(
                 "MetaU_DB_User.usp_Facturas_Anular",
-                new { FacturaID = facturaId },
+                new
+                {
+                    FacturaID = facturaId,
+                    MotivoAnulacion = motivoAnulacion
+                },
                 commandType: CommandType.StoredProcedure);
 
             return rowsAffected > 0;
@@ -126,6 +130,7 @@ namespace MicroservicioFacturacion.Repository
                 Estado = primera.Estado,
                 FechaEmision = primera.FechaEmision,
                 FechaAnulacion = primera.FechaAnulacion,
+                MotivoAnulacion = primera.MotivoAnulacion,
                 Subtotal = primera.Subtotal,
                 PorcentajeImpuesto = primera.PorcentajeImpuesto,
                 Impuesto = primera.Impuesto,

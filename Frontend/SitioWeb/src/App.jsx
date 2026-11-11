@@ -40,6 +40,8 @@ import Notas from "./pages/Evaluacion/Notas/Index.jsx";
 import Listados from "./pages/Evaluacion/Listados/Index.jsx";
 import Historial from "./pages/Evaluacion/Historial/Index.jsx";
 import Facturas from "./pages/Finanzas/Facturas/Index.jsx";
+import CrearFactura from "./pages/Finanzas/Facturas/Create.jsx";
+import DetalleFactura from "./pages/Finanzas/Facturas/Detalle.jsx";
 import Pagos from "./pages/Finanzas/Pagos/Index.jsx";
 import Notificaciones from "./pages/Comunicacion/Notificaciones/Index.jsx";
 import Roles from "./pages/Sistema/Roles/Index.jsx";
@@ -110,6 +112,8 @@ function App() {
 
                     {/* Finanzas */}
                     <Route path="facturas" element={<Facturas />} />
+                    <Route path="facturas/nuevo" element={<CrearFactura />} />
+                    <Route path="facturas/ver/:facturaId" element={<DetalleFactura />} />
                     <Route path="pagos" element={<Pagos />} />
 
                     {/* Comunicación */}

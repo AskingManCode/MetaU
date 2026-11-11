@@ -65,6 +65,7 @@ IF OBJECT_ID('MetaU_DB_User.Facturas', 'U') IS NULL
         EstadoFacturaCode VARCHAR(15) NOT NULL,
         FechaEmision DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
         FechaAnulacion DATETIME2 NULL, -- Se llena cuando la factura pasa a estado Anulada, para mantener auditoría
+        MotivoAnulacion VARCHAR(250) NULL, -- Se llena con el motivo cuando la factura pasa a estado Anulada
         Subtotal DECIMAL(12,2) NOT NULL DEFAULT 0,
         PorcentajeImpuesto DECIMAL(5,2) NOT NULL DEFAULT 2,
         Impuesto DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -96,7 +97,13 @@ IF OBJECT_ID('MetaU_DB_User.Facturas', 'U') IS NULL
             CHECK (Impuesto = ROUND(Subtotal * PorcentajeImpuesto / 100, 2)),
 
         CONSTRAINT CH_Facturas_FechaAnulacion
-            CHECK ((EstadoFacturaCode = 'ANU' AND FechaAnulacion IS NOT NULL) OR (EstadoFacturaCode <> 'ANU' AND FechaAnulacion IS NULL))
+            CHECK ((EstadoFacturaCode = 'ANU' AND FechaAnulacion IS NOT NULL) OR (EstadoFacturaCode <> 'ANU' AND FechaAnulacion IS NULL)),
+
+        CONSTRAINT CH_Facturas_MotivoAnulacion
+            CHECK (
+                (EstadoFacturaCode = 'ANU' AND MotivoAnulacion IS NOT NULL AND LEN(TRIM(MotivoAnulacion)) > 0)
+                OR (EstadoFacturaCode <> 'ANU' AND MotivoAnulacion IS NULL)
+            )
     );
 GO
 

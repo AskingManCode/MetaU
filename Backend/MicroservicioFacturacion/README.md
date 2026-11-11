@@ -4,7 +4,7 @@ Administra la emisión y anulación de facturas de servicios estudiantiles asoci
 
 ## Historia de usuario
 
-Emisión y anulación de facturas por servicios estudiantiles, vinculadas a matrículas activas y períodos.
+ADM20 — Emisión y anulación de facturas por servicios estudiantiles ligadas a matrículas activas en un período académico.
 
 ## Tecnologías
 
@@ -71,9 +71,14 @@ Content-Type: application/json
 PATCH /api/factura/22222222-2222-2222-2222-222222222222
 Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "motivo": "Estudiante canceló la matrícula del período"
+}
 ```
 
-**Respuesta:** `200 OK` con la factura anulada.
+**Respuesta:** `200 OK` con la factura anulada (con `estado: "ANU"`, `fechaAnulacion` y `motivoAnulacion` registrados).
 
 ### GET /api/factura/{FacturaID} — Obtener por ID
 
@@ -104,6 +109,7 @@ X-Usuario-Id: 00000000-0000-0000-0000-000000000001
   "estado": "PEND",
   "fechaEmision": "2026-10-15T12:00:00",
   "fechaAnulacion": null,
+  "motivoAnulacion": null,
   "subtotal": 60000,
   "porcentajeImpuesto": 2.00,
   "impuesto": 1200,
@@ -126,7 +132,8 @@ X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 - El `monto` debe ser un múltiplo de 30 000 y corresponder exactamente a la cantidad de cursos matriculados × 30 000.
 - El impuesto se calcula como el 2 % del subtotal.
 - No puede existir más de una factura activa para la misma matrícula.
-- Una factura ya anulada no puede volver a anularse.
+- Para anular una factura, el `motivo` es obligatorio, no debe consistir únicamente de espacios en blanco y tiene una longitud máxima de 250 caracteres.
+- Una factura ya anulada o en estado `Pagada` no puede anularse.
 - Los identificadores (`FacturaID`, `PeriodoID`) son GUID.
 
 ## Integraciones
@@ -155,8 +162,8 @@ Claves principales en `appsettings.json` / variables de entorno:
 ## Base de datos
 
 **Base de datos:** `Facturacion_DB`  
-Tablas principales: `Facturas`, `DetallesFacturas`.  
-Usa procedimientos almacenados (`usp_Facturas_Crear`, `usp_Facturas_AgregarDetalle`, `usp_Facturas_Anular`, etc.).
+Tablas principales: `Facturas` (incluye `MotivoAnulacion VARCHAR(250) NULL`), `DetallesFacturas`.  
+Usa procedimientos almacenados (`usp_Facturas_Crear`, `usp_Facturas_AgregarDetalle`, `usp_Facturas_Anular` con `@MotivoAnulacion`, `usp_Facturas_ObtenerPorID`, `usp_Facturas_ObtenerPorPeriodo`).
 
 ## Ejecución local
 

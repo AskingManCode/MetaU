@@ -2,22 +2,27 @@ import { normalizarFactura } from './facturaUtils'
 
 export const ESTADOS_PAGO = ['Todos', 'Activo', 'Reversado']
 
-export const normalizarPago = p => ({
-    pagoID: p?.pagoID ?? p?.PagoID ?? '',
-    facturaID: p?.facturaID ?? p?.FacturaID ?? '',
-    monto: Number(p?.monto ?? p?.Monto ?? 0),
-    fechaPago: p?.fechaPago ?? p?.FechaPago ?? null,
-    fechaReversion: p?.fechaReversion ?? p?.FechaReversion ?? null,
-    motivoReversion: p?.motivoReversion ?? p?.MotivoReversion ?? '',
-    estado: p?.estado ?? p?.Estado ?? 'Activo',
-    factura: p?.factura ? normalizarFactura(p.factura) : null,
-    identificacionEstudiante:
-        p?.factura?.identificacionEstudiante ??
-        p?.Factura?.IdentificacionEstudiante ??
-        p?.identificacionEstudiante ??
-        p?.IdentificacionEstudiante ??
+export const normalizarPago = p => {
+    const facturaRaw = p?.factura ?? p?.Factura
+    const facturaNormalizada = facturaRaw ? normalizarFactura(facturaRaw) : null
+    const idEstudiante =
+        facturaNormalizada?.identificacionEstudiante ||
+        p?.identificacionEstudiante ||
+        p?.IdentificacionEstudiante ||
         ''
-})
+
+    return {
+        pagoID: p?.pagoID ?? p?.pagoId ?? p?.PagoID ?? '',
+        facturaID: p?.facturaID ?? p?.facturaId ?? p?.FacturaID ?? '',
+        monto: Number(p?.monto ?? p?.Monto ?? 0),
+        fechaPago: p?.fechaPago ?? p?.FechaPago ?? null,
+        fechaReversion: p?.fechaReversion ?? p?.FechaReversion ?? null,
+        motivoReversion: p?.motivoReversion ?? p?.MotivoReversion ?? '',
+        estado: p?.estado ?? p?.Estado ?? 'Activo',
+        factura: facturaNormalizada,
+        identificacionEstudiante: idEstudiante
+    }
+}
 
 export const formatearMoneda = valor => {
     const numero = Number(valor ?? 0)

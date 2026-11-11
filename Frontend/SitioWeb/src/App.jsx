@@ -59,7 +59,7 @@ import Bitacoras from "./pages/Sistema/Bitacoras/Index.jsx";
 function App() {
 
     return (
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
             <AuthProvider>
                 <Routes>
                     <Route path="/login" element={<Login />} />

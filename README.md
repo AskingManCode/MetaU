@@ -54,7 +54,7 @@ El sistema implementa una arquitectura desacoplada y orientada a servicios:
 | **Backend** | .NET 10, ASP.NET Core (Minimal APIs), C# |
 | **Bases de Datos** | SQL Server (Instancias dedicadas por microservicio/dominio) |
 | **Autenticación** | JWT (JSON Web Tokens) + Refresh Tokens + RBAC |
-| **Hosting y Despliegue** | Servidor Plesk ([Sitio Web en línea](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login)) |
+| **Hosting y Despliegue** | Servidor Plesk ([Sitio Web en línea](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU)) |
 | **Control de Versiones** | Git y GitHub (Metodología GitFlow / PRs) |
 
 ---

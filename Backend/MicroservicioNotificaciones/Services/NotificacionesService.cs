@@ -12,6 +12,9 @@ namespace MicroservicioNotificaciones.Services
 {
     public class NotificacionesService : INotificacionesService
     {
+        private const string ParamPagSize = "PAGSIZE";
+        private const int TamanoPaginaDefecto = 15;
+
         private readonly IConfiguration _configuration;
         private readonly INotificacionesRepository _repository;
         private readonly IAuthServiceValidator _authValidator;
@@ -124,28 +127,72 @@ namespace MicroservicioNotificaciones.Services
             return respuesta;
         }
 
-        public async Task<IEnumerable<NotificacionHistorialResponse>> ObtenerHistorialAsync(HttpRequest httpRequest)
+        public async Task<object> ObtenerHistorialAsync(int? pagina, HttpRequest httpRequest)
         {
             var (usuario, token, error) = await _authValidator.ValidarAsync(httpRequest);
 
             if (error is not null)
                 throw new UnauthorizedAccessException("No autorizado");
 
-            var historial = await _repository.ObtenerTodosAsync();
+            if (pagina.HasValue && pagina.Value < 1)
+                throw new ArgumentException("La página debe ser mayor o igual a 1");
+
+            var todos = (await _repository.ObtenerTodosAsync()).ToList();
 
             try
             {
-                await _bitacoraClient.RegistrarBitacoraAsync(
-                    usuario,
-                    "Consulta de historial de notificaciones enviadas",
-                    token);
+                var descripcionBitacora = pagina.HasValue
+                    ? $"Consulta de historial de notificaciones enviadas (página {pagina.Value})"
+                    : "Consulta de historial de notificaciones enviadas (lista completa)";
+
+                await _bitacoraClient.RegistrarBitacoraAsync(usuario, descripcionBitacora, token);
             }
             catch
             {
                 // Ignorar fallo de bitácora
             }
 
-            return historial;
+            if (!pagina.HasValue)
+            {
+                return todos;
+            }
+
+            var tamano = await ObtenerTamanoPaginaAsync(usuario, token);
+            var paginaActual = pagina.Value;
+            var totalRegistros = todos.Count;
+            var totalPaginas = (int)Math.Ceiling((double)totalRegistros / tamano);
+
+            var datos = todos
+                .Skip((paginaActual - 1) * tamano)
+                .Take(tamano)
+                .ToList();
+
+            return new PaginaResultado<NotificacionHistorialResponse>
+            {
+                Pagina = paginaActual,
+                TamanoPagina = tamano,
+                TotalRegistros = totalRegistros,
+                TotalPaginas = totalPaginas,
+                Datos = datos
+            };
+        }
+
+        private async Task<int> ObtenerTamanoPaginaAsync(Guid usuarioId, string token)
+        {
+            try
+            {
+                var valor = await _parametroClient.ObtenerValorAsync(ParamPagSize, usuarioId, token);
+                if (!string.IsNullOrWhiteSpace(valor) && int.TryParse(valor, out var n) && n > 0)
+                {
+                    return n;
+                }
+            }
+            catch
+            {
+                // Ignorar fallo y usar default
+            }
+
+            return TamanoPaginaDefecto;
         }
 
         private async Task<NotificarResponse> EnviarCorreoInternoAsync(

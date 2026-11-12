@@ -1,4 +1,4 @@
-﻿using MicroservicioNotificaciones.Entities;
+using MicroservicioNotificaciones.Entities;
 using MicroservicioNotificaciones.Services;
 
 namespace MicroservicioNotificaciones
@@ -77,12 +77,13 @@ namespace MicroservicioNotificaciones
         }
 
         private static async Task<IResult> ObtenerHistorial(
+            int? pagina,
             HttpRequest httpRequest,
             INotificacionesService service)
         {
             try
             {
-                var historial = await service.ObtenerHistorialAsync(httpRequest);
+                var historial = await service.ObtenerHistorialAsync(pagina, httpRequest);
                 return Results.Ok(historial);
             }
             catch (UnauthorizedAccessException ex)

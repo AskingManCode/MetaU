@@ -135,34 +135,44 @@ Content-Type: application/json
 
 ### GET /api/notificar/ — Consultar historial de notificaciones
 
+Admite consulta completa o paginada mediante el query parameter opcional `?pagina={numero}`. El tamaño de página se obtiene automáticamente del parámetro de sistema `PAGSIZE` (por defecto 15).
+
 ```http
-GET /api/notificar/
+GET /api/notificar/?pagina=1
 Authorization: Bearer <JWT>
 UsuarioGUID: 00000000-0000-0000-0000-000000000001
 ```
 
-**Respuesta exitosa (`200 OK`):**
+**Respuesta exitosa paginada (`200 OK`):**
 
 ```json
-[
-  {
-    "notificacionID": 105,
-    "usuarioID": "00000000-0000-0000-0000-000000000001",
-    "emailDestino": "estudiante1@cuc.cr",
-    "plantillaNotificacionCode": "CUSTOM",
-    "parametrosJson": "{\"Asunto\":\"Aviso\",\"Cuerpo\":\"<p>Prueba</p>\"}",
-    "asunto": "Aviso",
-    "cuerpo": "<p>Prueba</p>",
-    "fechaCreacion": "2026-11-11T19:25:00Z",
-    "fechaEnvio": "2026-11-11T19:25:01Z",
-    "estadoNotificacion": "ENVIADO",
-    "estadoNombre": "Enviado correctamente",
-    "mensajeError": null,
-    "numeroIntentos": 1,
-    "fechaUltimoIntento": "2026-11-11T19:25:01Z"
-  }
-]
+{
+  "pagina": 1,
+  "tamanoPagina": 15,
+  "totalRegistros": 45,
+  "totalPaginas": 3,
+  "datos": [
+    {
+      "notificacionID": 105,
+      "usuarioID": "00000000-0000-0000-0000-000000000001",
+      "emailDestino": "estudiante1@cuc.cr",
+      "plantillaNotificacionCode": "CUSTOM",
+      "parametrosJson": "{\"Asunto\":\"Aviso\",\"Cuerpo\":\"<p>Prueba</p>\"}",
+      "asunto": "Aviso",
+      "cuerpo": "<p>Prueba</p>",
+      "fechaCreacion": "2026-11-11T19:25:00Z",
+      "fechaEnvio": "2026-11-11T19:25:01Z",
+      "estadoNotificacion": "ENVIADO",
+      "estadoNombre": "Enviado correctamente",
+      "mensajeError": null,
+      "numeroIntentos": 1,
+      "fechaUltimoIntento": "2026-11-11T19:25:01Z"
+    }
+  ]
+}
 ```
+
+*Si no se envía `?pagina=`, el endpoint retorna directamente el arreglo `[...]` con todos los registros.*
 
 ## Reglas de negocio / Validaciones
 

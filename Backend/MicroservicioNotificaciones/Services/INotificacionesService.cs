@@ -6,6 +6,6 @@ namespace MicroservicioNotificaciones.Services
     {
         Task<NotificarResponse> EnviarCorreoAsync(NotificarRequest request, HttpRequest httpRequest);
         Task<NotificarMultipleResponse> EnviarCorreosMultiplesAsync(NotificarMultipleRequest request, HttpRequest httpRequest);
-        Task<IEnumerable<NotificacionHistorialResponse>> ObtenerHistorialAsync(HttpRequest httpRequest);
+        Task<object> ObtenerHistorialAsync(int? pagina, HttpRequest httpRequest);
     }
 }

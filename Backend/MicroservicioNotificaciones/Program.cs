@@ -3,7 +3,6 @@ using MicroservicioNotificaciones.Entities;
 using MicroservicioNotificaciones.Repository;
 using MicroservicioNotificaciones.Services;
 using MicroservicioNotificaciones.Services.Clients;
-using MicroservicioNotificaciones.Configuration;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,8 +53,15 @@ builder.Services.AddHttpClient<IBitacoraServiceClient, BitacoraServiceClient>(cl
     client.BaseAddress = new Uri(url);
 });
 
-// Configuración SMTP
-builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+// Parametro Service Client
+builder.Services.AddHttpClient<IParametroServiceClient, ParametroServiceClient>(client =>
+{
+    var url = builder.Configuration["MicroservicioParametros:BaseUrl"]
+              ?? builder.Configuration["Servicios:ParametroUrl"]
+              ?? "https://tiusr20pl.cuc-carrera-ti.ac.cr/MicroservicioParametros_MetaU/";
+
+    client.BaseAddress = new Uri(url);
+});
 
 var app = builder.Build();
 

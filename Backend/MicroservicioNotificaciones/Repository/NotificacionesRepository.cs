@@ -54,5 +54,15 @@ namespace MicroservicioNotificaciones.Repository
                 commandType: CommandType.StoredProcedure
             );
         }
+
+        public async Task<IEnumerable<NotificacionHistorialResponse>> ObtenerTodosAsync()
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            return await connection.QueryAsync<NotificacionHistorialResponse>(
+                "MetaU_DB_User.usp_Notificaciones_ObtenerTodos",
+                commandType: CommandType.StoredProcedure
+            );
+        }
     }
 }

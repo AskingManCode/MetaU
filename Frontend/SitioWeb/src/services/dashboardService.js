@@ -97,6 +97,10 @@ async function getRecentAudits() {
     const audits = list(await bitacoraService.getAll());
 
     return audits
+        .filter((audit) => {
+            const description = String(value(audit, 'descripcion', 'Descripcion') ?? '').toLowerCase();
+            return /crear|creó|creado|modificar|modificó|actualizar|eliminar|eliminó|error|fallo|exporta|exportó/.test(description);
+        })
         .sort((first, second) => new Date(recentDate(second)) - new Date(recentDate(first)))
         .slice(0, 5);
 }

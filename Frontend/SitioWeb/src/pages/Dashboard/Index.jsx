@@ -42,32 +42,44 @@ function Dashboard() {
     useEffect(() => {
         let active = true;
 
-        recordDashboardView().catch(() => undefined);
+        const cargarDashboard = () => {
+            recordDashboardView().catch(() => undefined);
 
-        loadDashboardData(user?.role)
-            .then((data) => {
-                if (active) setDashboard(data);
-            })
-            .catch((loadError) => {
-                if (active) {
-                    setError(loadError.response?.data?.mensaje ?? 'No se pudo cargar la información del dashboard.');
-                }
-            });
+            loadDashboardData(user?.role)
+                .then((data) => {
+                    if (active) setDashboard(data);
+                })
+                .catch((loadError) => {
+                    if (active) {
+                        setError(loadError.response?.data?.mensaje ?? 'No se pudo cargar la información del dashboard.');
+                    }
+                });
 
-        notificacionService.getAll()
-            .then(({ data }) => {
-                const lista = Array.isArray(data) ? data : data?.datos ?? data?.items ?? [];
-                setNotifications(lista
-                    .map(normalizarNotificacion)
-                    .sort((first, second) => new Date(second.fechaCreacion ?? 0) - new Date(first.fechaCreacion ?? 0))
-                    .slice(0, 5));
-            })
-            .catch(() => {
-                if (active) setNotifications([]);
-            });
+            notificacionService.getAll()
+                .then(({ data }) => {
+                    const lista = Array.isArray(data) ? data : data?.datos ?? data?.items ?? [];
+                    setNotifications(lista
+                        .map(normalizarNotificacion)
+                        .sort((first, second) => new Date(second.fechaCreacion ?? 0) - new Date(first.fechaCreacion ?? 0))
+                        .slice(0, 5));
+                })
+                .catch(() => {
+                    if (active) setNotifications([]);
+                });
+        };
+
+        const refrescarAlVolver = () => {
+            if (document.visibilityState === 'visible') cargarDashboard();
+        };
+
+        cargarDashboard();
+        window.addEventListener('focus', cargarDashboard);
+        document.addEventListener('visibilitychange', refrescarAlVolver);
 
         return () => {
             active = false;
+            window.removeEventListener('focus', cargarDashboard);
+            document.removeEventListener('visibilitychange', refrescarAlVolver);
         };
     }, [user?.role]);
 

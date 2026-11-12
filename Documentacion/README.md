@@ -9,9 +9,8 @@ Documentos de análisis, diseño, planificación y diagramas del proyecto MetaU.
 | [0. Manual_Flujo_Trabajo_Git_(Acordado_por_el_equipo).pdf](0.%20Manual_Flujo_Trabajo_Git_(Acordado_por_el_equipo).pdf) | Acuerdos del equipo sobre ramas, commits y Pull Requests |
 | [1. Story_Points_y_Asignacion_de_Responsabilidades.xlsx](1.%20Story_Points_y_Asignacion_de_Responsabilidades.xlsx) | Estimaciones y distribución de trabajo |
 | [2. Primer_Sprint-Proyecto_Nuevo_Avatar.pdf](2.%20Primer_Sprint-Proyecto_Nuevo_Avatar.pdf) | Requisitos y alcance del primer sprint |
-| [3. Documento_Analisis_y_Diseno_Meta_U_Primer_Sprint.pdf](3.%20Documento_Analisis_y_Diseno_Meta_U_Primer_Sprint.pdf) | Análisis y diseño correspondiente al primer sprint |
-| [4. Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf](4.%20Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf) | Requisitos de sprints posteriores |
-| [5. Documento_Analisis_y_Diseno_Meta_U_Segundo_Sprint.docx](5.%20Documento_Analisis_y_Diseno_Meta_U_Segundo_Sprint.docx) | Análisis y diseño del segundo sprint |
+| [3. Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf](3.%20Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf) | Requisitos de sprints posteriores (Sprint 2 y 3) |
+| [4. Documento_Analisis_y_Diseno_Meta_U.pdf](4.%20Documento_Analisis_y_Diseno_Meta_U.pdf) | Documento consolidado de análisis y diseño del sistema MetaU |
 
 ## Diagramas Generales
 
@@ -40,7 +39,7 @@ Dentro de [Diagramas Generales/Clases/](Diagramas%20Generales/Clases/) se encuen
 | Detalle de microservicios | [../Backend/README.md](../Backend/README.md) |
 | Scripts SQL y diagramas ER por base de datos | [../Scripts SQL/README.md](../Scripts%20SQL/README.md) |
 | Evidencia de pruebas técnicas | [../Pruebas Tecnicas/README.md](../Pruebas%20Tecnicas/README.md) |
-| Planeación del frontend | [../Frontend/README.md](../Frontend/README.md) |
+| Frontend y Sitio Web Administrativo | [../Frontend/README.md](../Frontend/README.md) (ver [SitioWeb](../Frontend/SitioWeb/README.md)) |
 
 ---
 

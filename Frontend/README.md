@@ -1,40 +1,57 @@
 # Frontend – MetaU
 
-Capa de presentación del sistema MetaU. Consume los microservicios del Backend y expone las funcionalidades a usuarios finales.
+Capa de presentación del sistema MetaU. Consume los microservicios del Backend y expone las interfaces gráficas a los distintos tipos de usuarios del entorno educativo.
 
-Actualmente se encuentra en **fase de planeación**.
+---
 
-## Aplicaciones planificadas
+## Aplicaciones del Sistema
 
-| Aplicación | Descripción | Tecnología | Estado |
-|------------|-------------|------------|--------|
-| Sitio Web Administrativo | Aplicación web para personal administrativo, profesores y gestión del sistema | **React** | En planeación |
-| App Móvil | Aplicación móvil orientada principalmente a estudiantes y profesores | Pendiente de definir | En planeación |
+| Aplicación | Descripción | Tecnología | Estado | Enlace / Ubicación |
+|------------|-------------|------------|--------|--------------------|
+| **Sitio Web Administrativo** | Aplicación web integral para personal administrativo, docentes y gestión del sistema | **React 19 + Vite 8** | **Completado y Desplegado** | [SitioWeb/](SitioWeb/) · [Acceso en Producción](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login) |
+| **App Móvil** | Aplicación móvil orientada principalmente a estudiantes y profesores | *Por definir* | En planeación | Próxima fase |
 
-## Tecnologías
+---
 
-| Plataforma | Tecnología | Notas |
-|------------|------------|-------|
-| Web (Administrativo) | React | Consumirá directamente los microservicios del Backend vía REST |
-| Móvil | Pendiente de definir | — |
+## Acceso en Producción (Sitio Web Administrativo)
 
-## Principios
+El Sitio Web Administrativo se encuentra alojado y funcionando en el servidor institucional Plesk:
 
-- El frontend es únicamente una capa de presentación.
-- Toda la lógica de negocio reside en los microservicios del Backend.
-- El sitio web administrativo consumirá los endpoints REST de forma directa.
-- Se respetarán los mecanismos de autenticación (JWT) definidos en los microservicios.
+🌐 **URL de Producción:**  
+**[https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login)**
 
-## Relación con el resto del proyecto
+---
+
+## Estructura de la Carpeta
+
+```
+Frontend/
+├── README.md               # Este documento
+└── SitioWeb/               # Código fuente del Sitio Web Administrativo (React + Vite)
+    ├── src/                # Componentes, vistas, servicios y lógica
+    ├── package.json        # Dependencias y scripts
+    ├── .env.example        # Variables de entorno requeridas
+    └── README.md           # Documentación técnica específica del Sitio Web
+```
+
+---
+
+## Principios de Diseño
+
+- **Capa desacoplada:** El frontend actúa estrictamente como consumidor de servicios; la lógica de negocio y persistencia residen exclusivamente en los microservicios del Backend.
+- **Consumo directo REST:** La aplicación web consume los endpoints REST expuestos por los microservicios en Plesk o en entornos locales.
+- **Seguridad mediante JWT:** Se respetan los mecanismos de autenticación y renovación de tokens (JWT + Refresh Tokens) emitidos por el microservicio de Login.
+- **Control de Acceso basado en Roles (RBAC):** Las vistas y componentes se habilitan dinámicamente según los roles y permisos del usuario autenticado.
+
+---
+
+## Relación con el Resto del Proyecto
 
 | Recurso | Ubicación |
 |---------|-----------|
 | Documentación general del proyecto | [../README.md](../README.md) |
+| Guía detallada del Sitio Web Administrativo | [SitioWeb/README.md](SitioWeb/README.md) |
 | Detalle de microservicios y endpoints | [../Backend/README.md](../Backend/README.md) |
-| Análisis, diseño y diagramas | [../Documentacion/README.md](../Documentacion/README.md) |
-| Diagramas de clases del frontend | [../Documentacion/Diagramas Generales/Clases/](../Documentacion/Diagramas%20Generales/Clases/) |
-| Documento de sprints y requisitos | [../Documentacion/4. Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf](../Documentacion/4.%20Segundo_y_Tercer_Sprint-Proyecto_Nuevo_Avatar_V2.pdf) |
-
----
-
-La documentación detallada de arquitectura, componentes y flujos de cada aplicación se agregará una vez inicie el desarrollo.
+| Análisis, diseño y diagramas del sistema | [../Documentacion/README.md](../Documentacion/README.md) |
+| Evidencias de pruebas técnicas | [../Pruebas Tecnicas/README.md](../Pruebas%20Tecnicas/README.md) |
+| Scripts de base de datos | [../Scripts SQL/README.md](../Scripts%20SQL/README.md) |

@@ -33,7 +33,7 @@ class ErrorBoundary extends React.Component {
                             Ocurrió un error inesperado en la interfaz
                         </Alert.Heading>
                         <p className="mt-2 text-muted">
-                            Se ha registrado el incidente en la bitácora del sistema (GEN1). Puede intentar recargar la página.
+                            Se ha registrado el incidente en la bitácora del sistema. Puede intentar recargar la página.
                         </p>
                         {this.state.error?.message && (
                             <div className="p-3 bg-light rounded text-danger small font-monospace my-3">

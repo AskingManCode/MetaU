@@ -29,7 +29,9 @@ export const prepararProfesorRequest = datos => ({
     email: datos.email.trim(),
     nombreCompleto: datos.nombreCompleto.trim(),
     fechaNacimiento: `${datos.fechaNacimiento}T00:00:00`,
-    telefonos: datos.telefonos.map(t => t.trim())
+    telefonos: datos.telefonos.map(t =>
+    String(t).replace(/\D/g, '').slice(0, 8)
+)
 })
 
 export const textoBusqueda = valor =>

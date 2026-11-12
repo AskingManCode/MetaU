@@ -1,18 +1,18 @@
 /* ============================================================
-   STORED PROCEDURE: MetaU_DB_User.usp_Notificaciones_Crear
-   Descripción: Inserta una nueva notificación con estado PENDIENTE
+   STORED PROCEDURE: MetaU_DB_User.usp_Notificaciones_ActualizarEstado
+   Descripción: Actualiza el estado de una notificación existente
+                (ENVIADO / ERROR) e incrementa el contador de intentos
    Base de datos: tiusr20pl_Notificaciones_DB
    ============================================================ */
 
 USE tiusr20pl_Notificaciones_DB;
 GO
 
-CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Notificaciones_Crear
-    @UsuarioID UNIQUEIDENTIFIER,
-    @EmailDestino VARCHAR(150),
-    @PlantillaNotificacionCode VARCHAR(50) = 'CUSTOM',
-    @ParametrosJson VARCHAR(MAX) = NULL,
-    @EstadoNotificacion VARCHAR(15) = 'PENDIENTE'
+CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Notificaciones_ActualizarEstado
+    @NotificacionID BIGINT,
+    @EstadoNotificacion VARCHAR(15),
+    @MensajeError VARCHAR(500) = NULL,
+    @FechaEnvio DATETIME2 = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -20,21 +20,9 @@ BEGIN
 
     BEGIN TRY
         -- Validaciones básicas
-        IF @UsuarioID IS NULL
+        IF @NotificacionID IS NULL OR @NotificacionID <= 0
         BEGIN
-            RAISERROR('El UsuarioID es obligatorio.', 16, 1);
-            RETURN;
-        END
-
-        IF @EmailDestino IS NULL OR LEN(TRIM(@EmailDestino)) = 0
-        BEGIN
-            RAISERROR('El correo de destino es obligatorio.', 16, 1);
-            RETURN;
-        END
-
-        IF @PlantillaNotificacionCode IS NULL OR LEN(TRIM(@PlantillaNotificacionCode)) = 0
-        BEGIN
-            RAISERROR('El código de plantilla es obligatorio.', 16, 1);
+            RAISERROR('El NotificacionID es obligatorio.', 16, 1);
             RETURN;
         END
 
@@ -44,15 +32,13 @@ BEGIN
             RETURN;
         END
 
-        -- Verificar que exista la plantilla
+        -- Verificar existencia
         IF NOT EXISTS (
             SELECT 1
-            FROM MetaU_DB_User.Plantillas
-            WHERE PlantillaNotificacionCode = @PlantillaNotificacionCode
-              AND Estado = 1
+            FROM MetaU_DB_User.Notificaciones
+            WHERE NotificacionID = @NotificacionID
         )
         BEGIN
-            RAISERROR('La plantilla ''%s'' no existe o está inactiva.', 16, 1, @PlantillaNotificacionCode);
             RETURN;
         END
 
@@ -68,14 +54,13 @@ BEGIN
             RETURN;
         END
 
-        INSERT INTO MetaU_DB_User.Notificaciones (
-            UsuarioID,
-            EmailDestino,
-            PlantillaNotificacionCode,
-            ParametrosJson,
-            EstadoNotificacion,
-            NumeroIntentos
-        )
+        UPDATE MetaU_DB_User.Notificaciones
+        SET
+            EstadoNotificacion = UPPER(@EstadoNotificacion),
+            MensajeError = @MensajeError,
+            FechaEnvio = @FechaEnvio,
+            NumeroIntentos = NumeroIntentos + 1,
+            FechaUltimoIntento = SYSDATETIME()
         OUTPUT
             INSERTED.NotificacionID,
             INSERTED.UsuarioID,
@@ -88,14 +73,7 @@ BEGIN
             INSERTED.MensajeError,
             INSERTED.NumeroIntentos,
             INSERTED.FechaUltimoIntento
-        VALUES (
-            @UsuarioID,
-            TRIM(@EmailDestino),
-            UPPER(@PlantillaNotificacionCode),
-            @ParametrosJson,
-            UPPER(@EstadoNotificacion),
-            0
-        );
+        WHERE NotificacionID = @NotificacionID;
 
     END TRY
     BEGIN CATCH

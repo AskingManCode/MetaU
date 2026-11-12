@@ -5,5 +5,7 @@ namespace MicroservicioNotificaciones.Services
     public interface INotificacionesService
     {
         Task<NotificarResponse> EnviarCorreoAsync(NotificarRequest request, HttpRequest httpRequest);
+        Task<NotificarMultipleResponse> EnviarCorreosMultiplesAsync(NotificarMultipleRequest request, HttpRequest httpRequest);
+        Task<object> ObtenerHistorialAsync(int? pagina, HttpRequest httpRequest);
     }
 }

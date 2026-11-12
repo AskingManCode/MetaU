@@ -46,6 +46,8 @@ import Pagos from "./pages/Finanzas/Pagos/Index.jsx";
 import CrearPago from "./pages/Finanzas/Pagos/Create.jsx";
 import DetallePago from "./pages/Finanzas/Pagos/Detalle.jsx";
 import Notificaciones from "./pages/Comunicacion/Notificaciones/Index.jsx";
+import CrearNotificacion from "./pages/Comunicacion/Notificaciones/Create.jsx";
+import DetalleNotificacion from "./pages/Comunicacion/Notificaciones/Detalle.jsx";
 import Roles from "./pages/Sistema/Roles/Index.jsx";
 import CrearRol from "./pages/Sistema/Roles/Create.jsx";
 import EditarRol from "./pages/Sistema/Roles/Edit.jsx";
@@ -124,6 +126,8 @@ function App() {
 
                     {/* Comunicación */}
                     <Route path="notificaciones" element={<Notificaciones />} />
+                    <Route path="notificaciones/nuevo" element={<CrearNotificacion />} />
+                    <Route path="notificaciones/ver/:notificacionId" element={<DetalleNotificacion />} />
 
                     {/* Sistema */}
                     <Route path="usuarios" element={<Usuarios />} />

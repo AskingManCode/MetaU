@@ -1,14 +1,18 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
-const menuClass = (isActive) => `menu-item ${isActive ? 'is-active' : ''}`;
+function SidebarLink({ item, collapsed, onClick }) {
+    const { pathname } = useLocation();
+    const isActive = item.end
+        ? pathname === item.to
+        : pathname === item.to || pathname.startsWith(item.to + '/');
 
-function SidebarLink({ item, collapsed }) {
     return (
         <NavLink
             to={item.to}
             end={item.end}
             title={collapsed ? item.label : undefined}
-            className={({ isActive }) => menuClass(isActive)}
+            onClick={onClick}
+            className={`menu-item ${isActive ? 'is-active' : ''}`}
         >
             <i className={`bi ${item.icon} menu-icon`} />
             {!collapsed && <span>{item.label}</span>}

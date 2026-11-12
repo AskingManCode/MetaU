@@ -1,139 +1,179 @@
-import { useState } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Container, Navbar, Button } from 'react-bootstrap';
+import { useEffect, useMemo, useState } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/MainLayout.css';
-import logo from '../assets/logo.png';
-import MENU from '../utils/menu';
-import SidebarLink from '../components/sidebar/SidebarLink';
-import SidebarSection from '../components/sidebar/SidebarSection';
 import useAuth from '../hooks/useAuth';
+import useSystemName from '../hooks/useSystemName';
+import useUserProfile from '../hooks/useUserProfile';
+import useDynamicMenu from '../hooks/useDynamicMenu';
+import useLayoutAudit from '../hooks/useLayoutAudit';
+import { getRouteInfo } from '../utils/navigationUtils';
+import bitacoraService from '../services/bitacoraService';
+import Sidebar from '../components/layout/Sidebar';
+import Topbar from '../components/layout/Topbar';
+import Footer from '../components/layout/Footer';
+import ErrorBoundary from '../components/layout/ErrorBoundary';
+import Notification from '../components/Notification';
 
 export default function MainLayout() {
-
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [openSection, setOpenSection] = useState(null);
+    const [layoutNotification, setLayoutNotification] = useState(null);
+
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, logout } = useAuth();
 
+    const systemName = useSystemName();
+    const { userName, userRole } = useUserProfile(user);
+    const { menuItems, permissionsLoaded, permittedPaths } = useDynamicMenu(user?.role);
+
+    const routeInfo = useMemo(() => getRouteInfo(location.pathname), [location.pathname]);
+
+    useLayoutAudit({
+        userEmail: user?.email,
+        routeInfo,
+        pathname: location.pathname,
+    });
+
+    useEffect(() => {
+        document.title = `${routeInfo.title} | ${systemName}`;
+    }, [routeInfo.title, systemName]);
+
+    useEffect(() => {
+        const currentPath = location.pathname;
+        const matchingSection = menuItems.find(
+            (sec) => sec.children && sec.children.some((c) => currentPath === c.to || currentPath.startsWith(c.to + '/'))
+        );
+        if (matchingSection) {
+            setOpenSection(matchingSection.label);
+        }
+    }, [location.pathname, menuItems]);
+
+    const isCurrentRoutePermitted = useMemo(() => {
+        if (!permissionsLoaded) return true;
+
+        const currentPath = location.pathname.replace(/\/+$/, '') || '/';
+        if (currentPath === '/perfil') return true;
+        if (currentPath === '/') return permittedPaths.has('/');
+
+        for (const permitted of permittedPaths) {
+            if (permitted !== '/' && (currentPath === permitted || currentPath.startsWith(permitted + '/'))) {
+                return true;
+            }
+        }
+        return false;
+    }, [permissionsLoaded, location.pathname, permittedPaths]);
+
+    useEffect(() => {
+        if (!permissionsLoaded || isCurrentRoutePermitted) return;
+
+        const isInitialRoot = location.pathname === '/' || location.pathname === '';
+        if (!isInitialRoot && location.pathname !== '/perfil') {
+            bitacoraService.create({
+                descripcion: `Acceso no autorizado denegado: intento de acceso a ${location.pathname}`,
+            }).catch(() => {});
+
+            setLayoutNotification({
+                type: 'warning',
+                message: 'No cuenta con los permisos necesarios para acceder a este módulo.',
+            });
+        }
+
+        let fallbackRoute = '/perfil';
+        if (permittedPaths.has('/')) {
+            fallbackRoute = '/';
+        } else {
+            for (const item of menuItems) {
+                if (item.to && item.to !== '/') {
+                    fallbackRoute = item.to;
+                    break;
+                }
+                if (item.children?.[0]?.to) {
+                    fallbackRoute = item.children[0].to;
+                    break;
+                }
+            }
+        }
+
+        navigate(fallbackRoute, { replace: true });
+    }, [permissionsLoaded, isCurrentRoutePermitted, location.pathname, menuItems, permittedPaths, navigate]);
+
+    useEffect(() => {
+        const handleNotificationEvent = (e) => {
+            if (e.detail) setLayoutNotification(e.detail);
+        };
+        window.addEventListener('app:notification', handleNotificationEvent);
+        return () => window.removeEventListener('app:notification', handleNotificationEvent);
+    }, []);
+
     const toggleSection = (label) => {
-        setSidebarOpen(true); // si está colapsado, se expande para mostrar el submenú
+        setSidebarOpen(true);
         setOpenSection((prev) => (prev === label && sidebarOpen ? null : label));
     };
 
+    const handleNavigate = () => {
+        if (window.innerWidth < 992) {
+            setSidebarOpen(false);
+        }
+    };
+
     const handleLogout = () => {
+        sessionStorage.removeItem('meta_u_bitacora_acceso');
         logout();
     };
 
     return (
-        <div className="d-flex w-100" style={{ minHeight: '100vh' }}>
+        <div className="layout-wrapper">
+            <Sidebar
+                systemName={systemName}
+                userRole={userRole}
+                menuItems={menuItems}
+                isOpen={sidebarOpen}
+                openSection={openSection}
+                onToggleCollapse={() => setSidebarOpen((prev) => !prev)}
+                onToggleSection={toggleSection}
+                onNavigate={handleNavigate}
+                onCloseBackdrop={() => setSidebarOpen(false)}
+            />
 
-            {/* SIDEBAR */}
-            <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-header">
-                    <img src={logo} alt="Logo Meta U" className="sidebar-logo" />
-                    {sidebarOpen && (
-                        <div className="d-flex flex-column">
-                            <span className="sidebar-title">Meta U</span>
-                            <span className="sidebar-subtitle">Administrativo</span>
-                        </div>
-                    )}
-                </div>
+            <div className="content flex-grow-1">
+                <Topbar
+                    systemName={systemName}
+                    routeInfo={routeInfo}
+                    userName={userName}
+                    userRole={userRole}
+                    onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+                    onProfileClick={() => navigate('/perfil')}
+                    onLogout={handleLogout}
+                />
 
-                <nav className="sidebar-nav">
-                    {MENU.map((item) =>
-                        item.children ? (
-                            <SidebarSection
-                                key={item.label}
-                                item={item}
-                                collapsed={!sidebarOpen}
-                                open={openSection === item.label}
-                                onToggle={() => toggleSection(item.label)}
-                            />
-                        ) : (
-                            <SidebarLink key={item.label} item={item} collapsed={!sidebarOpen} />
-                        )
-                    )}
-                </nav>
+                <Notification
+                    type={layoutNotification?.type || 'info'}
+                    message={layoutNotification?.message}
+                    show={!!layoutNotification}
+                    onClose={() => setLayoutNotification(null)}
+                    onConfirm={layoutNotification?.onConfirm}
+                    onCancel={layoutNotification?.onCancel}
+                />
 
-                <div className="sidebar-footer">
-                    <Button
-                        variant="light"
-                        size="sm"
-                        className="rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ width: 36, height: 36 }}
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        aria-label={sidebarOpen ? 'Contraer menú' : 'Expandir menú'}
-                    >
-                        <i className={`bi ${sidebarOpen ? 'bi-chevron-left' : 'bi-chevron-right'}`} />
-                    </Button>
-                </div>
-            </aside>
-
-            {/* CONTENIDO */}
-            <div className="content flex-grow-1 d-flex flex-column">
-
-                {/* TOPBAR */}
-                <Navbar bg="white" className="topbar border-bottom shadow-sm px-3">
-                    <Container fluid className="justify-content-end gap-3">
-                        <Button
-                            variant="light"
-                            className="rounded-circle border-0 p-0 d-flex align-items-center justify-content-center"
-                            style={{ width: 44, height: 44 }}
-                            aria-label="Perfil de usuario"
-                            onClick={() => navigate('/perfil')}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="48"
-                                height="48"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="text-secondary"
-                            >
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                <path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                                <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
-                            </svg>
-                        </Button>
-                        
-                        <div className="d-flex flex-column lh-sm">
-                            <span className="user-name fw-semibold text-dark">{user?.email || 'Usuario'}</span>
-                            <span className="user-role text-muted">{user?.role || 'Usuario'}</span>
-                        </div>
-
-                        <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            className="d-flex align-items-center gap-2"
-                            onClick={handleLogout}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
-                                <path d="M9 12h12l-3 -3" />
-                                <path d="M18 15l3 -3" />
-                            </svg>
-                        </Button>
-                    </Container>
-                </Navbar>
-
-                {/* ÁREA DE CONTENIDO */}
                 <main className="p-4 bg-light flex-grow-1">
-                    <Outlet />
+                    <ErrorBoundary>
+                        {permissionsLoaded && !isCurrentRoutePermitted ? (
+                            <div className="d-flex flex-column justify-content-center align-items-center py-5">
+                                <div className="spinner-border text-primary mb-3" role="status">
+                                    <span className="visually-hidden">Verificando permisos...</span>
+                                </div>
+                                <span className="text-muted small">Redirigiendo a pantalla autorizada...</span>
+                            </div>
+                        ) : (
+                            <Outlet />
+                        )}
+                    </ErrorBoundary>
                 </main>
 
-                {/* FOOTER */}
-                <footer className="app-footer bg-white border-top text-muted small py-2 px-4 d-flex align-items-center justify-content-between">
-                    <span>© {new Date().getFullYear()} Meta U</span>
-                    <span className="d-none d-md-inline">v0.1.0</span>
-                </footer>
+                <Footer systemName={systemName} />
             </div>
         </div>
     );

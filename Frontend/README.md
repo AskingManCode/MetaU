@@ -8,7 +8,7 @@ Capa de presentación del sistema MetaU. Consume los microservicios del Backend 
 
 | Aplicación | Descripción | Tecnología | Estado | Enlace / Ubicación |
 |------------|-------------|------------|--------|--------------------|
-| **Sitio Web Administrativo** | Aplicación web integral para personal administrativo, docentes y gestión del sistema | **React 19 + Vite 8** | **Completado y Desplegado** | [SitioWeb/](SitioWeb/) · [Acceso en Producción](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login) |
+| **Sitio Web Administrativo** | Aplicación web integral para personal administrativo, docentes y gestión del sistema | **React 19 + Vite 8** | **Completado y Desplegado** | [SitioWeb/](SitioWeb/) · [Acceso en Producción](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU) |
 | **App Móvil** | Aplicación móvil orientada principalmente a estudiantes y profesores | *Por definir* | En planeación | Próxima fase |
 
 ---
@@ -18,7 +18,7 @@ Capa de presentación del sistema MetaU. Consume los microservicios del Backend 
 El Sitio Web Administrativo se encuentra alojado y funcionando en el servidor institucional Plesk:
 
 🌐 **URL de Producción:**  
-**[https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login)**
+**[https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU)**
 
 ---
 

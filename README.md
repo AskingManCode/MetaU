@@ -17,22 +17,28 @@ El sistema completo se encuentra desplegado y en funcionamiento en el servidor i
 
 ## Estado Actual del Proyecto
 
-El desarrollo del Backend (22 microservicios) y la integración del **Sitio Web Administrativo** (Frontend) se encuentran finalizados y desplegados en el servidor Plesk.
+Todas las fases planificadas del proyecto (**Fases 0 a 15**) han sido completadas con éxito al 100%. Tanto la arquitectura de Backend (22 microservicios .NET 10 y bases de datos en SQL Server) como el Frontend (Sitio Web Administrativo en React 19 + Vite, abarcando las Historias de Usuario **ADM1 a ADM24**) se encuentran desarrollados, probados, documentados y desplegados en producción sobre el servidor Plesk.
 
-### Fases del Proyecto
+### Fases del Proyecto (100% Completadas)
 
 | Fase | Nombre | Alcance principal | Estado |
 |:----:|--------|-------------------|:------:|
-| 0 | Análisis y diseño base | Documentación, diagramas y definición de alcance | Completado |
-| 1 | Infraestructura transversal y seguridad | Bitácoras, Login/JWT, Usuarios, Roles, Parámetros, Módulos | Completado |
-| 2 | Oferta académica | Instituciones, Carreras, Cursos, Grupos, Periodos, Profesores | Completado |
-| 3 | Matrícula | Expedientes, Direcciones, Pre-matrícula, Matrícula, Notas | Completado |
-| 4 | Consultas académicas | Historial académico, Listado de estudiantes | Completado |
-| 5 | Pagos y notificaciones | Facturación, Pagos, Notificaciones por correo (SMTP) | Completado |
-| 6 | Pruebas técnicas integradas | Validación de endpoints, seguridad JWT, flujos completos y evidencias | Completado |
-| 7 | Despliegue de Backend en Plesk | Publicación y puesta en marcha de los 22 microservicios en SQL Server y Plesk | Completado |
-| 8 | Desarrollo del Sitio Web Administrativo | Creación de interfaz en React 19 + Vite, diseño de layout y conexión de pantallas | Completado |
-| 9 | Despliegue y publicación del Frontend | Alojamiento en Plesk del Sitio Web Administrativo y pruebas en producción | Completado |
+| **0** | Análisis y diseño base | Documentación, diagramas generales y definición de alcance inicial del proyecto MetaU | Completado |
+| **1** | Infraestructura transversal y seguridad | Bitácoras, Login/JWT, Usuarios, Roles, Parámetros y Módulos | Completado |
+| **2** | Oferta académica | Instituciones, Carreras, Cursos, Grupos, Periodos y Profesores | Completado |
+| **3** | Matrícula | Expedientes, Direcciones, Pre-matrícula, Matrícula formal y Notas | Completado |
+| **4** | Consultas académicas | Historial académico y Listado de estudiantes por periodo | Completado |
+| **5** | Pagos y notificaciones | Facturación, Pagos y Notificaciones por correo electrónico (SMTP) | Completado |
+| **6** | Pruebas integradas de Backend | Pruebas técnicas integradas entre microservicios, seguridad JWT y documentación | Completado |
+| **7** | Despliegue en Plesk (Backend) | Despliegue y publicación individual de los 22 microservicios en la plataforma Plesk | Completado |
+| **8** | Análisis, Documentación y Diseño Base del Sitio Web Administrativo | Documentación de análisis y diseño del Sitio Web, diagrama de clases del website con dependencias a microservicios, casos de uso y acuerdo de diseño visual | Completado |
+| **9** | Infraestructura Base y Componentes Transversales del Frontend React | Setup del proyecto React + Vite, ADM1 (Layout maestro reutilizable), ADM2 (Login, manejo de tokens y sesión), componentes reutilizables (tablas paginadas, modales, alertas, breadcrumbs) | Completado |
+| **10** | Pantallas del Módulo de Usuarios, Roles y Configuración | Pantallas de administración: ADM3 (Dashboard), ADM4 (Usuarios), ADM5 (Roles), ADM6 (Parámetros), ADM7 (Módulos), ADM24 (Perfil). Pruebas técnicas individuales | Completado |
+| **11** | Pantallas del Módulo de Oferta Académica | Pantallas de oferta académica: ADM8 (Instituciones), ADM9 (Carreras), ADM10 (Cursos), ADM11 (Profesores), ADM12 (Periodos), ADM13 (Grupos) | Completado |
+| **12** | Pantallas del Módulo de Matrícula, Expedientes y Notas | Pantallas de matrícula y consultas: ADM14 (Prematrículas), ADM15 (Matrícula), ADM16 (Expedientes), ADM17 (Notas / Desglose), ADM18 (Promedios), ADM19 (Listados) | Completado |
+| **13** | Pantallas del Módulo de Facturación, Pagos, Notificaciones y Auditoría | Pantallas financieras y de comunicación: ADM20 (Facturas), ADM21 (Pagos), ADM22 (Notificaciones), ADM23 (Bitácoras). Pruebas técnicas por HU | Completado |
+| **14** | Pruebas Técnicas, Integración y Documentación Final del Sitio Web | Ejecución y documentación de pruebas técnicas de todas las HUs ADM1–ADM24, actualización final del documento de análisis y diseño, actualización de diagramas | Completado |
+| **15** | Despliegue del Sitio Web Administrativo | Despliegue del sitio web React en Plesk, build de producción, configuración de variables de entorno (URLs de microservicios), verificación integral de login, navegación y llamadas a backend | Completado |
 
 ---
 

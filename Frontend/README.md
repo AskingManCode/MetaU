@@ -18,7 +18,7 @@ Capa de presentación del sistema MetaU. Consume los microservicios del Backend 
 El Sitio Web Administrativo se encuentra alojado y funcionando en el servidor institucional Plesk:
 
 🌐 **URL de Producción:**  
-**[https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU)**
+**[https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU)**
 
 ---
 

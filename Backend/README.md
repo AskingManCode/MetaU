@@ -93,7 +93,7 @@ MicroservicioNombre/
 | Recurso | Ubicación |
 |---------|-----------|
 | Documentación general del proyecto | [../README.md](../README.md) |
-| Sitio Web Administrativo (Frontend) | [../Frontend/README.md](../Frontend/README.md) · [Acceso en producción](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login) |
+| Sitio Web Administrativo (Frontend) | [../Frontend/README.md](../Frontend/README.md) · [Acceso en producción](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU) |
 | Análisis, diseño y diagramas | [../Documentacion/](../Documentacion/) (ver [README](../Documentacion/README.md)) |
 | Diagramas de clases por microservicio | [../Documentacion/Diagramas Generales/Clases/Microservicios/](../Documentacion/Diagramas%20Generales/Clases/Microservicios/) |
 | Scripts SQL de las bases de datos | [../Scripts SQL/](../Scripts%20SQL/) (ver [README](../Scripts%20SQL/README.md)) |

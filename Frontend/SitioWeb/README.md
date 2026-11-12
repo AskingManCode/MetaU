@@ -8,8 +8,10 @@ Aplicación web frontend que provee la interfaz administrativa para el sistema a
 
 El sitio web administrativo se encuentra desplegado y accesible públicamente en el servidor institucional Plesk:
 
-🔗 **[Website Administrativo MetaU en Plesk](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login)**  
-`https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login`
+🔗 **[Website Administrativo MetaU en Plesk](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU)**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU`
+
+> **Estado del despliegue:** Todas las fases de frontend (Fases 8 a 15) han sido completadas, abarcando la totalidad de Historias de Usuario administrativas (**ADM1 a ADM24**) con sus respectivas pruebas técnicas e integración total con los 22 microservicios.
 
 ---
 

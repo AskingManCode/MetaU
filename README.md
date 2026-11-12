@@ -147,7 +147,7 @@ Las normas y acuerdos se encuentran documentados en:
 
 | Recurso | Ubicación |
 |---------|-----------|
-| **Sitio Web en Producción** | [Acceso Web Administrativo](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login) |
+| **Sitio Web en Producción** | [Acceso Web Administrativo](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU) |
 | **Documentación de Frontend** | [Frontend/README.md](Frontend/README.md) · [Frontend/SitioWeb/README.md](Frontend/SitioWeb/README.md) |
 | **Documentación de Backend** | [Backend/README.md](Backend/README.md) (y `Backend/Microservicio*/README.md`) |
 | **Colección de Postman** | [Backend/Postman/README.md](Backend/Postman/README.md) |

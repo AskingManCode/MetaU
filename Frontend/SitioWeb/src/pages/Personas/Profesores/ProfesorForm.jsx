@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
 import PageHeader from '../../../components/PageHeader'
@@ -8,6 +9,17 @@ const estiloBoton = {
     height: '38px',
     backgroundColor: '#5d75e5',
     borderColor: '#5d75e5'
+}
+
+const normalizarTelefono = valor =>
+    String(valor ?? '').replace(/\D/g, '').slice(0, 8)
+
+const formatearTelefono = valor => {
+    const digitos = normalizarTelefono(valor)
+
+    return digitos.length > 4
+        ? `${digitos.slice(0, 4)}-${digitos.slice(4)}`
+        : digitos
 }
 
 function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, onValidacion, guardando, esEdicion = false }) {
@@ -26,9 +38,13 @@ function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, onValidacion, gu
     }
 
     const cambiarTelefono = (indice, valor) => {
+        const telefonoNormalizado = normalizarTelefono(valor)
+
         setDatos(actual => ({
             ...actual,
-            telefonos: actual.telefonos.map((telefono, i) => i === indice ? valor : telefono)
+            telefonos: actual.telefonos.map((telefono, i) =>
+                i === indice ? telefonoNormalizado : telefono
+            )
         }))
     }
 
@@ -196,11 +212,13 @@ function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, onValidacion, gu
                                         <div className="d-flex align-items-center gap-2 mb-2" key={indice}>
                                             <Form.Control
                                                 type="tel"
+                                                inputMode="numeric"
                                                 placeholder="8888-8888"
                                                 aria-label={`Telefono ${indice + 1}`}
-                                                pattern="[0-9]{4}[- ]?[0-9]{4}"
-                                                title="Ingrese 8 digitos, con o sin guion"
-                                                value={telefono}
+                                                pattern="[0-9]{4}-[0-9]{4}"
+                                                maxLength={9}
+                                                title="Ingrese un numero de telefono de 8 digitos"
+                                                value={formatearTelefono(telefono)}
                                                 onChange={e => cambiarTelefono(indice, e.target.value)}
                                                 required
                                             />

@@ -7,6 +7,7 @@ import Notification from '../../../components/Notification'
 import DataTable from '../../../components/DataTable'
 import useProfesores from '../../../hooks/useProfesores'
 import { mensajeError, textoBusqueda } from '../../../utils/profesorUtils'
+import grupoService from '../../../services/grupoService'
 
 const columnas = [
     { key: 'tipoIdentificacionCode', label: 'Tipo identificacion', sortable: true },
@@ -91,35 +92,86 @@ function Profesores() {
         setPagina(1)
     }
 
-    const confirmarEliminacion = profesor => {
-        setNotification({
-            type: 'warning',
-            message: '¿Realmente desea eliminar el elemento seleccionado?',
-            onCancel: () => setNotification(null),
-            onConfirm: async () => {
-                if (eliminando) return
+    
+const confirmarEliminacion = profesor => {
+    setNotification({
+        type: 'warning',
+        message: '¿Realmente desea eliminar el profesor seleccionado?',
+        onCancel: () => setNotification(null),
+        onConfirm: async () => {
+            if (eliminando) return
 
-                setEliminando(true)
-                setNotification(null)
+            setEliminando(true)
+            setNotification(null)
+
+            try {
+                // Consultar grupos antes de eliminar el profesor
+                let grupos
 
                 try {
-                    await eliminarProfesor(profesor.profesorID)
+                    const respuesta = await grupoService.getAll()
+                    const datos = respuesta?.data
 
-                    setNotification({
-                        type: 'success',
-                        message: 'Profesor eliminado correctamente'
-                    })
-                } catch (error) {
+                    grupos = Array.isArray(datos)
+                        ? datos
+                        : datos?.datos
+
+                    if (!Array.isArray(grupos)) {
+                        throw new Error('Respuesta de grupos no válida')
+                    }
+                } catch {
                     setNotification({
                         type: 'error',
-                        message: mensajeError(error, 'No se pudo eliminar el profesor')
+                        message: 'No se pudo verificar si el profesor tiene grupos asociados. No se eliminó el profesor.'
                     })
-                } finally {
-                    setEliminando(false)
+                    return
                 }
+
+                const gruposProfesor = grupos.filter(grupo =>
+                    String(
+                        grupo.profesorID ??
+                        grupo.profesorId ??
+                        grupo.ProfesorID ??
+                        ''
+                    ).toLowerCase() ===
+                    String(profesor.profesorID).toLowerCase()
+                )
+
+                if (gruposProfesor.length > 0) {
+                    const tieneActivos = gruposProfesor.some(
+                        grupo => (grupo.estado ?? grupo.Estado) === true
+                    )
+
+                    setNotification({
+                        type: 'warning',
+                        message: tieneActivos
+                            ? 'No se puede eliminar el profesor porque tiene grupos activos asociados.'
+                            : 'No se puede eliminar el profesor porque tiene grupos asociados.'
+                    })
+                    return
+                }
+
+                await eliminarProfesor(profesor.profesorID)
+
+                setNotification({
+                    type: 'success',
+                    message: 'Profesor eliminado correctamente'
+                })
+            } catch (error) {
+                setNotification({
+                    type: 'error',
+                    message: mensajeError(
+                        error,
+                        'No se pudo eliminar el profesor'
+                    )
+                })
+            } finally {
+                setEliminando(false)
             }
-        })
-    }
+        }
+    })
+}
+
 
     const filtros = (
         <div className="row g-2">

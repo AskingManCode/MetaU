@@ -8,6 +8,7 @@ import DataTable from '../../../components/DataTable'
 import useGrupos from '../../../hooks/useGrupos'
 import useCatalogosGrupo from '../../../hooks/useCatalogosGrupo'
 import { mensajeErrorGrupo, textoGrupo } from '../../../utils/grupoUtils'
+import matriculaService from '../../../services/matriculaService'
 
 function Grupos() {
     const navigate = useNavigate()
@@ -183,32 +184,69 @@ function Grupos() {
         setPagina(1)
     }
 
-    const confirmarEliminacion = async () => {
-        if (!grupoEliminar || eliminando) return
+    
+const confirmarEliminacion = async () => {
+    if (!grupoEliminar || eliminando) return
 
-        setEliminando(true)
+    setEliminando(true)
+
+    try {
+        let matriculas
 
         try {
-            await eliminarGrupo(grupoEliminar.grupoCode)
-
-            setGrupoEliminar(null)
-            setNotification({
-                type: 'success',
-                message: 'Grupo eliminado correctamente'
+            const respuesta = await matriculaService.getAll({
+                cursoCode: grupoEliminar.cursoCode,
+                grupoCode: grupoEliminar.grupoCode
             })
-        } catch (error) {
+
+            const datos = respuesta?.data
+
+            matriculas = Array.isArray(datos)
+                ? datos
+                : datos?.datos
+
+            if (!Array.isArray(matriculas)) {
+                throw new Error('Respuesta de matriculas no valida')
+            }
+        } catch {
             setGrupoEliminar(null)
             setNotification({
                 type: 'error',
-                message: mensajeErrorGrupo(
-                    error,
-                    'No se pudo eliminar el grupo'
-                )
+                message: 'No se pudo verificar si el grupo tiene matriculas asociadas. No se elimino el grupo.'
             })
-        } finally {
-            setEliminando(false)
+            return
         }
+
+        if (matriculas.length > 0) {
+            setGrupoEliminar(null)
+            setNotification({
+                type: 'warning',
+                message: `No se puede eliminar el grupo ${grupoEliminar.grupoCode} porque tiene matrículas asociadas.`
+            })
+            return
+        }
+
+        await eliminarGrupo(grupoEliminar.grupoCode)
+
+        setGrupoEliminar(null)
+        setNotification({
+            type: 'success',
+            message: 'Grupo eliminado correctamente'
+        })
+    } catch (error) {
+        setGrupoEliminar(null)
+        setNotification({
+            type: 'error',
+            message: mensajeErrorGrupo(
+                error,
+                'No se pudo eliminar el grupo'
+            )
+        })
+    } finally {
+        setEliminando(false)
     }
+}
+
 
     const filtros = (
         <div className="row g-2">

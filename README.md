@@ -10,8 +10,8 @@ MetaU centraliza la administración integral de una institución educativa: usua
 
 El sistema completo se encuentra desplegado y en funcionamiento en el servidor institucional Plesk:
 
-🌐 **[Acceso al Sitio Web Administrativo MetaU](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login)**  
-`https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU/login`
+🌐 **[Acceso al Sitio Web Administrativo MetaU](https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU)**  
+`https://tiusr20pl.cuc-carrera-ti.ac.cr/WebsiteAdministrativo_MetaU`
 
 ---
 

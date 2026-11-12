@@ -7,6 +7,6 @@ namespace MicroservicioPagos.Repository
         Task<Guid> CrearAsync(Guid facturaId);
         Task<PagoResponse?> ObtenerPorIdAsync(Guid pagoId);
         Task<IEnumerable<PagoResponse>> ObtenerPorPeriodoAsync(Guid periodoId);
-        Task<PagoResponse?> ReversarAsync(Guid pagoId);
+        Task<PagoResponse?> ReversarAsync(Guid pagoId, string motivoReversion);
     }
 }

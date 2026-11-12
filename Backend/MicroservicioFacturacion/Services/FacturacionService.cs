@@ -13,6 +13,7 @@ namespace MicroservicioFacturacion.Services
         private readonly IAuthServiceValidator _authValidator;
         private readonly IBitacoraServiceClient _bitacoraClient;
         private readonly IValidator<FacturacionRequest> _validator;
+        private readonly IValidator<AnularFacturaRequest> _anularValidator;
         private readonly IParametroServiceClient _parametroClient;
 
         private const string ParamCostoCurso = "COSTOCUR";
@@ -30,6 +31,7 @@ namespace MicroservicioFacturacion.Services
             IAuthServiceValidator authValidator,
             IBitacoraServiceClient bitacoraClient,
             IValidator<FacturacionRequest> validator,
+            IValidator<AnularFacturaRequest> anularValidator,
             IParametroServiceClient parametroClient)
         {
             _repository = repository;
@@ -38,6 +40,7 @@ namespace MicroservicioFacturacion.Services
             _authValidator = authValidator;
             _bitacoraClient = bitacoraClient;
             _validator = validator;
+            _anularValidator = anularValidator;
             _parametroClient = parametroClient;
         }
 
@@ -133,12 +136,22 @@ namespace MicroservicioFacturacion.Services
             }
         }
 
-        public async Task<FacturaResponse> AnularAsync(Guid facturaId, HttpRequest httpRequest)
+        public async Task<FacturaResponse> AnularAsync(Guid facturaId, AnularFacturaRequest request, HttpRequest httpRequest)
         {
             var (usuario, token, error) = await _authValidator.ValidarAsync(httpRequest);
 
             if (error is not null)
                 throw new UnauthorizedAccessException("No autorizado");
+
+            if (request is null)
+                throw new ArgumentException("El motivo de anulación es obligatorio.");
+
+            var validationResult = await _anularValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                var mensaje = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+                throw new ArgumentException(mensaje);
+            }
 
             try
             {
@@ -148,20 +161,24 @@ namespace MicroservicioFacturacion.Services
                     throw new KeyNotFoundException($"No se encontró la factura '{facturaId}'.");
 
                 if (existente.Estado.Equals("ANUL", StringComparison.OrdinalIgnoreCase) ||
+                    existente.Estado.Equals("ANU", StringComparison.OrdinalIgnoreCase) ||
+                    existente.Estado.Equals("Anulada", StringComparison.OrdinalIgnoreCase) ||
                     existente.FechaAnulacion.HasValue)
                 {
                     throw new InvalidOperationException("La factura ya se encuentra anulada.");
                 }
 
                 // Llamamos al SP (puede devolver -1 por SET NOCOUNT ON)
-                await _repository.AnularAsync(facturaId);
+                await _repository.AnularAsync(facturaId, request.Motivo.Trim());
 
                 // Verificamos el estado real después de la operación
                 var factura = await _repository.ObtenerPorIdAsync(facturaId)
                     ?? throw new InvalidOperationException("No se pudo recuperar la factura después de anular.");
 
                 if (!factura.FechaAnulacion.HasValue &&
-                    !factura.Estado.Equals("ANUL", StringComparison.OrdinalIgnoreCase))
+                    !factura.Estado.Equals("ANUL", StringComparison.OrdinalIgnoreCase) &&
+                    !factura.Estado.Equals("ANU", StringComparison.OrdinalIgnoreCase) &&
+                    !factura.Estado.Equals("Anulada", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidOperationException("No se pudo anular la factura.");
                 }
@@ -170,7 +187,7 @@ namespace MicroservicioFacturacion.Services
                 {
                     await _bitacoraClient.RegistrarBitacoraAsync(
                         usuario,
-                        $"Se anuló la factura {factura.FacturaID}",
+                        $"Se anuló la factura {factura.FacturaID} (Motivo: {factura.MotivoAnulacion}): {System.Text.Json.JsonSerializer.Serialize(factura)}",
                         token);
                 }
                 catch

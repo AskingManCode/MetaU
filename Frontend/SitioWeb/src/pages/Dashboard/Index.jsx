@@ -20,24 +20,41 @@ function Dashboard() {
     const [notifications, setNotifications] = useState([]);
     const [error, setError] = useState('');
 
-    const isProfessor = String(user?.role ?? '').toLowerCase().includes('profesor');
+    const roleCode = String(user?.role ?? '').trim().toUpperCase();
+    const isStudent = roleCode === 'EST';
+    const isProfessor = roleCode === 'PROF';
+    const isDirector = roleCode === 'DIC';
+    const isAdministrator = roleCode === 'ADM';
     const quickLinks = useMemo(() => {
+        if (isStudent) return [
+            { href: '/matricula', icon: 'bi-card-checklist', label: 'Matrícula' },
+            { href: '/prematricula', icon: 'bi-pencil-square', label: 'Prematrícula' },
+            { href: '/historial', icon: 'bi-journal-text', label: 'Historial académico' },
+        ];
         if (isProfessor) {
             return [
                 { href: '/grupos', icon: 'bi-people', label: 'Mis grupos' },
+                { href: '/cursos', icon: 'bi-book', label: 'Cursos' },
                 { href: '/notas', icon: 'bi-journal-check', label: 'Carga de notas' },
-                { href: '/perfil', icon: 'bi-person-circle', label: 'Mi perfil' },
             ];
         }
-
-        return [
-            { href: '/usuarios', icon: 'bi-person-badge', label: 'Usuarios' },
+        if (isDirector) return [
             { href: '/carreras', icon: 'bi-mortarboard', label: 'Carreras' },
             { href: '/cursos', icon: 'bi-book', label: 'Cursos' },
             { href: '/periodos', icon: 'bi-calendar3', label: 'Periodos' },
+            { href: '/listados', icon: 'bi-bar-chart', label: 'Reportes' },
+        ];
+
+        return [
+            { href: '/usuarios', icon: 'bi-person-badge', label: 'Usuarios' },
+            { href: '/roles', icon: 'bi-shield-lock', label: 'Roles' },
+            { href: '/modulos', icon: 'bi-grid', label: 'Módulos' },
+            { href: '/parametros', icon: 'bi-sliders', label: 'Parámetros' },
+            { href: '/bitacoras', icon: 'bi-journal-text', label: 'Bitácoras' },
+            { href: '/carreras', icon: 'bi-mortarboard', label: 'Carreras' },
             { href: '/facturas', icon: 'bi-receipt', label: 'Facturación' },
         ];
-    }, [isProfessor]);
+    }, [isStudent, isProfessor, isDirector]);
 
     useEffect(() => {
         let active = true;
@@ -123,7 +140,7 @@ function Dashboard() {
                 <div className="card-body">
                     <Row className="g-3">
                     {quickLinks.map((link) => (
-                        <Col key={link.href} xs={12} sm={6} lg={isProfessor ? 4 : 3}>
+                        <Col key={link.href} xs={12} sm={6} lg={isStudent || isProfessor ? 4 : 3}>
                             <Link className="btn btn-outline-primary w-100 text-start" to={link.href}>
                                 <i className={`bi ${link.icon} me-2`} />
                                 {link.label}
@@ -154,7 +171,7 @@ function Dashboard() {
                                     </div>
                                 </Col>
                             </>
-                        ) : (
+                        ) : isAdministrator ? (
                             <>
                                 {[
                                     ['Usuarios', metrics.users],
@@ -171,6 +188,23 @@ function Dashboard() {
                                     </Col>
                                 ))}
                             </>
+                        ) : isDirector ? (
+                            <>
+                                {[
+                                    ['Carreras', metrics.careers],
+                                    ['Cursos', metrics.courses],
+                                    ['Periodos activos', metrics.activePeriods],
+                                ].map(([label, metric]) => (
+                                    <Col key={label} xs={12} sm={6} lg={4}>
+                                        <div className="bg-light rounded p-3 h-100">
+                                            <span className="text-muted d-block">{label}</span>
+                                            <span className="fs-3 fw-bold text-primary">{metric ?? 0}</span>
+                                        </div>
+                                    </Col>
+                                ))}
+                            </>
+                        ) : (
+                            <Col xs={12}><p className="text-muted mb-0">No hay métricas disponibles para este rol.</p></Col>
                         )}
                     </Row>
                 ) : (
@@ -202,7 +236,7 @@ function Dashboard() {
                         </div>
                     </section>
                 </Col>
-                <Col xs={12} lg={6}>
+                {isAdministrator && <Col xs={12} lg={6}>
                     <section className="card border-0 shadow-sm h-100">
                         <div className="card-header bg-white text-primary fw-semibold">
                             Últimas bitácoras relevantes
@@ -221,7 +255,7 @@ function Dashboard() {
                         )}
                         </div>
                     </section>
-                </Col>
+                </Col>}
             </Row>
         </div>
     );

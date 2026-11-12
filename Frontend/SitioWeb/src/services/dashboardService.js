@@ -106,15 +106,21 @@ async function getRecentAudits() {
 }
 
 export async function loadDashboardData(role) {
-    const normalizedRole = String(role ?? '').toLowerCase();
-    const isProfessor = normalizedRole.includes('profesor') || normalizedRole.includes('teacher');
-    const metrics = isProfessor ? await getProfessorMetrics() : await getAdminMetrics();
+    const roleCode = String(role ?? '').trim().toUpperCase();
+    const isProfessor = roleCode === 'PROF';
+    const isAdministrator = roleCode === 'ADM';
+    const isDirector = roleCode === 'DIC';
+    const metrics = isProfessor
+        ? await getProfessorMetrics()
+        : (isAdministrator || isDirector ? await getAdminMetrics() : {});
 
     let audits = [];
-    try {
-        audits = await getRecentAudits();
-    } catch {
-        audits = [];
+    if (isAdministrator) {
+        try {
+            audits = await getRecentAudits();
+        } catch {
+            audits = [];
+        }
     }
 
     return {

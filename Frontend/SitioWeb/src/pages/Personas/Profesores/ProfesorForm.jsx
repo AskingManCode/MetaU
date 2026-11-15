@@ -1,0 +1,261 @@
+
+import { useState } from 'react'
+import { Card, Col, Form, Row, Spinner } from 'react-bootstrap'
+import PageHeader from '../../../components/PageHeader'
+import { prepararProfesorRequest } from '../../../utils/profesorUtils'
+
+const estiloBoton = {
+    width: '38px',
+    height: '38px',
+    backgroundColor: '#5d75e5',
+    borderColor: '#5d75e5'
+}
+
+const normalizarTelefono = valor =>
+    String(valor ?? '').replace(/\D/g, '').slice(0, 8)
+
+const formatearTelefono = valor => {
+    const digitos = normalizarTelefono(valor)
+
+    return digitos.length > 4
+        ? `${digitos.slice(0, 4)}-${digitos.slice(4)}`
+        : digitos
+}
+
+function ProfesorForm({ titulo, inicial, onGuardar, onCancelar, onValidacion, guardando, esEdicion = false }) {
+    const [datos, setDatos] = useState({
+        usuarioID: inicial?.usuarioID ?? '',
+        tipoIdentificacionCode: inicial?.tipoIdentificacionCode ?? '',
+        identificacion: inicial?.identificacion ?? '',
+        email: inicial?.email ?? '',
+        nombreCompleto: inicial?.nombreCompleto ?? '',
+        fechaNacimiento: inicial?.fechaNacimiento ?? '',
+        telefonos: inicial?.telefonos?.length ? [...inicial.telefonos] : ['']
+    })
+
+    const cambiarCampo = (campo, valor) => {
+        setDatos(actual => ({ ...actual, [campo]: valor }))
+    }
+
+    const cambiarTelefono = (indice, valor) => {
+        const telefonoNormalizado = normalizarTelefono(valor)
+
+        setDatos(actual => ({
+            ...actual,
+            telefonos: actual.telefonos.map((telefono, i) =>
+                i === indice ? telefonoNormalizado : telefono
+            )
+        }))
+    }
+
+    const agregarTelefono = () => {
+        setDatos(actual => ({ ...actual, telefonos: [...actual.telefonos, ''] }))
+    }
+
+    const quitarTelefono = indice => {
+        setDatos(actual => ({
+            ...actual,
+            telefonos: actual.telefonos.filter((_, i) => i !== indice)
+        }))
+    }
+
+    const manejarSubmit = e => {
+        e.preventDefault()
+
+        const formulario = e.currentTarget
+        if (!formulario.checkValidity()) {
+            const campo = formulario.querySelector(':invalid')
+            const nombresCampos = {
+                profesorUsuario: 'Usuario asociado (GUID)',
+                profesorTipoIdentificacion: 'Tipo de identificacion',
+                profesorIdentificacion: 'Identificacion',
+                profesorNombre: 'Nombre completo',
+                profesorCorreo: 'Correo electronico',
+                profesorNacimiento: 'Fecha de nacimiento'
+            }
+            const nombreCampo = nombresCampos[campo?.id] ?? campo?.getAttribute('aria-label') ?? 'indicado'
+            const mensaje = campo?.validity.valueMissing
+                ? `Debe completar el campo ${nombreCampo}`
+                : `Debe ingresar un valor valido en el campo ${nombreCampo}`
+
+            onValidacion?.(mensaje)
+            return
+        }
+
+        onGuardar(prepararProfesorRequest(datos))
+    }
+
+    return (
+        <div>
+            <PageHeader title={titulo} />
+
+            <div className="d-flex gap-2 mb-3">
+                <button
+                    type="button"
+                    className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                    style={estiloBoton}
+                    onClick={onCancelar}
+                    disabled={guardando}
+                    title="Volver al listado"
+                    aria-label="Volver al listado"
+                >
+                    <i className="bi bi-arrow-left fs-5" />
+                </button>
+
+                <button
+                    type="submit"
+                    form="formularioProfesor"
+                    className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                    style={estiloBoton}
+                    disabled={guardando}
+                    title="Guardar"
+                    aria-label="Guardar"
+                >
+                    {guardando ? <Spinner animation="border" size="sm" /> : <i className="bi bi-floppy fs-5" />}
+                </button>
+            </div>
+
+            <Card className="border-0 shadow-sm">
+                <Card.Header className="bg-light border-bottom py-3">
+                    <span className="text-primary fw-semibold">Informacion del Profesor</span>
+                </Card.Header>
+
+                <Card.Body className="p-3">
+                    <Form id="formularioProfesor" onSubmit={manejarSubmit} noValidate>
+                        <fieldset disabled={guardando} className="border-0 p-0 m-0 w-100">
+                            <Row className="g-3">
+                                <Col md={6}>
+                                    <Form.Group controlId="profesorUsuario">
+                                        <Form.Label>Usuario asociado (GUID) *</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Ingrese el GUID del usuario"
+                                            value={datos.usuarioID}
+                                            readOnly={esEdicion}
+                                            onChange={e => cambiarCampo('usuarioID', e.target.value)}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="profesorTipoIdentificacion">
+                                        <Form.Label>Tipo de identificacion *</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Ingrese el tipo de identificacion"
+                                            value={datos.tipoIdentificacionCode}
+                                            onChange={e => cambiarCampo('tipoIdentificacionCode', e.target.value)}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="profesorIdentificacion">
+                                        <Form.Label>Identificacion *</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Ingrese la identificacion"
+                                            value={datos.identificacion}
+                                            onChange={e => cambiarCampo('identificacion', e.target.value)}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="profesorNombre">
+                                        <Form.Label>Nombre completo *</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Ingrese el nombre completo"
+                                            value={datos.nombreCompleto}
+                                            onChange={e => cambiarCampo('nombreCompleto', e.target.value)}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="profesorCorreo">
+                                        <Form.Label>Correo electronico *</Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            placeholder="Ingrese el correo electronico"
+                                            value={datos.email}
+                                            onChange={e => cambiarCampo('email', e.target.value)}
+                                            required
+                                        />
+                                        <Form.Text className="text-muted">
+                                            El correo debe cumplir el dominio configurado en el sistema
+                                        </Form.Text>
+                                    </Form.Group>
+                                </Col>
+
+                                <Col md={6}>
+                                    <Form.Group controlId="profesorNacimiento">
+                                        <Form.Label>Fecha de nacimiento *</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={datos.fechaNacimiento}
+                                            onChange={e => cambiarCampo('fechaNacimiento', e.target.value)}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col xs={12}>
+                                    <Form.Label>Telefonos *</Form.Label>
+
+                                    {datos.telefonos.map((telefono, indice) => (
+                                        <div className="d-flex align-items-center gap-2 mb-2" key={indice}>
+                                            <Form.Control
+                                                type="tel"
+                                                inputMode="numeric"
+                                                placeholder="8888-8888"
+                                                aria-label={`Telefono ${indice + 1}`}
+                                                pattern="[0-9]{4}-[0-9]{4}"
+                                                maxLength={9}
+                                                title="Ingrese un numero de telefono de 8 digitos"
+                                                value={formatearTelefono(telefono)}
+                                                onChange={e => cambiarTelefono(indice, e.target.value)}
+                                                required
+                                            />
+
+                                            {datos.telefonos.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                                    style={estiloBoton}
+                                                    onClick={() => quitarTelefono(indice)}
+                                                    title="Quitar telefono"
+                                                    aria-label={`Quitar telefono ${indice + 1}`}
+                                                >
+                                                    <i className="bi bi-trash" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                                        style={estiloBoton}
+                                        onClick={agregarTelefono}
+                                        title="Agregar telefono"
+                                        aria-label="Agregar telefono"
+                                    >
+                                        <i className="bi bi-plus-lg" />
+                                    </button>
+                                </Col>
+                            </Row>
+                        </fieldset>
+                    </Form>
+                </Card.Body>
+            </Card>
+        </div>
+    )
+}
+
+export default ProfesorForm

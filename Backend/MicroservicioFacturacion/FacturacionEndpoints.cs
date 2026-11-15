@@ -58,17 +58,22 @@ namespace MicroservicioFacturacion
 
         private static async Task<IResult> Anular(
             Guid FacturaID,
+            AnularFacturaRequest request,
             HttpRequest httpRequest,
             IFacturacionService service)
         {
             try
             {
-                var factura = await service.AnularAsync(FacturaID, httpRequest);
+                var factura = await service.AnularAsync(FacturaID, request, httpRequest);
                 return Results.Ok(factura);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
@@ -82,7 +87,7 @@ namespace MicroservicioFacturacion
             {
                 return Results.BadRequest(new { mensaje = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Results.Json(new
                 {

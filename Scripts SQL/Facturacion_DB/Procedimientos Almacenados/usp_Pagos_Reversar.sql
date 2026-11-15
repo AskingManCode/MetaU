@@ -8,7 +8,8 @@ USE tiusr20pl_Facturacion_DB;
 GO
 
 CREATE OR ALTER PROCEDURE MetaU_DB_User.usp_Pagos_Reversar
-    @PagoID UNIQUEIDENTIFIER
+    @PagoID UNIQUEIDENTIFIER,
+    @MotivoReversion VARCHAR(250)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -21,6 +22,12 @@ BEGIN
         IF @PagoID IS NULL
         BEGIN
             RAISERROR('El identificador del pago es obligatorio.', 16, 1);
+            RETURN;
+        END
+
+        IF @MotivoReversion IS NULL OR LEN(TRIM(@MotivoReversion)) = 0
+        BEGIN
+            RAISERROR('El motivo de reversión es obligatorio.', 16, 1);
             RETURN;
         END
 
@@ -51,7 +58,8 @@ BEGIN
 
         UPDATE MetaU_DB_User.Pagos
         SET EstadoPagoCode = 'REV',
-            FechaReversion = SYSDATETIME()
+            FechaReversion = SYSDATETIME(),
+            MotivoReversion = TRIM(@MotivoReversion)
         WHERE PagoID = @PagoID
           AND EstadoPagoCode = 'ACT';
 
@@ -63,6 +71,7 @@ BEGIN
         COMMIT TRANSACTION;
 
         SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
+               pago.MotivoReversion,
                estado.Nombre AS Estado
         FROM MetaU_DB_User.Pagos AS pago
         INNER JOIN MetaU_DB_User.EstadosPagos AS estado ON estado.EstadoPagoCode = pago.EstadoPagoCode

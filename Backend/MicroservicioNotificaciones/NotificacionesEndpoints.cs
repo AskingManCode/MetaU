@@ -1,4 +1,3 @@
-﻿using FluentValidation;
 using MicroservicioNotificaciones.Entities;
 using MicroservicioNotificaciones.Services;
 
@@ -11,6 +10,8 @@ namespace MicroservicioNotificaciones
             var group = app.MapGroup("/api/notificar");
 
             group.MapPost("/", EnviarCorreo);
+            group.MapPost("/multiple", EnviarCorreosMultiples);
+            group.MapGet("/", ObtenerHistorial);
         }
 
         private static async Task<IResult> EnviarCorreo(
@@ -27,22 +28,73 @@ namespace MicroservicioNotificaciones
             {
                 return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (ValidationException ex)
+            catch (ArgumentException ex)
             {
-                var errores = ex.Errors
-                    .Select(e => new
-                    {
-                        campo = e.PropertyName,
-                        mensaje = e.ErrorMessage
-                    });
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception)
+            {
+                return Results.Json(new 
+                { 
+                    mensaje = "Error interno del servidor" 
+                }, statusCode: 500);
+            }
+        }
 
-                return Results.BadRequest(new { errores });
+        private static async Task<IResult> EnviarCorreosMultiples(
+            NotificarMultipleRequest request,
+            HttpRequest httpRequest,
+            INotificacionesService service)
+        {
+            try
+            {
+                var resultado = await service.EnviarCorreosMultiplesAsync(request, httpRequest);
+                return Results.Ok(resultado);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
             catch (ArgumentException ex)
             {
                 return Results.BadRequest(new { mensaje = ex.Message });
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception)
+            {
+                return Results.Json(new 
+                { 
+                    mensaje = "Error interno del servidor" 
+                }, statusCode: 500);
+            }
+        }
+
+        private static async Task<IResult> ObtenerHistorial(
+            int? pagina,
+            HttpRequest httpRequest,
+            INotificacionesService service)
+        {
+            try
+            {
+                var historial = await service.ObtenerHistorialAsync(pagina, httpRequest);
+                return Results.Ok(historial);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
+            }
+            catch (Exception)
             {
                 return Results.Json(new 
                 { 

@@ -26,6 +26,7 @@ BEGIN
     END
 
     SELECT pago.PagoID, pago.FacturaID, pago.Monto, pago.FechaPago, pago.FechaReversion,
+           pago.MotivoReversion,
            estado.Nombre AS Estado
     FROM MetaU_DB_User.Pagos AS pago
     INNER JOIN MetaU_DB_User.EstadosPagos AS estado 

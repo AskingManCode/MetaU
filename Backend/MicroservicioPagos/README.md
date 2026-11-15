@@ -64,9 +64,14 @@ X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 PATCH /api/pago/33333333-3333-3333-3333-333333333333
 Authorization: Bearer <JWT>
 X-Usuario-Id: 00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "motivo": "Pago duplicado por error operativo"
+}
 ```
 
-**Respuesta:** `200 OK` con el pago reversado.
+**Respuesta:** `200 OK` con el pago reversado (con `estado: "REV"`, `fechaReversion` y `motivoReversion` registrados).
 
 ### GET /api/pago/{PagoID} — Obtener por ID
 
@@ -95,6 +100,7 @@ X-Usuario-Id: 00000000-0000-0000-0000-000000000001
   "monto": 61200,
   "fechaPago": "2026-10-15T12:00:00",
   "fechaReversion": null,
+  "motivoReversion": null,
   "estado": "PAG",
   "factura": {
     "facturaID": "22222222-2222-2222-2222-222222222222",
@@ -104,6 +110,7 @@ X-Usuario-Id: 00000000-0000-0000-0000-000000000001
     "estado": "PAG",
     "fechaEmision": "2026-10-15T10:00:00",
     "fechaAnulacion": null,
+    "motivoAnulacion": null,
     "subtotal": 60000,
     "porcentajeImpuesto": 2.00,
     "impuesto": 1200,
@@ -125,6 +132,8 @@ X-Usuario-Id: 00000000-0000-0000-0000-000000000001
 - La factura debe existir y estar en un estado que permita el pago.
 - No se puede pagar una factura ya pagada, anulada o sin saldo pendiente.
 - No se puede reversar un pago que ya está reversado.
+- Para reversar un pago es obligatorio proporcionar un motivo válido (máximo 250 caracteres, sin contener solo espacios en blanco).
+- La reversión de un pago actualiza el estado de la factura asociada a `PEND` (Pendiente) para permitir su posterior cobro.
 - Los identificadores (`FacturaID`, `PagoID`, `PeriodoID`) son GUID.
 - Al consultar un pago se incluye la factura asociada con sus detalles.
 

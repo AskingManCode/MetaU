@@ -223,6 +223,26 @@ namespace MicroservicioRoles
             })
             .WithName("UpdatePermisosRol")
             .WithOpenApi();
+
+            // GET menu del rol
+            group.MapGet("/{id}/menu", async (
+                HttpRequest request,
+                string id,
+                [FromServices] IRolService rolService,
+                [FromServices] IAuthServiceClient authService) =>
+            {
+                if (!await TokenValidoAsync(request, authService))
+                    return Results.Unauthorized();
+
+                return await EjecutarAsync(async () =>
+                {
+                    var menu = await rolService.ObtenerMenuAsync(id);
+                    return Results.Ok(menu);
+                });
+            })
+            .WithName("GetMenuRol")
+            .WithOpenApi();
         }
+
     }
 }

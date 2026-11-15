@@ -1,3 +1,4 @@
+using FluentValidation;
 using MicroservicioPagos.Entities;
 using MicroservicioPagos.Repository;
 using MicroservicioPagos.Services.Clients;
@@ -10,17 +11,20 @@ namespace MicroservicioPagos.Services
         private readonly IAuthServiceValidator _authValidator;
         private readonly IBitacoraServiceClient _bitacoraClient;
         private readonly IPeriodoServiceClient _periodoClient;
+        private readonly IValidator<ReversarPagoRequest> _reversarValidator;
 
         public PagosService(
             IPagosRepository repository,
             IAuthServiceValidator authValidator,
             IBitacoraServiceClient bitacoraClient,
-            IPeriodoServiceClient periodoClient)
+            IPeriodoServiceClient periodoClient,
+            IValidator<ReversarPagoRequest>? reversarValidator = null)
         {
             _repository = repository;
             _authValidator = authValidator;
             _bitacoraClient = bitacoraClient;
             _periodoClient = periodoClient;
+            _reversarValidator = reversarValidator ?? new ReversarPagoRequestValidator();
         }
 
         public async Task<PagoResponse> CrearAsync(Guid facturaId, HttpRequest httpRequest)
@@ -66,31 +70,51 @@ namespace MicroservicioPagos.Services
             }
         }
 
-        public async Task<PagoResponse> ReversarAsync(Guid pagoId, HttpRequest httpRequest)
+        public async Task<PagoResponse> ReversarAsync(Guid pagoId, ReversarPagoRequest request, HttpRequest httpRequest)
         {
             var (usuario, token, error) = await _authValidator.ValidarAsync(httpRequest);
 
             if (error is not null)
                 throw new UnauthorizedAccessException("No autorizado");
 
+            if (pagoId == Guid.Empty)
+                throw new ArgumentException("El identificador del pago es obligatorio.");
+
+            if (request is null)
+                throw new ArgumentException("El motivo de reversión es obligatorio.");
+
+            var validationResult = await _reversarValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                var mensaje = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+                throw new ArgumentException(mensaje);
+            }
+
             try
             {
-                var pago = await _repository.ReversarAsync(pagoId);
+                var existente = await _repository.ObtenerPorIdAsync(pagoId);
+                if (existente is null)
+                    throw new KeyNotFoundException("No existe un pago con el identificador indicado.");
+
+                if (existente.Estado.Equals("REV", StringComparison.OrdinalIgnoreCase) ||
+                    existente.Estado.Equals("Reversado", StringComparison.OrdinalIgnoreCase) ||
+                    existente.FechaReversion.HasValue)
+                {
+                    throw new InvalidOperationException("El pago ya está reversado.");
+                }
+
+                var pago = await _repository.ReversarAsync(pagoId, request.Motivo.Trim());
 
                 if (pago is null)
                 {
-                    var existente = await _repository.ObtenerPorIdAsync(pagoId);
-                    if (existente is null)
-                        throw new KeyNotFoundException("No existe un pago con el identificador indicado.");
-
-                    throw new InvalidOperationException("El pago ya está reversado.");
+                    throw new InvalidOperationException("No se pudo reversar el pago.");
                 }
 
                 try
                 {
                     await _bitacoraClient.RegistrarBitacoraAsync(
                         usuario,
-                        $"Se reversó el pago {pagoId}.",
+                        $"Se reversó el pago {pagoId} (Motivo: {pago.MotivoReversion}): {System.Text.Json.JsonSerializer.Serialize(pago)}",
                         token);
                 }
                 catch { }

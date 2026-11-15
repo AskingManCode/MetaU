@@ -33,7 +33,7 @@
               },
               {
                 "key": "usuario",
-                "value": "carlos.alvarado@ejemplo.com"
+                "value": "carlos.alvarado@cuc.ac.cr"
               },
               {
                 "key": "Contrasena",
@@ -867,14 +867,42 @@
               }
             ],
             "url": {
-              "raw": "{{RolesBaseUrl}}/rol/DIC/modulos",
+              "raw": "{{RolesBaseUrl}}/rol/ADM/modulos",
               "host": [
                 "{{RolesBaseUrl}}"
               ],
               "path": [
                 "rol",
-                "DIC",
+                "ADM",
                 "modulos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Modulos por Rol para menu",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "X-Usuario-Id",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{RolesBaseUrl}}/rol/ADM/menu",
+              "host": [
+                "{{RolesBaseUrl}}"
+              ],
+              "path": [
+                "rol",
+                "ADM",
+                "menu"
               ]
             }
           },
@@ -2884,7 +2912,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"sebasjimearrieta@gmail.com\",\r\n  \"asunto\": \"Comunicado Oficial - Plataforma MetaU\",\r\n  \"cuerpo\": \"<!DOCTYPE html><html lang=\\\"es\\\"><head><meta charset=\\\"UTF-8\\\"></head><body style=\\\"margin:0;padding:30px 10px;background-color:#f4f6f8;font-family:'Segoe UI',Arial,sans-serif;\\\"><table role=\\\"presentation\\\" width=\\\"100%\\\" cellspacing=\\\"0\\\" cellpadding=\\\"0\\\" border=\\\"0\\\"><tr><td align=\\\"center\\\"><table role=\\\"presentation\\\" width=\\\"100%\\\" style=\\\"max-width:600px;background-color:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.06);\\\"><tr><td style=\\\"background-color:#003366;padding:30px 25px;text-align:center;\\\"><h1 style=\\\"color:#ffffff;margin:0;font-size:22px;font-weight:600;letter-spacing:0.5px;\\\">Colegio Universitario de Cartago</h1><p style=\\\"color:#cbd5e1;margin:6px 0 0 0;font-size:13px;\\\">Portal de Servicios Estudiantiles - MetaU</p></td></tr><tr><td style=\\\"padding:35px 30px;\\\"><h2 style=\\\"color:#0f172a;font-size:18px;margin-top:0;margin-bottom:16px;\\\">Estimado Usuario de MetaU,</h2><p style=\\\"font-size:15px;color:#334155;line-height:1.6;margin:0 0 16px 0;\\\">Esperamos que te encuentres muy bien. Te enviamos este mensaje para brindarte información importante sobre el estado y las novedades de tus servicios académicos en el CUC.</p><div style=\\\"background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:24px 0;\\\"><h3 style=\\\"margin:0 0 10px 0;font-size:15px;color:#1e3a8a;\\\"> Aviso Importante</h3><p style=\\\"margin:0;font-size:14px;color:#475569;line-height:1.5;\\\">Por favor asegúrate de revisar tus datos de contacto y el estado de tu matrícula para el próximo periodo lectivo.</p></div><p style=\\\"font-size:15px;color:#334155;line-height:1.6;margin:0 0 24px 0;\\\">Si tienes alguna consulta adicional o requieres asistencia, no dudes en ponerte en contacto con el departamento correspondiente.</p><p style=\\\"font-size:15px;color:#334155;line-height:1.6;margin:0;\\\">Atentamente,<br><strong>Administración Académica CUC</strong></p></td></tr><tr><td style=\\\"background-color:#f1f5f9;padding:20px;text-align:center;border-top:1px solid #e2e8f0;\\\"><p style=\\\"font-size:12px;color:#64748b;margin:0 0 4px 0;\\\">Colegio Universitario de Cartago • Cartago, Costa Rica</p><p style=\\\"font-size:11px;color:#94a3b8;margin:0;\\\">Este es un correo informativo generado automáticamente por el sistema MetaU.</p></td></tr></table></td></tr></table></body></html>\"\r\n}",
+              "raw": "{\r\n  \"email\": \"sebasjimearrieta@gmail.com\",\r\n  \"asunto\": \"Prueba de Notificación - MetaU\",\r\n  \"cuerpo\": \"<h2>Hola desde MetaU</h2><p>Este correo se envió leyendo la configuración desde <strong>MicroservicioParametros</strong>.</p>\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2898,6 +2926,83 @@
               ],
               "path": [
                 "notificar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enviar Correo Multiple",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"emails\": [\r\n    \"sebasjimearrieta@gmail.com\"\r\n  ],\r\n  \"asunto\": \"Aviso General a Estudiantes - MetaU\",\r\n  \"cuerpo\": \"<p>Estimados usuarios, este es un comunicado masivo de prueba.</p>\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{NotificacionesBaseUrl}}/notificar/multiple",
+              "host": [
+                "{{NotificacionesBaseUrl}}"
+              ],
+              "path": [
+                "notificar",
+                "multiple"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Correos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "UsuarioGUID",
+                "value": "{{UsuarioID}}"
+              }
+            ],
+            "url": {
+              "raw": "{{NotificacionesBaseUrl}}/notificar/?pagina=1",
+              "host": [
+                "{{NotificacionesBaseUrl}}"
+              ],
+              "path": [
+                "notificar",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "pagina",
+                  "value": "1"
+                }
               ]
             }
           },
@@ -3019,14 +3124,23 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"motivo\": \"Estudiante canceló la matrícula formalmente\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "{{FacturacionBaseUrl}}/factura/4d93f76e-7ed6-f111-947e-e5709bbc83cf",
+              "raw": "{{FacturacionBaseUrl}}/factura/7b9617d2-80d6-f111-947e-e5709bbc83cf",
               "host": [
                 "{{FacturacionBaseUrl}}"
               ],
               "path": [
                 "factura",
-                "4d93f76e-7ed6-f111-947e-e5709bbc83cf"
+                "7b9617d2-80d6-f111-947e-e5709bbc83cf"
               ]
             },
             "description": "Anula la factura indicada."
@@ -3056,6 +3170,15 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"motivo\": \"Pago duplicado reportado por el banco\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{PagosBaseUrl}}/pago/7b9617d2-80d6-f111-947e-e5709bbc83cf",
               "host": [

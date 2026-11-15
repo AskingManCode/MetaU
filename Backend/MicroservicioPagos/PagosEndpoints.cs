@@ -56,7 +56,7 @@ namespace MicroservicioPagos
                     ? Results.Conflict(new { mensaje = ex.Message })
                     : Results.BadRequest(new { mensaje = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Results.Json(new 
                 { 
@@ -67,17 +67,22 @@ namespace MicroservicioPagos
 
         private static async Task<IResult> Reversar(
             Guid PagoID,
+            ReversarPagoRequest request,
             HttpRequest httpRequest,
             IPagosService service)
         {
             try
             {
-                var pago = await service.ReversarAsync(PagoID, httpRequest);
+                var pago = await service.ReversarAsync(PagoID, request, httpRequest);
                 return Results.Ok(pago);
             }
             catch (UnauthorizedAccessException ex)
             {
                 return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
+            }
+            catch (ArgumentException ex)
+            {
+                return Results.BadRequest(new { mensaje = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
@@ -91,7 +96,7 @@ namespace MicroservicioPagos
             {
                 return Results.BadRequest(new { mensaje = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Results.Json(new
                 {
@@ -118,7 +123,7 @@ namespace MicroservicioPagos
             {
                 return Results.Json(new { mensaje = ex.Message }, statusCode: 401);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Results.Json(new
                 {
@@ -145,7 +150,7 @@ namespace MicroservicioPagos
             {
                 return Results.NotFound(new { mensaje = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Results.Json(new { mensaje = "Error interno del servidor" }, statusCode: 500);
             }

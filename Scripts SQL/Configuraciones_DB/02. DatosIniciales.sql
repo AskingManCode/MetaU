@@ -18,7 +18,14 @@ USING (VALUES
     ('CUPOMAX', '30'),
     ('DETFAC', 'Servicios estudiantiles'),
     ('PAGSIZE', '15'),
-    ('SYSNAME', 'MetaU')
+    ('SYSNAME', 'MetaU'),
+    ('SMTPHOST', 'smtp.gmail.com'),
+    ('SMTPPORT', '587'),
+    ('SMTPUSER', 'sebasjimearrieta@gmail.com'),
+    ('SMTPPASS', 'x'),
+    ('SMTPFROM', 'sebasjimearrieta@gmail.com'),
+    ('SMTPNAME', 'Sistema de Notificaciones CUC'),
+    ('SMTPSSL', 'true')
 ) AS origen (ParametroCode, Valor)
 ON destino.ParametroCode = origen.ParametroCode
 WHEN MATCHED THEN

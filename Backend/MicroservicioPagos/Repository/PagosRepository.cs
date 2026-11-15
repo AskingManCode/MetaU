@@ -56,13 +56,13 @@ namespace MicroservicioPagos.Repository
             return pagos;
         }
 
-        public async Task<PagoResponse?> ReversarAsync(Guid pagoId)
+        public async Task<PagoResponse?> ReversarAsync(Guid pagoId, string motivoReversion)
         {
             using var connection = _connectionFactory.CreateConnection();
 
             var pago = await connection.QuerySingleOrDefaultAsync<PagoResponse>(
                 "MetaU_DB_User.usp_Pagos_Reversar",
-                new { PagoID = pagoId },
+                new { PagoID = pagoId, MotivoReversion = motivoReversion },
                 commandType: CommandType.StoredProcedure);
 
             if (pago is null)
@@ -98,6 +98,7 @@ namespace MicroservicioPagos.Repository
                 Estado = primera.Estado,
                 FechaEmision = primera.FechaEmision,
                 FechaAnulacion = primera.FechaAnulacion,
+                MotivoAnulacion = primera.MotivoAnulacion,
                 Subtotal = primera.Subtotal,
                 PorcentajeImpuesto = primera.PorcentajeImpuesto,
                 Impuesto = primera.Impuesto,

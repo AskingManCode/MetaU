@@ -1,4 +1,4 @@
-﻿namespace MicroservicioFacturacion.Entities
+namespace MicroservicioFacturacion.Entities
 {
     public class FacturaResponse
     {
@@ -9,6 +9,7 @@
         public string Estado { get; set; } = null!;
         public DateTime FechaEmision { get; set; }
         public DateTime? FechaAnulacion { get; set; }
+        public string? MotivoAnulacion { get; set; }
         public decimal Subtotal { get; set; }
         public decimal PorcentajeImpuesto { get; set; }
         public decimal Impuesto { get; set; }

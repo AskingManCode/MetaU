@@ -158,5 +158,11 @@ namespace MicroservicioRoles.Services
                 Datos = todos.Skip((pagina - 1) * tamano).Take(tamano).ToList()
             };
         }
+
+        public async Task<IEnumerable<MenuModulo>> ObtenerMenuAsync(string id)
+        {
+            await ObtenerPorIdAsync(id);
+            return await _rolRepository.ObtenerMenuAsync(id);
+        }
     }
 }

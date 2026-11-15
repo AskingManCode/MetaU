@@ -39,30 +39,48 @@ namespace MicroservicioListaEstudiantes
                 }
             }
 
-            group.MapGet("/", async (
+                group.MapGet("/", async (
                 HttpRequest request,
                 string? periodo,
+                string? carrera,
+                string? curso,
+                string? grupo,
+                string? ordenarPor,
+                string? direccion,
+                int? pagina,
                 [FromServices] IListadoEstudiantesService service,
                 [FromServices] IAuthServiceClient authService,
                 [FromServices] IBitacoraServiceClient bitacoraService) =>
-            {
-                if (!await TokenValidoAsync(request, authService))
-                    return Results.Unauthorized();
-
-                if (!ObtenerUsuarioId(request, out var usuarioId))
-                    return Results.BadRequest(new { message = "El usuario es requerido" });
-
-                return await EjecutarAsync(async () =>
                 {
-                    var listado = await service.ObtenerPorPeriodoAsync(periodo, usuarioId, ObtenerToken(request));
+                    if (!await TokenValidoAsync(request, authService))
+                        return Results.Unauthorized();
 
-                    await bitacoraService.RegistrarAsync(usuarioId, $"El usuario consulta listado de estudiantes del periodo {periodo}", ObtenerToken(request));
+                    if (!ObtenerUsuarioId(request, out var usuarioId))
+                        return Results.BadRequest(new { message = "El usuario es requerido" });
 
-                    return Results.Ok(listado);
-                });
-            })
-            .WithName("GetListadoEstudiantes")
-            .WithOpenApi();
+                    return await EjecutarAsync(async () =>
+                    {
+                        var token = ObtenerToken(request);
+                        object resultado;
+
+                        if (pagina.HasValue)
+                        {
+                            resultado = await service.ObtenerPaginadoAsync(
+                                periodo, carrera, curso, grupo, ordenarPor, direccion, pagina.Value, usuarioId, token);
+                        }
+                        else
+                        {
+                            resultado = await service.ObtenerPorPeriodoAsync(
+                                periodo, carrera, curso, grupo, ordenarPor, direccion, usuarioId, token);
+                        }
+
+                        await bitacoraService.RegistrarAsync(usuarioId, $"El usuario consulta listado de estudiantes del periodo {periodo}", token);
+
+                        return Results.Ok(resultado);
+                    });
+                })
+                .WithName("GetListadoEstudiantes")
+                .WithOpenApi();
         }
     }
 }

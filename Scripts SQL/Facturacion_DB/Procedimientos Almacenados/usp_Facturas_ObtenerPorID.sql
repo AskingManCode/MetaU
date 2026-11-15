@@ -27,6 +27,7 @@ BEGIN
         e.Nombre AS Estado,
         f.FechaEmision,
         f.FechaAnulacion,
+        f.MotivoAnulacion,
         f.Subtotal,
         f.PorcentajeImpuesto,
         f.Impuesto,

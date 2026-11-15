@@ -7,7 +7,7 @@ namespace MicroservicioFacturacion.Repository
         Task<Guid> CrearConDetallesAsync(string identificacionEstudiante, Guid matriculaId, Guid periodoId, decimal monto, decimal porcentajeImpuesto,
             IEnumerable<(string CursoCode, string Descripcion, decimal Monto)> detalles);
 
-        Task<bool> AnularAsync(Guid facturaId);
+        Task<bool> AnularAsync(Guid facturaId, string motivoAnulacion);
         Task<FacturaResponse?> ObtenerPorIdAsync(Guid facturaId);
         Task<IEnumerable<FacturaResponse>> ObtenerPorPeriodoAsync(Guid periodoId);
 

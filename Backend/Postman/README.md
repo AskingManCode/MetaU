@@ -44,4 +44,5 @@ La configuración de autenticación varía entre solicitudes. Si recibes una res
 | Recurso | Ubicación |
 |---------|-----------|
 | Documentación general del backend | [README.md](../README.md) |
+| Sitio Web Administrativo (Frontend) | [../../Frontend/README.md](../../Frontend/README.md) |
 | Documentación general del proyecto | [README.md](../../README.md) |

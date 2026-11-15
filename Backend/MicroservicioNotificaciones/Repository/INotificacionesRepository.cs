@@ -14,5 +14,7 @@ namespace MicroservicioNotificaciones.Repository
             string estado,
             string? mensajeError = null,
             DateTime? fechaEnvio = null);
+
+        Task<IEnumerable<NotificacionHistorialResponse>> ObtenerTodosAsync();
     }
 }

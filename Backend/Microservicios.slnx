@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="ApiGateway/ApiGateway.csproj" Id="510c623d-42ab-41ea-a2f9-a59b4d04ed72" />
   <Project Path="MicroservicioBitacoras/MicroservicioBitacoras.csproj" />
   <Project Path="MicroservicioCarreras/MicroservicioCarreras.csproj" />
   <Project Path="MicroservicioCursos/MicroservicioCursos.csproj" />

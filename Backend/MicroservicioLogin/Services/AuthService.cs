@@ -16,6 +16,7 @@ namespace MicroservicioLogin.Services
         private readonly IRefreshTokenHasher _refreshTokenHasher;
         private readonly ITokenService _tokenService;
         private readonly JwtOptions _opciones;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             IUsuarioRepository usuarioRepository,
@@ -23,7 +24,8 @@ namespace MicroservicioLogin.Services
             IPasswordHasher passwordHasher,
             IRefreshTokenHasher refreshTokenHasher,
             ITokenService tokenService,
-            IOptions<JwtOptions> opciones)
+            IOptions<JwtOptions> opciones,
+            ILogger<AuthService> logger)
         {
             _usuarioRepository = usuarioRepository;
             _refreshTokenRepository = refreshTokenRepository;
@@ -31,16 +33,33 @@ namespace MicroservicioLogin.Services
             _refreshTokenHasher = refreshTokenHasher;
             _tokenService = tokenService;
             _opciones = opciones.Value;
+            _logger = logger;
         }
 
         public async Task<LoginResponse?> LoginAsync(string? email, string? contrasena)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(contrasena))
+            {
+                LogLoginFailure(null, "No se proporcionaron credenciales.");
                 return null;
+            }
 
             var usuario = await _usuarioRepository.ObtenerPorEmailAsync(email);
-            if (usuario is null || !usuario.Estado || !_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
+            if (usuario is null)
             {
+                LogLoginFailure(null, "No se encontró un usuario para las credenciales proporcionadas.");
+                return null;
+            }
+
+            if (!usuario.Estado)
+            {
+                LogLoginFailure(usuario.UsuarioID, "El usuario está inactivo.");
+                return null;
+            }
+
+            if (!_passwordHasher.Verify(contrasena, usuario.ContrasenaHash))
+            {
+                LogLoginFailure(usuario.UsuarioID, "La contraseña no es válida.");
                 return null;
             }
 
@@ -63,6 +82,15 @@ namespace MicroservicioLogin.Services
                 RefreshToken = refreshTokenTexto,
                 UsuarioId = usuario.UsuarioID
             };
+        }
+
+        private void LogLoginFailure(Guid? usuarioId, string descripcion)
+        {
+            _logger.LogWarning(
+                "Intento de inicio de sesión fallido. FechaUtc: {FechaUtc}; UsuarioId: {UsuarioId}; Descripción: {Descripcion}",
+                DateTimeOffset.UtcNow,
+                usuarioId,
+                descripcion);
         }
 
         public async Task<RefreshResponse?> RefreshAsync(string? refreshTokenTexto)

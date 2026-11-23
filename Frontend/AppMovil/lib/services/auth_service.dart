@@ -97,7 +97,7 @@ class AuthService {
     try {
       final response = await _gatewayClient.postAuthenticated(
         'gateway/auth/validate',
-        includeUserId: false,
+        userIdHeader: UserIdHeader.none,
       );
       if (response.statusCode != 200) {
         throw GatewayException(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../core/config/app_config.dart';
@@ -26,6 +28,7 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
+  late final StreamSubscription<void> _sessionExpiredSubscription;
   AuthSession? _session;
   Object? _restoreError;
   bool _isRestoring = true;
@@ -34,7 +37,28 @@ class _AuthGateState extends State<AuthGate> {
   @override
   void initState() {
     super.initState();
+    _sessionExpiredSubscription = widget.gatewayClient.onSessionExpired.listen(
+      (_) => _handleSessionExpired(),
+    );
     _restoreSession();
+  }
+
+  @override
+  void dispose() {
+    _sessionExpiredSubscription.cancel();
+    super.dispose();
+  }
+
+  void _handleSessionExpired() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _session = null;
+      _restoreError = null;
+      _isRestoring = false;
+      _loginFeedback = 'La sesión expiró. Inicie sesión nuevamente.';
+    });
   }
 
   Future<void> _restoreSession() async {

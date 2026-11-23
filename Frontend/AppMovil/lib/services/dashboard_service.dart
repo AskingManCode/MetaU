@@ -104,9 +104,11 @@ class DashboardService {
     final results = await Future.wait([
       _gatewayClient.getAuthenticated(
         'gateway/finance/factura/periodo/${period.id}',
+        userIdHeader: UserIdHeader.usuarioGuid,
       ),
       _gatewayClient.getAuthenticated(
         'gateway/finance/pago/periodo/${period.id}',
+        userIdHeader: UserIdHeader.usuarioGuid,
       ),
     ]);
 

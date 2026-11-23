@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -21,6 +22,8 @@ class SessionExpiredException extends GatewayException {
     : super('La sesión expiró. Inicie sesión nuevamente.');
 }
 
+enum UserIdHeader { xUsuarioId, usuarioGuid, none }
+
 class GatewayClient {
   GatewayClient({
     required AppConfig config,
@@ -33,6 +36,11 @@ class GatewayClient {
   final AppConfig _config;
   final SecureSessionStore _sessionStore;
   final http.Client _client;
+  final StreamController<void> _sessionExpiredController =
+      StreamController<void>.broadcast();
+  Future<void> _sessionQueue = Future<void>.value();
+
+  Stream<void> get onSessionExpired => _sessionExpiredController.stream;
 
   Future<http.Response> getPublic(String route) =>
       _send('GET', route);
@@ -46,21 +54,23 @@ class GatewayClient {
   Future<http.Response> getAuthenticated(
     String route, {
     Map<String, String>? queryParameters,
+    UserIdHeader userIdHeader = UserIdHeader.xUsuarioId,
   }) => _sendAuthenticated(
     'GET',
     route,
     queryParameters: queryParameters,
+    userIdHeader: userIdHeader,
   );
 
   Future<http.Response> postAuthenticated(
     String route, {
     String? body,
-    bool includeUserId = true,
+    UserIdHeader userIdHeader = UserIdHeader.xUsuarioId,
   }) => _sendAuthenticated(
     'POST',
     route,
     body: body,
-    includeUserId: includeUserId,
+    userIdHeader: userIdHeader,
   );
 
   Future<http.Response> _sendAuthenticated(
@@ -68,16 +78,9 @@ class GatewayClient {
     String route, {
     String? body,
     Map<String, String>? queryParameters,
-    bool includeUserId = true,
+    required UserIdHeader userIdHeader,
   }) async {
-    var session = await _sessionStore.readSession();
-    if (session == null) {
-      throw const SessionExpiredException();
-    }
-
-    if (session.isExpired) {
-      session = await _refresh(session);
-    }
+    var session = await _loadValidSession();
 
     var response = await _send(
       method,
@@ -85,7 +88,7 @@ class GatewayClient {
       body: body,
       queryParameters: queryParameters,
       headers: {
-        ..._authorizationHeaders(session, includeUserId: includeUserId),
+        ..._authorizationHeaders(session, userIdHeader: userIdHeader),
         if (body != null) 'Content-Type': 'application/json',
       },
     );
@@ -94,20 +97,24 @@ class GatewayClient {
       return response;
     }
 
-    session = await _refresh(session);
+    if (await _isAccessTokenValid(session)) {
+      return response;
+    }
+
+    session = await _refreshIfCurrent(session);
     response = await _send(
       method,
       route,
       body: body,
       queryParameters: queryParameters,
       headers: {
-        ..._authorizationHeaders(session, includeUserId: includeUserId),
+        ..._authorizationHeaders(session, userIdHeader: userIdHeader),
         if (body != null) 'Content-Type': 'application/json',
       },
     );
 
-    if (response.statusCode == 401) {
-      await _sessionStore.clear();
+    if (response.statusCode == 401 && !await _isAccessTokenValid(session)) {
+      await _invalidateSession();
       throw const SessionExpiredException();
     }
 
@@ -116,28 +123,109 @@ class GatewayClient {
 
   Map<String, String> _authorizationHeaders(
     AuthSession session, {
-    required bool includeUserId,
-  }) => {
-    'Authorization': 'Bearer ${session.accessToken}',
-    if (includeUserId) 'X-Usuario-Id': session.userId,
-  };
+    required UserIdHeader userIdHeader,
+  }) {
+    return {
+      'Authorization': 'Bearer ${session.accessToken}',
+      if (userIdHeader == UserIdHeader.xUsuarioId)
+        'X-Usuario-Id': session.userId,
+      if (userIdHeader == UserIdHeader.usuarioGuid)
+        'UsuarioGUID': session.userId,
+    };
+  }
 
-  Future<AuthSession> _refresh(AuthSession previousSession) async {
-    late final http.Response response;
+  Future<AuthSession> _loadValidSession() {
+    return _withSessionLock(() async {
+      final session = await _sessionStore.readSession();
+      if (session == null) {
+        throw const SessionExpiredException();
+      }
+
+      return session.isExpired ? _refresh(session) : session;
+    });
+  }
+
+  Future<AuthSession> _refreshIfCurrent(AuthSession rejectedSession) {
+    return _withSessionLock(() async {
+      final currentSession = await _sessionStore.readSession();
+      if (currentSession == null) {
+        throw const SessionExpiredException();
+      }
+
+      if (currentSession.refreshToken != rejectedSession.refreshToken ||
+          currentSession.accessToken != rejectedSession.accessToken) {
+        return currentSession;
+      }
+
+      return _refresh(currentSession);
+    });
+  }
+
+  Future<T> _withSessionLock<T>(Future<T> Function() operation) async {
+    final previous = _sessionQueue;
+    final release = Completer<void>();
+    _sessionQueue = release.future;
+    await previous;
     try {
-      response = await postPublic(
-        'gateway/auth/refresh',
-        headers: const {'Content-Type': 'application/json'},
-        body: jsonEncode({'refreshToken': previousSession.refreshToken}),
+      return await operation();
+    } finally {
+      release.complete();
+    }
+  }
+
+  Future<bool> _isAccessTokenValid(AuthSession session) async {
+    final response = await _send(
+      'POST',
+      'gateway/auth/validate',
+      headers: {'Authorization': 'Bearer ${session.accessToken}'},
+    );
+
+    if (response.statusCode == 401) {
+      return false;
+    }
+    if (response.statusCode != 200) {
+      throw GatewayException(
+        'No se pudo comprobar el token de acceso (HTTP ${response.statusCode}).',
+        statusCode: response.statusCode,
       );
-    } on GatewayException {
-      await _sessionStore.clear();
-      throw const SessionExpiredException();
     }
 
+    final decoded = jsonDecode(response.body);
+    if (decoded is! bool) {
+      throw const FormatException('Respuesta de validación de token inválida.');
+    }
+    return decoded;
+  }
+
+  Future<void> _invalidateSession() async {
+    await _sessionStore.clear();
+    if (!_sessionExpiredController.isClosed) {
+      _sessionExpiredController.add(null);
+    }
+  }
+
+  Future<AuthSession> _refresh(AuthSession previousSession) async {
+    final response = await postPublic(
+      'gateway/auth/refresh',
+      headers: const {'Content-Type': 'application/json'},
+      body: jsonEncode({'refreshToken': previousSession.refreshToken}),
+    );
+
+    if (response.statusCode == 401) {
+      if (_isRefreshTokenRejected(response)) {
+        await _invalidateSession();
+        throw const SessionExpiredException();
+      }
+      throw const GatewayException(
+        'El Gateway rechazó la renovación sin confirmar que el refresh token sea inválido.',
+        statusCode: 401,
+      );
+    }
     if (response.statusCode != 201) {
-      await _sessionStore.clear();
-      throw const SessionExpiredException();
+      throw GatewayException(
+        'No se pudo renovar la sesión (HTTP ${response.statusCode}).',
+        statusCode: response.statusCode,
+      );
     }
 
     late final AuthSession refreshedSession;
@@ -151,13 +239,28 @@ class GatewayClient {
         previousSession,
       );
       refreshedSession.expiresAt;
-    } on FormatException {
-      await _sessionStore.clear();
-      throw const SessionExpiredException();
+    } on FormatException catch (error) {
+      throw GatewayException(
+        'La respuesta de renovación es inválida: ${error.message}',
+        statusCode: response.statusCode,
+      );
     }
 
     await _sessionStore.save(refreshedSession);
     return refreshedSession;
+  }
+
+  bool _isRefreshTokenRejected(http.Response response) {
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded['mensaje'] == 'No autorizado' ||
+            decoded['Mensaje'] == 'No autorizado';
+      }
+    } on FormatException {
+      return false;
+    }
+    return false;
   }
 
   Future<http.Response> _send(

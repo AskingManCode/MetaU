@@ -37,6 +37,22 @@ class _MemorySessionStore extends SecureSessionStore {
   }
 }
 
+AuthSession _testSession({
+  String accessToken = 'access-token',
+  String refreshToken = 'refresh-token',
+  DateTime? expiresAt,
+}) {
+  return AuthSession(
+    accessToken: accessToken,
+    expiresIn: (expiresAt ?? DateTime.now().add(const Duration(minutes: 5)))
+        .toIso8601String(),
+    refreshToken: refreshToken,
+    userId: '00000000-0000-0000-0000-000000000001',
+    email: 'student@cuc.cr',
+    rememberMe: true,
+  );
+}
+
 void main() {
   testWidgets('MOB0 - Carga correctamente la plantilla Meta U', (
     WidgetTester tester,
@@ -246,6 +262,158 @@ void main() {
 
       expect(response.statusCode, 200);
       expect(store.session?.refreshToken, 'new-refresh-token');
+    },
+  );
+
+  test('Finance requests send Bearer and UsuarioGUID', () async {
+    final store = _MemorySessionStore(_testSession());
+    final paths = <String>[];
+    final client = GatewayClient(
+      config: const AppConfig(gatewayBaseUrl: 'https://example.test/base'),
+      sessionStore: store,
+      client: MockClient((request) async {
+        paths.add(request.url.path);
+        expect(request.headers['authorization'], 'Bearer access-token');
+        expect(
+          request.headers['usuarioguid'],
+          '00000000-0000-0000-0000-000000000001',
+        );
+        expect(request.headers.containsKey('x-usuario-id'), isFalse);
+        return http.Response('[]', 200);
+      }),
+    );
+
+    final responses = await Future.wait([
+      client.getAuthenticated(
+        'gateway/finance/factura/periodo/period-1',
+        userIdHeader: UserIdHeader.usuarioGuid,
+      ),
+      client.getAuthenticated(
+        'gateway/finance/pago/periodo/period-1',
+        userIdHeader: UserIdHeader.usuarioGuid,
+      ),
+    ]);
+
+    expect(responses.map((response) => response.statusCode), everyElement(200));
+    expect(
+      paths,
+      containsAll([
+        '/base/gateway/finance/factura/periodo/period-1',
+        '/base/gateway/finance/pago/periodo/period-1',
+      ]),
+    );
+  });
+
+  test('A 401 with a still-valid JWT is not treated as token expiry', () async {
+    final store = _MemorySessionStore(_testSession());
+    var refreshRequests = 0;
+    final client = GatewayClient(
+      config: const AppConfig(gatewayBaseUrl: 'https://example.test/base'),
+      sessionStore: store,
+      client: MockClient((request) async {
+        if (request.url.path.endsWith('/gateway/auth/validate')) {
+          return http.Response('true', 200);
+        }
+        if (request.url.path.endsWith('/gateway/auth/refresh')) {
+          refreshRequests++;
+          return http.Response('{}', 401);
+        }
+        return http.Response('Unauthorized', 401);
+      }),
+    );
+
+    final response = await client.getAuthenticated(
+      'gateway/finance/factura/periodo/period-1',
+      userIdHeader: UserIdHeader.usuarioGuid,
+    );
+
+    expect(response.statusCode, 401);
+    expect(refreshRequests, 0);
+    expect(store.session?.refreshToken, 'refresh-token');
+  });
+
+  test('Concurrent 401 responses share one rotated refresh token', () async {
+    final store = _MemorySessionStore(_testSession());
+    var refreshRequests = 0;
+    final client = GatewayClient(
+      config: const AppConfig(gatewayBaseUrl: 'https://example.test/base'),
+      sessionStore: store,
+      client: MockClient((request) async {
+        final path = request.url.path;
+        if (path.endsWith('/gateway/auth/validate')) {
+          final valid = request.headers['authorization'] == 'Bearer new-access';
+          return http.Response(valid ? 'true' : '', valid ? 200 : 401);
+        }
+        if (path.endsWith('/gateway/auth/refresh')) {
+          refreshRequests++;
+          expect(jsonDecode(request.body), {'refreshToken': 'refresh-token'});
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+          return http.Response(
+            jsonEncode({
+              'access_token': 'new-access',
+              'expires_in': DateTime.now()
+                  .add(const Duration(minutes: 5))
+                  .toIso8601String(),
+              'refresh_token': 'new-refresh',
+            }),
+            201,
+          );
+        }
+
+        final token = request.headers['authorization'];
+        expect(
+          request.headers['usuarioguid'],
+          '00000000-0000-0000-0000-000000000001',
+        );
+        if (token == 'Bearer access-token') {
+          return http.Response('Unauthorized', 401);
+        }
+        expect(token, 'Bearer new-access');
+        return http.Response('[]', 200);
+      }),
+    );
+
+    final responses = await Future.wait([
+      client.getAuthenticated(
+        'gateway/finance/factura/periodo/period-1',
+        userIdHeader: UserIdHeader.usuarioGuid,
+      ),
+      client.getAuthenticated(
+        'gateway/finance/pago/periodo/period-1',
+        userIdHeader: UserIdHeader.usuarioGuid,
+      ),
+    ]);
+
+    expect(responses.map((response) => response.statusCode), everyElement(200));
+    expect(refreshRequests, 1);
+    expect(store.session?.accessToken, 'new-access');
+    expect(store.session?.refreshToken, 'new-refresh');
+  });
+
+  test(
+    'An invalid refresh token clears session and signals the login gate',
+    () async {
+      final store = _MemorySessionStore(
+        _testSession(
+          expiresAt: DateTime.now().subtract(const Duration(seconds: 1)),
+        ),
+      );
+      final client = GatewayClient(
+        config: const AppConfig(gatewayBaseUrl: 'https://example.test/base'),
+        sessionStore: store,
+        client: MockClient((request) async {
+          expect(request.url.path, '/base/gateway/auth/refresh');
+          expect(jsonDecode(request.body), {'refreshToken': 'refresh-token'});
+          return http.Response(jsonEncode({'mensaje': 'No autorizado'}), 401);
+        }),
+      );
+      final sessionExpired = client.onSessionExpired.first;
+      final request = client.getAuthenticated('gateway/academic/periodo');
+
+      await expectLater(request, throwsA(isA<SessionExpiredException>()));
+      await sessionExpired;
+
+      expect(store.session, isNull);
     },
   );
 

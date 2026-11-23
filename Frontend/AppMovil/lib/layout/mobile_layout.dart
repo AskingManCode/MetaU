@@ -6,9 +6,17 @@ import '../screens/courses_screen.dart';
 import '../screens/enrollment_screen.dart';
 import '../screens/payments_screen.dart';
 import '../screens/profile_screen.dart';
+import '../services/dashboard_service.dart';
 
 class MobileLayout extends StatefulWidget {
-  const MobileLayout({super.key});
+  const MobileLayout({
+    super.key,
+    this.dashboardService,
+    this.onLogout,
+  });
+
+  final DashboardService? dashboardService;
+  final Future<void> Function()? onLogout;
 
   @override
   State<MobileLayout> createState() => _MobileLayoutState();
@@ -17,31 +25,30 @@ class MobileLayout extends StatefulWidget {
 class _MobileLayoutState extends State<MobileLayout> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = [
-    HomeScreen(),
-    CoursesScreen(),
-    EnrollmentScreen(),
-    PaymentsScreen(),
-    ProfileScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      HomeScreen(
+        dashboardService: widget.dashboardService,
+        onNavigate: _selectTab,
+      ),
+      const CoursesScreen(),
+      const EnrollmentScreen(),
+      const PaymentsScreen(),
+      ProfileScreen(onLogout: widget.onLogout),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 72,
         titleSpacing: 16,
         title: const MetaULogo(),
       ),
-      body: IndexedStack(index: _selectedIndex, children: _screens),
+      body: IndexedStack(index: _selectedIndex, children: screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         height: 76,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onDestinationSelected: _selectTab,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -71,5 +78,11 @@ class _MobileLayoutState extends State<MobileLayout> {
         ],
       ),
     );
+  }
+
+  void _selectTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }

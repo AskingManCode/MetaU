@@ -69,6 +69,11 @@ contrasena: MiClaveSegura
 
 Credenciales incorrectas o usuario inactivo → `401 Unauthorized`.
 
+Los intentos fallidos se registran mediante `ILogger` con la fecha UTC, el
+`usuarioID` cuando está disponible y una descripción del fallo. No se registran
+contraseñas, tokens ni el correo ingresado. Este registro interno no depende de
+Bitácoras; la respuesta HTTP permanece en `401 Unauthorized`.
+
 ### POST /refresh — Renovar sesión
 
 ```http

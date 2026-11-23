@@ -96,17 +96,6 @@
         },
         {
           "name": "validate",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            }
-          ],
           "request": {
             "method": "POST",
             "header": [
@@ -119,15 +108,6 @@
                 "value": "Bearer {{access_token}}"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{LoginBaseUrl}}/validate",
               "host": [
@@ -798,7 +778,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "[\r\n    {\r\n        \"idModulo\": \"ADM\",\r\n        \"nombre\": \"Administracion\",\r\n        \"estado\": true\r\n    },\r\n    {\r\n        \"idModulo\": \"SEG\",\r\n        \"nombre\": \"Seguridad\",\r\n        \"estado\": true\r\n    }\r\n]",
+              "raw": "[\r\n    {\r\n        \"idModulo\": \"BTC\",\r\n        \"nombre\": \"Bitácoras\",\r\n        \"estado\": false\r\n    }\r\n]",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3294,7 +3274,1398 @@
     },
     {
       "name": "API Gateway",
-      "item": []
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "auth login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Parsear la respuesta JSON\r\nlet responseData = pm.response.json();\r\n\r\n// Guardar el token en una variable global\r\nif (responseData.access_token) {\r\n    pm.globals.set(\"access_token\", responseData.access_token);\r\n    pm.globals.set(\"refresh_token\", responseData.refresh_token);\r\n    pm.globals.set(\"UsuarioID\", responseData.usuarioID);\r\n    console.log(\"Token guardado correctamente en la variable global 'token'\");\r\n}\r\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "usuario",
+                    "value": "carlos.alvarado@cuc.ac.cr"
+                  },
+                  {
+                    "key": "Contrasena",
+                    "value": "1234"
+                  }
+                ],
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/auth/login",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "auth refresh",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Parsear la respuesta JSON\r\nlet responseData = pm.response.json();\r\n\r\n// Guardar el token en una variable global\r\nif (responseData.access_token) {\r\n    pm.globals.set(\"access_token\", responseData.access_token);\r\n    pm.globals.set(\"refresh_token\", responseData.refresh_token);\r\n    console.log(\"Token guardado correctamente en la variable global 'token'\");\r\n}\r\n\r\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"refreshToken\": \"{{refresh_token}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/auth/refresh",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "refresh"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "auth validate",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/auth/validate",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "validate"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Usuario",
+              "item": [
+                {
+                  "name": "admin obtener usuario por email",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/admin/usuario/braguinav25@cuc.cr",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "usuario",
+                        "braguinav25@cuc.cr"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "admin actualizar perfil usuario",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"email\": \"braguinav25@cuc.cr\",\r\n  \"tipoIdentificacion\": \"CED\",\r\n  \"identificacion\": \"305690097\",\r\n  \"nombre\": \"Brandon Guido Navarro\",\r\n  \"idRol\": \"EST\",\r\n  \"contrasena\": \"1234\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/admin/usuario/braguinav25@cuc.cr",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "usuario",
+                        "braguinav25@cuc.cr"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Parametro",
+              "item": [
+                {
+                  "name": "admin obtener parametro",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "UsuarioGUID",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/admin/parametro/DOMEST",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "parametro",
+                        "DOMEST"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Rol",
+              "item": [
+                {
+                  "name": "admin obtener rol",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/admin/rol/EST",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "rol",
+                        "EST"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Bitacoras",
+              "item": [
+                {
+                  "name": "admin registrar accion bitacora",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"usuario\": \"92dfdbe1-45cf-f111-947e-e5709bbc83cf\",\r\n  \"descripcion\": \"Prueba tecnica de registro de bitacora via API Gateway (GTW1)\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/admin/bitacora",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "bitacora"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Academic",
+          "item": [
+            {
+              "name": "Instituciones",
+              "item": [
+                {
+                  "name": "academic obtener instituciones",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/institucion",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "institucion"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic obtener institucion por codigo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/institucion/CUC",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "institucion",
+                        "CUC"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Carreras",
+              "item": [
+                {
+                  "name": "academic obtener carreras",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/carrera",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "carrera"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic obtener carrera por codigo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/carrera/ADM",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "carrera",
+                        "ADM"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic obtener carrera por institucion",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/carrera/institucion/CUC",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "carrera",
+                        "institucion",
+                        "CUC"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Cursos",
+              "item": [
+                {
+                  "name": "academic obtener cursos",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/curso",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "curso"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic cursos por codigo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/curso/EXC",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "curso",
+                        "EXC"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic cursos por carrera",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/curso/carrera/ADM",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "curso",
+                        "carrera",
+                        "ADM"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Grupos",
+              "item": [
+                {
+                  "name": "academic obtener grupos",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/grupo",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "grupo"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic obtener grupos por codigo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/grupo/ADM13G02",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "grupo",
+                        "ADM13G02"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Periodos",
+              "item": [
+                {
+                  "name": "academic obtener periodos",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/periodo",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "periodo"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "academic obtener periodo por id",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": ""
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": ""
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/periodo/5bea412d-3ec9-4a9d-b67f-5fb8ef6c281e",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "periodo",
+                        "5bea412d-3ec9-4a9d-b67f-5fb8ef6c281e"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Profesores",
+              "item": [
+                {
+                  "name": "academic obtener profesor por id",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/academic/profesor/501dfb5c-bcd3-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "academic",
+                        "profesor",
+                        "501dfb5c-bcd3-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Enrollment",
+          "item": [
+            {
+              "name": "Expedientes Estudiantes",
+              "item": [
+                {
+                  "name": "enrollment expedientes por identificacion",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/expediente/117980274",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "expediente",
+                        "117980274"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "enrollment actualizar expediente",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"identificacion\": \"117980274\",\r\n  \"tipoIdentificacion\": \"CED\",\r\n  \"email\": \"sebasjimearrieta@cuc.cr\",\r\n  \"nombreCompleto\": \"Sebastián Jiménez Arrieta\",\r\n  \"fechaNacimiento\": \"2000-12-21\",\r\n  \"provinciaID\": \"5d014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"cantonID\": \"8c014154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"distritoID\": \"cb024154-c8ce-f111-947e-e5709bbc83cf\",\r\n  \"otrasSenas\": \"De la iglesia 200 metros al norte\",\r\n  \"telefonos\": [\r\n    \"88887777\",\r\n    \"22223333\"\r\n  ]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/expediente/117980274",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "expediente",
+                        "117980274"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Pre Matriculas",
+              "item": [
+                {
+                  "name": "enrollment obtener prematriculas",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/prematricula",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "prematricula"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "enrollment obtener matricula por id",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/prematricula/1282677a-7fd5-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "prematricula",
+                        "1282677a-7fd5-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "enrollment registrar prematricula",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"identificacion\": \"117980275\",\r\n  \"carreraCode\": \"ADM\",\r\n  \"cursos\": [\"EXC\"],\r\n  \"observaciones\": \"Prematricula de prueba registrada via API Gateway\",\r\n  \"periodoID\": \"478928d6-d2d3-f111-947e-e5709bbc83cf\"\r\n}\r\n",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/prematricula",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "prematricula"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Matriculas",
+              "item": [
+                {
+                  "name": "enrollment obtener matriculas por estudiante",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/matricula?identificacion=117980274&pagina=1",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "matricula"
+                      ],
+                      "query": [
+                        {
+                          "key": "identificacion",
+                          "value": "117980274"
+                        },
+                        {
+                          "key": "pagina",
+                          "value": "1"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "enrollment registrar matricula",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n  \"identificacion\": \"117980275\",\r\n  \"cursoCode\": \"ADM13CURS\",\r\n  \"grupoCode\": \"ADM13G02\",\r\n  \"periodoID\": \"478928d6-d2d3-f111-947e-e5709bbc83cf\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/enrollment/matricula",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "enrollment",
+                        "matricula"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Grades",
+          "item": [
+            {
+              "name": "Notas",
+              "item": [
+                {
+                  "name": "grades obtener rubros grupo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/grades/notas/obtenerdesglose?grupoCode=GRP01",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "grades",
+                        "notas",
+                        "obtenerdesglose"
+                      ],
+                      "query": [
+                        {
+                          "key": "grupoCode",
+                          "value": "GRP01"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "grades obtener nota estudiante en grupo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/grades/notas/obtenernotas?identificacion=117980274&grupoCode=GRP01",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "grades",
+                        "notas",
+                        "obtenernotas"
+                      ],
+                      "query": [
+                        {
+                          "key": "identificacion",
+                          "value": "117980274"
+                        },
+                        {
+                          "key": "grupoCode",
+                          "value": "GRP01"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Historial Academico",
+              "item": [
+                {
+                  "name": "grades obtener historial academico",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "X-Usuario-Id",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/grades/historial?tipoIdentificacion=CED&identificacion=999180001",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "grades",
+                        "historial"
+                      ],
+                      "query": [
+                        {
+                          "key": "tipoIdentificacion",
+                          "value": "CED"
+                        },
+                        {
+                          "key": "identificacion",
+                          "value": "999180001"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Finance",
+          "item": [
+            {
+              "name": "Facturacion",
+              "item": [
+                {
+                  "name": "finance obtener factura por periodo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "UsuarioGUID",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/finance/factura/periodo/bd024141-f1d3-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "finance",
+                        "factura",
+                        "periodo",
+                        "bd024141-f1d3-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "finance obtener factura por id",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "UsuarioGUID",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/finance/pago/738d1812-ccdd-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "finance",
+                        "pago",
+                        "738d1812-ccdd-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Pagos",
+              "item": [
+                {
+                  "name": "finance obtener pago por id",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "UsuarioGUID",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/finance/pago/738d1812-ccdd-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "finance",
+                        "pago",
+                        "738d1812-ccdd-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "finance obtener pagos por periodo",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "UsuarioGUID",
+                        "value": "{{UsuarioID}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/finance/pago/periodo/bd024141-f1d3-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "finance",
+                        "pago",
+                        "periodo",
+                        "bd024141-f1d3-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "finance registrar pago de factura",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{access_token}}"
+                      },
+                      {
+                        "key": "UsuarioGUID",
+                        "value": "{{UsuarioID}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{APIGatewayBaseUrl}}/finance/pago/d8525034-5dde-f111-947e-e5709bbc83cf",
+                      "host": [
+                        "{{APIGatewayBaseUrl}}"
+                      ],
+                      "path": [
+                        "finance",
+                        "pago",
+                        "d8525034-5dde-f111-947e-e5709bbc83cf"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Location",
+          "item": [
+            {
+              "name": "location provincias",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "UsuarioGUID",
+                    "value": "{{UsuarioID}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/location/provincias",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "location",
+                    "provincias"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "location cantones",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "UsuarioGUID",
+                    "value": "{{UsuarioID}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/location/cantones/5d014154-c8ce-f111-947e-e5709bbc83cf",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "location",
+                    "cantones",
+                    "5d014154-c8ce-f111-947e-e5709bbc83cf"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "location distritos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "UsuarioGUID",
+                    "value": "{{UsuarioID}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/location/distritos/5d014154-c8ce-f111-947e-e5709bbc83cf/8c014154-c8ce-f111-947e-e5709bbc83cf",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "location",
+                    "distritos",
+                    "5d014154-c8ce-f111-947e-e5709bbc83cf",
+                    "8c014154-c8ce-f111-947e-e5709bbc83cf"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "item": [
+            {
+              "name": "notifications enviar correo de notificación",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{access_token}}"
+                  },
+                  {
+                    "key": "UsuarioGUID",
+                    "value": "{{UsuarioID}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"sebasjimearrieta@gmail.com\",\r\n  \"asunto\": \"Prueba de Notificacion via API Gateway - MetaU\",\r\n  \"cuerpo\": \"<h2>Comprobante desde API Gateway</h2><p>Redireccion exitosa hacia MicroservicioNotificaciones en Plesk.</p>\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{APIGatewayBaseUrl}}/notifications",
+                  "host": [
+                    "{{APIGatewayBaseUrl}}"
+                  ],
+                  "path": [
+                    "notifications"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
     }
   ]
 }

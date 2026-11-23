@@ -9,7 +9,7 @@ Archivos de Postman para consultar y probar los endpoints de los microservicios 
 | [Backend MetaU.postman_collection.json](Backend%20MetaU.postman_collection.json) | Colección con solicitudes organizadas por microservicio. |
 | [MicroserviciosBaseUrls.postman_environment.json](MicroserviciosBaseUrls.postman_environment.json) | Entorno con las URLs base de los servicios. Sus valores se exportan vacíos. |
 
-La colección contiene solicitudes para 22 microservicios. La carpeta **API Gateway** está reservada y todavía no contiene solicitudes.
+La colección contiene solicitudes para los 22 microservicios y una carpeta dedicada para el **API Gateway**, la cual centraliza las pruebas completas de enrutamiento hacia todos los dominios funcionales a través del punto único de entrada.
 
 ## Cómo usar la colección
 
@@ -22,6 +22,7 @@ Usa URLs locales o de un entorno de pruebas. Configura la URL de origen con esqu
 
 ```text
 LoginBaseUrl = https://localhost:7001
+APIGatewayBaseUrl = https://localhost:5001/gateway
 ```
 
 Los nombres de las variables deben coincidir exactamente con los del entorno. Algunos conservan nombres históricos, como `ProfesoreBaseUrl` y `ListaEstudiantesUrl`.

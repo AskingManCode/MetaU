@@ -22,10 +22,11 @@ dotnet restore Microservicios.slnx
 dotnet build Microservicios.slnx
 ```
 
-## Microservicios
+## Gateway y Microservicios
 
 | Carpeta | Endpoint base | Descripción |
 |---------|---------------|-------------|
+| [ApiGateway/](ApiGateway/) | `/gateway` | Punto único de entrada (Reverse Proxy YARP), enrutamiento perimetral y CORS |
 | [MicroservicioLogin/](MicroservicioLogin/) | `/login` | Autenticación, generación y validación de JWT, refresh tokens |
 | [MicroservicioUsuarios/](MicroservicioUsuarios/) | `/usuario` | Administración de usuarios del sistema |
 | [MicroservicioRoles/](MicroservicioRoles/) | `/rol` | Roles y permisos |

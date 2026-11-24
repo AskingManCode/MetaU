@@ -10,6 +10,7 @@ import '../services/dashboard_service.dart';
 import '../services/gateway_client.dart';
 import 'login_screen.dart';
 import '../layout/mobile_layout.dart';
+import '../services/expediente_service.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({
@@ -177,6 +178,10 @@ class _AuthGateState extends State<AuthGate> {
 
     return MobileLayout(
       dashboardService: DashboardService(
+        gatewayClient: widget.gatewayClient,
+        session: session,
+      ),
+      expedienteService: ExpedienteService(
         gatewayClient: widget.gatewayClient,
         session: session,
       ),

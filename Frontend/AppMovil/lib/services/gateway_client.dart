@@ -42,8 +42,7 @@ class GatewayClient {
 
   Stream<void> get onSessionExpired => _sessionExpiredController.stream;
 
-  Future<http.Response> getPublic(String route) =>
-      _send('GET', route);
+  Future<http.Response> getPublic(String route) => _send('GET', route);
 
   Future<http.Response> postPublic(
     String route, {
@@ -66,12 +65,15 @@ class GatewayClient {
     String route, {
     String? body,
     UserIdHeader userIdHeader = UserIdHeader.xUsuarioId,
-  }) => _sendAuthenticated(
-    'POST',
-    route,
-    body: body,
-    userIdHeader: userIdHeader,
-  );
+  }) =>
+      _sendAuthenticated('POST', route, body: body, userIdHeader: userIdHeader);
+
+  Future<http.Response> putAuthenticated(
+    String route, {
+    String? body,
+    UserIdHeader userIdHeader = UserIdHeader.xUsuarioId,
+  }) =>
+      _sendAuthenticated('PUT', route, body: body, userIdHeader: userIdHeader);
 
   Future<http.Response> _sendAuthenticated(
     String method,
@@ -234,10 +236,7 @@ class GatewayClient {
       if (decoded is! Map<String, dynamic>) {
         throw const FormatException('Respuesta de refresh inválida.');
       }
-      refreshedSession = AuthSession.fromRefreshJson(
-        decoded,
-        previousSession,
-      );
+      refreshedSession = AuthSession.fromRefreshJson(decoded, previousSession);
       refreshedSession.expiresAt;
     } on FormatException catch (error) {
       throw GatewayException(
@@ -270,16 +269,15 @@ class GatewayClient {
     String? body,
     Map<String, String>? queryParameters,
   }) async {
-    final uri = _config.gatewayUri(
-      route,
-      queryParameters: queryParameters,
-    );
+    final uri = _config.gatewayUri(route, queryParameters: queryParameters);
     try {
       switch (method) {
         case 'GET':
           return await _client.get(uri, headers: headers);
         case 'POST':
           return await _client.post(uri, headers: headers, body: body);
+        case 'PUT':
+          return await _client.put(uri, headers: headers, body: body);
         default:
           throw ArgumentError.value(method, 'method', 'Método no admitido.');
       }

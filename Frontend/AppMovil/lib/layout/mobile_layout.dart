@@ -7,15 +7,18 @@ import '../screens/enrollment_screen.dart';
 import '../screens/payments_screen.dart';
 import '../screens/profile_screen.dart';
 import '../services/dashboard_service.dart';
+import '../services/expediente_service.dart';
 
 class MobileLayout extends StatefulWidget {
   const MobileLayout({
     super.key,
     this.dashboardService,
+    this.expedienteService,
     this.onLogout,
   });
 
   final DashboardService? dashboardService;
+  final ExpedienteService? expedienteService;
   final Future<void> Function()? onLogout;
 
   @override
@@ -35,7 +38,10 @@ class _MobileLayoutState extends State<MobileLayout> {
       const CoursesScreen(),
       const EnrollmentScreen(),
       const PaymentsScreen(),
-      ProfileScreen(onLogout: widget.onLogout),
+      ProfileScreen(
+        onLogout: widget.onLogout,
+        expedienteService: widget.expedienteService,
+      ),
     ];
 
     return Scaffold(

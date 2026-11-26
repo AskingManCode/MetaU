@@ -26,7 +26,7 @@ dotnet build Microservicios.slnx
 
 | Carpeta | Endpoint base | Descripción |
 |---------|---------------|-------------|
-| [ApiGateway/](ApiGateway/) | `/gateway` | Punto único de entrada (Reverse Proxy YARP), enrutamiento perimetral y CORS |
+| [ApiGateway/](ApiGateway/) | `/gateway` | Punto único de entrada (Reverse Proxy YARP), enrutamiento perimetral, CORS y autenticación centralizada (JWT) |
 | [MicroservicioLogin/](MicroservicioLogin/) | `/login` | Autenticación, generación y validación de JWT, refresh tokens |
 | [MicroservicioUsuarios/](MicroservicioUsuarios/) | `/usuario` | Administración de usuarios del sistema |
 | [MicroservicioRoles/](MicroservicioRoles/) | `/rol` | Roles y permisos |

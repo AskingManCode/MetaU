@@ -8,6 +8,7 @@ import '../models/auth_session.dart';
 import '../services/auth_service.dart';
 import '../services/dashboard_service.dart';
 import '../services/gateway_client.dart';
+import '../services/prematricula_service.dart';
 import 'login_screen.dart';
 import '../layout/mobile_layout.dart';
 
@@ -177,6 +178,10 @@ class _AuthGateState extends State<AuthGate> {
 
     return MobileLayout(
       dashboardService: DashboardService(
+        gatewayClient: widget.gatewayClient,
+        session: session,
+      ),
+      prematriculaService: PrematriculaService(
         gatewayClient: widget.gatewayClient,
         session: session,
       ),

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 
-import 'placeholder_screen.dart';
+import '../services/prematricula_service.dart';
+import 'prematricula_screen.dart';
 
 class EnrollmentScreen extends StatelessWidget {
-  const EnrollmentScreen({super.key});
+  const EnrollmentScreen({super.key, this.service});
+
+  final PrematriculaService? service;
 
   @override
   Widget build(BuildContext context) {
-    return const PlaceholderScreen(
-      title: 'Matrícula',
-      icon: Icons.assignment_outlined,
-    );
+    final currentService = service;
+    if (currentService == null) {
+      return const Center(child: Text('No se pudo preparar la sesión móvil.'));
+    }
+
+    return PrematriculaScreen(service: currentService);
   }
 }

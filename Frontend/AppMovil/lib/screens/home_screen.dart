@@ -6,11 +6,7 @@ import '../services/dashboard_service.dart';
 import '../widgets/summary_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    super.key,
-    this.dashboardService,
-    this.onNavigate,
-  });
+  const HomeScreen({super.key, this.dashboardService, this.onNavigate});
 
   final DashboardService? dashboardService;
   final ValueChanged<int>? onNavigate;
@@ -90,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _QuickAccessButton(
               label: 'Matrícula',
               icon: Icons.assignment_outlined,
-              onPressed: () => widget.onNavigate?.call(2),
+              onPressed: () => widget.onNavigate?.call(5),
             ),
             _QuickAccessButton(
               label: 'Mis cursos',

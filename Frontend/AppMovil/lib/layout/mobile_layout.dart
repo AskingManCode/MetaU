@@ -7,6 +7,7 @@ import '../screens/enrollment_screen.dart';
 import '../screens/payments_screen.dart';
 import '../screens/profile_screen.dart';
 import '../services/dashboard_service.dart';
+import '../services/matricula_service.dart';
 import '../services/prematricula_service.dart';
 
 class MobileLayout extends StatefulWidget {
@@ -14,11 +15,13 @@ class MobileLayout extends StatefulWidget {
     super.key,
     this.dashboardService,
     this.prematriculaService,
+    this.matriculaService,
     this.onLogout,
   });
 
   final DashboardService? dashboardService;
   final PrematriculaService? prematriculaService;
+  final MatriculaService? matriculaService;
   final Future<void> Function()? onLogout;
 
   @override
@@ -27,16 +30,21 @@ class MobileLayout extends StatefulWidget {
 
 class _MobileLayoutState extends State<MobileLayout> {
   int _selectedIndex = 0;
+  int _enrollmentTab = 0;
 
   @override
   Widget build(BuildContext context) {
     final screens = [
       HomeScreen(
         dashboardService: widget.dashboardService,
-        onNavigate: _selectTab,
+        onNavigate: _handleHomeNavigation,
       ),
       const CoursesScreen(),
-      EnrollmentScreen(service: widget.prematriculaService),
+      EnrollmentScreen(
+        initialTab: _enrollmentTab,
+        prematriculaService: widget.prematriculaService,
+        matriculaService: widget.matriculaService,
+      ),
       const PaymentsScreen(),
       ProfileScreen(onLogout: widget.onLogout),
     ];
@@ -86,6 +94,20 @@ class _MobileLayoutState extends State<MobileLayout> {
   void _selectTab(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void _handleHomeNavigation(int target) {
+    if (target == 5) {
+      setState(() {
+        _enrollmentTab = 1;
+        _selectedIndex = 2;
+      });
+      return;
+    }
+    setState(() {
+      _enrollmentTab = 0;
+      _selectedIndex = target;
     });
   }
 }
